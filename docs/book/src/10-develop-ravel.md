@@ -36,8 +36,6 @@ The table shows which part of the workflow needs each prerequisite.
 | ShellCheck | Check shell scripts during `task check` |
 | cargo-nextest | List and run Rust tests |
 | Git | Obtain the checkout and support scripts that inspect tracked files |
-| `/usr/bin/sandbox-exec` on macOS | Run the [confinement](02-actors-and-words.md#trust-and-confinement) tests |
-| `/usr/bin/bwrap` or `/bin/bwrap` on Linux | Run the confinement tests where the host permits user namespaces |
 
 1. Obtain a checkout of the Ravel repository.
 2. Change to its root directory, where `Taskfile.yml` is.
@@ -91,7 +89,7 @@ that the host Cargo cache does not hold.
 | Task | Use it when | Output or check |
 |---|---|---|
 | `task build` | You change Rust source or the Rhai worker | `target/debug/ravel` and the runner library |
-| `task check` | You need formatting, lint and the Rust tests | Checks the workspace and shell tooling |
+| `task check` | You need format checks, lint and the Rust tests | Checks the workspace and the shell scripts |
 | `task rhai:upgrade-proof` | You change the Rhai pin | Engine and hostile-script checks through the CLI |
 
 These paths assume the default Cargo target directory.
@@ -504,12 +502,12 @@ establish that a diagram explains the right behaviour.
 The example check rebuilds the pair. It evaluates real TypeScript configuration scripts and
 runs fake programs with a private home, temporary directory and `PATH`. Standard
 input is `/dev/null`. It compares the declared streams and exit status, with
-only the scratch path normalised. Its summary reports a skipped example as a
-skip, not as a pass.
+only the scratch path normalised. Every complete example runs on every
+platform. An `<!-- example: ... -->` comment is a page error, because the
+convention has no directive.
 
 Fragments do not run. The check also does not compare source excerpts.
-The [example convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/examples.md) defines labels, output claims and
-platform requirements.
+The [example convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/examples.md) defines labels and output claims.
 
 The excerpt check needs no build. Its comparison preserves spaces and
 indentation. It rejects untracked sources, symbolic links and generated paths.
@@ -640,8 +638,8 @@ The table below names the available instruments.
 | Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) |
 | Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and run current Rust, Rhai and native-entry checks, with unchanged source digests. Earlier target measurements remain in the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
 
-The Linux tasks call `scripts/native-linux.sh` to stage and check the current
-working tree without the host's Git objects. The native-entry tasks build and
+The Linux tasks call `scripts/native-linux.sh` to stage and check the files of
+the current checkout without the host's Git objects. The native-entry tasks build and
 select Rust tests directly. A development
 test pass alone does not establish the complete campaign or a new platform's
 support. The measured support covers aarch64 macOS and aarch64 Linux.

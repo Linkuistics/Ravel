@@ -45,7 +45,7 @@
   [An X ends the pictured lifetime after reap or removal, not at process exit.],
   [Blue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.],
   [Green arrows carry the opaque result.],
-  [Successful unconfined path only. Recover the terminal only if Ravel lent it.],
+  [Successful path only. Recover the terminal only if Ravel lent it.],
   [This chapter's configuration script makes no host call or evaluation harness run.],
   [The sent result precedes cleanup. Only the last arrow delivers the result to the caller.],
 ), max-label: 125))

@@ -1570,7 +1570,7 @@ script caught the code. The caller's `--timeout-ms 10000` replaced the
 `timeoutMs` of 5000 in the settings, so `request.limits.selectionMs` was
 `10000`.
 
-Environment grants control this helper, not the environment of an unconfined
+Environment grants control this helper, not the environment of a
 managed process or harness run. Those programs receive the caller's environment,
 with the control variables of an enclosing session or driver removed or replaced.
 Ravel refuses grants for its reserved variables and dynamic-loader variables.
@@ -1670,10 +1670,9 @@ call runs at a time.
 The run starts in `request.cwd`, without a terminal, in a new POSIX session.
 A POSIX session is the operating system's group of process groups, which
 `setsid` makes. It is not a Ravel session.
-It uses the environment and [confinement](02-actors-and-words.md#trust-and-confinement) rules of a managed process.
-Confinement is the optional restriction of the filesystem access and the
-environment of a program, which the caller asks for with `--confine`.
-`--confine` therefore also confines harness runs.
+It receives the environment of a managed process.
+Ravel does not restrict its filesystem access, as [chapter 2](02-actors-and-words.md#trust-limits) states.
+The arguments that the script supplies select the sandbox of the harness, such as `codex exec --sandbox read-only`.
 
 The script supplies every argument and chooses where the prompt goes.
 Ravel builds no argument that is specific to a harness.
@@ -2118,11 +2117,6 @@ one link to your real home: the sign-in store of the harness.
 | Codex | `.codex/auth.json`. The task sets `CODEX_HOME` to the temporary `.codex` |
 
 The tasks do not need edits to your own settings.
-They run unconfined. Confinement can deny writes to a harness's sign-in
-store, and Ravel does not widen confinement for authentication.
-A schema beside the configuration script is also unsuitable for a confined
-harness run, because confinement refuses grants that overlap the directory of
-the script.
 
 A Claude Code task stops before it runs Claude Code if your environment holds
 `CLAUDE_CONFIG_DIR`, `CLAUDE_SECURESTORAGE_CONFIG_DIR` or one of the three
@@ -2326,7 +2320,7 @@ Ravel can lend that terminal to the managed process and recover it afterwards.
 
 The harness needs permission to run `ravel` and write its inherited result path.
 Keep `ravel` on its `PATH`, or name the installed absolute path in the prompt.
-The harness's own sandbox and approvals are independent of Ravel's `--confine`.
+Only the harness's own sandbox and approvals can deny these actions.
 A natural exit without `end-session`, even exit status 0, returns no result to the caller.
 
 ## Copy a configuration script and its files

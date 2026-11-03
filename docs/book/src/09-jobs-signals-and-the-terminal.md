@@ -8,8 +8,7 @@ inside the CLI supplies the process and terminal operations.
 
 [Chapter 3](03-a-complete-session.md#send-the-result-and-finish-the-job)
 introduced a job and its reap through one [session](02-actors-and-words.md#caller-and-owner). This chapter explains
-why the order matters, how Ravel ends a process that does not exit, and what [confinement](02-actors-and-words.md#trust-and-confinement)
-changes. It also explains terminal recovery, entry signals and the limits of
+why the order matters and how Ravel ends a process that does not exit. It also explains terminal recovery, entry signals and the limits of
 these guarantees. [Chapter 8](08-follow-a-session-through-the-code.md#finish-the-managed-job)
 shows where these operations occur in the code.
 
@@ -18,7 +17,7 @@ shows where these operations occur in the code.
 <!-- tc: depart synonym-rotation because launch is a noun for one invocation, not a second verb for start -->
 The [managed process](02-actors-and-words.md#the-managed-process-and-its-result)
 is the direct child that Ravel starts from the selected command.
-For an ordinary unconfined launch, Ravel creates a new **process group** for
+For the managed launch, Ravel creates a new **process group** for
 that child. The group's ID is the child's PID. Descendants inherit this group
 unless they explicitly change it. The managed process and the members of its
 group form the **job**.
@@ -29,7 +28,7 @@ could keep a file lock or continue to change the caller's files.
 The group gives Ravel a scope for shutdown that includes ordinary descendants.
 
 A **POSIX session** can contain several process groups and can have a
-controlling terminal. An ordinary unconfined launch keeps the caller's POSIX
+controlling terminal. The managed launch keeps the caller's POSIX
 session. Thus, Ravel can give the terminal's foreground to the new group.
 The terminal rules select which group can read terminal input and receive
 signals from the keyboard.
@@ -222,26 +221,22 @@ The CLI also checks signals around supervision and final cleanup.
 | Where cancellation occurs | Process action | Result |
 |---|---|---|
 | During configuration script selection | Stop and wait for the [Rhai worker](02-actors-and-words.md#evaluation-and-supervision). Do not start the managed process | Return no result to the caller |
-| During unconfined supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
-| During confined supervision | Attempt KILL immediately on the group and the direct child | Complete cleanup attempts, report cancellation, and return no result |
+| During supervision | Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL | Complete cleanup attempts, report cancellation, and return no result |
 
-For unconfined supervision, cancellation skips the result's initial grace.
+During supervision, cancellation skips the result's initial grace.
 If the kill grace has already begun, cancellation does not restart it.
 A child of the runner's `run_noninteractive` interface, described in the next
 section, can itself supervise another process. The forwarded signal and kill
 grace let that supervisor attempt its own cleanup.
-A confined job receives KILL immediately so that its shutdown can fit within
-an outer supervisor's grace.
 
 The two [cancellation sequences in chapter 5](05-running-sessions.md#cancel-during-selection-or-supervision)
 show the selection and supervision cases, with complete fake-program examples.
-They do not show confined cancellation, which attempts KILL immediately.
 [Chapter 8](08-follow-a-session-through-the-code.md#choose-the-final-outcome)
 explains which signal and diagnostic Ravel reports when failures overlap.
 A cleanup failure stays visible beside cancellation. It does not permit a
 previously sent result to reach standard output.
 
-## Separate noninteractive execution from confinement
+## Separate noninteractive execution from an ordinary launch
 
 The runner has a separate `run_noninteractive` interface. It starts a new
 POSIX session, supplies end-of-file (EOF) on standard input, and closes inherited
@@ -255,92 +250,29 @@ that runs without a terminal.
 
 | Mode | POSIX session and input | Output and completion |
 |---|---|---|
-| Ordinary unconfined `start-session` | A new process group in the caller's POSIX session. Inherited input, with terminal access when available | Managed output goes to the caller's standard error. A result can request shutdown |
+| Ordinary `start-session` | A new process group in the caller's POSIX session. Inherited input, with terminal access when available | Managed output goes to the caller's standard error. A result can request shutdown |
 | Runner `run_noninteractive` | A new POSIX session, no inherited controlling terminal, EOF input, no inherited descriptors above 2 after exec | Both streams go to the supplied regular file. No completion channel |
-| Confined `start-session` | A new POSIX session with the same input and descriptor isolation | Managed output goes to standard error. The private result channel remains available |
 
 A new POSIX session removes the inherited controlling terminal relationship.
 It does not restrict file access, and a descendant can still move to another
-group. The confinement backend supplies filesystem restrictions separately.
+group. No mode of the runner restricts file access.
 These distinctions explain why the runner hides process mechanics behind
 separate launch interfaces, while the CLI owns configuration script and result decisions.
 
-## Apply filesystem confinement
-
-[Confinement](02-actors-and-words.md#trust-and-confinement) restricts the managed
-process and its descendants. It does not restrict the trusted
-[configuration script](02-actors-and-words.md#caller-and-owner) or its
-[Rhai worker](02-actors-and-words.md#evaluation-and-supervision).
-The CLI checks the grants and probes the backend before configuration script selection.
-If the backend is absent or cannot establish its restrictions, the invocation
-stops with `confinement_unusable` and status 2.
-There is no unconfined fallback.
-
-| Resource | Access for a confined managed process |
-|---|---|
-| Canonical working directory and private run directory | Read and write |
-| An explicit `--exit-dir` | Read and write to that channel parent directory |
-| Selected executable and the real Ravel executable | Read and execute |
-| Each regular file named with `--runtime-read` | Read only, even under a writable directory |
-| The descriptor directory and the snapshot trees of skill delivery | Read only, with each entry inside them. No writable grant overlaps them |
-| System runtime resources | Reads from the backend's platform list, such as system programs, libraries and certificate files |
-| Other file contents | No grant. File metadata can remain visible on macOS |
-
-Ravel rejects canonical grants that overlap the configuration script directory or owner
-settings. A runtime grant names one regular file, not a directory.
-The environment starts empty. Ravel adds HOME, USER, LOGNAME, PATH, LANG and
-LC_* values, private temporary-directory values, and this launch's result path.
-HOME's presence does not grant access to all files under it.
-These checks use paths, as [the limits](#know-the-guarantees-and-their-limits)
-state.
-
-The profile on macOS gives no access to the Keychain. A harness that keeps its
-sign-in there has no sign-in under confinement. Grove's confined trials
-measured this result for Claude Code 2.1.317 on 3 November 2026. Such a
-harness can run without `--confine`, inside its own sandbox.
-
-On macOS, `/usr/bin/sandbox-exec` applies a Seatbelt profile. Descendants
-inherit the restrictions. The profile allows the declared writable roots,
-read-only runtime files, read-only directory trees and system reads. It also allows network access.
-The system reads include `/opt/homebrew/Cellar`, so confinement is not a claim
-that only explicitly named runtime files are readable.
-
-On Linux, bubblewrap starts from an empty mount namespace: a filesystem view
-with only the mounts the backend supplies. Ravel adds system read-only mounts,
-writable roots, explicit read-only file mounts and read-only directory mounts. It supplies private `/proc`
-and `/dev` views and makes their mounts read-only.
-Bubblewrap also uses user, PID, IPC and UTS namespaces. These separate user
-identity, process IDs, interprocess communication and hostname state.
-Ravel does not request a network namespace, so confinement does not disable
-network access.
-
-Bubblewrap makes the parent directories of each mount in an empty root. Thus,
-`ls` of a parent directory shows only the path to the mount.
-
-The runner calls `setsid` before the backend executes. The confined launch
-needs no terminal handoff, and its new POSIX session avoids the caller's
-controlling terminal. On Linux, the selected program stays in the process
-group of bubblewrap's monitor process. Thus, ordinary descendants remain within
-the cleanup scope.
-
-[Chapter 5's confinement example](05-running-sessions.md#confine-the-managed-process)
-demonstrates a minimal confined result send. That section also explains
-writable roots, read-only grants and errors that stop a launch through the CLI.
-The runner tests add direct process checks:
+The runner tests check these process operations directly:
 
 | Test source under `crates/keyed-launch/tests/` | What it checks |
 |---|---|
 | `launch.rs` | Grace and KILL branches, ordinary descendants gone on return, and an unrelated process left untouched |
 | `internal/wait_events.rs` | Cleanup order, a reported survivor, and cancellation across wait failures through a private process substitute |
-| `noninteractive.rs` | EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and immediate confined cancellation |
-| `confinement.rs` | Denied reads and writes through a child and descendant, denied symlink access, read-only files and trees, relative links in a tree, and the tree probe. A held tree whose path changed refuses |
+| `noninteractive.rs` | EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and KILL after the kill grace |
 | `job.rs` | Terminal foreground and mode behaviour through pseudo-terminals |
 
-A selection of these process, isolation and Seatbelt tests passed on
-aarch64 macOS on 18 October 2026. A macOS run does not execute the Linux bubblewrap backend.
-The tests check named operations and process shapes. They do not establish
-containment against every same-user attack or cleanup of a descendant that
-leaves the job's group. They also do not qualify a native x86-64 Linux host.
+A selection of these process and isolation tests passed on aarch64 macOS on
+18 October 2026. The tests check named operations and process shapes. They do
+not establish containment against every same-user attack or cleanup of a
+descendant that leaves the job's group. They also do not qualify a native
+x86-64 Linux host.
 
 ## Lend and recover the terminal
 
@@ -559,7 +491,6 @@ every descendant or hostile same-user process is absent.
 | Ravel returns a result only after that launch's child reap, confirmed group absence and successful required cleanup | Group membership defines the cleanup scope. A descendant that leaves the group lies outside it |
 | Ravel supervises shutdown while the CLI remains alive | Abrupt death of the CLI, for example from KILL, can orphan the managed job. Such death is not successful completion |
 | Ravel keeps the first complete result through a private inherited channel and rejects invalid result files | The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic |
-| Ravel refuses a confined grant that overlaps the configuration script directory or owner settings | The checks use paths. A process outside the launch can replace a granted path before the backend applies the grant. Another confined launch can do this through one of its writable roots. The grant then reaches the new target. On macOS the interval ends when the runner resolves the path again, and on Linux when bubblewrap mounts the path. Bubblewrap 0.10.0 can mount a checked open descriptor, but Ravel does not use that option |
 | Ravel verifies and reaps the Rhai worker before the managed launch | Configuration script remains trusted executable code. Detached configuration script children lie outside worker cleanup |
 | Ravel checks terminal recovery under the holder rules above | Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller |
 | Ravel retains failure reports and attempts required cleanup | A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result |

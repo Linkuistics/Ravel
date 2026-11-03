@@ -1203,7 +1203,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "An X ends the pictured lifetime after reap or removal, not at process exit.\nBlue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.\nGreen arrows carry the opaque result.\nSuccessful unconfined path only. Recover the terminal only if Ravel lent it.\nThis chapter’s configuration script makes no host call or evaluation harness run.\nThe sent result precedes cleanup. Only the last arrow delivers the result to the caller.",
+      "text": "An X ends the pictured lifetime after reap or removal, not at process exit.\nBlue: Ravel processes. Grey: external participants. Gold cylinder: temporary files.\nGreen arrows carry the opaque result.\nSuccessful path only. Recover the terminal only if Ravel lent it.\nThis chapter’s configuration script makes no host call or evaluation harness run.\nThe sent result precedes cleanup. Only the last arrow delivers the result to the caller.",
       "x": 404.787109375,
       "y": 1517.1898437500001,
       "anchor": "center",

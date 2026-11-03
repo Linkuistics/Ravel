@@ -25,8 +25,7 @@ these questions with the review and with other real examples.
 
 The chapter also shows how to read the routing notice. That notice tells the
 caller which harness, model and effort the configuration script chose. It
-shows how to run a session inside another session. It also explains
-confinement, which restricts a program's filesystem access and environment.
+shows how to run a session inside another session. It also states what the managed process receives from Ravel.
 
 First, the words that this chapter uses on every page. The owner's
 configuration has two parts, the configuration script and the settings. The
@@ -58,7 +57,7 @@ the sections in order, or go to the row that you need:
 | 1 | The caller | Runs `ravel start-session` with a kind, a prompt and optional caller data | `--kind review --prompt-file review-prompt.txt` | [Supply the prompt and caller data](#supply-the-prompt-and-caller-data) |
 | 2 | The configuration script | Selects a program and its arguments, or refuses the request | Selects the harness for the kind `review` | [Chapter 4](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | 3 | The Ravel CLI | Writes the text routing notice on the caller's standard error. With `--json`, the notice follows the supervision attempt. | `ravel: starting provider local, model fake, effort low for kind "review"` | [Read notices separately from results](#read-notices-separately-from-results) |
-| 4 | The Ravel CLI | Launches the selected program, with or without confinement, and supervises it | Launches the harness without confinement | [Confine the managed process](#confine-the-managed-process) |
+| 4 | The Ravel CLI | Launches the selected program and supervises it | Launches the harness in a new process group | [Know what the managed process receives](#know-what-the-managed-process-receives) |
 | 5 | The selected program | Does its work, which can include an inner session, and sends a result with `ravel end-session` | Writes `review-notes.md` and sends `changes-needed` | [Keep nested sessions separate](#keep-nested-sessions-separate) |
 | 6 | The Ravel CLI | Stops the program and its process group, completes cleanup, writes the result on standard output and exits with a status | Writes `changes-needed` and exits with status 0 | [Accept a result only after success](#accept-a-result-only-after-success) and [Interpret the exit status](#interpret-the-exit-status) |
 
@@ -80,8 +79,7 @@ No example needs an agent account or a model service.
 <!-- tc: depart synonym-rotation because a version check compares output, while confirmation establishes completed cleanup -->
 First, follow chapter 3 to
 [install Ravel and check its version](03-a-complete-session.md#install-ravel-and-check-its-version).
-You need the installed `ravel` and a shell. The confined example also needs
-a sandbox tool, as its instructions explain.
+You need the installed `ravel` and a shell.
 
 Each example has a name and a directory of its own. Put these directories in
 one workspace directory, `~/ravel-chapter-5`, in your home directory. Why a
@@ -90,7 +88,7 @@ such as `config.rhai` and `bin/review-agent`, with different contents. Some
 commands also write files, such as `result.txt` and `review-notes.md`. A file
 from one example must not change the result of another example.
 
-The chapter has eight examples. Each row names the example, its directory
+The chapter has seven examples. Each row names the example, its directory
 under `~/ravel-chapter-5` and the files that you save there:
 
 | Example | Section | What the example shows | Files that you save |
@@ -99,7 +97,6 @@ under `~/ravel-chapter-5` and the files that you save there:
 | `outcomes` | [Accept a result only after success](#accept-a-result-only-after-success) | A sent result, an empty result and a natural exit without a result | `config.rhai` and `bin/outcome` |
 | `review-caller` | [Accept a result only after success](#accept-a-result-only-after-success) | An orchestrator script that acts on the result of the review | `config.rhai`, `bin/review-agent`, `bin/fix-agent`, `review-prompt.txt` and `orchestrator.sh` |
 | `nested` | [Keep nested sessions separate](#keep-nested-sessions-separate) | A session inside the managed process of another session | `config.rhai`, `bin/inner` and `bin/outer` |
-| `confined` | [Confine the managed process](#confine-the-managed-process) | A session with `--confine` | `owner/config.rhai` |
 | `notices` | [Read notices separately from results](#read-notices-separately-from-results) | The text routing notice, the JSON routing notice and a refusal | `config.rhai`, `bin/review-agent` and `review-prompt.txt` |
 | `cancel-selection` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation while the configuration script waits for a harness run | `settings.json`, `config.rhai` and `bin/cancel-selection` |
 | `cancel-session` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation after the managed process sent a result | `config.rhai` and `bin/cancel-after-result` |
@@ -295,7 +292,7 @@ Ravel gives the argument strings directly to the program, without shell word
 splitting or expansion.
 
 How does the managed process get its environment? A child process gets a copy
-of the environment of its parent. Thus, an unconfined managed process gets the
+of the environment of its parent. Thus, the managed process gets the
 environment of the Ravel CLI, which is the caller's environment. Ravel makes
 two changes to that copy before the launch:
 
@@ -308,9 +305,7 @@ two changes to that copy before the launch:
 Thus, `end-session` in the program and its children finds only the path of
 the session that Ravel made for them. Put the installed `ravel` on the `PATH` of the managed
 process. As an alternative, write the absolute path of `ravel` in the prompt's
-instructions to end the session. A confined managed process gets a smaller
-environment, which [Confine the managed process](#confine-the-managed-process)
-describes.
+instructions to end the session.
 
 Now run these inputs yourself in the first example of this chapter,
 `prompt-and-data`. Its caller gives a prompt file and each kind of caller
@@ -508,9 +503,21 @@ the source and after a change of the settings.
 
 A skill refusal stops the launch before the worker starts. For example, a
 missing source or a missing mandatory file refuses with status 3, and no
-managed process starts. [Skill delivery at launch](06-reference.md#skill-delivery-at-launch)
-gives the parts of the prepared prompt, the refusals and the current limit
-for `--confine`. A resolution also has fixed bounds and a deadline, which
+managed process starts.
+
+Ravel refuses a skill source that overlaps a protected path before it copies
+the source. That refusal is `skill_access_unavailable`, with status 3. Keep
+each source apart from these paths:
+
+| Protected path | Why Ravel protects it |
+|---|---|
+| `~/.config/ravel` and the settings file | They hold the owner's configuration, which is no skill content |
+| The directory of the configuration script | It holds the owner's configuration, which is no skill content |
+| The skill cache, `~/.cache/ravel/skills/v1` | It holds the snapshots of the skill sources |
+| The result channel of an enclosing session | It carries the result of that session |
+
+[Skill delivery at launch](06-reference.md#skill-delivery-at-launch)
+gives the parts of the prepared prompt and the refusals. A resolution also has fixed bounds and a deadline, which
 [Bounds, deadline and cancellation](06-reference.md#bounds-deadline-and-cancellation)
 gives.
 
@@ -1066,220 +1073,62 @@ apply at each layer.
 The example checks that the results stay separate. It does not check
 interactive job control for nested sessions.
 
-## Confine the managed process
+## Know what the managed process receives
 
-You may want to limit what the managed process can change on your computer.
-For example, an LLM that edits files in one project needs no write access to
-your other files.
-[Confinement](02-actors-and-words.md#trust-and-confinement) does this. Ravel
-launches the managed process inside a sandbox of the operating system, which
-restricts its filesystem access. Ravel also gives it a smaller environment.
-Add `--confine` when you want these restrictions.
+Ravel launches the selected program as an ordinary child process. This
+section states what that process receives: filesystem access, an environment,
+a result channel, standard input and the terminal.
 
-Ravel uses one sandbox tool on each operating system:
+Ravel does not restrict the filesystem access of the managed process. The
+process can read and write each path that your account permits, within the
+limits of the harness sandbox. The configuration script selects that sandbox
+through the arguments of the harness, such as `--sandbox workspace-write` for
+Codex. Evaluation harness runs have the same rule. [Chapter 2](02-actors-and-words.md#trust-limits)
+states this trust limit.
 
-- **macOS: `/usr/bin/sandbox-exec`.** This system command runs a program
-  inside a sandbox that a profile describes. Ravel gives it a profile that
-  refuses access by default and then permits the grants below. Its
-  manual page, `man sandbox-exec`, marks the command as deprecated.
-- **Linux: bubblewrap, at `/usr/bin/bwrap` or `/bin/bwrap`.** This tool runs a
-  program in new Linux namespaces. Ravel starts it with an empty filesystem
-  view and adds only the grants below.
-  [The bubblewrap project page](https://github.com/containers/bubblewrap)
-  describes the tool.
+Ravel 2.0.0 refuses `--confine` and `--runtime-read` with
+`confinement_withdrawn` and status 2. It refuses before it reads the settings
+or starts the worker. Remove both flags, and select the sandbox of the harness
+in the configuration script. Ravel 1.1 keeps `--confine`.
 
-<!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
-Before Ravel evaluates the configuration script, it tests whether the
-backend can make a sandbox. If the backend is not available or not usable, the invocation stops
-with `confinement_unusable` and status 2. Ravel does not then launch the
-process without confinement.
+The managed process inherits the caller's environment, with the changes that
+[Supply the prompt and caller data](#supply-the-prompt-and-caller-data) lists.
+`--config-env` grants a variable to `ravel::env`, the environment helper of
+the configuration script. It adds no variable to the managed process or to a
+harness run. [Managed-process environment](06-reference.md#managed-process-environment)
+gives each name.
 
-The configuration script and its
-[Rhai worker](02-actors-and-words.md#evaluation-and-supervision)
-stay outside the confinement. A **measured read** is a read of a file through
-`ravel::read_text` or `ravel::read_json`. The measured reads of the script can
-still reach any regular file that the user can read. Evaluation harness runs
-use the same confinement rules as the managed process. Thus, `--confine` also
-restricts those runs.
+Ravel puts the private result channel of the session in the caller's
+temporary directory. That is `TMPDIR`, or `/tmp` when `TMPDIR` is not set.
+`--exit-dir DIR` puts the channel in `DIR` instead. Name a writable directory
+that exists. Before selection, Ravel refuses a path that is not a directory
+with `exit_dir_unusable` and status 2. If Ravel cannot allocate the channel
+after selection, it stops with `session_channel_unavailable` and status 5.
 
-These paths have different grants for the confined managed process:
+Ravel launches the managed process in a new process group in the caller's
+POSIX session. A **POSIX session** is an operating-system set of process
+groups that can share one controlling terminal. It is not a Ravel session.
 
-| Path | Access | How the process gets access |
-|---|---|---|
-| Canonical working directory and private run directory | Read and write | Ravel grants them for each confined launch. |
-| System runtime paths, selected executable and real executable file of the Ravel CLI | Read-only | Ravel grants them for each confined launch. |
-| One additional regular file that exists | Read-only | `--runtime-read FILE`. Repeat it for each file. It requires `--confine` and grants no directory tree. |
-| Parent of the result directory | Read and write | `--exit-dir DIR`. The directory must exist and be writable. |
-| Descriptor directory and snapshot trees of [skill delivery](06-reference.md#skill-delivery-at-launch) | Read-only, with each entry inside them | Ravel grants them when the settings enable skill delivery. |
-
-If the managed process needs a full directory, copy the task data into the
-working directory. A read-only runtime grant stays read-only, even inside a
-writable directory. Confinement permits network access. It is not an offline
-mode.
-
-`--exit-dir DIR` puts the private result directory of the session in a
-writable directory that exists. It works with or without confinement. With
-confinement, it also gives write access to that parent directory. Thus, do
-not choose a parent directory that contains files that the managed process
-must not change. Without the option, an unconfined session uses the system
-temporary directory. A confined session puts the result channel in its
-private run directory.
-
-Keep the directory of the configuration script and the settings outside every
-filesystem grant. Ravel makes each path canonical. If paths overlap, Ravel
-stops with an error before it evaluates the script. This check also finds overlaps
-through symlinks or through the system runtime grants. For example, if you
-run `--confine --config ./config.rhai` from the directory that contains that
-script, the script overlaps the writable working directory. Put the script in
-a separate owner directory, and run Ravel from the project directory.
-
-With skill delivery enabled, keep every writable grant outside the skill
-cache `~/.cache/ravel/skills/v1`. That includes the working directory, the
-`--exit-dir` and `TMPDIR`. Ravel grants the descriptor directory and each
-snapshot tree, and nothing else in the cache.
-
-Ravel refuses a granted directory that overlaps the configuration directory,
-the settings file or the result channel of an enclosing session. Before the
-launch, Ravel lists each granted directory inside the sandbox. Each of these
-failures is `skill_access_unavailable`, with status 3. Ravel then launches no
-worker and no managed process. Also keep each skill source outside the result
-channel of an enclosing session. Ravel refuses such a source before it copies
-the source, with or without confinement.
-
-Ravel grants the directories that it checked, and no other directory at the
-same path. If something replaces a granted directory after the check, Ravel
-does not run the program. A harness run reports
-`harness_launch_failed` to the script. The managed process reports
-`supervision_failed`, with status 126.
-
-`confinement_overlap` reports the paths that overlap. `confinement_unusable`
-reports a resource or a backend that Ravel cannot use. Both use status 2.
-Before selection, an `--exit-dir` that is not valid can also give
-`exit_dir_unusable`. Later failures of allocation or cleanup have their own
-diagnostics.
-
-Run the next example in the directory `confined`. It has a different layout
-from `prompt-and-data`, because the configuration script must stay outside
-the writable directory. When you finish the steps, the directory holds these
-paths:
-
-```text
-~/ravel-chapter-5/
-└── confined/
-    ├── owner/            you make it
-    │   └── config.rhai   you save it
-    ├── home/             the first command line makes it
-    ├── tmp/              the first command line makes it
-    └── project/          the first command line makes it
-```
-
-Step 1 is `mkdir -p ~/ravel-chapter-5/confined/owner`, then
-`cd ~/ravel-chapter-5/confined`. You save one file, `owner/config.rhai`. The
-example has no `bin` directory and no fake agent. The configuration script
-selects `ravel end-session` itself, from your `PATH`.
-
-The command block has three lines. The first makes `home`, `tmp` and
-`project`. The second keeps the absolute paths of `home` and `tmp` in two
-shell variables, then runs `cd project`. The third runs the session from
-`project`. Thus, `project` is the writable working directory, and it does not
-contain the configuration script.
-
-After the example, the current directory of your shell is `project`. The
-`cd` of step 1 of the next example changes it.
-
-The example needs a sandbox tool: `sandbox-exec` on macOS, or bubblewrap on
-Linux. Without it, Ravel stops with `confinement_unusable` and status 2.
-
-Complete example: select `ravel end-session` itself as a minimal confined
-program. This example checks confinement and result delivery without another
-agent.
-
-<!-- example: requires confinement -->
-
-**`owner/config.rhai`**
-
-```rhai
-export const SCHEMA_VERSION = 4;
-export const VERSION = "confined-demo";
-
-fn select(request, context) {
-    #{
-        status: "selected",
-        program: "ravel",
-        args: ["end-session", "--", "confined"],
-        provider: "local",
-        model: "sender",
-        effort: "none",
-        reason: "Check a confined sent result",
-    }
-}
-```
-
-**Command**
-
-```console
-$ mkdir -p home tmp project
-$ example_home="$PWD/home" && example_tmp="$PWD/tmp" && cd project
-$ env -i HOME="$example_home" TMPDIR="$example_tmp" PATH="$PATH" ravel start-session --kind check --config ../owner/config.rhai --confine --prompt 'Send confined.'
-```
-
-**Standard output, without a final newline**
-
-```text
-confined
-```
-
-**Exit status**
-
-```text
-0
-```
-
-Here, the selected program is `ravel end-session` itself. It runs inside the
-sandbox, in the `project` directory, and finds its result path in its own
-`RAVEL_EXIT_FILE`. It sends `confined`. After cleanup, the caller receives
-`confined` on standard output and status 0.
-
-The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and
-`LC_*`. Ravel sets `TMPDIR`, `TMP` and `TEMP` to the private run directory and
-gives the managed process a new `RAVEL_EXIT_FILE`. The `HOME` variable does
-not give access to the directory that it names. The other caller variables are
-not in the environment.
-
-`--config-env` grants a
-variable to `ravel::env`, the environment helper of the configuration script.
-It adds no variable to a confined managed process or harness run.
-
-Confinement also changes how the managed process uses your terminal. A
-**POSIX session** is an operating-system set of process groups that can share
-one controlling terminal. It is not a Ravel session. To
-[lend](03-a-complete-session.md#launch-the-managed-job) the terminal, Ravel
+To [lend](03-a-complete-session.md#launch-the-managed-job) the terminal, Ravel
 makes the group of the managed process the foreground group of the terminal.
-Then that group receives the keyboard input. After the session, Ravel gives
-the terminal back to its own group.
+Then that group receives the keyboard input. Ravel lends the terminal only if
+its own process group is the foreground group of the terminal. After the
+session, Ravel gives the terminal back to its own group. The managed process
+can also read the caller's standard input. [Chapter 9, “Jobs, signals and the
+terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal),
+teaches the mechanism.
 
-A confined launch starts a new POSIX session and is not interactive. Ravel
-does not lend it the caller's controlling terminal. An unconfined launch uses
-a new process group in the caller's POSIX session. Ravel lends it the terminal
-if Ravel's own process group is the foreground group of the terminal. This
-difference is important for an interactive program. [Chapter 9, “Jobs, signals and the
-terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal), teaches the mechanism.
+Use this table to see what the managed process receives:
 
-Confinement is separate from the permission flags of an agent program.
-Neither the unconfined mode nor the confined mode confines the configuration
-script.
-Use this comparison to choose
-confinement together with its effects on the environment and the terminal:
-
-| Property | Unconfined managed process | Confined managed process |
-|---|---|---|
-| Filesystem access | No Ravel confinement | Write access to the working directory and the private run directory. Read access to the runtime paths and the explicit grants. |
-| Caller environment | Inherited, except for the five controls that stay absent and the replaced `RAVEL_EXIT_FILE` | Only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*` |
-| Temporary-path variables | Inherited | `TMPDIR`, `TMP` and `TEMP` set to the private run directory |
-| Session-result context | New `RAVEL_EXIT_FILE` | New `RAVEL_EXIT_FILE` |
-| Process group | New process group in the caller's POSIX session | New POSIX session |
-| Caller terminal | Lent when Ravel's group is the foreground group of the terminal | Not lent. Not interactive. |
-| Network | No Ravel confinement | Confinement permits it |
+| Property | Managed process |
+|---|---|
+| Filesystem access | Each path that your account and the harness sandbox permit. Ravel restricts no path. |
+| Caller environment | Inherited, except for the five controls that stay absent and the replaced `RAVEL_EXIT_FILE` |
+| Session-result context | New `RAVEL_EXIT_FILE`, beneath the temporary directory or `--exit-dir` |
+| Process group | New process group in the caller's POSIX session |
+| Caller terminal | Lent when Ravel's group is the foreground group of the terminal |
+| Standard input | The caller's standard input |
+| Network | Ravel restricts no network access |
 
 ## Read notices separately from results
 
@@ -1639,7 +1488,7 @@ These sections teach the subject of each row:
 
 - statuses 0 and 1: [Accept a result only after success](#accept-a-result-only-after-success)
 - status 2: [Supply the prompt and caller data](#supply-the-prompt-and-caller-data)
-  and [Confine the managed process](#confine-the-managed-process)
+  and [Know what the managed process receives](#know-what-the-managed-process-receives)
 - status 3: chapter 4's [Select a command or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse)
 - status 5: [Read notices separately from results](#read-notices-separately-from-results)
 - status 124: chapter 4's [Set bounds and environment grants in the settings](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings)
@@ -1651,7 +1500,7 @@ These sections teach the subject of each row:
 |---|---|---|
 | `0` | `start-session` wrote the sent result unchanged to standard output after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
-| `2` | Malformed command-line input or settings, invalid prompt or data flags, or confinement inputs that are unusable or overlap. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input, setting or confinement layout. Run the command again only after you apply the remedy of the diagnostic. |
+| `2` | Malformed command-line input or settings, invalid prompt or data flags, an unusable `--exit-dir`, or a withdrawn confinement flag. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input or setting. Run the command again only after you apply the remedy of the diagnostic. |
 | `3` | A refusal by the configuration script, or Ravel's refusal of the script. The script refused, or Ravel could not accept its entry, behaviour, shape, returned data or selection context. Script limits, the worker heap bound, exhausted evaluation budgets and a `start-session` from inside a harness run (`config_reentry_refused`) also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `config_refused`, examine the owner's `configCode` and explanation. Change the request or the configuration script deliberately. Do not silently substitute a program. |
 | `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A failed re-execution or worker identity mismatch also uses 5, as does `harness_cleanup_failed` during evaluation. | Keep the full diagnostics. Repair the installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
 | `124` | The whole evaluation deadline expired. It covers worker startup, module loads, the context loader, selection and every host call. Ravel launched no managed process. A failed harness cleanup replaces this outcome with status 5. Cancellation also has priority. | Examine the work of the configuration script. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer evaluation. A single harness run's `timed_out` status is data for the script. This is not a time limit for the managed process. |
@@ -1962,11 +1811,11 @@ what the caller examines after such an invocation:
 | Code that runs as the same user makes unauthorised changes to the result channel or the installation. | Private paths and the inherited session-result context keep ordinary sessions apart. They are not a defence against hostile code of the same user. The worker identity check confirms that the re-executed binary reports the expected build. It does not check a trusted signature. |
 | The Ravel CLI stops abruptly, for example because of KILL. | It cannot complete supervision or cleanup. The group of the managed process and the temporary directories can remain. There is no successful completion and no persistent recovery record. |
 | A managed descendant deliberately leaves its process group. | It is outside the cleanup guarantee of that group. The absence of the group does not prove that the detached process is gone. |
-| An evaluation harness run starts a descendant that leaves its process group. | Cleanup of the run does not reach that descendant. The Rhai worker itself starts no program. Confinement does not restrict measured reads. |
+| An evaluation harness run starts a descendant that leaves its process group. | Cleanup of the run does not reach that descendant. The Rhai worker itself starts no program. |
 | Another process changes the foreground group of the terminal during recovery, or the system gives a recorded group ID to an unrelated group. | Recovery assumes two conditions between the runner's check and its handback. No other process or thread changes the foreground group. No unrelated group gets the recorded group ID. Ravel reports a failed handback. Do not treat a launch failure as proof that Ravel restored the terminal. [Chapter 9](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal) explains the conditions. |
 | The host is different from the measured platforms. | The project measured how Ravel handles inherited signal settings, cancellation, cleanup and terminal recovery. It measured them on aarch64 macOS and aarch64 GNU/Linux. The project built Ravel for x86_64 GNU/Linux and ran it only under emulation. Native x86-64 qualification is not complete. These checks do not cover all combinations of kernel, libc and compiler. |
 
-Chapter 2 explains these [trust limits](02-actors-and-words.md#trust-and-confinement).
+Chapter 2 explains these [trust limits](02-actors-and-words.md#trust-limits).
 [Ravel issue 1](https://github.com/Linkuistics/Ravel/issues/1) tracks the
 native x86-64 qualification. The examples in this chapter check the choice
 of command, the delivery of the result and the status. They do not show the
@@ -2001,7 +1850,7 @@ points with fake agents:
 | Standard error | Keeps it as a mixed diagnostic stream, and takes no line as proof of what Ravel wrote |
 | A cancellation | Treats 129, 130, 143 and termination by a signal as no result |
 | A nested session | Sends its own result after the inner session returns |
-| Confinement | Keeps the configuration script and the settings outside every filesystem grant |
+| The harness sandbox | Selects the sandbox of each harness in the configuration script, because Ravel restricts no path |
 
 [Chapter 6, “Reference”](06-reference.md), gives the reference entries for the
 inputs and outputs that this chapter teaches.

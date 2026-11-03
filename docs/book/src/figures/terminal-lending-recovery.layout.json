@@ -166,7 +166,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Ordinary unconfined launch. /dev/tty is available. The CLI group holds foreground.\nWithout a terminal, or in detached mode, there is no lease.",
+      "text": "Ordinary launch. /dev/tty is available. The CLI group holds foreground.\nWithout a terminal, or in detached mode, there is no lease.",
       "x": 340.0,
       "y": 104.75546875,
       "anchor": "center",

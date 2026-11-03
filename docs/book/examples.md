@@ -166,18 +166,13 @@ Process IDs, timestamps and elapsed times remain unchanged.
 An example that prints them claims only stable stderr text with `Standard error includes`, or leaves stderr without a claim.
 Every other comparison is byte for byte.
 
-## Skipped, never passed
+## Every example runs
 
-The comment `<!-- example: requires NAME -->` restricts an example to platforms with that feature.
-It can appear anywhere inside the example.
-The summary reports passed, failed and skipped counts separately.
-A skip prints its reason.
-
-| Name | Required platform feature |
-|---|---|
-| `confinement` | `/usr/bin/sandbox-exec` on macOS, or `bwrap` on Linux's `PATH`. |
-
-An unknown requirement fails. A misspelt requirement cannot silently skip a test.
+Every complete example runs on every platform. The convention has no
+directive. An `<!-- example: ... -->` comment is a page error, so a stale
+platform requirement cannot pass unread.
+The summary reports passed and failed counts, the fragments that did not run
+and the page errors.
 
 ## Cancellation by a signal
 
@@ -251,7 +246,7 @@ The controls exercise these conditions and report the first failure line:
 - Changed stderr, an omitted trailing line in an exact claim, or absent text in a partial claim.
 - Incorrect final-newline claims or an unnormalised path in an expected stream.
 - A page with an example, fragment and exact Rust excerpt. Both checkers pass it, and the example checker still refuses an unlabelled block after the excerpt.
-- A skipped example, an unknown requirement, a file after a command, an escaped or repeated path, and a command timeout.
+- An example directive, a file after a command, an escaped or repeated path, and a command timeout.
 - The fixture's `HOME`, `TMPDIR` and `PATH`, with the caller's variables and stdin absent.
 - A caller with invalid personal settings and recording fakes for `claude`, `codex` and `ravel`. The examples pass, and no caller fake runs.
 - The same isolation with an empty caller HOME and a PATH with only those fakes and system commands.

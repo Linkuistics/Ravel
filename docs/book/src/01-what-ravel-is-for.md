@@ -678,7 +678,7 @@ each limit for the caller.
 | The Ravel CLI stops abruptly, for example because of KILL | The managed process or temporary files can remain. The Ravel CLI cannot catch KILL. |
 | Other code runs as the same user as Ravel | That code can tamper with Ravel's files, `RAVEL_EXIT_FILE` included. The separation of sessions is not a security check against that code. |
 
-[Chapter 2](02-actors-and-words.md#trust-and-confinement) explains why the
+[Chapter 2](02-actors-and-words.md#trust-limits) explains why the
 separation of these roles is useful within these limits.
 
 ## Choose a route through the book

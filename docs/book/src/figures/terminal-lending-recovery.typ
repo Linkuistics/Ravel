@@ -10,7 +10,7 @@
 )
 
 #let rows = (
-  note("cli", "tty", [Ordinary unconfined launch. /dev/tty is available. The CLI group holds foreground. \ Without a terminal, or in detached mode, there is no lease.]),
+  note("cli", "tty", [Ordinary launch. /dev/tty is available. The CLI group holds foreground. \ Without a terminal, or in detached mode, there is no lease.]),
   note("cli", "tty", [An early setup failure enters B before the later setup steps complete. \ It need not reach the group record, terminal handoff or exec attempt.]),
   msg("cli", "tty", [Query foreground. \ Save terminal modes]),
   msg("cli", "child", [Spawn child], create: true),

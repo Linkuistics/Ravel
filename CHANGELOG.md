@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Remove operating-system confinement. `start-session` refuses `--confine`
+  and `--runtime-read` as `confinement_withdrawn`, stage `cli`, exit 2. The
+  refusal comes before Ravel reads the settings or runs the worker. Its
+  remedy tells the caller to remove both flags and to select the sandbox of
+  the harness in the configuration script. Ravel 1.1 keeps `--confine`. The
+  macOS `sandbox-exec` backend and the Linux bubblewrap backend go, with the
+  codes `confinement_unusable` and `confinement_overlap`. The managed process
+  and each harness run receive the caller's environment, less the launch
+  controls. The harness sandbox is their only boundary.
 - Deliver Ravel as one executable with three Rhai examples and Rust dependency
   notices under `share/ravel/`. Remove the retired Bun worker, TypeScript SDK
   and their delivery tooling. Installation, archives and the Homebrew formula
@@ -43,7 +52,7 @@
   refuses as `skill_access_unavailable`, also before the cache exists.
 - Deliver skill directories in `start-session`. With delivery enabled, Ravel
   resolves the sources after it reads the settings, the inputs and the entry,
-  and before confinement and the worker. `request.prompt` holds the discovery
+  and before the worker. `request.prompt` holds the discovery
   instructions, the line `Caller task` and the caller's bytes, unchanged,
   between two delimiter lines with a random nonce. `request.originalPrompt`
   keeps the caller's prompt, and `request.skills` holds `descriptorPath`,
@@ -54,25 +63,9 @@
   with prompt byte counts and digests. A prepared
   prompt over 1 MiB refuses as `skill_limit_exceeded`. A source that overlaps
   the directory of the configuration entry refuses as
-  `skill_access_unavailable`. The example `harness-table.rhai` gives its
-  lead harness each snapshot root.
-- Grant confined sessions the reads of skill delivery. Under `--confine`, the
-  managed process and each harness run read the descriptor directory and each
-  snapshot tree, read-only, on macOS `sandbox-exec` and Linux bubblewrap. The
-  grants exclude the staging area, the snapshot manifests and the sources.
-  A granted directory that overlaps the configuration directory, the settings
-  file or the result channel of an enclosing session refuses as
-  `skill_access_unavailable`, exit 3, also through an alias. So does a
-  writable grant that overlaps the skill cache, and a granted directory that
-  the sandbox cannot list. Ravel never retries unconfined. A nested
-  `start-session` in a confined parent cannot read the owner settings.
-  Ravel holds each granted directory by its path and identity. A harness run
-  grants the directories that the managed process checked. A directory whose
-  path changed after its check gives no grant: a harness run reports
-  `harness_launch_failed`, and the managed launch stops as
-  `supervision_failed`, exit 126. A source that holds the inherited
-  `RAVEL_EXIT_FILE` refuses as `skill_access_unavailable` before capture, also
-  without confinement and in `skills resolve`.
+  `skill_access_unavailable`. So does a source that holds the inherited
+  `RAVEL_EXIT_FILE`, before capture and also in `skills resolve`. The example
+  `harness-table.rhai` gives its lead harness each snapshot root.
 - Check each local capture and each cache object. A source that changes while
   Ravel copies it refuses as `skill_source_changed`, with a remedy to try
   again. Ravel reads back each copy, and names that the filesystem of the cache

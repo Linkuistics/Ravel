@@ -47,8 +47,7 @@ stated prerequisites.
   - The job-control mechanics Ravel depends on: process groups, the
     controlling terminal and its foreground process group, saved terminal
     modes, reaping and why PID reuse makes it matter, signal dispositions and
-    masks across exec, PTYs as the tests use them, and the confinement
-    backends (`sandbox-exec` on macOS, bubblewrap on Linux).
+    masks across exec, and PTYs as the tests use them.
   - The Rhai syntax that configuration scripts need: constants, variables, maps, arrays,
     functions, conditions, loops, imports and error handling.
     Chapter 4 teaches these through configuration scripts and fake agents.
@@ -172,12 +171,12 @@ every other page. Each chapter's purpose is what the reader can do after it.
 | 3 | A complete session, end to end | <!-- tc: depart synonym-rotation because version checks and configuration script validation concern different inputs --> Install Ravel with Homebrew and check its version. Run a session with a tiny configuration script and a fake agent. Describe its stages, with the process and terminal ideas each stage needs. |
 | **Part II** | **Use Ravel** | |
 | 4 | Write a configuration script | Write and validate a Rhai configuration script with fake agents. Use refusals, selection context, host capabilities, settings and environment grants. Route to harnesses and ask a model through a harness run. |
-| 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, confinement, notices) and interpret every outcome and exit code |
+| 5 | Run sessions | run sessions under real conditions (prompts, kinds, caller data, nesting, what the managed process receives, notices) and interpret every outcome and exit code |
 | 6 | Reference | look up any CLI input, setting, bound, request, selection or context shape, environment variable or installed path |
 | **Part III** | **Inside Ravel** | |
 | 7 | The parts of Ravel | Explain the Ravel CLI and its separate Rhai worker. Explain why Ravel reaps the worker before the managed launch. Explain the separate runner package and how the parts compose. |
 | 8 | Follow a session through the code | Follow a successful session from `main` to the result write, then the refusal and cancellation paths. Explain error and signal precedence. Find where a change belongs. |
-| 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, confinement, entry signal state, and the failure guarantees with their limits |
+| 9 | Jobs, signals and the terminal | reason about process groups, escalation, reaping, terminal lending and recovery, entry signal state, and the failure guarantees with their limits |
 | **Part IV** | **Develop and deliver Ravel** | |
 | 10 | Develop Ravel | Prepare a checkout and build Ravel. Use the test seams and `task check`. Add a test and explain the evidence documents. |
 | 11 | Deliver Ravel | handle versions and identity, install and smoke tests, archives and platform floors, the formula and release tasks, and the supported targets with their limits |
@@ -297,9 +296,9 @@ meaning that will intrude, and the book states the difference wherever it
 matters:
 
 - **Session**: one `start-session` run, routing a request and supervising one
-  managed process. It is not a POSIX session (`setsid`) or a login session. An
-  unconfined managed process stays in the caller's POSIX session, in a process
-  group of its own; a confined launch starts a new POSIX session.
+  managed process. It is not a POSIX session (`setsid`) or a login session. The
+  managed process stays in the caller's POSIX session, in a process
+  group of its own.
 - **Context**: three different things. The *session-result context* is the
   inherited `RAVEL_EXIT_FILE` path. The *selection context* is the JSON
   data delivered to `select`. The caller's working directory is the request's
@@ -316,8 +315,7 @@ matters:
 - **Result**: the opaque bytes that `end-session` sends. It is never the
   managed process's exit status or the agent's work.
 - **Configuration names**: `config.rhai`, `--config-env`, `configEnv` and
-  `config_*` diagnostic codes name the configuration script. A restriction
-  on a managed process is confinement.
+  `config_*` diagnostic codes name the configuration script.
 - **Harness**: the agent program, such as Claude Code or Codex, in which an
   LLM session works on the prompt; configuration script selects it. It is not a test
   harness.
@@ -372,7 +370,7 @@ and the result/job completion specification. At this agreement, coverage include
 - Escalation after Ravel receives the result, and descendant cleanup before reap.
 - A surviving group, a cleanup failure or an unwritable result stream.
 - Operation reports and nested sessions.
-- Confinement granted or refused.
+- The refusal of the withdrawn confinement flags.
 - Terminal lending and recovery, noninteractive isolation, and recovery after a failed exec.
 - The accepted limits under Emphasis.
 

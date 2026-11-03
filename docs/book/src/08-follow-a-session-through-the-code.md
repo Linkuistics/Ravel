@@ -11,8 +11,7 @@ controls the managed job inside the Ravel CLI process.
 This chapter is an orientation to one path. It does not cover the complete
 source. It omits the full
 [selection-context](02-actors-and-words.md#three-different-kinds-of-information)
-protocol, [confinement](02-actors-and-words.md#trust-and-confinement)
-backends, platform system calls, test instruments and delivery code.
+protocol, platform system calls, test instruments and delivery code.
 [Chapter 7](07-the-parts-of-ravel.md) explains the parts and their boundaries.
 Chapter 9, “Jobs, signals and the terminal”, explains the job-control details.
 
@@ -22,7 +21,7 @@ The [first session in chapter 3](03-a-complete-session.md#run-the-first-session)
 supplies `--kind demo`, `--config config.rhai` and a prompt argument.
 The configuration script chooses `fake-agent` and passes the prompt as one argument.
 The fake agent prints the prompt, calls `ravel end-session -- "finished"`, then exits.
-No selection-context loader or confinement participates in this path.
+No selection-context loader participates in this path.
 
 The [caller](02-actors-and-words.md#caller-and-owner) receives `finished`
 without a newline on standard output and status 0.
@@ -99,7 +98,7 @@ a real path that the worker can import exactly.
 It does not search for another configuration script when this path fails.
 
 Then `prepare` resolves the skill sources and prepares the prompt. This step
-comes before confinement and before the worker. Thus, a skill refusal starts
+comes before the worker. Thus, a skill refusal starts
 no worker and allocates no result channel.
 
 Excerpt from `crates/ravel/src/choice.rs`: the call that follows the entry in
@@ -131,7 +130,7 @@ and `scrubbed` removes that name when delivery is disabled.
 
 ```rust
         let directories = setup.skill_directories.as_ref();
-        environment.extend(skill_environment(directories));
+        let environment = skill_environment(directories);
 ```
 
 ## Evaluate and check the configuration script
@@ -212,12 +211,11 @@ interpreter, as chapter 3 explains.
 
 The `Launch` holds this argument vector, the channel, environment changes,
 entry signal state and escalation times.
-For this unconfined path, `run` calls
-`keyed_launch::run_observed_with_start_check`.
+`run` calls `keyed_launch::run_observed_with_start_check`.
 The runner removes the inherited variables that name a result destination,
 applies the environment grants, then sets the new `RAVEL_EXIT_FILE` last.
 Thus, a nested session gives its own child a fresh destination.
-The unconfined child otherwise inherits the caller's environment and working
+The child otherwise inherits the caller's environment and working
 directory.
 
 In `crates/keyed-launch/src/run.rs`, `run_with_output` creates the process
@@ -353,13 +351,9 @@ An operation report does not alone decide success, as the
 |---|---|---|
 | 1 | `handlers.restore_entry_mask()` | Restores the entry mask while handlers still protect the transition |
 | 2 | `channel.close()` | Removes the result channel's temporary files |
-| 3 | `confined.remove()`, when applicable | Removes the private confined workspace |
-| 4 | `output.restore()` | Restores the caller's standard output |
-| 5 | `handlers.finalise(runner_signal)` | Joins cancellation observations and completes signal transitions |
-| 6 | `settle(...)` | Reports failures and decides whether the result can proceed |
-
-The example has no confined workspace, so that cleanup contributes success
-without a removal. The other operations still run.
+| 3 | `output.restore()` | Restores the caller's standard output |
+| 4 | `handlers.finalise(runner_signal)` | Joins cancellation observations and completes signal transitions |
+| 5 | `settle(...)` | Reports failures and decides whether the result can proceed |
 
 Channel cleanup checks the directory's recorded identity before removal.
 It does not remove a replacement directory. This pathname check is not an
@@ -464,12 +458,6 @@ The event records spawn success, so it does not prove that exec succeeded.
 The conversion also retains a signal that the runner consumed, for the final
 cancellation decision.
 
-Requested [confinement](05-running-sessions.md#confine-the-managed-process)
-has its own preparation in `Confined::prepare`, before selection.
-An unavailable backend or invalid grant stops that path.
-After successful preparation, `run` calls the confined runner entry.
-It does not retry a failed confined launch without confinement.
-
 These failures leave the main closure in `run`, then reach its common cleanup
 and final decision. An allocator that fails partway through directory setup
 attempts its own cleanup before it returns the error.
@@ -502,9 +490,8 @@ channel allocation. A signal found here prevents the runner call.
 The common cleanup still closes the channel and restores output.
 
 During supervision, runner `watch` checks its own latch before it accepts
-even an already-exited child. For an unconfined job, it forwards the signal
-to the managed group, then escalates if needed. For a confined job, it
-attempts KILL immediately. It retains the first signal that it consumes through the wait, reap and
+even an already-exited child. It forwards the signal to the managed group,
+then escalates if needed. It retains the first signal that it consumes through the wait, reap and
 recovery operations that follow.
 
 Two runner outcomes carry cancellation to `run`:
@@ -574,8 +561,8 @@ It is not the production decision shown above.
 
 `run` supplies `settle` with the candidate result or original failure,
 the optional `Ended`, all cleanup outcomes and the selected signal.
-It orders cleanup outcomes as mask restoration, channel removal, confined
-directory removal, output restoration, then final signal-operation reports.
+It orders cleanup outcomes as mask restoration, channel removal, output
+restoration, then final signal-operation reports.
 `settle` reports every supplied cleanup error and any group that survives.
 When cancellation overrides an original failure, it reports that failure too.
 

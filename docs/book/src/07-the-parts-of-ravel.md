@@ -22,7 +22,7 @@ library does not always correspond to a separate process.
 |---|---|---|---|
 | Ravel CLI | `crates/ravel/src/main.rs`, with the other executable modules | The `ravel` process | Check the request, coordinate the parts and report the outcome |
 | [Rhai worker](02-actors-and-words.md#evaluation-and-supervision) | `crates/ravel/src/rhai_worker/` | A second `ravel` process | Evaluate the owner's Rhai configuration script |
-| Host capabilities and data helpers | `crates/ravel/src/rhai_worker/host.rs`, `helpers.rs` | The Ravel CLI performs effects; the Rhai worker computes | Supply the operations in the `ravel` namespace |
+| Host capabilities and data helpers | `crates/ravel/src/rhai_worker/host.rs`, `helpers.rs` | The Ravel CLI performs effects. The Rhai worker computes. | Supply the operations in the `ravel` namespace |
 | [Local runner](02-actors-and-words.md#evaluation-and-supervision) | `crates/keyed-launch/src/` | Within the Ravel CLI | Launch and supervise a local job |
 | [Result channel](02-actors-and-words.md#the-managed-process-and-its-result) | `crates/ravel/src/completion.rs`, exported by `lib.rs` | Within the Ravel CLI and the separate `end-session` invocation | Carry one result through temporary files |
 
@@ -93,8 +93,8 @@ The separate process lets the CLI stop evaluation at its deadline and keeps a
 worker abort or heap exhaustion outside the supervisor. The script remains
 trusted executable configuration: host reads can expose owner data to it.
 [Chapter 4](04-write-a-configuration-script.md) explains the language and its
-operations. [Chapter 2](02-actors-and-words.md#trust-and-confinement) separates this authority
-from the confinement of a managed process.
+operations. [Chapter 2](02-actors-and-words.md#trust-limits) states the trust limits of
+this authority and of a managed process.
 
 ## The Rhai module defines the configuration interface
 
@@ -140,7 +140,6 @@ launch controls and receives job observations.
 | `Channel` | A fresh completion path whose file appearance requests shutdown |
 | `run` and `run_observed` | Supervise the job, with optional spawn and reap notifications |
 | `run_noninteractive` | Isolate the child from the terminal and input, and send output to a file |
-| `run_confined_observed` | Supervise with filesystem restrictions |
 | `EntrySignals` | Supply the child's entry signal state |
 | `Ended` | Report child status, the cause of its end, channel appearance, group state and retained operation reports |
 
@@ -237,7 +236,7 @@ binary for both roles. The worker is not selected through `PATH`.
 
 The initial worker message carries its protocol, package version and source
 identity. The CLI checks those values before it sends the configuration request.
-The identity detects a worker mismatch; it does not authenticate the installation
+The identity detects a worker mismatch. It does not authenticate the installation
 against its owner. A change to the Rhai worker needs one rebuilt executable.
 
 Chapter 11 explains delivery. The

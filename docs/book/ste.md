@@ -134,8 +134,7 @@ for files, options, settings, JSON fields and diagnostics. Remove explanations
 that justify an old product name after that name changes. Historical inputs,
 quotations and arbitrary owner-supplied values remain exact.
 
-The word “policy” alone never names a security or sandbox rule. A restriction
-on a managed process is confinement.
+The word “policy” alone never names a security or sandbox rule.
 
 ## JSON documents
 

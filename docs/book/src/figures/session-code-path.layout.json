@@ -2324,7 +2324,7 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: Ravel. Grey: external processes. Gold: files. Green: result.\nX: confirmed reap or removal. Second CLI exit/reap omitted.\nUnconfined example, without selection context or a terminal.\nEarly child exit skips the optional region. Later checks still find the result.",
+      "text": "Blue: Ravel. Grey: external processes. Gold: files. Green: result.\nX: confirmed reap or removal. Second CLI exit/reap omitted.\nExample without selection context or a terminal.\nEarly child exit skips the optional region. Later checks still find the result.",
       "x": 420.966796875,
       "y": 3020.4960937500014,
       "anchor": "center",

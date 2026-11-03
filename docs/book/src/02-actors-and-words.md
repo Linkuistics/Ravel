@@ -409,7 +409,7 @@ the inherited path for the result.
 | Selection context | JSON data | Informs the selection of the configuration script. Gives no permission to send a result. |
 | Caller's working directory | `cwd` of the request | Names where the caller works. The selected program starts there. |
 
-## Trust and confinement
+## Trust limits
 
 The owner controls the configuration script and the settings. The separate
 worker computes with restricted inputs, while the Ravel CLI performs its host
@@ -417,13 +417,13 @@ capabilities. A measured read can reach any regular file that the user can
 read. A configured harness can access files and the network within its
 permissions. These capabilities do not make arbitrary owner code safe.
 
-**Confinement** is the optional restriction of the filesystem access and the
-environment of the managed process. It is separate from the configuration
-script. The script selects a command, and confinement restricts the access of
-that command. `--confine` applies to the managed process and to evaluation
-harness runs. It does not restrict measured reads or the Rhai worker. If the
-request asks for confinement and Ravel cannot provide it, Ravel does not
-launch the process unconfined.
+Ravel does not restrict the filesystem access of the managed process or of an
+evaluation harness run. Each receives the environment of the caller, less the
+launch controls of an enclosing session. The **harness sandbox** is the only
+boundary of either process. The configuration script selects that sandbox
+through the arguments of the harness, such as `codex --sandbox
+workspace-write`. A harness with its sandbox off has no boundary at all. Ravel
+2.0.0 refuses `--confine` and `--runtime-read`, which Ravel 1.1 accepts.
 
 The inherited session-result context keeps nested sessions separate while
 each process uses the path that it inherited. It is not a security check

@@ -363,15 +363,11 @@ the selected program.
 The new process group does not make a new Ravel session or a new login.
 These three terms name different units:
 
-| Unit | What it means | In this unconfined example |
+| Unit | What it means | In this example |
 |---|---|---|
 | Ravel session | One `start-session` invocation | Covers selection, the managed job and cleanup |
 | Process group | Processes that can receive a signal as one group | The managed process leads a new group |
 | POSIX session | An operating-system unit that job control uses | The managed process stays in the caller's POSIX session |
-
-A [confined](02-actors-and-words.md#trust-and-confinement) launch uses a new
-POSIX session. [Chapter 5, “Run sessions”](05-running-sessions.md#confine-the-managed-process),
-teaches that separate case.
 
 This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
 Other signal names keep that prefix. Code and diagnostic text keep their literal names.
@@ -458,7 +454,7 @@ include these three cases:
 - a descendant of an evaluation harness run that leaves its group
 - a KILL that stops the Ravel CLI (the Ravel CLI cannot catch KILL)
 
-The [trust limits in chapter 2](02-actors-and-words.md#trust-and-confinement)
+The [trust limits in chapter 2](02-actors-and-words.md#trust-limits)
 also explain why code that runs as the same user can change files or
 launch unrelated processes. A
 successful session shows that Ravel delivered a sent result after it confirmed
@@ -468,7 +464,7 @@ correct.
 The sequence below shows two orders that Ravel guarantees. Worker
 cleanup comes before the managed launch, and job cleanup comes before the
 delivery of the result. The figure follows the successful path of this
-chapter, without confinement.
+chapter.
 
 In this UML sequence, an X ends the pictured lifetime after confirmed reap or
 removal, not at the instant a process exits. The runner shares the Ravel

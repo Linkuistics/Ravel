@@ -72,6 +72,6 @@
 #render(sequence([The session code path — UML sequence], parts, rows, (
   [Blue: Ravel. Grey: external processes. Gold: files. Green: result.],
   [X: confirmed reap or removal. Second CLI exit/reap omitted.],
-  [Unconfined example, without selection context or a terminal.],
+  [Example without selection context or a terminal.],
   [Early child exit skips the optional region. Later checks still find the result.],
 ), max-label: 90))

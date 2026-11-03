@@ -14,85 +14,114 @@ or that cancellation and cleanup permit returning it. The
 those promises. This document describes the completion decision that a native
 consumer must currently compose. It selects no replacement interface or package.
 
+<!-- tc: on -->
+
 ## One completion decision
 
-The result channel belongs to one launch. Its consumer retains that association
-from allocation through supervision and reading; an ending from another launch
-is insufficient. On successful return, the runner establishes reap, ending cause
-and group state. The transport establishes whether publication occurred and validates the exact
-UTF-8 contents through its held directory. The consumer joins these facts with
-explicit resource cleanup and every applicable cancellation observation.
+The result channel belongs to one launch. Its consumer keeps that association
+from allocation through supervision and the read. An ending from another launch
+does not satisfy it. On a successful return, the runner establishes the reap,
+the cause of the ending and the group state. The transport establishes whether a
+publication occurred, and it checks the exact UTF-8 contents through its held
+directory. The consumer joins these facts with explicit resource cleanup and
+with every applicable cancellation observation.
 
 The book's [chapter on following a session through the code](../book/src/08-follow-a-session-through-the-code.md#follow-cancellation)
-explains the participants' different knowledge. Its
+explains the different knowledge of each participant. Its
 [failure precedence](../book/src/08-follow-a-session-through-the-code.md#choose-the-final-outcome) is part of
-the completion contract, including diagnostic reporting. Cancellation suppresses
-even a previously published result. Without cancellation, the original result
-failure stays primary; otherwise the first cleanup failure wins, then a surviving
-group prevents success. Every supplied cleanup failure and surviving-group
-diagnostic is reported. A child's later exit status does not invalidate a
-successfully published result; absence remains distinct from an empty value.
+the completion contract, including the report of diagnostics. Cancellation
+suppresses even a result that the managed process published before it. Without cancellation,
+the original result failure stays primary. Without an original failure, the
+first cleanup failure wins, and then a surviving group prevents success. The
+consumer reports every supplied cleanup failure and every diagnostic of a
+surviving group.
 
-For the CLI, successful settlement precedes the exact result write. Output
-reservation/restoration and confined-directory cleanup are part of that
-settlement. The front joins its selection/transition cancellation latch,
-the runner outcome's consumed signal (ending or error) and the runner's late
-latch, in that order.
-The final write can still fail and can have written a prefix before failing. The
+A later exit status of the child does not invalidate a successfully published
+result. An absent result stays distinct from an empty value.
+
+For the CLI, successful settlement comes before the exact result write. Output
+reservation and restoration are part of that settlement. The front joins three
+cancellation sources in this order:
+
+1. its selection and transition latch
+2. the signal that the runner outcome consumed, from an ending or an error
+3. the late latch of the runner
+
+The final write can still fail, and it can write a prefix before it fails. The
 [supervision decision](../adr/ravel-supervises-the-session.md) and
-[job decision](../adr/the-launched-child-is-a-job.md) explain the retained
-supervisor and process-group choices; this document changes neither.
+[job decision](../adr/the-launched-child-is-a-job.md) explain the kept
+supervisor and process-group choices. This document changes neither.
 
 ## Acquisition and entry limits
 
-Successful selection retains a live selection-cancellation guard and the
-prepared private workspace. An internal composition could take those together
-before reserving result output and allocating its own channel. It would need
-to retain an optional ending and settle all acquired selected-scope resources
-even when no ending exists. These are existing ownership enabling points,
-not an implemented complete-operation interface.
+Successful selection keeps a live guard for selection cancellation. An internal
+composition could take that guard before it reserves the result output and
+allocates its own channel. That composition would need to keep an optional
+ending. It would also need to settle all the acquired resources of the selected
+scope, even when no ending exists. These are existing points that enable
+ownership. They are not an implemented interface for a complete operation.
 
 The [current-source acquisition inventory](../result-job-source-evidence.md#acquisition-and-stopping-state-inventory)
-identifies the limits of that transfer at the fixed source reference. C1's
-error-carried cancellation and no-ending front transfer are now corrected and
-[checked](../completion-failure-design-evidence.md#c1-checked-observations).
-Worker admission is now gated on confirmed reap and checked post-evaluation
-private-directory removal, with [C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
-covering failed reported waits/removal and original diagnostic preservation.
-Private-directory allocators now retain recorded identity through partial
-preparation, successful transfer and explicit checked cleanup; [C3 observations](../completion-failure-design-evidence.md#c3-checked-observations)
-cover original/cleanup reports, replacement protection and admission.
-[C4 observations](../completion-failure-design-evidence.md#c4-checked-observations)
-now check retained terminal ownership through failed exec, reportable recovery
-and actual spawn/reap distinctions on the measured host. Their exclusive lease
-and group-identity premises remain conditional. These scoped observations do not
-establish complete native-entry conformance or relax the session specification's
-worker ordering, cancellation, cleanup or terminal promises. C1–C4's private
-substituted reports and physical observations remain distinct from unexecuted
-entry/toolchain/target assumptions.
+identifies the limits of that transfer at the pinned source reference. The
+corrections of C1 cover the cancellation that an error carries and the front
+transfer without an ending. Its [checked observations](../completion-failure-design-evidence.md#c1-checked-observations)
+record them.
 
-Direct native entry is separate from the CLI's selected-scope transfer.
-Transparent entry state is supplied by the caller and applied to the child;
-it is not host-state capture or restoration. The current runner retains its
-host cancellation handlers and any ignored-SIGCHLD repair after return. The
-caller must define the capture instant, signal/terminal authority, ignored and
-blocked-signal policy, late cancellation handling and host restoration lifetime.
-Executable-entry transparency needs capture before runtime changes; a native
-call-entry contract is a different choice. No concurrent embedding guarantee
-follows from a synchronous call.
+<!-- tc: depart synonym-rotation because confirmed reap is an observed lifecycle fact and checked removal is a separate resource operation -->
+Worker admission now needs a confirmed reap and a checked removal
+of the private directory after evaluation. The [C2 checks](../completion-failure-design-evidence.md#c2-checked-observations)
+cover reported failures of the wait and of the removal, and the preservation of
+the original diagnostic.
 
-The agreed first independent native consumer is a launcher CLI: one invocation
-supervises one managed launch, settles its result or failure after required
-cleanup, and exits. Its contract requires authority over signal and terminal
+The allocators of private directories now keep the recorded identity through
+partial preparation, successful transfer and explicit checked cleanup. The
+[C3 observations](../completion-failure-design-evidence.md#c3-checked-observations)
+cover the original and cleanup reports, the protection of a replacement and the
+admission. The [C4 observations](../completion-failure-design-evidence.md#c4-checked-observations)
+check, on the measured host, that terminal ownership survives a failed exec.
+They also check reportable recovery and the actual distinction between spawn and
+reap. Their premises of an exclusive lease and a stable group identity stay
+conditional.
+
+These scoped observations do not establish complete native-entry conformance.
+They also do not relax the worker order, cancellation, cleanup or terminal
+promises of the session specification. The private substituted reports and
+physical observations of C1–C4 stay distinct from entry, toolchain and target
+assumptions that no check executed.
+
+Direct native entry is separate from the selected-scope transfer of the CLI.
+The caller supplies the transparent entry state, and the runner applies it to
+the child. That state is not a capture or a restoration of the host state.
+After return, the current runner keeps its host cancellation handlers and any
+change that it made to an ignored SIGCHLD.
+
+The caller must define these items:
+
+- the capture instant
+- the signal and terminal authority
+- the policy for ignored and blocked signals
+- the handling of late cancellation
+- the lifetime of host restoration
+
+Executable-entry transparency needs a capture before the runtime changes the
+state. A native call-entry contract is a different choice. A synchronous call
+gives no guarantee for concurrent embedding.
+
+The agreed first independent native consumer is a launcher CLI. One invocation
+supervises one managed launch, settles its result or failure after the required
+cleanup, and exits. Its contract needs authority over the signal and terminal
 state through that settlement. A persistent runner is a separate component with
-its own continuing-host contract. Restoring a host that resumes arbitrary work
-is not the initial launcher consumer requirement; entry transparency, cancellation,
-cleanup and terminal recovery remain required. No concurrent embedding support
-is inferred from this lifetime choice, and no combined interface or public
-package is selected here. The
+its own contract for a continuing host. The initial launcher consumer does not
+need to restore a host that resumes arbitrary work. Entry transparency,
+cancellation, cleanup and terminal recovery stay required.
+
+This lifetime choice implies no support for concurrent embedding. This document
+selects no combined interface or public package. The
 [native-entry evidence](../result-job-source-evidence.md#selected-scope-transfer-versus-native-entry)
 and [failure counterexamples](../result-job-source-evidence.md#counterexamples-and-the-smallest-missing-premises)
-name the smallest missing premises and checks still owed.
+name the smallest missing premises and the checks that are still owed.
+
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
 ## Required failure settlement
 
@@ -150,33 +179,39 @@ failed operation and recovery advice without pretending that an unsuccessful
 wait can establish a successful cleanup. The Rhai worker cannot launch a child. Harness-run cleanup follows the
 [configuration evaluation contract](configuration-evaluation.md#cancellation-and-deadlines).
 
-<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
-
 ### Cleanup after partial acquisition
 
 Each allocator SHALL own a newly created directory until it successfully
-transfers that resource. Once acquisition has produced a directory, a later
-returned error triggers explicit checked cleanup within that owner. This covers
-the confined workspace, result-channel directory and worker private directory,
-including failures before a usable wrapper or held reader can be returned.
-The outcome retains the original error and every cleanup error, including the
-directory path and whether removal failed or identity could not be established.
-An allocator failure remains primary in the absence of cancellation. Cleanup
-failure on otherwise successful worker preparation/evaluation prevents admission.
+transfers that resource. After acquisition produces a directory, a later
+returned error causes explicit checked cleanup within that owner. This rule
+covers the result-channel directory and the worker private directory. It
+includes failures before the allocator can return a usable wrapper or held
+reader. The outcome keeps the original error and every cleanup error. Each
+cleanup error names the directory path and states whether the removal or the
+identity record failed.
 
-Ownership evidence must precede access granted to another process. Cleanup
-checks the recorded owned identity against the current pathname. A replaced
-directory is preserved; an owned directory moved elsewhere requires an explicit
-diagnostic and possible manual removal. If identity recording itself fails,
-the allocator must report that it cannot safely confirm deletion. It must not
-remove a possibly different directory merely to hide the original failure.
-After an explicit cleanup attempt, destructor removal is disarmed so it cannot
-silently retry, delete a replacement or erase the reported stopping state.
-Descriptors still close through their existing ownership. The incumbent compares
-identity and then removes by pathname; this is not atomic against concurrent
-pathname mutation. The [checked C3 controls](../completion-failure-design-evidence.md#c3-checked-observations)
-cover moves and substitutions completed before the cleanup observation, not that
-concurrent interval.
+Without cancellation, an allocator failure stays primary. A cleanup failure
+after an otherwise successful worker preparation or evaluation prevents
+admission.
+
+Ownership evidence must come before the allocator grants access to another
+process. Cleanup compares the recorded owned identity with the current pathname.
+Cleanup keeps a replaced directory. An owned directory that moved elsewhere
+needs an explicit diagnostic and possibly a manual removal. If the allocator
+cannot record the identity, it must report that it cannot safely confirm the
+removal. It must not remove a possibly different directory only to hide the
+original failure.
+
+After an explicit cleanup attempt, the allocator disarms the removal by the
+destructor. The destructor then cannot silently retry, remove a replacement or
+lose the reported stopping state. Descriptors still close through their
+existing ownership. The incumbent compares the identity and then removes by
+pathname. This sequence is not atomic against a concurrent change of the
+pathname. The [checked C3 controls](../completion-failure-design-evidence.md#c3-checked-observations)
+cover moves and substitutions that complete before the cleanup observation, not
+that concurrent interval.
+
+<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
 
 ### Terminal recovery after failed exec
 
@@ -229,24 +264,27 @@ an attempted-group record establishes neither exec nor a successful ending.
 | No earlier failure. A matching ending reports a surviving group | Group failure | Survivor identity. No result |
 | Matching reap/group/terminal/resource settlement succeeds, no cancellation | Exact published UTF-8 result | Empty publication differs from absence. Child's later exit status is not decisive |
 
+The managed front keeps this cleanup order: mask restoration, channel close,
+then output restoration. The front holds the reap and terminal failures of the
+runner before those outer cleanups run. It also holds the local cleanup reports
+of each allocator. An operational failure that existed before does not become a
+later cleanup error.
+
+Reports continue after a failure. A failed operation of the operating system
+cannot appear as a fulfilled guarantee. If stderr is not writable, the emission
+of a report can fail. That failure does not permit result success. It also does
+not justify the silent discard of the report before an emission attempt.
+
+Only a successful settlement reaches the final exact write and flush of stdout.
+A failure of that write stays an error, and the write can have written a prefix.
+The final cancellation join is the decision point of the settlement. A
+cancellation joins at that point if the front observed it before, or if it is
+pending for delivery through the existing transition. A signal that arrives
+after that decision follows the restored disposition, and it can end the CLI
+during the write. No atomic guarantee spans signal delivery and arbitrary output
+writes, and no rollback removes a written prefix.
+
 <!-- tc: pending because the untouched completion sections exceed this reconciliation's prose-conversion scope -->
-
-The managed front retains mask restoration, channel close, confined-directory
-removal and output restoration order. Runner-owned reap/terminal failures and
-allocator-local cleanup reports are retained before those outer cleanups; a
-pre-existing operational failure does not become a later cleanup error. Reporting
-attempts continue after a failure, but a failed OS operation cannot be presented
-as a fulfilled guarantee. If stderr itself is unwritable, emission can fail;
-that does not permit result success or justify silently discarding the report
-before attempting emission.
-
-Only successful settlement reaches the final exact stdout write/flush. A failure
-of that write remains an error and may have written a prefix. The final
-cancellation join is the settlement decision point: cancellation already
-observed or pending for delivery through the existing transition joins then.
-A newly arriving signal after that decision follows the restored disposition
-and may terminate the CLI during writing. There is no atomic guarantee spanning
-signal delivery and arbitrary output writes, and no rollback of a written prefix.
 
 ## One-session native launcher entry
 
@@ -437,30 +475,28 @@ C1 now has the separate checked observations linked
 above. Its recovery-report control does not establish actual terminal
 recovery.
 
-<!-- tc: pending because the completion contract exceeds 60 hard findings and this reconciliation changes other sections -->
-
 ## Boundary criterion
 
-A proposed higher-level interface earns the matching-job guarantee only if
-its owner creates or exclusively owns the channel-to-launch association and
-checks the actual ending. Accepting an arbitrary caller-supplied ending leaves
-the association with the caller. Returning candidate bytes before explicit
-cleanup leaves the completion decision with the caller too.
+A proposed interface at a higher level earns the matching-job guarantee only if
+its owner creates or exclusively owns the association of channel and launch.
+That owner must also check the actual ending. An interface that accepts an
+arbitrary ending from the caller leaves the association with the caller. An
+interface that returns candidate bytes before explicit cleanup also leaves the
+completion decision with the caller.
 
-An owner can settle only the resources and cancellation observations it owns
-or receives under an explicit transfer contract. Moving the read and close
-calls into a helper does not transfer the front's signal state, confined
-workspace or output restoration. Their ordering and failure composition must
-remain stated even if they become internal to a combined module.
+An owner can settle only the resources and cancellation observations that it
+owns or that it receives under an explicit transfer contract. A helper that
+takes over the read and close calls does not receive the signal state of the
+front or the output restoration. Their order and failure composition must stay
+stated, even if they become internal to a combined module.
 
 The [visual companion](../design/result-job/index.html#discussion) distinguishes
-the observed composition from a proposed regrouping. That proposal remains
-unselected: source observation now supplies concrete failure and native-entry
-limits, rather than a universal transfer guarantee. Resolving those limits,
+the observed composition from a proposed regrouping. That proposal stays
+unselected. Source observation now supplies concrete failure and native-entry
+limits, not a universal transfer guarantee. The resolution of those limits, the
 recurring support cost and a working migration route still need assessment.
-Public packaging and independent consumer execution remain separate questions.
-
-<!-- tc: on -->
+Public packaging and the execution of an independent consumer stay separate
+questions.
 
 ## Evidence and checks
 
