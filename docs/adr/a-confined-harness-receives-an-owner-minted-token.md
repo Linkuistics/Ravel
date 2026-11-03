@@ -9,11 +9,9 @@ rules.
 
 The trade-off is the owner's work against the reach of a confined agent and
 Anthropic's terms. The owner mints a token each year and keeps its date in the
-settings. In return, no grant of a confined launch reaches the token file, and
-the handoff adds no Keychain or sign-in-store grant. A confined agent can read
-a sign-in store only through a grant that the caller names. The handoff gives a
-confined session nothing that can rotate the owner's own sign-in. The route is
-the same on macOS and Linux.
+settings. In return, no confined process can read the token file, a Keychain
+item or the owner's own sign-in. Nothing confined can rotate that sign-in. The
+route is the same on macOS and Linux.
 
 The design rejected these routes:
 

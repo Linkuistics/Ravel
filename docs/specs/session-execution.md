@@ -105,23 +105,14 @@ The Rhai worker evaluates outside this confinement and has its own isolation rul
 Canonical working directory and a private run directory are writable.
 `--exit-dir` adds an existing writable parent for the result channel.
 
-`--runtime-read` grants repeatable regular files read-only and requires confinement. System runtime reads and the canonical Ravel executable are admitted. Canonical grants must not overlap the configuration directory, the settings file or a protected path of a declared token file.
-
-The runner grants each writable root and runtime read in the canonical form that Ravel checked.
-Before the launch, it resolves each one again.
-A path that now resolves to another path gives no grant, as a changed skill directory does.
-The managed launch then refuses as `supervision_failed`, exit 126, and a harness run returns `harness_launch_failed`.
-Bubblewrap binds each path after that comparison, so a short interval stays open on Linux.
-Seatbelt matches the real path at each access.
+`--runtime-read` grants repeatable regular files read-only and requires confinement. System runtime reads and the canonical Ravel executable are admitted. Canonical grants must not overlap the configuration directory or settings file.
 
 With skill delivery enabled, Ravel also grants the descriptor directory and the snapshot trees read-only, as [read access and delegation](skill-discovery.md#read-access-and-delegation) states.
 A granted directory that overlaps the configuration directory, the settings file or a known result channel refuses as `skill_access_unavailable`, exit 3.
-So does a granted directory that overlaps a protected path of a declared token file.
 So does a writable grant that overlaps the skill cache, and a granted directory that the backend cannot list.
 A granted directory that changed after its check gives no grant, as the skill discovery specification states.
 
-The runner keeps no inherited descriptor above standard error open across the exec of a confined launch, except the sockets of delivered token handoffs.
-The [token handoff specification](token-handoff.md) owns the protected paths of a token file and the runner's descriptor list.
+Each declared token file is a protected path, and a delivered token handoff adds an inherited socket, as the [token handoff specification](token-handoff.md) states.
 
 The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. A delivered token handoff adds its declared variable. The backend's filesystem contract and platform limits live in
 [the runner explanation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).

@@ -1,7 +1,7 @@
 flowchart TD
   start["Start here:<br/>CLAUDE_CODE_OAUTH_TOKEN_FILE_DESCRIPTOR=N"]:::start
   socket{"Is descriptor N<br/>a socket?"}
-  direct["Read N directly, close it,<br/>then remove the variable"]
+  direct["Read N to end of stream,<br/>then remove the variable"]
   path["Open /dev/fd/N by its path"]
   absent["Ravel's Seatbelt profile:<br/>ENOENT, the path is absent"]
   none["No direct read after ENOENT:<br/>not logged in"]

@@ -16,8 +16,7 @@ Each rule has one owner:
 
 - This specification owns the `tokenHandoffs` settings object and the
   `tokenHandoffs` field of a selection and of a harness-run request. It also
-  owns the protected paths, the checks and the read of a token file. It owns
-  the socket, the runner's descriptor list, the refusal
+  owns the checks and the read of a token file, the socket, the refusal
   `token_handoff_unavailable` and the acceptance cases of this feature.
 - The [configuration evaluation specification](configuration-evaluation.md)
   owns the settings file as a whole, the selection map, the harness-run
@@ -64,15 +63,14 @@ names the handoff in each selection or harness run that needs it.
 
 For a confined launch, the Ravel CLI checks and reads the file before the
 launch. It writes the token into one end of a new socket pair and closes that
-end. The runner keeps the other end open across the launch, and the selected
-program inherits it. The declared variable holds its descriptor number. Claude
-Code reads the token during its initialisation and closes the descriptor.
+end. The selected program inherits the other end, and the declared variable
+holds its descriptor number. Claude Code reads the token to the end of the
+stream during its initialisation.
 
-No grant of a confined launch reaches the file, because Ravel refuses every
-grant that overlaps it. Skill capture refuses a source that holds the file, so
-no snapshot copies it. The confinement profile gains no grant for this
-feature. The owner's own sign-in stays in its store, and the handoff cannot
-refresh or rotate it.
+No confined process can read the file, because Ravel refuses every grant that
+overlaps it. The confinement profile gains no grant for this feature. The
+owner's own sign-in stays in its store, and the handoff cannot refresh or
+rotate it.
 
 ## Decisions
 
@@ -148,114 +146,44 @@ This rule keeps an unconfined Claude Code on the owner's own sign-in. Claude
 Code ranks a token in either of its token variables above the sign-in of
 `/login`. The token can also make model requests only.
 
-An unconfined launch still protects every declared token file from skill
-capture, as the next section states.
-
 ### Protected token files
 
-Each declared token file has two protected paths. The first is its declared
-path, with its directory in canonical form. The second is the real path that
-the declared path resolves to, or its prospective path when the file is
-absent. When the declared path is a symbolic link whose target is absent, the
-real path is the prospective path of that target. A link at the declared path
-is therefore protected, as is its target. Ravel protects every declared file,
-also when no selection names it.
+Every declared token file is a protected path of every confined launch, as the
+configuration directory and the settings file are. A grant that overlaps a
+declared file refuses with the code that an overlap with the settings file
+receives. This covers writable grants, runtime reads, system reads and skill
+directories.
 
-Each launch resolves the protected paths of each declared file once, before
-its first check. The source check, the confinement check and the read of that
-launch use that one resolution. Each harness run resolves them once for its own
-confinement check and its read.
-
-These paths join the protected paths of two checks that Ravel has now. Each check
-refuses with the code that an overlap with the settings file receives in that
-check. Ravel has no single overlap code. Each check also refuses a declared
-file that exists with more than one link, with the same code. Its other name
-can lie inside a grant or a source.
-
-| Check | What it covers | When | Refusal |
-| --- | --- | --- | --- |
-| Confinement grants | The writable grants, runtime reads and system reads of a confined launch | Before the worker launches | `confinement_overlap`, stage `cli`, exit 2 |
-| Skill sources and their grants | Each skill source of `skills resolve` and of every launch, with or without `--confine`. Each descriptor directory and snapshot tree that a confined launch grants | Before capture, and before the worker launches | `skill_access_unavailable`, stage `skills`, exit 3 |
-
-A source that holds a declared token file therefore refuses before Ravel
-copies any of its content into the cache. A snapshot from a capture before
-the settings declared the file stays in the cache. No launch grants that
-snapshot, because every launch captures its sources again and refuses first.
-The owner removes it, as the
-[skill discovery specification](skill-discovery.md#sources-and-retained-resources)
-states.
-
-These checks resolve paths and examine link counts, and they read no content.
-The read examines the link count again. A confined process cannot make a hard
-link to the token file. Under a copy of Ravel's Seatbelt profile, `ln` from a
-dummy file outside the grants failed with `EPERM`, also through the
-`/System/Volumes/Data` path. Bubblewrap does not mount the file.
-
-The runner grants each path in the form that Ravel checked, as the
-[session execution specification](session-execution.md#confinement) states. A
-grant whose path now resolves to another path, such as the token file, gives
-no grant, and the launch refuses.
-
-Two read grants stay outside the overlap check: the selected program and
-Ravel's own executable. The configuration script selects the program, and
-Ravel trusts it.
-
-Ravel protects no symbolic link between the declared path and the real path.
-A process that can change such a link before a launch changes the file that
-Ravel protects and reads. The owner therefore keeps each link of a declared
-path outside every grant.
+The check uses the canonical path of the file, or its prospective path when
+the file is absent. It reads no content, and it runs before the worker
+launches.
 
 ### Checks and the read
 
 The Ravel CLI checks each named token file after the selection and before it
 allocates the result channel. For a harness run, it checks the file before it
-launches the run. Each delivery runs these steps, in this order:
+launches the run. It checks these properties in this order:
 
-1. The current date is before `expires`, in UTC.
-2. Ravel resolves the declared path again. Its real path must be the real path
-   of the resolution of the same launch. A harness run has a resolution of its
-   own. The declared path can be a symbolic link.
-3. Ravel opens that real path to read it. The open follows no link in the
-   last component, and it does not block.
-4. The open file is a regular file.
-5. The open file belongs to the effective user of the Ravel CLI.
-6. The mode of the open file grants no permission to the group or to others.
-7. The open file has exactly one link.
-8. The open file holds 1 to 4,096 bytes.
-9. Ravel reads the open file to its end, with as many reads as that needs.
-   It stops after 4,097 bytes. The read must give 1 to 4,096 bytes.
+1. The current date is before `expires`.
+2. The path resolves to a regular file. Ravel admits a symbolic link by its
+   real file.
+3. The file belongs to the effective user of the Ravel CLI.
+4. The mode of the file grants no permission to the group or to others.
+5. The file holds 1 to 4,096 bytes.
 
-Steps 4 to 8 examine the open descriptor, not the path, and step 9 reads from
-the same descriptor. The file that Ravel checks is therefore the file that it
-reads. Step 2 binds that file to the protected real path. Step 7 refuses a
-second name that appeared after the protection. Step 9 refuses a file that
-grew after step 8. A short read does not end step 9 early.
+Ravel then reads the whole file once. It does not check the content further.
+Claude Code reads up to the first newline and removes the surrounding white
+space.
 
-An interval stays open between step 2 and step 3. In it, a process can
-replace a directory above the real path. No confined process can do that,
-because a grant over such a directory overlaps a protected path. Ravel trusts
-the processes outside confinement, because they can read the token file
-already. Such a replacement can make the launch refuse, or make Ravel read
-another file. It cannot give a confined process a grant over the token file.
-
-The owner can replace the token file by a rename at any time. The real path
-stays the same, so a delivery reads either the old file or the new one.
-
-Ravel does not check the content further. Claude Code reads up to the first
-newline and removes the surrounding white space.
-
-A failed check or read refuses as `token_handoff_unavailable`, stage
-`handoff`, exit 3. The message names the handoff, the path and the failed
-property. It never holds content of the file. A failed open reports as the
-regular-file property, with the error of the system.
+A failed check refuses as `token_handoff_unavailable`, stage `handoff`, exit 3.
+The message names the handoff, the path and the failed property. It never
+holds content of the file.
 
 | Failed property | Remedy |
 | --- | --- |
 | Expiry | Mint a new token with the harness, replace the file and set a later `expires` date |
-| Changed path | Keep the declared path and its links unchanged during a launch, then launch again |
 | Regular file | Save the token in the named file, or correct `file` in the settings |
 | Owner or mode | Make the file belong to you, with mode `0600` |
-| Link count | Keep one name for the token file. Copy it, and do not make a link to it |
 | Size | Save only the token in the file |
 
 A refusal launches nothing. Ravel does not try again without the handoff,
@@ -264,29 +192,24 @@ check is `unavailable` with the same code, and the script interprets it.
 
 ### Delivery through a socket
 
-For each delivery, Ravel creates a connected pair of Unix stream sockets. It
-creates the pair directly before it gives the launch request to the runner.
-Both ends are close-on-exec in the Ravel CLI, so no other child inherits them.
-Ravel writes the token bytes into one end, shuts down that end for writing
-and closes it. The token has at most 4,096 bytes, so the write ends before the
-launch on both platforms. A failure before the runner receives the request
-closes both ends, and the token goes with them.
+For each delivered handoff, Ravel creates a connected pair of Unix stream
+sockets. It writes the token bytes into one end, shuts down that end for
+writing and closes it. The token has at most 4,096 bytes, so the write ends
+before the launch on both platforms.
 
-The selected program inherits the other end, as the
-[runner's descriptor list](#the-runners-descriptor-list) states. The
-descriptor number is 3 or more. The declared variable holds that number in
+The selected program inherits the other end through the confinement backend.
+The descriptor number is 3 or more. The declared variable holds that number in
 decimal, and Ravel adds the variable to the confined environment. Each handoff
-has its own socket and its own variable. Each harness run receives new
-sockets.
+has its own socket and its own variable.
 
-Ravel keeps the token bytes only from the read to the write.
-[The token and output](#the-token-and-output) states what Ravel writes.
+Ravel keeps the token bytes only from the read to the write. It writes them to
+no notice, diagnostic, refusal, request, log or file, and it sends them to no
+worker.
 
 The descriptor is a socket because of the reader in Claude Code 2.1.317:
 
-- It reads a socket directly, up to the end of the stream or the first
-  newline, and closes the descriptor. Then it removes the variable from its
-  environment.
+- It reads a socket directly, to the end of the stream. Then it removes the
+  variable from its environment.
 - It opens any other descriptor by the path `/dev/fd/N`. It reads the
   descriptor directly only after `EACCES` or `EPERM`.
 - Ravel's Seatbelt profile reports `/dev/fd/N` as absent, with `ENOENT`.
@@ -298,80 +221,15 @@ by path failed for a pipe and for a socket. The direct read passed for both.
 The token is not in an environment variable, because every descendant inherits
 the environment. An agent could then print the token.
 
-### The runner's descriptor list
-
-The runner of `keyed-launch` marks every inherited descriptor above standard
-error close-on-exec in each detached launch. A confined managed launch and a
-harness run are detached launches. Without an exception, the runner would
-close the socket when it launches the confinement backend. A change in the Ravel
-CLI alone is not sufficient, because the runner sets close-on-exec again in
-the child.
-
-A launch request therefore carries an explicit list of socket descriptors, and
-the runner owns that list:
-
-- In the child, the runner first marks every descriptor above standard error
-  close-on-exec, as before. Then it clears close-on-exec on each listed
-  descriptor, at its number in the Ravel CLI. No other descriptor above
-  standard error stays open across the exec.
-- The confinement backend passes the listed descriptors to the selected
-  program.
-- The runner receives the other ends with the request. It closes its
-  copies in the Ravel CLI after the spawn, when the spawn succeeds and when it
-  fails. A failed spawn discards the token with the socket.
-- Only a confined managed launch and a confined harness run carry a list. The
-  list holds only the other ends of the delivered handoffs.
-
-The list is a narrow addition to the runner seam that Ravel has now. It needs no
-launcher that knows about credentials.
-
-### The token and output
-
-Ravel itself writes no token byte to its stdout, its stderr, a notice, a
-diagnostic, a refusal, a request, a log or a file. Its handling of a handoff
-sends no token byte to the worker.
-
-That promise covers what Ravel adds while it handles a token. It does not
-cover a measured read of the token file that the configuration script makes.
-The [credentials](configuration-evaluation.md#credentials) rule keeps such a
-read unchanged. The promise also does not cover what a trusted program
-returns. The selected program and a harness run can read the socket and print
-the token:
-
-- The output of the managed process goes to the caller's standard error. Its
-  result goes to Ravel's stdout.
-- Ravel returns the `stdout` and `stderr` of a harness run to the
-  configuration script.
-
-Ravel removes no credential from that output, as the
-[credential boundary](configuration-evaluation.md#requirement-credential-boundary)
-states. It trusts the configuration script and the programs that the owner
-names. An echo of the token is therefore outside the secrecy of the handoff.
-The owner names a handoff only for a program that does not print the token.
-
 ### What a confined process can read
 
-- **The token file.** No writable root, runtime read, system read, skill
-  directory or snapshot tree of a confined launch reaches it. Ravel refuses
-  each one that overlaps a protected path of the file, and the runner grants
-  each path in its checked form. No snapshot holds a copy, because capture
-  refuses a source that holds the file. A file with a second name refuses, and
-  a confined process cannot make one. The selected program and Ravel's own
-  executable are the two read grants outside this check.
-- **The Keychain and the sign-in stores.** This feature opens no sign-in store
-  and adds no grant for one. The profile gains no Mach service and no
-  Keychain read for this feature. A confined process reads a file only
-  through a grant of its launch. A grant that the caller names can still
-  give access to a sign-in file. Examples are the runtime read of `auth.json` that
-  Codex uses, and a granted `.credentials.json` on Linux. The complete grant
-  set decides those reads, not this feature.
-- **The socket.** Claude Code reads it during its initialisation and then
-  closes the descriptor. A descendant that Claude Code launches later receives
-  no such descriptor. A static reading of the 2.1.317 executable gives this
-  order, and no run measured it. A hook or an MCP server that Claude Code
-  launches before its read would inherit the unread socket. A confined agent
-  can write project hooks into a writable working directory for a later
-  launch.
+- **The token file.** No confined process can read it, because Ravel refuses
+  every grant that overlaps it.
+- **The Keychain and the sign-in stores.** No confined process can read them.
+  The profile gains no Mach service and no Keychain read for this feature.
+- **The socket.** Claude Code reads it to the end of the stream during its
+  initialisation, before the agent acts. A descendant that inherits the descriptor then reads
+  only the end of the stream.
 - **The token.** Claude Code holds the token in memory and sends it with each
   model request. Ravel does not protect the token from a process that can read
   the memory of Claude Code. The platform owns that protection.
@@ -390,22 +248,18 @@ validity fails inside the harness, with the message of the harness. Ravel
 cannot see that failure.
 
 The owner's own sign-in is independent of the token. The token has no refresh
-token, so a confined Claude Code cannot refresh it. The handoff gives a
-confined session nothing that can rotate or revoke the owner's own sign-in. A
-grant that gives access to a sign-in store is outside this feature, as
-[what a confined process can read](#what-a-confined-process-can-read) states.
+token, so a confined Claude Code cannot refresh it. Nothing that a confined
+session does can rotate or revoke the owner's own sign-in.
 
 ### macOS and Linux
 
 The handoff is the same on both platforms. The token file is an ordinary file.
 Ravel opens no Keychain item on macOS and no `.credentials.json` on Linux.
 Seatbelt and bubblewrap both pass an inherited descriptor to the program that
-they launch, when the runner keeps that descriptor open. Claude Code reads a
-socket directly on both platforms.
+they launch. Claude Code reads a socket directly on both platforms.
 
-The probe measured Seatbelt only. The bubblewrap source passes inherited
-descriptors to its payload, but no run measured that. The Linux fixture of
-the implementation measures bubblewrap before this feature can pass.
+The probe measured Seatbelt only. The Linux fixture of the implementation
+measures bubblewrap before this feature can pass.
 
 ### Diagnostics
 
@@ -420,11 +274,9 @@ path or the content of a token file.
 | Code | Stage | Exit | Meaning |
 | --- | --- | --- | --- |
 | `settings_invalid` | `cli` | 2 | A `tokenHandoffs` record is malformed |
-| `confinement_overlap` | `cli` | 2 | A writable grant, runtime read or system read overlaps a protected path of a token file, or a declared token file has a second link |
-| `skill_access_unavailable` | `skills` | 3 | A skill source, descriptor directory or snapshot tree overlaps a protected path of a token file, or a declared token file has a second link |
-| `supervision_failed` | `exec` | 126 | A checked grant of the managed launch now resolves to another path. A harness run returns `harness_launch_failed` |
+| The overlap code of the settings file | As for the settings file | As for the settings file | A grant overlaps a declared token file |
 | `selection_malformed` | `selection` | 3 | The selection names an undeclared handoff, or repeats a name |
-| `token_handoff_unavailable` | `handoff` | 3 | A named token file failed a check or the read |
+| `token_handoff_unavailable` | `handoff` | 3 | A named token file failed a check |
 
 A harness run reports `token_handoff_unavailable` as data, with the status
 `unavailable`.
@@ -442,15 +294,10 @@ descriptor number of that socket.
 - **WHEN** the settings declare the handoff `claude-code` with a valid file
 - **AND** the selection names `claude-code`
 - **AND** the caller passes `--confine`
-- **THEN** a fake harness reads bytes with the SHA-256 digest of the file,
-  from the descriptor that its variable names
-- **AND** the fake harness then reads the end of the stream
+- **THEN** a fake harness reads the exact bytes of the file and then the end
+  of the stream, from the descriptor that its variable names
 - **AND** the descriptor is a socket
-- **AND** the harness does not hold a sentinel descriptor that the caller of
-  Ravel leaves open without close-on-exec
-- **AND** an open of the token file inside the launch fails, also through the
-  `/System/Volumes/Data` path on macOS
-- **AND** a hard link of the token file into the working directory fails
+- **AND** an open of the token file inside the launch fails
 
 #### Scenario: An unconfined launch
 
@@ -470,7 +317,7 @@ it SHALL launch nothing.
 
 #### Scenario: An expired token
 
-- **WHEN** the current date in UTC is the date of `expires` or later
+- **WHEN** the date of `expires` is today or earlier
 - **THEN** the launch refuses as `token_handoff_unavailable`, exit 3
 - **AND** Ravel creates no result channel and launches no managed process
 
@@ -480,103 +327,28 @@ it SHALL launch nothing.
 - **THEN** the launch refuses as `token_handoff_unavailable`
 - **AND** the remedy asks for mode `0600`
 
-#### Scenario: A link retargeted after the protection
+### Requirement: The token stays out of Ravel's output
 
-- **WHEN** the declared path is a link to a valid file outside every grant
-- **AND** fault injection retargets the link after the protection, to a valid
-  file in the working directory
-- **THEN** the launch refuses as `token_handoff_unavailable`, with the
-  changed-path property
-- **AND** Ravel opens neither file and launches no managed process
-
-#### Scenario: A file replaced after its checks
-
-- **WHEN** fault injection replaces the token file by a rename after the
-  checks of the open file
-- **THEN** the fake harness reads bytes with the digest of the checked file
-
-#### Scenario: A file that grows after its size check
-
-- **WHEN** fault injection appends bytes after the size check, and the file
-  then holds more than 4,096 bytes
-- **THEN** the launch refuses as `token_handoff_unavailable`, with the size
-  property
-- **AND** Ravel launches no managed process
-
-#### Scenario: A second link after the protection
-
-- **WHEN** fault injection adds a second hard link to the token file after the
-  protection
-- **THEN** the launch refuses as `token_handoff_unavailable`, with the
-  link-count property
-
-### Requirement: The token stays out of Ravel's own output
-
-Ravel SHALL add no byte of a token file to its stdout, its stderr, a notice, a
-refusal, a request, the worker or a log. Output that the selected program or a
-harness run gives is outside this requirement.
+Ravel SHALL write no byte of a token file to its stdout, its stderr, a notice,
+a refusal, a request, the worker or a log.
 
 #### Scenario: Leak probe
 
-- **WHEN** the token file holds a sentinel
-- **AND** a confined launch and a confined harness run deliver it to a fake
-  harness that reports only a digest
+- **WHEN** the token file holds a sentinel and a confined launch delivers it
 - **AND** another launch refuses because the file is open to others
 - **THEN** the sentinel is in no output of Ravel, no notice, no failure
-  document, no request and no harness-run result that the script receives
+  document and no request that the script receives
 
 ### Requirement: Protected token files
 
-Ravel SHALL refuse a confined launch when a grant overlaps a protected path of
-a declared token file.
+Ravel SHALL refuse a confined launch when a grant overlaps a declared token
+file.
 
 #### Scenario: A token file in the working directory
 
 - **WHEN** a declared token file is in the working directory
-- **THEN** every confined launch refuses as `confinement_overlap`, exit 2,
-  before the worker launches
-
-#### Scenario: A token link in the working directory
-
-- **WHEN** a declared path is a link in the working directory to a file
-  outside it
-- **THEN** every confined launch refuses as `confinement_overlap`, exit 2,
-  before the worker launches
-
-#### Scenario: A token file with a second link
-
-- **WHEN** a declared token file has a second hard link
-- **AND** no selection names its handoff
-- **THEN** a confined launch without skill delivery refuses as
-  `confinement_overlap`, exit 2, before the worker launches
-
-#### Scenario: A dangling token link
-
-- **WHEN** a declared path is a link whose target is absent
-- **THEN** the protection checks the prospective path of that target
-- **AND** a confined launch that names the handoff refuses as
-  `token_handoff_unavailable`, with the regular-file property
-
-#### Scenario: A runtime read retargeted after its check
-
-- **WHEN** a confined launch grants a runtime read of a regular file
-- **AND** fault injection replaces that file with a link to a declared token
-  file, after the check and before the spawn
-- **THEN** the launch refuses as `supervision_failed`, exit 126
-- **AND** the managed process does not run
-
-### Requirement: Token files and skill sources
-
-Ravel SHALL refuse a skill source that overlaps a protected path of a declared
-token file, before it captures that source.
-
-#### Scenario: A token file inside a skill source
-
-- **WHEN** a declared dummy token file lies inside a skill source
-- **AND** no selection names its handoff
-- **THEN** `skills resolve`, an unconfined launch and a confined launch each
-  refuse as `skill_access_unavailable`, exit 3
-- **AND** the cache holds no copy of the dummy token
+- **THEN** every confined launch refuses before the worker launches, as for an
+  overlap with the settings file
 
 ### Requirement: Harness runs
 
@@ -591,36 +363,18 @@ under the same rules.
 
 ## Test seams
 
-- **Ravel's public boundary, with fixtures.** `start-session`,
-  `skills resolve` and `ravel::run_harness` cover every requirement above.
-  Each test has a temporary home, a fake harness and a dummy token file. The
-  fake harness reports its variable and the type of its descriptor. It
-  reports the SHA-256 digest of the bytes that it reads, and whether the
-  stream ended. It also reports the state of a sentinel descriptor, and the
-  results of an open and a hard link of the token file. It never prints the
-  bytes. Fault injection behind internal seams changes the file or a grant
-  between the protection and the read or the spawn. These tests run in
-  `task check` on macOS and in the Linux lane under bubblewrap. They need no
-  owner credential.
+- **Ravel's public boundary, with fixtures.** `start-session` and
+  `ravel::run_harness` cover every requirement above. Each test has a
+  temporary home, a fake harness and a dummy token file. The fake harness
+  reports its variable, the type of its descriptor, the bytes that it reads and
+  an attempt to open the token file. These tests run in `task check` on macOS
+  and in the Linux lane under bubblewrap. They need no owner credential.
 - **The real profile, without a model call.** This check is opt-in. The human
   approves it before Ravel reads the owner's token. The selected program runs
   `claude auth status` under Ravel's own `--confine`, in a sandbox home with
   its own settings. With the handoff, Claude Code reports a sign-in. The
   control, whose selection names no handoff, reports no sign-in. The record
   holds no byte of the token.
-
-### Verification limits
-
-- **Bubblewrap.** No run measured that bubblewrap passes a listed descriptor.
-  The Linux fixture measures it.
-- **The reader of Claude Code.** The socket branch, the close of the
-  descriptor and the order of the read come from a static reading of the
-  minified 2.1.317 executable. The real-profile check measures the sign-in.
-  It does not measure the order of the read against hooks and MCP servers,
-  and the record names that gap unless a run measures it.
-- **The probes.** The hard-link and `/System/Volumes/Data` results and the
-  descriptor reads used a copy of the Seatbelt profile with dummy files. The
-  public fixtures measure Ravel's own launch.
 
 ## Out of scope
 

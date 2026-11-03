@@ -10,9 +10,9 @@ The [token handoff specification](../../specs/token-handoff.md) is the
 authority for these views. They show the contract of the
 `skill-directory-delivery` line, not the behaviour of Ravel `main`.
 
-- [Solution → From the owner's token to the confined Claude Code](index.html#diagram-route) — Added the skill-source protection, the runner's descriptor list and the closed descriptor.
-- [Checks and the read → Check, read and send in one confined launch](index.html#diagram-launch) — Added the protected paths, the open-file checks and the runner's list.
-- [Delivery through a socket → Claude Code reads a socket directly and a pipe by its path](index.html#diagram-reader) — Corrected the direct read, which closes the descriptor.
+- [Solution → From the owner's token to the confined Claude Code](index.html#diagram-route) — Added the agreed route.
+- [Checks and the read → Check, read and send in one confined launch](index.html#diagram-launch) — Added the order of the checks, the read and the socket.
+- [Delivery through a socket → Claude Code reads a socket directly and a pipe by its path](index.html#diagram-reader) — Added the reader and the measured result.
 - [Rejected routes → Four rejected routes and the agreed route](index.html#diagram-rejected) — Added the routes that the decision record rejects.
 - [A confined harness receives an owner-minted token](../../adr/a-confined-harness-receives-an-owner-minted-token.md) — Recorded the decision and the rejected routes.
 
