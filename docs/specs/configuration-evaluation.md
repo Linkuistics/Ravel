@@ -779,7 +779,10 @@ there. The notice reports the delivered context.
 Ravel reads no API key and no sign-in, and it stores none. Each harness finds
 its own sign-in or key. The one credential that Ravel passes on is a token that
 the owner minted and named in a [token handoff](token-handoff.md). Ravel sends
-it only to a confined launch that the configuration script names.
+it only to a confined launch that the configuration script names. A program
+that prints the token returns it in its output, and Ravel leaves that output
+unchanged, as [the token and output](token-handoff.md#the-token-and-output)
+states.
 
 Ravel trusts the configuration script, because the owner writes it. The credential rules
 therefore do not defend against the configuration script. They keep Ravel itself from collecting

@@ -25,13 +25,13 @@
   ],
   "discussion": {
     "title": "Hand a confined Claude Code an owner-minted token",
-    "status": "Agreed by the owner on 2026-11-03. The specification is written, and the implementation is ahead",
-    "summary": "The owner mints a token with claude setup-token and names its file in the settings. The configuration script names the handoff in a selection or a harness run. For a confined launch, Ravel checks and reads the file, and it sends the token through an inherited socket. Ravel never opens a sign-in store of a harness, and no grant may overlap the token file.",
+    "status": "Agreed by the owner on 2026-11-03. The specification is written and its review is integrated. The implementation is ahead",
+    "summary": "The owner mints a token with claude setup-token and names its file in the settings. The configuration script names the handoff in a selection or a harness run. For a confined launch, Ravel checks the open file, reads it once and sends the token through a socket that the runner keeps open. Ravel never opens a sign-in store of a harness. No grant and no skill source may overlap the token file.",
     "diagramIds": ["route", "launch", "reader", "rejected"],
     "updatedDiagrams": [
-      { "id": "route", "summary": "Added the agreed route, from the owner's token to the confined Claude Code." },
-      { "id": "launch", "summary": "Added the order of the checks, the read and the socket in one confined launch." },
-      { "id": "reader", "summary": "Added the descriptor reader of Claude Code 2.1.317 and the measured result under the profile." },
+      { "id": "route", "summary": "Added the skill-source protection, the runner's descriptor list and the closed descriptor after the review." },
+      { "id": "launch", "summary": "Added the protected paths, the source check, the checks of the open file and the runner's descriptor list after the review." },
+      { "id": "reader", "summary": "Corrected the direct read: Claude Code closes the descriptor after its read." },
       { "id": "rejected", "summary": "Added the four routes that the decision record rejects, with the reason for each." }
     ]
   },
@@ -41,21 +41,21 @@
       "group": "solution",
       "title": "From the owner's token to the confined Claude Code",
       "source": "route.mmd",
-      "caption": "The settings declare the file, the variable and the expiry date. The configuration script names the handoff. Ravel delivers it only under --confine. Every grant that overlaps the token file refuses, so no confined process can read the file. Ravel never opens the owner's own sign-in."
+      "caption": "The settings declare the file, the variable and the expiry date. The configuration script names the handoff. Ravel delivers it only under --confine. Every grant and every skill source that overlaps a protected path of the token file refuses, so no grant of a confined launch reaches the file. The handoff adds no Keychain or sign-in-store grant, and Ravel never opens the owner's own sign-in."
     },
     {
       "id": "launch",
       "group": "checks",
       "title": "Check, read and send in one confined launch",
       "source": "launch.mmd",
-      "caption": "Ravel checks the shape of the settings and the protected paths before the worker. It checks the file after the selection and before it allocates the result channel. A failed check launches nothing, and Ravel tries no other route. A harness run follows the same order, and a failure there is the unavailable status that the script reads."
+      "caption": "Ravel resolves the protected paths once, then checks the link count, the skill sources and the grants against them before the worker. After the selection, it resolves the declared path again, checks the open file and reads it, before it allocates the result channel. The runner grants each path in its checked form and keeps only the listed socket open across exec. A failed check or read launches nothing, and Ravel tries no other route. A harness run follows the same order for each run, and a failure there is the unavailable status that the script reads."
     },
     {
       "id": "reader",
       "group": "socket",
       "title": "Claude Code reads a socket directly and a pipe by its path",
       "source": "reader.mmd",
-      "caption": "From the 2.1.317 executable. A probe under a copy of the profile used dummy text: the read of /dev/fd/3 failed with ENOENT for a pipe and for a socket, and the direct read passed for both. The branch inside Claude Code comes from minified code, and the real-profile check of the implementation confirms it."
+      "caption": "From the 2.1.317 executable. A probe under a copy of the profile used dummy text: the read of /dev/fd/3 failed with ENOENT for a pipe and for a socket, and the direct read passed for both. The branch inside Claude Code comes from minified code. A static reading in the review found that the direct reader closes the descriptor. The real-profile check of the implementation confirms the branch."
     },
     {
       "id": "rejected",

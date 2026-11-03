@@ -756,6 +756,14 @@ That includes an overlap through a canonical alias. The inherited
 `RAVEL_EXIT_FILE` of an enclosing session is a known channel. A source that
 holds it refuses before capture, with or without confinement.
 
+The protected paths of each declared token file join this check, at both
+public boundaries and with or without confinement. A source that holds a
+declared token file refuses before capture, also when no selection names its
+handoff. So does a declared token file with a second link, because a source
+could hold its other name. The
+[token handoff specification](token-handoff.md#protected-token-files) owns
+those paths.
+
 `skills resolve` protects the default configuration directory
 `$HOME/.config/ravel`. A launch also checks each source against the directory
 of its actual `--config` entry, before capture. Every launch captures its

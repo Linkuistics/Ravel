@@ -3,18 +3,25 @@ sequenceDiagram
   participant R as Ravel CLI
   participant W as Rhai worker
   participant F as Token file
+  participant K as Runner
   participant M as Claude Code, confined
   C->>R: start-session --confine
   R->>R: Check each tokenHandoffs record in the settings
-  R->>R: Prepare confinement and refuse a grant over a token file
+  R->>R: Resolve the declared path and the real path of each token file once
+  R->>R: Refuse a second link, or a skill source over a protected path, before capture
+  R->>R: Prepare confinement and refuse a grant over a protected path
   R->>W: Evaluate the request
   W-->>R: Selection that names claude-code
-  R->>F: Check expires, file type, owner, mode and size
-  alt A check fails
+  R->>F: Check expires, then resolve the declared path again
+  R->>F: Open the protected real path, with no link in the last component
+  R->>F: Check type, owner, mode, one link and size on the open file
+  R->>F: Read the open file once, at most 4,097 bytes
+  alt A check or the read fails
     R-->>C: token_handoff_unavailable, exit 3, nothing launched
   else Every check passes
-    F-->>R: Token bytes, read once
     R->>R: Socket pair: write, shut down and close Ravel's end
-    R->>M: Launch with the other end and the declared variable
-    M->>M: Read to end of stream and remove the variable
+    R->>K: Launch with the other end in the descriptor list
+    K->>K: Grant each path in its checked form, refuse one that resolves elsewhere
+    K->>M: Keep only the listed socket open across exec
+    M->>M: Read the socket, close it and remove the variable
   end
