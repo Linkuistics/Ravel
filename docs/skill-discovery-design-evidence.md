@@ -856,6 +856,50 @@ evidence of the earlier native-entry Linux campaigns stays as a record of
 those runs. It names `bwrap` digests and confined results, which no build
 after the removal can repeat.
 
+## Confinement removal record
+
+Grove's `ravel-confinement-removal-k145` removed confinement from this line on
+2026-11-04. `ravel-confinement-code-removal-k147` removed the code, the flags,
+the backends and their tests. `ravel-confinement-book-removal-k148` changed
+the book, the result-job completion specification and the changelog.
+`ravel-confinement-stage-record-k149` ran the checks below and wrote this
+record. Nobody pushed the line, and no release consumes it.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185`. `jj git fetch` reported no change, so the line needed no rebase. The stage worked above `2df9dd055824`, the tip of the integrated design |
+| Code commit | `dc162664101aaf852ee7f683ff94ccff750c6e34`, from k147 |
+| Build commit | `d324668b86ca984836f790eee64aff48ffa92a00`, from k148, with the parent `dc162664`. Every check below ran on this commit, with an empty working copy before and after the run |
+| Output commit | The child of the build commit. It changes only this record |
+| Build identity | `a4f55d04b2d19a9948f2bcdcb3f305ee20ae80fae7f9011ec878f117d98e6519`. A script that applies the rule of `crates/ravel/build.rs` computed it, and the installed executable holds it twice. The same script gives `a4f55d04…` for the tree of `dc162664`, so the book commit changed no embedded source. It gives the recorded `fd8dfdc2…` for the tree of `e9cc79993b46` |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1, `rustc` commit `58cf8f9c3` of 2026-10-13. The SHA-256 of `Cargo.lock` is `a06e97c65ecca6d1490180467621834d4cd1c4a7d7fcffb142d4c86566e07266`, the same as at the Linux floor repair |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `26b487afb957c233848e8e360e29c73539a33ba89fc3444b26ad13a2eb4bf0a3`. The prefix has no `libexec` |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 694 of 694 run tests passed, and 48 were skipped |
+| `task test:cli` | Exit 0. 14 of 14 run tests passed, and 1 was skipped |
+| `task harness:smoke:test` | Exit 0 |
+| The book tasks | `docs:excerpts`, `docs:excerpts:test`, `docs:examples`, `docs:examples:test`, `docs:examples:mutants`, `docs:figures`, `docs:figures:test`, `docs:ste:test`, `docs:breaks` and `docs:book:build` each exit 0. `docs:examples` passed 21 examples with no page error. Each mutant of the example checker and of the excerpt checker failed a control: 30 of 30 and 24 of 24. `docs:figures` matched 18 figures. `docs:breaks` found no run over 450 words in 11 files |
+| `task test:native-linux PLATFORM=arm64` | Exit 0, with `failed=0` and unchanged subjects. Each of the 12 steps passed. `check` and `test` each ran 687 tests, and all 687 passed, with 48 skipped. The image is `sha256:746f5e9a4aa0`, Ubuntu 26.04.1, on kernel 7.0.14-linuxkit |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link |
+
+The installed executable refuses each removed flag.
+`ravel start-session --confine` and
+`ravel start-session --runtime-read=/tmp` each ran under an empty temporary
+home. Each exited 2 with `confinement_withdrawn` at stage
+`cli`. Each named its flag as the input and gave the remedy of [the refusal
+of the removed flags](#the-refusal-of-the-removed-flags).
+
+This stage built no archives. It ran no amd64 campaign, no `release:smoke`
+and no `task smoke:pair`. The release scripts, `Cargo.toml` and `Cargo.lock`
+did not change after `2df9dd055824`. So the [Linux floor repair
+record](#linux-floor-repair-record) still covers the link floor. Grove's
+`grove-confinement-removal-k146` runs `task release:smoke` once for the
+aarch64 Linux target.
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and
@@ -889,3 +933,8 @@ still names confinement, and the removal changes it with the code.
 These checks cover the documents only. No product test, installed check or
 real harness trial ran. The design claims no acquisition, confinement,
 compatibility or harness behaviour in advance.
+
+The [confinement removal record](#confinement-removal-record) ran the
+technical-communication checker on this document, with no hard finding. Its
+local anchors name headings of this document. The product checks of that
+record are in its own tables.
