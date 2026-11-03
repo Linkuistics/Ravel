@@ -20,26 +20,21 @@
     {
       "id": "permissions",
       "title": "Permissions",
-      "description": "Read grants do not remove inherited ending authority."
+      "description": "Ravel publishes readable paths, and the harness sandbox is the only boundary. Read access does not remove inherited ending authority."
     }
   ],
   "discussion": {
-    "title": "Narrow skill sources to local directories",
-    "status": "Owner decision recorded. The refusal of other source types is settled in the specification, and its implementation is ahead",
-    "summary": "Ravel reads local source directories only. It runs no VCS command and makes no network request, and a tool outside Ravel installs and updates the checkouts. A settings record whose type is not local, such as git, refuses as settings_invalid, stage cli, exit 2, at skills.sources[N].type. Its remedy tells the owner to configure a local checkout.",
+    "title": "Withdraw confinement from Ravel 2.0.0",
+    "status": "Human decision of 2026-11-03 recorded. The specification states the 2.0.0 contract, and the removal from the code is ahead",
+    "summary": "Ravel 2.0.0 applies no operating-system confinement. start-session refuses --confine and --runtime-read as confinement_withdrawn, stage cli, exit 2. The managed process and each harness run read the retained resources at their absolute paths, and the harness sandbox that the configuration script selects is their only boundary. The source overlap refusal and the read-only snapshot modes stay. The read grants, the protected configuration reads, the writable overlap check and the held tree identities go.",
     "diagramIds": [
-      "preparation",
-      "lifetime",
-      "permissions"
+      "permissions",
+      "preparation"
     ],
     "updatedDiagrams": [
       {
-        "id": "preparation",
-        "summary": "Removed Git acquisition, so the Ravel CLI only captures local bytes. The settings node now names local sources."
-      },
-      {
-        "id": "lifetime",
-        "summary": "Capture now reads the local tree, and the owner edits the source or its checkout instead of a pin."
+        "id": "permissions",
+        "summary": "Replaced the read-only grants with absolute paths, and added the harness sandbox as the only boundary of the managed harness and each harness run. The protected paths now refuse an overlapping source before capture, with the skill cache among them."
       }
     ]
   },
@@ -68,9 +63,9 @@
     {
       "id": "permissions",
       "group": "permissions",
-      "title": "Read resources and state the authority limit",
+      "title": "Read resources under the harness sandbox and state the authority limit",
       "source": "permissions.mmd",
-      "caption": "The managed harness and each harness run receive the same read-only grants. Ordinary delegates can inherit the result context, and the instructions forbid them to use it. An adapter that controls the environment and grants removes that context, and a trial measures its isolation. Ravel cannot intercept arbitrary delegation interfaces of a harness."
+      "caption": "The managed harness and each harness run receive the same absolute paths. Ravel applies no confinement, so the harness sandbox that the configuration script selects decides what each can read and write. A source that overlaps a protected path refuses before capture. Ordinary delegates can inherit the result context, and the instructions forbid them to use it. An adapter that controls the environment and the filesystem access removes that context, and a trial measures its isolation. Ravel cannot intercept arbitrary delegation interfaces of a harness."
     }
   ]
 }

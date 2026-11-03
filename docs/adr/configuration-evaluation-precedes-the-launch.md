@@ -24,8 +24,8 @@ string. Rhai bounds each value but not the heap, and on a thread a memory
 exhaustion or a stack overflow aborts the supervisor without cleanup.
 
 A process lets the Ravel CLI kill the worker at the deadline, whatever the
-script runs. It confines a memory bound, a stack overflow or an abort to the
-worker. The price is a request and reply protocol for every host call, and the
+script runs. It keeps the effect of a memory bound, a stack overflow or an
+abort inside the worker. The price is a request and reply protocol for every host call, and the
 worker lifecycle code. Reopen the thread design only
 when Rhai can interrupt every native call and Ravel can bound the heap of one
 thread.

@@ -125,9 +125,12 @@ that carry the **Opaque result** for one launch. The result channel uses the
 runner's completion channel, which reports only that the file appeared. Ravel
 checks and reads the result.
 
-**Confinement**: Optional restrictions on the filesystem access and environment
-of a **Managed process** or a **Harness run**. Confinement does not apply to
-the **Configuration script** or its **Rhai worker**.
+**Harness sandbox**: The restriction that a **Harness** applies to the tools of
+its agent. Examples are the `--sandbox` mode of Codex and the sandbox settings
+of Claude Code. The **Configuration script** selects it through the arguments of
+the harness. It is the only boundary of a **Managed process** and of a
+**Harness run**, because Ravel 2.0.0 applies no confinement of its own.
+_Avoid_: confinement, for anything that Ravel 2.0.0 does
 
 ## Skill delivery
 
@@ -179,9 +182,8 @@ context. A nested **Session** is not a delegate.
 
 - **"Session"** alone means a Ravel **Session**. It never means a POSIX session
   (`setsid`), a login session or the LLM session in a **Harness**. Say "LLM
-  session" for that. An unconfined **Managed process** stays in the
-  **Caller**'s POSIX session, in a process group of its own. A confined launch
-  creates a new POSIX session.
+  session" for that. A **Managed process** stays in the **Caller**'s POSIX
+  session, in a process group of its own.
 - **"Context"** alone is ambiguous. Say **Session-result context** for the
   inherited `RAVEL_EXIT_FILE` path, **Selection context** for the data that
   `select` receives, and working directory for the request's `cwd`.
@@ -195,7 +197,8 @@ context. A nested **Session** is not a delegate.
 - **"LLM call"** means a **Harness run** that asks a model a question. Ravel
   sends no request to a model service itself.
 - **`config_*` diagnostic codes** name the **Configuration script**.
-  A restriction on a **Managed process** is confinement.
+  The code `confinement_withdrawn` names the removed `--confine` and
+  `--runtime-read` flags.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
   exit status or the work a **Harness** did.
 - **"Prompt"** alone is ambiguous when skill delivery is enabled. Say

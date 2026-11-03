@@ -31,14 +31,15 @@ Each rule has one owner:
 - This specification owns the `skills` settings object, source resolution,
   the retained resources and the directory descriptor. It also owns the
   prepared prompt, `ravel skills resolve`, `RAVEL_SKILL_DIRECTORIES`, the skill
-  bounds and failures, the skill read grants and the acceptance cases of this
-  feature.
+  bounds and failures, the read access to skill resources and the acceptance
+  cases of this feature.
 - The [configuration evaluation specification](configuration-evaluation.md)
   owns the request map and the settings file as a whole. It also owns the host
   capabilities, the Rhai worker, its frames and the evaluation bounds. It lists the schema-4
   fields and links here for their meaning.
 - The [session execution specification](session-execution.md) owns the
-  managed process, the result channel and confinement in general.
+  managed process, the result channel and the refusal of the removed
+  confinement flags.
 
 Four decision records bind this feature.
 [Skill preparation precedes evaluation](../adr/skill-preparation-precedes-evaluation.md)
@@ -54,8 +55,7 @@ the inherited authority of delegates. The
 ## Ownership and order
 
 The Ravel CLI resolves the sources, checks the resources and publishes the
-snapshots and the descriptor. It prepares the prompt and builds the read
-grants. The Rhai worker receives a complete request. It finds no skill and
+snapshots and the descriptor. It prepares the prompt. The Rhai worker receives a complete request. It finds no skill and
 reads no source. The configuration script still chooses the harness, the model
 and the command. It puts `request.prompt` into the arguments of that harness,
 as before.
@@ -74,11 +74,10 @@ task.
    configuration script.
 3. It resolves the skill sources and prepares the prompt. A disabled
    configuration does nothing in this step.
-4. It prepares confinement, with the same resource set.
-5. It launches the Rhai worker. The whole evaluation deadline runs from this
+4. It launches the Rhai worker. The whole evaluation deadline runs from this
    launch. The worker imports the entry, then runs `load_context` and
    `select`.
-6. It allocates the result channel, writes the routing notice and launches the
+5. It allocates the result channel, writes the routing notice and launches the
    managed process.
 
 A failure in step 3 prevents every later step. Step 3 creates no result channel
@@ -91,12 +90,12 @@ still binds.
 | Source resolver | A complete, checked and immutable resource set, or a refusal | Local capture, staging and publication |
 | Prompt preparation | The original task, intact, with the directories and loading instructions | Path rendering, the block delimiters and byte accounting |
 | Request | The original prompt, the prepared prompt and the descriptor fields | Source I/O and cache coordination |
-| Managed launch and harness runs | Read access to the exact published resources under their confinement | Read grants that are specific to a backend |
+| Managed launch and harness runs | The exact published resources, at stable absolute paths that the account of the owner can read | The cache layout |
 | Harness delegation | The same directories and readable resources. Ending restrictions depend on the adapter | Delegate construction and its measured isolation |
 
 Ravel gives no meaning to the domain of a skill, the kind of a caller, provider
 receipts, task trees or result tokens. Skill text is guidance that the owner
-selected. It is not configuration authority, and it cannot weaken confinement.
+selected. It is not configuration authority, and it grants no access.
 
 ## Settings
 
@@ -511,7 +510,7 @@ not control compaction.
 When delivery is enabled, Ravel sets `RAVEL_SKILL_DIRECTORIES` to the absolute
 descriptor path in each managed-process environment that it builds. Those are
 the environment of the managed process and the environment of each harness run
-of the evaluation, confined or not. The value replaces a stale inherited value.
+of the evaluation. The value replaces a stale inherited value.
 When delivery is disabled, Ravel removes the name from those environments.
 
 The name is absent from the Rhai worker. It grants no read permission and no
@@ -713,14 +712,13 @@ the script-result bound or the argument limit of the platform.
 | `skill_cache_corrupt` | `skills` | 3 | A cached object fails its checks. Stop its readers, move it out of the cache or remove it, then resolve again |
 | `skill_cache_unavailable` | `skills` | 3 | Ravel cannot use the cache root, because of an unsafe link, a permission or full storage |
 | `skill_limit_exceeded` | `skills` | 3 | A count or byte bound of this specification |
-| `skill_access_unavailable` | `skills` | 3 | Ravel cannot set up the required reads, because of a protected or writable overlap, or a grant that the backend cannot give |
+| `skill_access_unavailable` | `skills` | 3 | A source directory overlaps a protected path: the configuration directory, the settings file, the skill cache or the result channel of an enclosing session. Move the source outside each of them |
 | `skill_resolution_timeout` | `skills` | 124 | The resolution deadline passed. Raise `resolutionTimeoutMs`, or address the latency of storage |
 | `skill_resolution_cancelled` | `skills` | 128 plus the signal number | INT, TERM or HUP arrived during resolution |
 | `skill_cleanup_failed` | `skills` | 5 | Ravel cannot remove its staging |
 
 The failure document gains the stage `skills`. It covers the capture, checks
-and publication of skill sources, the prepared prompt and the read grants of
-the resources. A settings problem keeps the stage `cli`.
+and publication of skill sources and the prepared prompt. A settings problem keeps the stage `cli`.
 
 Each refusal names the exact source or path that its remedy addresses. No
 remedy offers another snapshot or directory as a substitute for a configured
@@ -740,60 +738,52 @@ The report then keeps that refusal as the original failure.
 ## Read access and delegation
 
 The managed process and each harness run can read the descriptor and every
-captured resource, also outside the working directory. With `--confine`, Ravel
-grants the exact published descriptor directory and snapshot trees read-only
-to both. It grants neither the private staging area of the cache nor the
-mutable source directories.
+captured resource, also outside the working directory. Ravel publishes them at
+stable absolute paths that the account of the owner can read. Each snapshot is
+read-only by its file modes. Ravel applies no operating-system confinement, as
+[Ravel does not confine a session](../adr/ravel-does-not-confine-a-session.md)
+records. The harness sandbox decides what the agent can read and write.
 
-This grant set is internal. The public `--runtime-read` flag keeps its meaning
-of one regular file. Ravel never grants the whole home directory or the whole
-cache as a shortcut. The backend keeps the traversal and read behaviour of
-admitted links inside a source, with no write access to their targets.
+A harness sandbox that limits reads must admit the descriptor directory and the
+snapshot roots. The configuration script builds that access from
+`request.skills`, for example one `--add-dir` argument of Claude Code for each
+`snapshotRoot`. Codex in `--sandbox workspace-write` reads every path, so it
+needs no addition. Ravel does not inspect the arguments of a harness, and it
+cannot detect a sandbox that denies the reads. The agent then reports an
+unreadable resource, as the [preamble](#the-preamble) requires.
 
-Ravel refuses a source boundary or a snapshot grant that overlaps the
-configuration directory, the settings file or a known session-result channel.
-That includes an overlap through a canonical alias. The inherited
-`RAVEL_EXIT_FILE` of an enclosing session is a known channel. A source that
-holds it refuses before capture, with or without confinement.
+Ravel refuses a source boundary that overlaps the configuration directory, the
+settings file or a known session-result channel. That includes an overlap
+through a canonical alias. The inherited `RAVEL_EXIT_FILE` of an enclosing
+session is a known channel. Ravel checks each source before capture.
 
 `skills resolve` protects the default configuration directory
 `$HOME/.config/ravel`. A launch also checks each source against the directory
 of its actual `--config` entry, before capture. Every launch captures its
-sources again. A copy of a protected file in the cache therefore cannot pass a
-grant that the original would fail.
+sources again.
 
 A source that holds the cache root refuses too, also before the cache exists.
-Ravel checks the real path that the opening of the cache would reach.
+Ravel checks the real path that the opening of the cache would reach. A source
+that held the cache would capture its own staging.
 
-These checks cover the explicit overlap of sources and grants. They do not
-cover secret text that an owner puts inside a source.
+These checks keep the configuration of the owner and the result channels out of
+published skill content. Agents read that content, and it outlives the session.
+The checks cover the explicit overlap of a source with a protected path. They
+do not cover secret text that an owner puts inside a source. Each refusal in
+this section is `skill_access_unavailable`.
 
-Ravel also refuses a writable grant that overlaps a published snapshot or the
-descriptor. Then confinement cannot make an immutable object writable through
-the working directory. That check covers the whole cache root, because a
-writable staging area could change a publication in progress. Before the
-launch, Ravel lists each granted directory inside the backend. Each refusal in
-this section is `skill_access_unavailable`, with no unconfined fallback.
+Ravel does not check the working directory or the harness sandbox against the
+cache. A process that can write inside the cache can change a snapshot after it
+changes the file modes. The cache does not authenticate against code of the
+same user, as [publication, concurrency and
+cleanup](#publication-concurrency-and-cleanup) states. A later resolution of
+the same content then refuses as `skill_cache_corrupt`.
 
-The check holds each granted directory by its canonical path and its device
-and inode. Each harness run and the managed process grant only those held
-directories. A harness run does not resolve the descriptor paths again.
-
-A held path that now resolves to another path, or names another directory,
-gives no grant. Ravel then does not launch the harness run, and the script
-receives `harness_launch_failed`. A change after the check of the managed
-process refuses its launch as `supervision_failed`, exit 126. The managed
-process does not run.
-
-Both backends name a directory by its path. The interval between the last
-check and the bind of the backend stays open. Seatbelt also matches the path
-at each access after the launch. A replacement inside the cache needs code of
-the same user, and the cache does not authenticate against that code.
-
-The harness and its ordinary children inherit the read grant from their
-confinement. A delegate can run in a separate sandbox, a remote worker, another
-account or another filesystem namespace. Its adapter then forwards the same
-descriptor and directory set, maps the same absolute paths and grants the reads.
+The harness and its ordinary children read the same paths, under the same
+harness sandbox. A delegate can run in a separate sandbox, a remote worker,
+another account or another filesystem namespace. Its adapter then forwards the
+same descriptor and directory set, maps the same absolute paths and gives the
+delegate read access to them.
 
 When it cannot, it reports unsupported delegation before the delegate acts. A
 copy of the task alone does not satisfy this contract. Nor does a descriptor
@@ -811,7 +801,7 @@ authority.
 this residue and its reopen condition. The first-writer rule prevents the
 replacement of a result. It does not prevent an early or wrong first result.
 
-An adapter can control the environment and the filesystem grants of a
+An adapter can control the environment and the filesystem access of a
 delegate. Such an adapter removes `RAVEL_EXIT_FILE` and the completion context
 of the caller. It withholds the launch descriptors and the result directory of
 the parent.
@@ -827,17 +817,11 @@ It resolves again when it can read its own settings and configuration script
 and write its cache. It replaces the result context only for its own managed
 process. The parent keeps its directories and its channel.
 
-A nested launch inside a confined parent does not escape the sandbox of the
-parent. The nested launch refuses when its configuration script or cache
-writes are unavailable. On macOS the settings file is
-visible and unreadable, so the nested launch refuses as `settings_invalid`.
-On Linux the namespace holds no settings file. The nested launch then has
-delivery disabled, and it runs when it can read its configuration script.
-
-Ravel does not open the protected configuration directory to permit a nested
-launch. A harness delegate can reuse the retained descriptor without a nested
-launch. A privileged broker for nested launches is outside scope. A
-`start-session` inside a harness run still refuses as `config_reentry_refused`.
+A harness sandbox can deny the reads or the cache writes of a nested launch.
+The nested launch then refuses with the code of the failed read or write, such
+as `skill_cache_unavailable`. A harness delegate can reuse the retained
+descriptor without a nested launch. A `start-session` inside a harness run
+still refuses as `config_reentry_refused`.
 
 ## Compatibility and transition
 
@@ -897,8 +881,8 @@ A caller migrates its configuration script in four steps:
 2. Pass `request.prompt` to the managed harness, as before.
 3. Read `request.originalPrompt` wherever the script analyses the task, for
    example in an LLM call that classifies it.
-4. Build each read grant of a harness from `request.skills`, for example one
-   argument for each `snapshotRoot`.
+4. Build the read access of each harness sandbox from `request.skills`, for
+   example one `--add-dir` argument of Claude Code for each `snapshotRoot`.
 
 No helper for each script exists. The installed examples, the book and the
 release notes migrate together. A caller that checks the major version of Ravel
@@ -933,7 +917,7 @@ channel.
 
 Configuration-script fixtures record what `load_context` and `select` receive.
 Fault injection stays behind internal seams. Tests also use real cache
-filesystems and real confinement backends.
+filesystems.
 
 On macOS, `task smoke:pair OLD=<1.1 executable> NEW=<prefix>` runs the
 installed-pair part of "Version transition".
@@ -954,14 +938,15 @@ installed-pair part of "Version transition".
 | Lifetime | Independent and detached readers keep their directories and resources after the parent exits, the source goes and the settings change. Ordinary managed descendants are reaped with the group. After a quiet manual removal, the next resolution publishes the present source again and uses no neighbour object |
 | Request and evaluation | `load_context` and `select` receive the same request, and a change to the copy in `load_context` does not reach `select`. Top-level code sees no request. The caller byte range is exact for non-ASCII text, every line ending and text that resembles a delimiter. `skills` has no offset fields. The label and delimiters occur only in the wrapper. A quoted path cannot become prompt structure |
 | Host reads | A read of the descriptor with `ravel::read_text` is a measured read in the notice. `ravel::env("RAVEL_SKILL_DIRECTORIES")` throws `env_not_granted`, and a grant of that name refuses as `excluded_grant` |
-| Harness runs | A fake harness in a harness run sees this session's descriptor in `RAVEL_SKILL_DIRECTORIES` when delivery is enabled, and no variable when it is disabled. Under `--confine` it reads the resources |
+| Harness runs | A fake harness in a harness run sees this session's descriptor in `RAVEL_SKILL_DIRECTORIES` when delivery is enabled, and no variable when it is disabled. It reads the resources outside its working directory |
 | Bounds and frames | Enabled delivery with an empty task still bootstraps. Each count and byte bound refuses at its limit and passes below it, with controls that remove the bound. The three tests of [frame bounds](configuration-evaluation.md#frame-bounds) pass where their platform admits them |
 | Slow valid source | A controlled delay times out with the effective deadline and the settings remedy. A larger valid deadline succeeds with every check. A malformed deadline refuses |
 | Cancellation | INT, TERM or HUP during a controlled capture refuses as `skill_resolution_cancelled`, exit 128 plus the signal number. No staging stays, and Ravel raises the same signal again |
-| Real confinement | A child and its descendants read resources outside the working directory. They cannot write them or read the protected configuration. Grant failures, protected aliases and writable overlap refuse as `skill_access_unavailable`, exit 3, with no fallback, on macOS and Linux |
+| Read access | A child and its descendants read resources outside the working directory. A write to a snapshot file fails by its file mode, and a snapshot directory admits no new entry. A source that overlaps a protected path, also through an alias, refuses as `skill_access_unavailable`, exit 3, before capture |
+| Removed confinement flags | `--confine` and `--runtime-read`, alone, together, in the `=` form and with `--json`, refuse as `confinement_withdrawn`, stage `cli`, exit 2. No settings read, cache work, worker or result channel follows. `--prompt --confine` launches with that text as the prompt |
 | Delegate authority | Disposable trials tell inherited context that can send an early result from an adapter whose scrubbed delegate cannot. First-writer behaviour has its own check. Each trial names its adapter |
 | Directory recovery | With the instructions retained, the prompt path is lost and the agent recovers the same descriptor through `RAVEL_SKILL_DIRECTORIES`. Stale values are replaced, and disabled delivery removes the name. A nested child alone receives a new value. Loss of both path channels gives a report of missing context |
-| Nested sessions | A nested resolution sees current sources and returns only its own result. The paths and channel of the parent stay intact. Confinement can refuse unavailable settings or cache writes |
+| Nested sessions | A nested resolution sees current sources and returns only its own result. The paths and channel of the parent stay intact |
 | Version transition | Schema 3 refuses with and without sources. Schema 4 works with and without sources. A mismatched pair refuses. Ravel 1.1.0 refuses shared settings that hold `skills`, exit 2, and separate prefixes cannot prevent it. Ravel 2.0.0 refuses `policyEnv`. An isolated `HOME` permits 1.1 native-only and 2.0 directory launches at the same time. Existing ending commands stay usable |
 | Standalone resolution | No configuration script, channel or harness. The plain preamble and the JSON describe the same directories as a launch. Disabled and failed outputs differ. Retries keep only complete useful objects |
 
@@ -1001,14 +986,13 @@ no evidence of success.
 
 Each trial records the harness, model and version, and the native isolation.
 It records the provenance of the selected directories, the delegate mechanism,
-the confinement mode and the order of reads and actions. It records native startup
+the sandbox mode of the harness and the order of reads and actions. It records native startup
 text that the harness added already. It records the inherited ending context of
 each real delegate and whether the delegate obeyed the instruction not to end.
 
 Result attempts belong only in disposable trials. A fixture program cannot
 prove LLM compliance. A prompt transcript cannot prove permissions. An unavailable
-compaction, delegate or confinement mechanism is an explicit gap in the
-measurements. Grove checks its native-only compatibility separately from these
+compaction or delegate mechanism is an explicit gap in the measurements. Grove checks its native-only compatibility separately from these
 trials.
 
 ## Out of scope
@@ -1022,3 +1006,6 @@ trials.
 - Fetch, installation or update of a source, and every VCS command.
 - Git LFS hydration and submodule updates.
 - A source override for one launch.
+- Operating-system confinement of a session.
+  [Ravel does not confine a session](../adr/ravel-does-not-confine-a-session.md)
+  records why.

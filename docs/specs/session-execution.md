@@ -8,7 +8,7 @@ This specification describes the active executable. The [glossary](../../CONTEXT
 
 The [configuration evaluation specification](configuration-evaluation.md) owns discovery, requests, selection context, selections, settings, evaluation and delivery.
 The [completion specification](result-job-completion.md) owns detailed settlement and native-entry requirements.
-The [skill discovery specification](skill-discovery.md) owns skill sources, the prepared prompt and their read grants.
+The [skill discovery specification](skill-discovery.md) owns skill sources, the prepared prompt and the read access to skill resources.
 The [component explanation](../book/src/07-the-parts-of-ravel.md) describes the participants.
 These specifications remain the behavioural authority for that explanation.
 
@@ -47,7 +47,7 @@ Each launch allocates a fresh private session directory and result path.
 A nested session replaces that value only for its own child.
 The caller must put `ravel` on the managed `PATH` or supply its absolute path in ending instructions.
 
-An unconfined managed process otherwise receives the caller's environment.
+The managed process otherwise receives the caller's environment.
 Ravel scrubs these six exact launch controls before supplying the fresh result path:
 
 - `HARNESS_DISPATCH_EXIT_FILE`
@@ -95,23 +95,28 @@ Ravel propagates that signal after required cleanup attempts. A cleanup or super
 | Skill resolution deadline | 124 |
 | Selected program cannot start | 126 or 127 |
 
-### Confinement
+### No confinement
 
-`--confine` confines the managed process and each evaluation harness run, without an unconfined fallback.
-It requires macOS sandbox-exec or Linux bubblewrap.
-The Rhai worker evaluates outside this confinement and has its own isolation rules.
-Canonical working directory and a private run directory are writable.
-`--exit-dir` adds an existing writable parent for the result channel.
+Ravel 2.0.0 does not confine the managed process or a harness run.
+[Ravel does not confine a session](../adr/ravel-does-not-confine-a-session.md) records why.
+The harness's own sandbox is the only boundary. The configuration script selects that sandbox through the arguments of the harness.
 
-`--runtime-read` grants repeatable regular files read-only and requires confinement. System runtime reads and the canonical Ravel executable are admitted. Canonical grants must not overlap the configuration directory or settings file.
+`start-session` refuses `--confine` and `--runtime-read` as `confinement_withdrawn`, stage `cli`, exit 2.
+That holds for each flag alone, for both together, for the `=` form and for any position on the command line.
+The refusal names the first of the two flags as its input.
+A word that the command line takes as the value of another flag, such as the text of `--prompt --confine`, is caller data.
 
-With skill delivery enabled, Ravel also grants the descriptor directory and the snapshot trees read-only, as [read access and delegation](skill-discovery.md#read-access-and-delegation) states.
-A granted directory that overlaps the configuration directory, the settings file or a known result channel refuses as `skill_access_unavailable`, exit 3.
-So does a writable grant that overlaps the skill cache, and a granted directory that the backend cannot list.
-A granted directory that changed after its check gives no grant, as the skill discovery specification states.
+The check runs after the command line parses and before every other check of `start-session`.
+Ravel then reads no settings, resolves no skill source, starts no worker and allocates no result channel.
+With `--json`, the refusal is the failure document on stderr.
+The remedy tells the caller to remove both flags and to select a harness sandbox in the configuration script.
+It also states that Ravel 1.1 keeps `--confine`.
 
-The confined environment keeps `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`. `TMP`, `TEMP` and `TMPDIR` point into the private run directory. The backend's filesystem contract and platform limits live in
-[the runner explanation](../book/src/09-jobs-signals-and-the-terminal.md#apply-filesystem-confinement).
+`--exit-dir` keeps its meaning. It names an existing writable directory, and Ravel allocates the private session channel beneath it.
+
+The managed process and each harness run can read and write what the account of the owner and the harness sandbox permit.
+The skill resources stay readable outside the working directory, as
+[read access and delegation](skill-discovery.md#read-access-and-delegation) states.
 
 ## Verification and scope
 

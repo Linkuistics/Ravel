@@ -673,15 +673,16 @@ A harness run has these properties:
   terminal.
 - Its working directory is `request.cwd`.
 - It receives the environment of a managed process. That is the caller's
-  environment with the same scrub, or the confined environment.
+  environment with the same scrub.
 - It receives `RAVEL_EXIT_FILE` for a fresh result channel of its own, and the
   marker `RAVEL_CONFIG_RUN`.
-- It receives `RAVEL_SKILL_DIRECTORIES` and, under `--confine`, the read grants
-  of the skill resources, as the
+- It receives `RAVEL_SKILL_DIRECTORIES`, as the
   [skill discovery specification](skill-discovery.md#ravel_skill_directories)
   states.
-- Ravel confines it, with a private run directory of its own, when the caller
-  passed `--confine`.
+- Ravel does not confine it, as
+  [Ravel does not confine a session](../adr/ravel-does-not-confine-a-session.md)
+  records. The script selects the sandbox of the harness through `args`. An
+  example is `--sandbox read-only` for an LLM call through `codex exec`.
 
 The runner supervises the run as a job, and its process group is the scope of
 cleanup. A value sent on its channel triggers the escalation of a managed
@@ -753,8 +754,7 @@ names a schema file that the owner keeps. The script reads the same file with
 `ravel::read_json`.
 
 It then checks the answer against the schema that Codex
-received. An unconfined run can read a schema file beside the configuration script. Confinement refuses a grant that overlaps the directory of the configuration script, so a
-confined run cannot read the file there.
+received. A harness run can read a schema file beside the configuration script.
 
 Ravel reports no usage and counts no token for an LLM call. The usage that a
 harness prints reaches only the script, and a configuration script that wants it in the
@@ -780,20 +780,11 @@ that a configuration script reads stays untrusted, such as a context document, a
 answer of a model. That is why Ravel disables `eval`.
 
 A harness run receives the environment of a managed process. That is the
-caller's environment with the same scrub, or the confined environment. An
-unconfined run therefore has the owner's `HOME`, and with it the sign-in store
-of the harness. An unconfined run also receives an API key that is in the
-caller's environment, such as `ANTHROPIC_API_KEY`, as any other caller variable.
-Ravel does not scrub it, because a harness may authenticate with it.
-
-The confined environment keeps `HOME`. Confinement makes only the working
-directory and the private run directory writable. A harness that writes to its
-store can therefore fail, for example when it refreshes a token.
-
-Ravel does not
-widen the confinement for a sign-in. Whether a harness can use its sign-in
-inside confinement depends on the harness and the platform. The smoke tasks run
-unconfined.
+caller's environment with the same scrub. A run therefore has the owner's
+`HOME`, and with it the sign-in store of the harness. A run also receives an
+API key that is in the caller's environment, such as `ANTHROPIC_API_KEY`, as any
+other caller variable. Ravel does not scrub it, because a harness may
+authenticate with it.
 
 #### Sandbox home for real harness runs
 
@@ -877,7 +868,7 @@ store. The task also removes the API keys from the environment, so the call
 proves the sign-in.
 
 The credential boundary covers the caller variables that `ravel::env` serves. It
-is not a filesystem sandbox. A measured read is not confined by path, so a
+is not a filesystem sandbox. A measured read is not limited by path, so a
 configuration script that reads a file that holds a credential receives the credential.
 
 The
@@ -888,7 +879,7 @@ the file of the Ravel CLI itself, which performs the read.
 
 Ravel accepts this exposure, because it trusts the configuration script. A list of refused
 paths would not remove the exposure in any case, because the other files and
-processes of the same user stay readable. An unconfined harness run that prints
+processes of the same user stay readable. A harness run that prints
 its environment also returns a credential of the caller's environment to the
 script in its output.
 
@@ -1492,7 +1483,7 @@ read or from the output of a harness run, because it trusts the configuration sc
 
 #### Scenario: A harness finds its own sign-in
 
-- **WHEN** a fake harness in an unconfined harness run prints its `HOME` and the
+- **WHEN** a fake harness in a harness run prints its `HOME` and the
   value of the same ungranted sentinel
 - **THEN** the script receives the caller's `HOME` and the sentinel, both
   unchanged

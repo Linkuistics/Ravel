@@ -591,6 +591,271 @@ The integration changed no rule of the discovery contract other than these
 two. The views show neither the frame tests nor the sandbox home, so they did
 not change.
 
+## Withdrawal of confinement
+
+On 2026-11-03, during Grove's `stage-evidence-reconciliation-k125`, the human
+withdrew operating-system confinement from Ravel and from Grove. Ravel removes
+`--confine`, `--runtime-read` and both backends before the 2.0.0 cut, because a
+removal after the cut needs a 3.0.0.
+[Ravel does not confine a session](adr/ravel-does-not-confine-a-session.md)
+records the decision and its evidence.
+
+Grove's `confinement-withdrawal-k142` designed the removal. Its design commit
+on this line holds the decision record, the changes to four specifications,
+the glossary and the [permissions view](design/skill-discovery/index.html#diagram-permissions).
+This section is the handoff to `ravel-confinement-removal-k145`, which removes
+the code. Grove's `docs/confinement-withdrawal-evidence.md` holds the handoff
+of Grove's caller.
+
+### Guarantees of a confined launch
+
+Each guarantee that `--confine` gave has one disposition. "Moved to the
+harness" means that the harness sandbox, which the configuration script
+selects, now gives the guarantee or can give it.
+
+| Guarantee under `--confine` | Disposition | Reason |
+| --- | --- | --- |
+| Writes only in the canonical working directory, the private run directory and `--exit-dir` | Moved to the harness | Codex in `--sandbox workspace-write` writes in the working directory, `TMPDIR` and `/tmp`. Ravel limits no write |
+| Reads only of the system runtime files, the selected program, the Ravel executable, `--runtime-read` files and the skill trees | Withdrawn | Ravel limits no read. Codex in `--sandbox workspace-write` reads every path |
+| No read of the configuration directory or the settings file | Withdrawn | Ravel holds no credential in either. A harness sandbox that denies reads can keep this guarantee, but neither measured default does |
+| No write to the configuration directory or the settings file | Moved to the harness | Both lie outside the working directory, where a harness sandbox denies writes |
+| No read or write of a mutable skill source | Withdrawn for reads, moved to the harness for writes | The preamble directs every read to the snapshots |
+| Read-only grants of the descriptor directory and each snapshot tree | Moved to the harness | The configuration script builds read access from `request.skills`, such as one `--add-dir` of Claude Code for each `snapshotRoot` |
+| A snapshot is read-only by its file modes | Kept | Publication sets the modes, independent of any sandbox. They prevent accidents, not deliberate changes by the same user |
+| A source that overlaps the configuration directory, the settings file, the cache root or an inherited result channel refuses before capture | Kept | It governs what Ravel publishes as skill content. `skill_access_unavailable` keeps this meaning only |
+| A writable grant that overlaps the cache root or a snapshot refuses | Withdrawn | No writable grant exists. A later resolution of the same content refuses a changed snapshot as `skill_cache_corrupt` |
+| The backend lists each granted tree before the launch | Withdrawn | No backend exists |
+| A harness run grants only the trees that the managed check held by device and inode | Withdrawn | No grant exists. The cache does not authenticate against code of the same user |
+| The environment keeps only `HOME`, `USER`, `LOGNAME`, `PATH`, `LANG` and `LC_*`, with a private `TMPDIR` | Withdrawn | The managed process and each harness run receive the caller's environment, less the six launch controls. Grove's standalone caller removes its own extra names |
+| A private run directory holds the temporary files and is removed after the run | Withdrawn | The harness uses the caller's `TMPDIR`. The result channel goes beneath `--exit-dir` or the temporary directory |
+| The managed process runs detached, with no terminal and standard input at end of file. Its group takes KILL at once on cancellation | Withdrawn | The managed process runs in the interactive mode of an ordinary launch. On cancellation, Ravel forwards the signal and sends KILL after 5 seconds. A caller that needs a detached job detaches Ravel itself, as `grove run` does |
+| The working directory is canonical, and `/` refuses | Withdrawn | An ordinary launch does neither |
+| A nested `start-session` in a confined parent cannot read the settings | Withdrawn | A nested launch reads its own settings. A `start-session` inside a harness run still refuses as `config_reentry_refused` |
+| A harness run of the configuration script is confined when the caller passes `--confine` | Withdrawn | The script selects the sandbox through `args`, such as `codex exec --sandbox read-only` |
+| A missing backend refuses as `confinement_unusable`, and an overlap of a grant refuses as `confinement_overlap`, with no unconfined fallback | Removed | Their checks have no subject. `confinement_withdrawn` refuses a caller that asks for confinement |
+
+### The refusal of the removed flags
+
+The [session execution specification](specs/session-execution.md#no-confinement)
+states the refusal `confinement_withdrawn`. Two parts of the implementation
+are open choices. The front can keep the two flags as hidden arguments and
+refuse after the parse. It can also map the parse failure of an unknown
+`--confine` or `--runtime-read`. Either choice must satisfy these conditions:
+
+- `--runtime-read` alone gives the same refusal. The present `requires =
+  "confine"` relation must not give a parse error first.
+- `--prompt --confine` launches with that prompt, because the word is a value.
+- With `--json`, the failure document names the flag in `input`.
+- No settings read, cache work, worker or result channel precedes the refusal.
+
+### Implementation handoff
+
+The list below is the work of `ravel-confinement-removal-k145`. Each test name
+is the exact name at the design commit.
+
+#### Source
+
+1. Remove `crates/keyed-launch/src/confinement.rs`. That removes
+   `FilesystemGrants`, `ReadTree`, `confinement_available`,
+   `confinement_reads_available`, `confinement_system_reads`, the Seatbelt and
+   bubblewrap command builders and the unused `regular_file_at`.
+2. In `crates/keyed-launch/src/lib.rs`, remove the module and its exports,
+   with `run_confined_observed` and `run_confined_observed_with_start_check`.
+3. In `crates/keyed-launch/src/run.rs`, remove both confined entry points and
+   `Mode::Confined`. Remove the `grants` parameter of `run_captured`, the
+   confined command of `run_with_output` and the immediate KILL on
+   cancellation. Keep `restore_child_watching`, which `run_with_output` still
+   calls.
+4. Move `inherited_channel` and `prospective` into the skills module. Make
+   `prospective` return an I/O error instead of `confinement_unusable`, because
+   its only caller discards the error. Then remove
+   `crates/ravel/src/confinement.rs` and its `mod` line in `main.rs`.
+5. In `crates/ravel/src/run.rs`, remove the confined preparation and the
+   `confine` field of the harness setup. Remove the confined environment,
+   working directory and launch branch, and the cleanup of the private run
+   directory. The channel parent becomes
+   `--exit-dir` or the temporary directory.
+6. In `crates/ravel/src/rhai_worker/harness.rs`, remove `ConfineSetup`, the
+   preparation of each confined harness run, its removal closure, its grants
+   and its working directory.
+7. In `crates/ravel/src/cli.rs`, give the two flags the refusal of the
+   specification, and remove their meanings.
+8. Remove `Delivery::read_trees`, `Delivery::cache_root` and
+   `Resolved::cache_root`, which only the grants read.
+9. Remove the `"confined"` branch of the test hook `cleanup` in
+   `crates/ravel/src/directory_control.rs`.
+10. Change the comments that name confinement in `keyed-launch/src/argv.rs`,
+    `keyed-launch/src/run.rs`, `ravel/src/choice.rs`,
+    `ravel/src/completion.rs`, `ravel/src/skills/launch.rs` and
+    `ravel/src/rhai_worker/harness.rs`.
+
+No Cargo dependency or feature serves confinement alone, so `Cargo.toml` and
+`Cargo.lock` keep their packages.
+
+#### Tests
+
+Remove `crates/keyed-launch/tests/confinement.rs`, with these tests:
+
+- `confined_child_and_descendants_cannot_read_or_write_outside_the_invocation`
+- `explicit_runtime_file_grant_allows_reads_but_denies_writes`
+- `a_confined_program_that_is_not_an_absolute_path_refuses`
+- `a_read_only_tree_reads_through_links_and_denies_every_write`
+- `a_read_only_tree_that_overlaps_a_writable_directory_or_is_no_directory_refuses`
+- `a_held_tree_whose_path_changed_refuses_in_the_probe_and_the_launch`
+- `the_read_probe_lists_each_tree_inside_the_sandbox`
+
+Remove `crates/ravel/tests/skills_confinement.rs` after one test moves out:
+
+- Move `a_source_that_holds_the_inherited_result_channel_refuses_before_capture`
+  to `skills_launch.rs` or `skills_resolve.rs`. Remove its confined branch,
+  and make its control launch an ordinary launch. It is the only test of the
+  inherited channel as a protected path.
+- Remove `a_confined_child_and_its_descendants_read_the_resources_and_cannot_write_them`,
+  `a_confined_harness_run_reads_the_resources_and_cannot_write_them`,
+  `a_nested_start_session_in_a_confined_parent_cannot_read_the_settings_and_the_parent_keeps_its_paths`,
+  `a_grant_that_overlaps_the_configuration_or_a_result_channel_refuses_also_through_an_alias`,
+  `a_writable_grant_that_overlaps_the_cache_refuses` and
+  `a_confined_launch_with_delivery_disabled_does_not_change`.
+
+Remove these tests elsewhere:
+
+- `crates/ravel/src/confinement.rs`: `a_read_that_the_backend_cannot_give_refuses`
+  and `a_harness_run_refuses_a_tree_that_changed_after_the_managed_check`.
+- `crates/keyed-launch/tests/noninteractive.rs`:
+  `a_confined_child_is_killed_at_once_on_cancellation`, the helper
+  `confined_supervisor` and the confined branch of the fixture `supervisor`.
+- `crates/ravel/tests/cli.rs`:
+  `confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_config`.
+- `crates/ravel/tests/rhai_harness_run.rs`:
+  `a_confined_run_has_a_private_run_directory_and_the_confined_environment`.
+  Keep its unconfined control in an ordinary test.
+- `crates/ravel/src/partial_acquisition_tests.rs`: the 22 tests
+  `partial_acquisition_cleanup_confined_*` and
+  `partial_acquisition_cleanup_nofault_confined`.
+
+Change these tests:
+
+- `crates/keyed-launch/tests/internal/wait_events.rs`:
+  `cancellation_forwards_or_kills_by_mode` loses its confined row.
+- `crates/keyed-launch/tests/captured.rs`: the helper `launch` and
+  `the_environment_is_the_launchers_minus_the_scrub_plus_the_grant` follow
+  the new signature of `run_captured`.
+- `crates/ravel/tests/cli.rs`: the fixture `cleanup_fault` waits for a
+  directory that only a confined harness run creates. It needs another
+  readiness signal. `unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure`
+  keeps its `output_unavailable` assertion and loses the confined directory.
+  `worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup`
+  loses the confined directory and takes a new name.
+- `crates/ravel/src/partial_acquisition_tests.rs`: the fixture
+  `partial_acquisition_cleanup_fixture` drops `--confine`,
+  `--runtime-read`, the `"confined"` role and the outer confined-directory
+  assertions. Some session and worker tests assert the removal of that outer
+  directory. They are the session tests on the route `front` and the
+  cancellation routes, and the worker tests on the route `front` and the
+  `worker-*` routes. Each of them keeps its own subject without it.
+- `crates/ravel/tests/rhai_harness_run.rs`:
+  `an_unconfined_run_has_the_caller_variables_that_a_confined_run_lacks`
+  takes a new name.
+
+Add the cases of "Removed confinement flags" and "Read access" of the
+[acceptance table](specs/skill-discovery.md#test-seams-and-acceptance) at the
+CLI seam.
+
+The tests `a_cold_cache_below_an_aliased_segment_cannot_lie_inside_a_source`,
+`a_source_that_overlaps_the_protected_configuration_or_the_cache_refuses` and
+`a_source_that_overlaps_the_configuration_directory_refuses` test the kept
+source overlap. They stay unchanged.
+
+#### Scripts
+
+- `scripts/native-linux/Dockerfile`: remove the package `bubblewrap` and the
+  digest of `/usr/bin/bwrap`. Keep `util-linux` and the user without root, and
+  give that user its remaining reason.
+- `scripts/native-linux.sh`: `container_options` serves two routes. The arm64
+  container no longer needs `seccomp=unconfined` or `systempaths=unconfined`.
+  The amd64 helper still needs `seccomp=unconfined` for its user namespace and
+  its `binfmt_misc` mount. Split the options by route, and run one campaign to
+  check them.
+- `scripts/native-linux-qemu.sh`: change the comment that gives bubblewrap as
+  the reason for `pivot_root`. A change to `chroot` is optional.
+- `scripts/examples.sh`, `scripts/examples-extract.awk`,
+  `scripts/examples.test.sh` and `scripts/examples-fixtures/pages/skip.md`:
+  confinement is the only requirement of the `requires` mechanism. Remove the
+  mechanism with its controls, or keep it with a requirement that a test
+  supplies. Record the choice.
+- `scripts/harness-smoke.sh`: remove the word "unconfined" from one comment.
+- `scripts/installed-pair-smoke.sh` keeps its `sandbox-exec` guard. The guard
+  protects the real home in a test. It is not product confinement.
+
+`Taskfile.yml` names no confinement and needs no change.
+`docs/native-entry-cases.json` is a frozen manifest of an earlier campaign,
+and it stays unchanged.
+
+#### Book
+
+The book changes with the code, because `task docs:examples` runs each
+complete example against the build. The only example that runs `--confine` is
+in "Confine the managed process" of chapter 5. Each change below follows the
+[guarantees](#guarantees-of-a-confined-launch) above.
+
+- Chapter 2: remove the definition of confinement from "Trust and
+  confinement". A new title of that section changes twelve links.
+- Chapter 3: remove the confined launch from "Launch the managed job", and
+  remove "unconfined" from that section and from "Send the result and finish
+  the job".
+- Chapter 4: in "Run a harness during evaluation" and "Ask a model through
+  Codex", remove the confinement of harness runs. Keep each Codex
+  `--sandbox` argument.
+- Chapter 5: remove "Confine the managed process" and its example. Move the
+  placement of the channel by `--exit-dir`, the refusal `exit_dir_unusable`,
+  the source overlap and the terminal lending of an ordinary launch. Change
+  the twenty links to that section, the example count and the checklist.
+- Chapter 6: remove `--confine` and `--runtime-read FILE`, with their
+  diagnostic codes. Change the option count, `--exit-dir`, the skill
+  delivery, the exit statuses, the standard streams and the environment
+  tables. Give `skill_access_unavailable` its kept meaning.
+- Chapters 7 and 8: remove the confined runner entry, the confined cleanup and
+  the confined cancellation from the walkthrough.
+- Chapter 9: remove "Apply filesystem confinement", with the two limits of
+  commit `d16976730248`. Rename "Separate noninteractive execution from
+  confinement". Move the runner tests of that section that remain.
+- Chapter 10: remove the prerequisites `sandbox-exec` and `bwrap`.
+- `docs/book/contract.md`, `examples.md`, `figures.md` and `ste.md`: remove
+  confinement from the scopes, the terms and the skipped example.
+- Figures `successful-session`, `session-code-path` and
+  `terminal-lending-recovery`: remove "unconfined" from each legend, and
+  regenerate them with `task docs:figures:update`.
+
+No source excerpt quotes confinement code. `task docs:excerpts` must run again,
+because chapter 8 quotes both `run.rs` files.
+
+#### Specifications and records that change with the code
+
+- `docs/specs/result-job-completion.md` names the confined directory four
+  times, in its settlement order, its allocator list and its ownership
+  transfer. Those passages are in `pending` regions of the controlled-English
+  conversion, so convert each touched section first.
+- `CHANGELOG.md`: remove the unreleased entry for the read grants of confined
+  sessions, and keep its source-overlap sentence elsewhere. Add an entry for
+  the removal of `--confine`, `--runtime-read`, both backends and their two
+  codes.
+- Add a stage record to this document. It names the build commit, the build
+  identity, the installed `bin/ravel` SHA-256 and each check result.
+
+### Linux evidence after the removal
+
+The glibc 2.17 link floor lives in the release route alone:
+`release-build.sh`, `release-smoke.sh`, `release-smoke-target.sh`,
+`release-smoke-qemu.sh` and `installed-smoke.sh`. That route has no bubblewrap
+part, and it stays unchanged. The [Linux floor repair
+record](#linux-floor-repair-record) stays valid for the link.
+
+The development campaign of `task test:native-linux` installs bubblewrap and
+runs the confined tests. Its bubblewrap parts go with the scripts above. The
+evidence of the earlier native-entry Linux campaigns stays as a record of
+those runs. It names `bwrap` digests and confined results, which no build
+after the removal can repeat.
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and
@@ -611,6 +876,15 @@ failed both checkers. Its local links and anchors resolve, and a stale Git
 anchor fails the link check. A sweep for the Git vocabulary that the
 narrowing removed found no remaining requirement for Ravel to run Git. The two
 changed views render in a browser.
+
+The design of Grove's `confinement-withdrawal-k142` ran the same checker on
+its new and changed documents, with no hard finding. Ravel's `scripts/ste.sh
+--strict` passes `CONTEXT.md`, and a planted control fails it. A check of the
+local links in the changed documents found no broken link, and a planted
+broken anchor failed it. The permissions view renders in a browser, with its
+updated marker. In the specifications, the decision records, the glossary and
+the views, confinement occurs only in statements of its withdrawal. The book
+still names confinement, and the removal changes it with the code.
 
 These checks cover the documents only. No product test, installed check or
 real harness trial ran. The design claims no acquisition, confinement,
