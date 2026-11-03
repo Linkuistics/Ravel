@@ -450,6 +450,55 @@ macOS and in the arm64 Linux container. The plain rename replaced the empty
 directory. With the new refusal branch disabled, the publication test
 failed.
 
+## Loader report wording record
+
+Grove's `loader-report-wording-k129` changed three obligations of the preamble
+on 2026-11-03. Two of Grove's Claude Code trials ran the force-stop command
+with no text. A native loader error and a blocked restriction then reached the
+human only as a tool result. Nobody pushed the line, and no release consumes
+it.
+
+- Obligation 4 now tells the agent to report another native error in text,
+  before dependent work and before any ending command. The earlier sentence
+  only classified the error as a report.
+- Obligation 6 puts the report of a blocked restriction in text, and before
+  any ending command.
+- Obligation 10 defines a re-entry as a compaction or a fresh context. A
+  resume that keeps the whole earlier conversation is not a re-entry, and it
+  needs no re-read. The human chose this rule in Grove's
+  `acceptance-gap-triage-k124`.
+
+The request table, the loader-error rule and item 4 of "The preamble" in
+`docs/specs/skill-discovery.md` state the same rules. The specification also
+says that a tool result alone is not a report.
+
+| Subject | Record |
+| --- | --- |
+| Base | Local `main` and `main@origin` are both `24a545236185b0910ba6117fe8f9e8b2e2c8a748`. `jj git fetch` reported no change, so the line needed no rebase. The stage worked above `1ca4aecbeae1`, the output commit of Grove's `grove-linux-two-lane-k103` |
+| Build commit | `0fb12d5f308b2e09237f9c6d1b6d9f84134219b3`, with the parent `1ca4aecbeae1`. Every check below ran on this commit, with an empty working copy |
+| Output commit | The child of the build commit. It changes only this record |
+| Build identity | `45eea2204becf405f441f8ec2167336a0fa4cad738f6aa47e8168e9117720b37`. A script that applies the rule of `crates/ravel/build.rs` computed it, and the installed executable holds it twice. The same script gives `ef5857e9…` for the tree of `1ca4aecb` |
+| Version output | `ravel 1.1.0`. The manifest keeps that version until the cut of the release |
+| Toolchain | Rust 1.99.1, as at the Linux floor repair. `Cargo.lock` did not change |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| Installed executable | `task install PREFIX=<temporary prefix>`, outside the real home. The SHA-256 of `bin/ravel` is `7ab96d9ebdac1d9e4f7334464b4c0052dc2314abbf9b573d10a3fc6193d3a93f`. The prefix has no `libexec` |
+
+| Check on the build commit | Result |
+| --- | --- |
+| `task check` | Exit 0. 732 of 732 run tests passed, and 48 were skipped |
+| `task install` | Exit 0. The installed smoke passed through the executable and through a relative link |
+
+Two new unit tests in `crates/ravel/src/skills/preamble.rs` pin the new
+sentences of obligations 4, 6 and 10. Both failed against the earlier text,
+and both pass on the build commit. The installed executable holds each new
+sentence and not the earlier sentence of obligation 4. The macOS archive of
+the Linux floor repair holds the earlier sentence and none of the new ones.
+
+This stage built no archives and ran no Linux or installed-pair check. Only
+the preamble text changed, and no platform code changed. Grove's
+`stage-evidence-reconciliation-k125` decides which stage checks run again for
+this build.
+
 ## Consumer handoff
 
 Grove's adoption design, `grove-rhai-skill-delivery-k35`, consumes these facts:
