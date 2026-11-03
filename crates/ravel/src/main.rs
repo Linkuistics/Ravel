@@ -4,7 +4,6 @@ mod cancellation;
 mod choice;
 mod cli;
 mod config;
-mod confinement;
 mod context;
 mod environment;
 mod frame;
@@ -30,8 +29,8 @@ mod worker;
 use std::ffi::OsString;
 use std::process::ExitCode;
 
-use clap::Parser as _;
 use clap::error::{ContextKind, ContextValue, ErrorKind};
+use clap::{CommandFactory as _, FromArgMatches as _};
 
 use crate::cli::{Cli, Command, SkillsCommand};
 use crate::refusal::{EXIT_MALFORMED, Failure, Refusal, Stage};
@@ -60,9 +59,16 @@ fn main() -> ExitCode {
         .skip(1)
         .any(|argument| argument == "--json");
 
-    let cli = match Cli::try_parse_from(&arguments) {
-        Ok(cli) => cli,
+    let matches = match Cli::command().try_get_matches_from(&arguments) {
+        Ok(matches) => matches,
         Err(error) => return parse_failure(&error, &arguments, scanned),
+    };
+    let cli = match Cli::from_arg_matches(&matches) {
+        Ok(cli) => cli,
+        Err(error) => {
+            let error = error.format(&mut Cli::command());
+            return parse_failure(&error, &arguments, scanned);
+        }
     };
     match &cli.command {
         Command::EndSession { result } => match end_session(result) {
@@ -72,6 +78,11 @@ fn main() -> ExitCode {
                 ExitCode::from(1)
             }
         },
+        // Before every other check of start-session: no settings, skill
+        // source, worker or result channel precedes this refusal.
+        Command::StartSession(args) if let Some(refusal) = cli::withdrawn(&matches) => {
+            report_failure(&refusal.into(), args.json)
+        }
         Command::StartSession(args) => match run::run(args) {
             Ok(()) => ExitCode::SUCCESS,
             Err(failure) => report_failure(&failure, args.json),

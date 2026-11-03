@@ -19,16 +19,20 @@ pub mod watch;
 
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
-use std::io::ErrorKind;
-use std::path::{Path, PathBuf};
+use std::io::{self, ErrorKind};
+use std::path::{Component, Path, PathBuf};
 
 use serde_json::{Value, json};
 use sha2::{Digest as _, Sha256};
 
+#[cfg(test)]
+use crate::completion::EXIT_FILE_VARIABLE;
 use crate::refusal::{EXIT_REFUSED, Refusal, Stage};
 use crate::settings::{SETTINGS_FILE, Settings};
 use bounds::{Actual, Limits};
 use cache::Cache;
+#[cfg(not(test))]
+use ravel::EXIT_FILE_VARIABLE;
 use settings::SkillSettings;
 use snapshot::{Budget, Expected, MANIFEST_FILE, TREE_DIR};
 use watch::Watch;
@@ -75,8 +79,6 @@ pub struct Resolved {
     pub descriptor: Value,
     /// The preamble, without a final newline.
     pub instructions: String,
-    /// The real path of the cache root that holds the published objects.
-    pub cache_root: PathBuf,
 }
 
 impl Resolved {
@@ -305,7 +307,6 @@ fn watched(
         descriptor_path,
         descriptor,
         instructions,
-        cache_root: cache.path.clone(),
     })
 }
 
@@ -349,8 +350,8 @@ impl Protected {
         }
         // A source that holds the result channel of an enclosing session
         // could capture what that channel holds.
-        if let Some(channel) = crate::confinement::inherited_channel() {
-            paths.extend(crate::confinement::prospective(&channel).ok());
+        if let Some(channel) = inherited_channel() {
+            paths.extend(prospective(&channel).ok());
             paths.push(channel);
         }
         Protected { paths }
@@ -363,6 +364,48 @@ impl Protected {
             .find(|protected| source.starts_with(protected) || protected.starts_with(source))
             .map(PathBuf::as_path)
     }
+}
+
+/// The result channel of an enclosing session, from an absolute non-empty
+/// `RAVEL_EXIT_FILE`. Source acquisition keeps clear of it
+/// (docs/specs/skill-discovery.md, "Read access and delegation").
+fn inherited_channel() -> Option<PathBuf> {
+    std::env::var_os(EXIT_FILE_VARIABLE)
+        .filter(|path| !path.is_empty())
+        .map(PathBuf::from)
+        .filter(|path| path.is_absolute())
+}
+
+/// Canonicalize every existing component, retaining a normalized absent tail.
+/// A channel can be absent before its session ends, and symlinked ancestors
+/// and `..` still refer to their actual filesystem locations. A dangling
+/// symlink is an error rather than a missing ordinary component.
+fn prospective(path: &Path) -> io::Result<PathBuf> {
+    let mut resolved = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::RootDir => resolved.push("/"),
+            Component::CurDir => {}
+            Component::ParentDir => {
+                resolved.pop();
+            }
+            Component::Normal(name) => {
+                resolved.push(name);
+                match fs::symlink_metadata(&resolved) {
+                    Ok(_) => resolved = resolved.canonicalize()?,
+                    Err(error) if error.kind() == ErrorKind::NotFound => {}
+                    Err(error) => return Err(error),
+                }
+            }
+            Component::Prefix(_) => {
+                return Err(io::Error::new(
+                    ErrorKind::InvalidInput,
+                    "expected a POSIX path",
+                ));
+            }
+        }
+    }
+    Ok(resolved)
 }
 
 struct LocalOrigin {

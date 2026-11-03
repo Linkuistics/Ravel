@@ -27,8 +27,7 @@ impl Argv {
     ///
     /// For a caller that resolved a name to a path itself: it spawns the path,
     /// so that nothing is looked up a second time, and the child still sees
-    /// the name it was chosen by. A confined launch runs the path it is given,
-    /// and its child's `argv[0]` is that path whatever this says.
+    /// the name it was chosen by.
     #[must_use]
     pub fn with_arg0(mut self, arg0: OsString) -> Self {
         self.arg0 = Some(arg0);

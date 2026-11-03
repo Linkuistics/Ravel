@@ -16,7 +16,7 @@ use crate::choice::{self, Selected};
 use crate::cli::RunArgs;
 use crate::environment::{CONFIG_RUN, LAUNCH_CONTROLS};
 use crate::refusal::{EXIT_MALFORMED, EXIT_REFUSED, EXIT_WORKER, Failure, Refusal, Stage};
-use crate::rhai_worker::harness::{ConfineSetup, RunSetup};
+use crate::rhai_worker::harness::RunSetup;
 use crate::signal_state;
 use crate::skills::launch::SKILL_DIRECTORIES;
 
@@ -55,7 +55,6 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     }
     signal_state::recorded()?;
     let mut handlers = crate::cancellation::Handlers::new();
-    let mut confined: Option<crate::confinement::Confined> = None;
     let mut source = "selection".to_owned();
     let mut channel = None;
     let mut output = None;
@@ -71,22 +70,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         let exit_dir = args.exit_dir.as_deref().map(exit_dir).transpose()?;
         let prepared = choice::prepare(&args.selection)?;
         source = prepared.entry.display();
-        confined = args
-            .confine
-            .then(|| {
-                crate::confinement::Confined::prepare(
-                    &prepared,
-                    exit_dir.as_deref(),
-                    &args.runtime_read,
-                )
-            })
-            .transpose()?;
         let setup = RunSetup {
             entry: signal_state::entry(),
-            confine: args.confine.then(|| ConfineSetup {
-                basis: crate::confinement::Basis::from(&prepared).holding(confined.as_ref()),
-                runtime_read: args.runtime_read.clone(),
-            }),
             exit_dir: exit_dir.clone(),
             skill_directories: prepared
                 .skills
@@ -103,14 +88,9 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         }
         output =
             Some(ResultOutput::reserve().map_err(|error| failed("output_unavailable", error))?);
-        let parent = exit_dir.as_deref().or_else(|| {
-            confined
-                .as_ref()
-                .map(crate::confinement::Confined::exit_dir)
-        });
         let temporary = std::env::temp_dir();
         let allocated = channel.insert(
-            SessionChannel::allocate(parent.unwrap_or(&temporary))
+            SessionChannel::allocate(exit_dir.as_deref().unwrap_or(&temporary))
                 .map_err(|error| failed("session_channel_unavailable", error))?,
         );
         if args.json {
@@ -191,11 +171,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             choice.command.args.iter().map(OsString::from).collect(),
         )
         .with_arg0(OsString::from(&choice.executable.program));
-        let mut environment = confined
-            .as_ref()
-            .map_or_else(Vec::new, crate::confinement::Confined::environment);
         let directories = setup.skill_directories.as_ref();
-        environment.extend(skill_environment(directories));
+        let environment = skill_environment(directories);
         let grant: Vec<_> = environment
             .iter()
             .map(|(name, value)| (name.as_os_str(), value.as_os_str()))
@@ -225,9 +202,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
                     Some(&entry)
                 }
             },
-            cwd: confined
-                .as_ref()
-                .map(|confined| confined.writable[0].as_path()),
+            cwd: None,
             escalation: ESCALATION,
         };
         let mut started = false;
@@ -249,21 +224,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             crate::native_entry_tests::barrier("started-before-mask-restore");
             signal_state::restore_mask_at("Started-parent-restore")
         };
-        let supervised = match &confined {
-            Some(confined) => keyed_launch::run_confined_observed_with_start_check(
-                launch,
-                &keyed_launch::FilesystemGrants {
-                    writable: &confined.writable,
-                    runtime_read: &confined.reads(),
-                    read_trees: &confined.read_trees,
-                },
-                &mut observe,
-                &mut start_check,
-            ),
-            None => {
-                keyed_launch::run_observed_with_start_check(launch, &mut observe, &mut start_check)
-            }
-        };
+        let supervised =
+            keyed_launch::run_observed_with_start_check(launch, &mut observe, &mut start_check);
         let supervision = supervised.map_err(|error| {
             let (failure, observed) = supervision_failure(
                 error.to_string(),
@@ -308,8 +270,8 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
             eprintln!("ravel: {report}");
         }
     }
-    // A failed confined command may not have installed runner handlers.
-    // Restore while whichever handler owns the transition is still installed,
+    // A runner that failed before its spawn may not have installed its
+    // handlers. Restore while whichever handler owns the transition is still installed,
     // then inspect both latches after dispositions have returned to entry.
     let mask = handlers
         .restore_entry_mask()
@@ -317,11 +279,6 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
     let channel_cleanup = channel.map_or(Ok(()), |channel| {
         channel
             .close()
-            .map_err(|error| failed("session_cleanup_failed", error))
-    });
-    let private_cleanup = confined.map_or(Ok(()), |confined| {
-        confined
-            .remove()
             .map_err(|error| failed("session_cleanup_failed", error))
     });
     let restore = output.as_ref().map_or(Ok(()), |output| {
@@ -337,7 +294,7 @@ pub fn run(args: &RunArgs) -> Result<(), Failure> {
         crate::native_entry_tests::barrier("no-ending-error-before-finalise");
     }
     let (signal, signal_reports) = handlers.finalise(runner_signal);
-    let mut cleanups = vec![mask, channel_cleanup, private_cleanup, restore];
+    let mut cleanups = vec![mask, channel_cleanup, restore];
     cleanups.extend(
         signal_reports
             .into_iter()
@@ -555,7 +512,7 @@ mod tests {
             None,
             vec![
                 Err(failed("cleanup", "channel cannot be removed")),
-                Err(failed("cleanup", "sandbox cannot be removed")),
+                Err(failed("cleanup", "output cannot be restored")),
             ],
             Some(signal),
             "policy.rhai",
@@ -565,7 +522,7 @@ mod tests {
         assert_eq!(result.refusal.signal, Some(signal));
         let diagnostics = String::from_utf8(diagnostics).unwrap();
         assert!(diagnostics.contains("channel cannot be removed"));
-        assert!(diagnostics.contains("sandbox cannot be removed"));
+        assert!(diagnostics.contains("output cannot be restored"));
         assert!(diagnostics.contains("stdout is closed"));
         assert!(diagnostics.contains("config stdout: owner note"));
         assert!(diagnostics.contains("config stderr: owner warning"));
@@ -664,7 +621,6 @@ mod tests {
                 vec![
                     Err(failed("cleanup", "mask restore failure")),
                     Err(failed("cleanup", "channel close failure")),
-                    Err(failed("cleanup", "private directory removal failure")),
                     Err(failed("cleanup", "output restore failure")),
                 ],
                 joined,
@@ -678,7 +634,6 @@ mod tests {
             for report in [
                 "mask restore failure",
                 "channel close failure",
-                "private directory removal failure",
                 "output restore failure",
             ] {
                 assert!(text.contains(report));
@@ -707,7 +662,7 @@ mod tests {
                 );
             }
             eprintln!(
-                "checked front={front:?} runner={runner:?} late={late:?} selected={want:?}; no ending/result, original diagnostics and four cleanup reports asserted"
+                "checked front={front:?} runner={runner:?} late={late:?} selected={want:?}; no ending/result, original diagnostics and three cleanup reports asserted"
             );
         }
     }
@@ -852,7 +807,6 @@ mod tests {
                     vec![
                         Err(failed("cleanup", "outer mask restoration")),
                         Err(failed("cleanup", "outer channel cleanup")),
-                        Err(failed("cleanup", "outer private cleanup")),
                         Err(failed("cleanup", "outer output restoration")),
                     ],
                     signal,
@@ -884,13 +838,12 @@ mod tests {
                 for label in [
                     "outer mask restoration",
                     "outer channel cleanup",
-                    "outer private cleanup",
                     "outer output restoration",
                 ] {
                     assert!(diagnostics.contains(label));
                 }
                 eprintln!(
-                    "C4 front {case}: front={front:?} late={late:?} selected={selected:?}; exact runner message and four outer reports retained; no ending/result"
+                    "C4 front {case}: front={front:?} late={late:?} selected={selected:?}; exact runner message and three outer reports retained; no ending/result"
                 );
             }
         }

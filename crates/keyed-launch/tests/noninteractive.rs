@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Child, ExitStatus, Stdio};
 use std::time::{Duration, Instant};
 
-use keyed_launch::{Argv, Channel, End, Escalation, Group, Launch};
+use keyed_launch::{Argv, End, Escalation, Group};
 
 #[test]
 #[ignore = "subprocess fixture"]
@@ -118,10 +118,6 @@ fn supervisor() {
             .parse()
             .unwrap()
     };
-    if scenario == "confined_stubborn" {
-        confined_supervisor(kill_grace, expected_signal());
-        return;
-    }
     let argv = Argv::new(
         "env".into(),
         vec![
@@ -194,58 +190,6 @@ fn supervisor() {
             "helper kept writing after return"
         );
     }
-}
-
-/// The confined half of the supervisor fixture: a shell that ignores both
-/// cancelling signals, launched under confinement with a long kill-grace.
-///
-/// Inside the sandbox the child's pid may be a namespace's, so readiness is a
-/// marker file in the writable directory, and that the group is gone is the
-/// runner's own report.
-fn confined_supervisor(kill_grace: Duration, expected_signal: i32) {
-    let work = PathBuf::from(std::env::var_os("RUNNER_WORK").unwrap());
-    let script = work.join("stubborn.sh");
-    fs::write(
-        &script,
-        "trap '' TERM INT\n: > started\nwhile : ; do sleep 0.05 ; done\n",
-    )
-    .unwrap();
-    let argv = Argv::new("/bin/sh".into(), vec![script.into_os_string()]);
-    let channel = Channel::allocate(&work).unwrap();
-    let result = keyed_launch::run_confined_observed(
-        Launch {
-            argv: &argv,
-            channel: Some((&channel, "RUNNER_CHANNEL")),
-            scrub: support::controls(),
-            grant: &[],
-            transparent: None,
-            cwd: Some(&work),
-            escalation: Escalation {
-                grace: Duration::ZERO,
-                kill_grace,
-            },
-        },
-        &keyed_launch::FilesystemGrants {
-            writable: std::slice::from_ref(&work),
-            runtime_read: &[],
-            read_trees: &[],
-        },
-        &mut |_| {},
-    )
-    .unwrap();
-    assert_eq!(
-        result.end,
-        End::Interrupted {
-            signal: expected_signal
-        }
-    );
-    assert_eq!(result.status.signal(), Some(libc::SIGKILL));
-    assert!(
-        result.elapsed < kill_grace,
-        "a confined cancellation waited out the kill-grace: {:?}",
-        result.elapsed
-    );
-    assert_eq!(result.group, Group::Gone);
 }
 
 /// The control's supervisor: it launches the `child` fixture as any process
@@ -428,44 +372,6 @@ fn a_stubborn_noninteractive_child_is_killed_after_the_kill_grace() {
         "1000",
         Duration::from_secs(4),
     );
-}
-
-/// A confined child's group is killed at once, so a cancellation nested inside
-/// another supervisor's grace finishes inside it. The kill-grace here is ten
-/// seconds, and the supervisor must finish in four.
-#[test]
-fn a_confined_child_is_killed_at_once_on_cancellation() {
-    let directory = tempfile::tempdir().unwrap();
-    let work = directory.path().canonicalize().unwrap().join("work");
-    fs::create_dir(&work).unwrap();
-    let mut supervisor = RunningSupervisor::start_with(
-        directory.path(),
-        "confined_stubborn",
-        libc::SIGTERM,
-        &[
-            ("RUNNER_KILL_GRACE_MS", "10000".as_ref()),
-            ("RUNNER_WORK", work.as_os_str()),
-        ],
-    );
-    let started = work.join("started");
-    let ready_by = Instant::now() + Duration::from_secs(5);
-    while !started.exists() {
-        assert!(
-            supervisor.process.try_wait().unwrap().is_none(),
-            "supervisor ended before readiness: {}",
-            fs::read_to_string(&supervisor.log).unwrap()
-        );
-        assert!(Instant::now() < ready_by, "confined child never started");
-        std::thread::sleep(Duration::from_millis(10));
-    }
-    let deadline = Instant::now() + Duration::from_secs(4);
-    // SAFETY: the supervisor is our live direct child, which installed its
-    // handlers before it spawned the child that wrote the marker.
-    assert_eq!(
-        unsafe { libc::kill(supervisor.process.id() as libc::pid_t, libc::SIGTERM) },
-        0
-    );
-    supervisor.await_exit(deadline);
 }
 
 #[test]

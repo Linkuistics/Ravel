@@ -5,8 +5,8 @@
 //! concurrency and cleanup", "Read access and delegation" and "Test seams and
 //! acceptance".
 //!
-//! These rows run here: "Lifetime", the unconfined part of "Nested sessions"
-//! and the fixture part of "Directory recovery". Agent behaviour after a
+//! These rows run here: "Lifetime", "Nested sessions" and the fixture part of
+//! "Directory recovery". Agent behaviour after a
 //! compaction belongs to the actual harness trials.
 //!
 //! The fixture programs read the descriptor with `sed` and `grep`. The

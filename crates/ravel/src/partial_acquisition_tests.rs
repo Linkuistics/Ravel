@@ -86,153 +86,6 @@ macro_rules! c3_case {
     };
 }
 c3_case!(
-    partial_acquisition_cleanup_confined_create_clean,
-    "confined",
-    "create",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_identity_clean,
-    "confined",
-    "identity",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_identity_remove,
-    "confined",
-    "identity",
-    "remove",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_canonical_clean,
-    "confined",
-    "canonical",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_canonical_remove,
-    "confined",
-    "canonical",
-    "remove",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_runtime_clean,
-    "confined",
-    "runtime",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_runtime_remove,
-    "confined",
-    "runtime",
-    "remove",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_protected_clean,
-    "confined",
-    "protected",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_protected_remove,
-    "confined",
-    "protected",
-    "remove",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_temporary_clean,
-    "confined",
-    "temporary",
-    "clean",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_temporary_remove,
-    "confined",
-    "temporary",
-    "remove",
-    "front"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_partial_move,
-    "confined",
-    "temporary",
-    "move",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transferred_move,
-    "confined",
-    "cleanup",
-    "move",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_partial_replace,
-    "confined",
-    "temporary",
-    "replace",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transferred_replace,
-    "confined",
-    "cleanup",
-    "replace",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_partial_symlink,
-    "confined",
-    "temporary",
-    "symlink",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transferred_symlink,
-    "confined",
-    "cleanup",
-    "symlink",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_partial_unknown,
-    "confined",
-    "temporary",
-    "unknown",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transferred_unknown,
-    "confined",
-    "cleanup",
-    "unknown",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transferred_remove,
-    "confined",
-    "cleanup",
-    "remove",
-    "direct"
-);
-c3_case!(
-    partial_acquisition_cleanup_confined_transfer_success,
-    "confined",
-    "none",
-    "clean",
-    "direct"
-);
-c3_case!(
     partial_acquisition_cleanup_session_create_clean,
     "session",
     "create",
@@ -655,18 +508,6 @@ fn partial_acquisition_cleanup_fixture() {
             root.join("tmp").to_str().unwrap().into(),
         ]);
     }
-    if step == "real-runtime" {
-        words.extend([
-            "--runtime-read".into(),
-            root.join("work").to_str().unwrap().into(),
-        ]);
-    }
-    if !route.starts_with("nofault") || route == "nofault-confined" {
-        words.push("--confine".into());
-    }
-    if route == "nofault-confined" {
-        words.extend(["--runtime-read".into(), std::env::var("C3_FRONT").unwrap()]);
-    }
     if route.contains("timeout") {
         words.extend(["--timeout-ms".into(), "1000".into()]);
     }
@@ -716,11 +557,6 @@ fn partial_acquisition_cleanup_fixture() {
                 Err(error.to_string())
             }
         }
-    } else if route == "direct" && role == "confined" {
-        let prepared = crate::choice::prepare(&args.selection).unwrap();
-        crate::confinement::Confined::prepare(&prepared, None, &[])
-            .map_err(|e| crate::refusal::Failure::from(e).to_text())
-            .and_then(|c| c.remove())
     } else if route.starts_with("choice")
         || route.ends_with("late-choice")
         || (route == "direct" && role == "worker")
@@ -767,9 +603,7 @@ fn partial_acquisition_cleanup_fixture() {
                 };
                 assert_eq!(e.refusal.signal.unwrap().name(), first);
             } else {
-                let expected = if role == "confined" {
-                    "confinement_unusable"
-                } else if role == "session" {
+                let expected = if role == "session" {
                     "session_channel_unavailable"
                 } else if route.contains("refusal") {
                     "config_refused"
@@ -787,9 +621,7 @@ fn partial_acquisition_cleanup_fixture() {
                 assert_eq!(e.refusal.code, expected);
                 assert_eq!(
                     e.refusal.stage.as_str(),
-                    if role == "confined" {
-                        "cli"
-                    } else if role == "session" {
+                    if role == "session" {
                         "exec"
                     } else if route.contains("timeout") || route.contains("overflow") {
                         "evaluation"
@@ -801,9 +633,7 @@ fn partial_acquisition_cleanup_fixture() {
                 );
                 assert_eq!(
                     e.refusal.exit,
-                    if role == "confined" {
-                        2
-                    } else if route.contains("timeout") {
+                    if route.contains("timeout") {
                         124
                     } else if route.contains("refusal") || route.contains("overflow") {
                         3
@@ -830,38 +660,6 @@ fn partial_acquisition_cleanup_fixture() {
     .unwrap();
     let product = fs::read_to_string(root.join("product-stderr")).unwrap();
     eprintln!("PRODUCT-OUTPUT\n{product}");
-    if !route.starts_with("choice")
-        && route != "direct"
-        && !route.ends_with("late-choice")
-        && !route.starts_with("nofault")
-        && role != "confined"
-    {
-        CONTROL.with(|c| {
-            let c = c.borrow();
-            let outer = c
-                .all_created
-                .iter()
-                .find(|(role, _)| role == "confined")
-                .unwrap();
-            assert_eq!(
-                c.all_attempts
-                    .iter()
-                    .filter(|role| *role == "confined")
-                    .count(),
-                1,
-                "outer cleanup missing/retried"
-            );
-            if route.starts_with("worker-") || route.starts_with("cancel-") {
-                assert!(outer.1.is_dir());
-                assert!(
-                    product.contains("os error 16") && product.contains(outer.1.to_str().unwrap()),
-                    "outer cleanup report lost: {product}"
-                );
-            } else {
-                assert!(!outer.1.exists(), "outer confined directory remains");
-            }
-        });
-    }
     if step == "none" {
         assert!(outcome.is_ok(), "{outcome:?}");
         if route.starts_with("nofault") {
@@ -920,8 +718,7 @@ fn partial_acquisition_cleanup_fixture() {
                 assert!(
                     error.contains("os error 5")
                         || step.starts_with("spawn")
-                        || (step == "channel-real" && error.contains("os error 2"))
-                        || (step == "real-runtime" && error.contains("regular file")),
+                        || (step == "channel-real" && error.contains("os error 2")),
                     "lost original acquisition: {error}"
                 );
             }
@@ -992,13 +789,6 @@ fn descriptors() -> Vec<i32> {
         .filter(|&fd| unsafe { libc::fcntl(fd, libc::F_GETFD) } >= 0)
         .collect()
 }
-c3_case!(
-    partial_acquisition_cleanup_confined_real_runtime_validation,
-    "confined",
-    "real-runtime",
-    "clean",
-    "front"
-);
 
 c3_case!(
     partial_acquisition_cleanup_session_real_channel_errno,
@@ -1181,13 +971,6 @@ c3_case!(
     "cleanup",
     "remove",
     "worker-nonzero"
-);
-c3_case!(
-    partial_acquisition_cleanup_nofault_confined,
-    "worker",
-    "none",
-    "clean",
-    "nofault-confined"
 );
 
 // Restoring the owned inode to its original pathname makes a retry destructive,

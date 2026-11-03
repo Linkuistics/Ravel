@@ -37,7 +37,6 @@
 mod argv;
 mod capture;
 mod channel;
-mod confinement;
 mod error;
 #[cfg(test)]
 mod native_barrier;
@@ -48,10 +47,6 @@ mod run;
 pub use argv::Argv;
 pub use capture::StopRequest;
 pub use channel::{Channel, signal};
-pub use confinement::{
-    FilesystemGrants, ReadTree, confinement_available, confinement_reads_available,
-    confinement_system_reads, regular_file_at,
-};
 pub use error::LaunchError;
 /// Private fixture seam: absent unless the `native-faults` feature is enabled,
 /// which only the isolated native-entry fixture build does.
@@ -59,7 +54,6 @@ pub use error::LaunchError;
 pub use native_hooks::native_fault_select;
 pub use run::{
     Captured, CapturedLaunch, End, Ended, EntrySignals, Escalation, Group, Launch, LaunchEvent,
-    NoninteractiveLaunch, reraise, run, run_captured, run_confined_observed,
-    run_confined_observed_with_start_check, run_noninteractive, run_observed,
+    NoninteractiveLaunch, reraise, run, run_captured, run_noninteractive, run_observed,
     run_observed_with_start_check, take_interrupt,
 };

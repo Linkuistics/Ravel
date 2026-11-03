@@ -41,7 +41,6 @@ fn launch(
             limit,
             stop,
         },
-        None,
         &mut |_| {},
     )
     .unwrap()
@@ -303,7 +302,6 @@ fn the_environment_is_the_launchers_minus_the_scrub_plus_the_grant() {
             limit: 1024,
             stop: &StopRequest::new(),
         },
-        None,
         &mut |_| {},
     )
     .unwrap();

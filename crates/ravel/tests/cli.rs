@@ -74,7 +74,7 @@ fn select(request, context) {{
         let source = self.selecting("exit 91", "unused").replace(
             "fn select(request, context) {",
             r#"fn select(request, context) {
- let barrier = ravel::run_harness(#{ harness: "barrier", args: ["-c", "printf '%s' \"${TMPDIR%/tmp}\" > setup-ready.tmp; mv setup-ready.tmp setup-ready"] });
+ let barrier = ravel::run_harness(#{ harness: "barrier", args: ["-c", ": > setup-ready"] });
  if barrier.status != "exited" || barrier.exitCode != 0 { throw "barrier failed"; }
  while ravel::read_text("release").text != "ready" { sleep(1); }"#,
         );
@@ -90,7 +90,6 @@ fn select(request, context) {{
                 "check",
                 "--prompt",
                 "caller",
-                "--confine",
                 "--config",
             ])
             .arg(config)
@@ -101,12 +100,20 @@ fn select(request, context) {{
         }
         let mut child = command.spawn().unwrap();
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(10);
-        // TMPDIR names private-root/tmp; wait for the whole private root to
-        // disappear, rather than an inner directory removed during cleanup.
-        while !fs::read_to_string(self.root.join("work/setup-ready")).is_ok_and(|path| {
-            let path = std::path::Path::new(&path);
-            path.parent() == Some(self.root.join("tmp").as_path()) && !path.exists()
-        }) {
+        // The barrier run allocates its result channel in TMPDIR before it
+        // starts. Wait until the run has removed that channel, so that the
+        // fault below meets only the worker's own private directory.
+        let settled = || {
+            self.root.join("work/setup-ready").exists()
+                && !fs::read_dir(self.root.join("tmp")).unwrap().any(|entry| {
+                    entry
+                        .unwrap()
+                        .file_name()
+                        .to_string_lossy()
+                        .starts_with("ravel-session-")
+                })
+        };
+        while !settled() {
             if child.try_wait().unwrap().is_some() || std::time::Instant::now() >= deadline {
                 let _ = child.kill();
                 let _ = child.wait();
@@ -450,33 +457,98 @@ fn nested_command_context_is_isolated_and_first_result_wins() {
     assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
 }
 
+/// docs/specs/session-execution.md, "No confinement", and the row "Removed
+/// confinement flags" of docs/specs/skill-discovery.md.
 #[test]
-fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_config() {
+fn withdrawn_confinement_flags_refuse_before_settings_and_a_prompt_word_is_caller_data() {
     let fixture = Fixture::new();
-    let owner = fixture.root.join("owner");
-    fs::create_dir(&owner).unwrap();
-    let config = owner.join("policy.rhai");
-    fs::write(
-        &config,
-        fixture.selecting(
-            r#"[ -z "${PRIVATE_TOKEN-}" ] || exit 91; "$1" end-session "$2""#,
-            "confined",
+    // Settings that refuse when they are read, and an entry that refuses when
+    // a worker evaluates it: the refusal must come before both.
+    let settings = fixture.root.join("home/.config/ravel/settings.json");
+    fs::create_dir_all(settings.parent().unwrap()).unwrap();
+    fs::write(&settings, "{").unwrap();
+    let config = fixture.root.join("policy.rhai");
+    fs::write(&config, "fn select(request, context) {").unwrap();
+    let launch = |flags: &[&str], json: bool| {
+        let mut command = fixture.command();
+        command
+            .args(["start-session", "--kind", "check", "--prompt", "caller"])
+            .arg("--config")
+            .arg(&config)
+            .args(flags);
+        if json {
+            command.arg("--json");
+        }
+        command.output().unwrap()
+    };
+    for (flags, input) in [
+        (&["--confine"][..], "--confine"),
+        (&["--runtime-read", "/bin/sh"][..], "--runtime-read"),
+        (&["--runtime-read=/bin/sh"][..], "--runtime-read"),
+        (&["--runtime-read"][..], "--runtime-read"),
+        (&["--confine", "--runtime-read", "/bin/sh"][..], "--confine"),
+        (
+            &["--runtime-read", "/bin/sh", "--confine"][..],
+            "--runtime-read",
         ),
+        (&["--confine", "--confine"][..], "--confine"),
+    ] {
+        let output = launch(flags, true);
+        assert_eq!(output.status.code(), Some(2), "{flags:?}");
+        assert!(output.stdout.is_empty(), "{flags:?}");
+        let document: serde_json::Value =
+            serde_json::from_slice(&output.stderr).unwrap_or_else(|error| {
+                panic!(
+                    "{flags:?}: {error}: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                )
+            });
+        let error = &document["error"];
+        assert_eq!(error["code"], "confinement_withdrawn", "{flags:?}: {error}");
+        assert_eq!(error["stage"], "cli", "{flags:?}: {error}");
+        assert_eq!(error["exit"], 2, "{flags:?}: {error}");
+        assert_eq!(error["input"], input, "{flags:?}: {error}");
+        let remedy = error["remedy"].as_str().unwrap();
+        for part in ["--confine", "--runtime-read", "sandbox", "Ravel 1.1"] {
+            assert!(remedy.contains(part), "{flags:?}: {remedy}");
+        }
+
+        let text = launch(flags, false);
+        assert_eq!(text.status.code(), Some(2), "{flags:?}");
+        let text = String::from_utf8(text.stderr).unwrap();
+        assert!(text.contains("confinement_withdrawn"), "{flags:?}: {text}");
+        assert!(
+            text.contains(&format!("input: {input}")),
+            "{flags:?}: {text}"
+        );
+    }
+    // No settings read, cache work, worker or result channel.
+    assert!(!fixture.root.join("home/.cache").exists());
+    assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
+
+    // The firing control: without the flags the same command reads the
+    // settings, which refuse.
+    let control = launch(&[], true);
+    assert_eq!(control.status.code(), Some(2));
+    assert!(
+        String::from_utf8_lossy(&control.stderr).contains("settings_invalid"),
+        "{}",
+        String::from_utf8_lossy(&control.stderr)
+    );
+
+    // A word that clap takes as the value of --prompt is caller data, and the
+    // session launches with it as its prompt.
+    fs::remove_file(&settings).unwrap();
+    fs::write(
+        fixture.root.join("selecting.rhai"),
+        fixture.selecting(r#""$1" end-session -- "$3""#, "unused"),
     )
     .unwrap();
     let output = fixture
         .command()
-        .args([
-            "start-session",
-            "--kind",
-            "check",
-            "--prompt",
-            "caller",
-            "--confine",
-            "--config",
-        ])
-        .arg(&config)
-        .env("PRIVATE_TOKEN", "must not reach confined child")
+        .args(["start-session", "--kind", "check", "--config"])
+        .arg(fixture.root.join("selecting.rhai"))
+        .args(["--prompt", "--confine"])
         .output()
         .unwrap();
     assert!(
@@ -484,27 +556,7 @@ fn confined_route_delivers_result_and_overlapping_owner_paths_refuse_before_conf
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    assert_eq!(output.stdout, b"confined");
-    assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
-    let overlap = fixture
-        .command()
-        .args([
-            "start-session",
-            "--kind",
-            "check",
-            "--prompt",
-            "caller",
-            "--confine",
-            "--config",
-        ])
-        .arg(config)
-        .args(["--runtime-read"])
-        .arg(owner.join("policy.rhai"))
-        .output()
-        .unwrap();
-    assert_eq!(overlap.status.code(), Some(2));
-    assert!(String::from_utf8_lossy(&overlap.stderr).contains("confinement_overlap"));
-    assert!(overlap.stdout.is_empty());
+    assert_eq!(output.stdout, b"--confine");
 }
 
 #[test]
@@ -537,45 +589,19 @@ fn selection_deadline_stops_real_worker() {
 }
 
 #[test]
-fn unwritable_result_stdout_refuses_before_launch_and_reports_private_cleanup_failure() {
-    use std::os::unix::fs::PermissionsExt as _;
+fn unwritable_result_stdout_refuses_before_launch() {
     let fixture = Fixture::new();
-    let output = fixture.cleanup_fault(true, || {
-        for entry in fs::read_dir(fixture.root.join("tmp")).unwrap() {
-            let entry = entry.unwrap();
-            if entry
-                .file_name()
-                .to_string_lossy()
-                .starts_with("ravel-confined-")
-            {
-                fs::write(entry.path().join("cleanup-blocker"), "fixture").unwrap();
-                fs::set_permissions(entry.path(), fs::Permissions::from_mode(0o500)).unwrap();
-            }
-        }
-    });
-    fs::set_permissions(fixture.root.join("tmp"), fs::Permissions::from_mode(0o700)).unwrap();
-    for entry in fs::read_dir(fixture.root.join("tmp")).unwrap() {
-        let entry = entry.unwrap();
-        if entry
-            .file_name()
-            .to_string_lossy()
-            .starts_with("ravel-confined-")
-        {
-            fs::set_permissions(entry.path(), fs::Permissions::from_mode(0o700)).unwrap();
-        }
-    }
+    let output = fixture.cleanup_fault(true, || {});
     assert_eq!(output.status.code(), Some(5));
     let diagnostics = String::from_utf8(output.stderr).unwrap();
     assert!(diagnostics.contains("output_unavailable"), "{diagnostics}");
-    assert!(
-        diagnostics.contains("cannot remove confined run directory"),
-        "{diagnostics}"
-    );
+    assert!(!diagnostics.contains("starting provider"), "{diagnostics}");
     assert!(output.stdout.is_empty());
+    assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
 }
 
 #[test]
-fn worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup() {
+fn worker_private_cleanup_failure_blocks_admission() {
     use std::os::unix::fs::PermissionsExt as _;
     let fixture = Fixture::new();
     let output = fixture.cleanup_fault(false, || {
@@ -593,7 +619,6 @@ fn worker_private_cleanup_failure_blocks_admission_and_reports_outer_cleanup() {
         "remove private directory",
         "ravel-worker.",
         "Permission denied",
-        "cannot remove confined run directory",
         "retrying",
     ] {
         assert!(text.contains(report), "missing {report}: {text}");

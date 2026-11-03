@@ -6,9 +6,9 @@
 //! The launch parts of these rows run here: "Directory delivery", "Filesystem
 //! versus skill semantics", "Settings and bootstrap", "Relative resources",
 //! "Local sources only", "Corrupt object", "Request and evaluation", "Host
-//! reads", "Standalone acquisition", the unconfined part of "Harness runs",
-//! the empty task of "Bounds and frames" and schema 3 and 4 with sources of
-//! "Version transition".
+//! reads", "Standalone acquisition", "Harness runs", "Read access", the empty
+//! task of "Bounds and frames" and schema 3 and 4 with sources of "Version
+//! transition".
 
 mod support;
 
@@ -119,8 +119,7 @@ impl Fixture {
         run(&mut command)
     }
 
-    /// Ravel's own files in the private `TMPDIR`: result channels and
-    /// confined run directories.
+    /// Ravel's own files in the private `TMPDIR`: result channels.
     fn left_in_tmp(&self) -> Vec<String> {
         fs::read_dir(&self.tmp)
             .unwrap()
@@ -543,6 +542,43 @@ fn a_fake_managed_program_reads_the_prompt_the_descriptor_and_relative_resources
     assert!(fs::read_to_string(descriptor.as_str().unwrap()).is_ok());
 }
 
+/// A fixture agent that reads a skill outside its working directory, itself
+/// and through a grandchild, and then tries to change the snapshot. Each try
+/// runs in a subshell: dash, the `sh` of Debian and Ubuntu, ends the script
+/// when a redirection of the special builtin `:` fails.
+const ACCESS: &str = r#"directory=$(printf '%s\n' "$1" | sed -n 's/^- "\(.*\)"$/\1/p' | head -n 1)
+case $directory in "$PWD"/*) exec "$FRONT" end-session "inside the working directory" ;; esac
+skill="$directory/alpha/SKILL.md"
+child=$(cat "$skill")
+grandchild=$(sh -c 'sh -c "cat \"\$1\"" inner "$1"' outer "$skill")
+if (printf x >> "$skill") 2>/dev/null; then write=allowed; else write=denied; fi
+if (: > "$directory/alpha/new") 2>/dev/null; then entry=allowed; else entry=denied; fi
+exec "$FRONT" end-session "$child|$grandchild|write=$write|entry=$entry""#;
+
+/// Ravel applies no confinement, so a child and its descendants read the
+/// resources at their absolute paths outside the working directory. The file
+/// modes of a snapshot refuse a write to a file and a new entry in a
+/// directory. docs/specs/skill-discovery.md, "Read access and delegation".
+#[test]
+fn a_child_and_its_descendants_read_the_resources_and_the_snapshot_modes_refuse_changes() {
+    let fixture = Fixture::new();
+    let source = fixture.source("pack", &[("skills/alpha/SKILL.md", "alpha skill")]);
+    fixture.skills(skills(vec![local("pack", &source, &["skills"])], vec![]));
+    fixture.program("access-reader", &format!("FRONT={FRONT:?}\n{ACCESS}"));
+    fixture.personal_rhai(&route("access-reader", "[request.prompt]"));
+
+    let launch = fixture.start_with(&[], "read the skill");
+    assert_eq!(launch.code, Some(0), "{}", launch.stderr);
+    assert_eq!(
+        launch.stdout,
+        "alpha skill|alpha skill|write=denied|entry=denied"
+    );
+    assert_eq!(
+        fs::read_to_string(source.join("skills/alpha/SKILL.md")).unwrap(),
+        "alpha skill"
+    );
+}
+
 /// A fixture agent that looks for the skill directory `$2` beneath each search
 /// directory of the prompt. It reports a missing or an ambiguous skill, and it
 /// reads a single match. Ravel chooses no skill.
@@ -719,6 +755,91 @@ fn a_source_that_overlaps_the_configuration_directory_refuses() {
         .start_with(&["--config", &text(&elsewhere)], "p")
         .report();
     assert!(recorded.dir.exists());
+}
+
+/// A source that holds the result channel of an enclosing session refuses
+/// before capture, also through an alias of the source. `skills resolve` and
+/// a launch each refuse, no managed process runs and no snapshot exists.
+/// Without the inherited channel the same source captures and launches.
+/// docs/specs/skill-discovery.md, "Read access and delegation".
+#[test]
+fn a_source_that_holds_the_inherited_result_channel_refuses_before_capture() {
+    let fixture = Fixture::new();
+    let source = fixture.source(
+        "pack",
+        &[
+            ("skills/alpha/SKILL.md", "alpha body"),
+            ("channel/result", "outer result"),
+        ],
+    );
+    fixture.skills(skills(vec![local("pack", &source, &["skills"])], vec![]));
+    let marker = fixture.cwd.join("marker");
+    fixture.program(
+        "marking-agent",
+        &format!(": > {marker:?}\nexec {FRONT:?} end-session done"),
+    );
+    fixture.personal_rhai(&route("marking-agent", "[]"));
+    let alias = fixture.root.join("source-alias");
+    symlink(&source, &alias).unwrap();
+    let canonical = text(&source.canonicalize().unwrap());
+    let snapshots = fixture.home.join(".cache/ravel/skills/v1/snapshots");
+    let check = |launch: &Run, name: &str| {
+        let refusal = launch.refusal(3);
+        let error = &refusal["error"];
+        assert_eq!(error["code"], "skill_access_unavailable", "{name}: {error}");
+        assert_eq!(error["stage"], "skills", "{name}: {error}");
+        let message = error["message"].as_str().unwrap();
+        assert!(message.contains(&canonical), "{name}: {error}");
+        assert!(message.contains("channel/result"), "{name}: {error}");
+        assert!(
+            error["remedy"]
+                .as_str()
+                .unwrap()
+                .contains("RAVEL_EXIT_FILE"),
+            "{name}: {error}"
+        );
+        assert!(!marker.exists(), "{name}: the managed process ran");
+        assert!(!snapshots.exists(), "{name}: a snapshot exists");
+        assert!(
+            fixture.left_in_tmp().is_empty(),
+            "{name}: {:?}",
+            fixture.left_in_tmp()
+        );
+    };
+    for channel in [source.join("channel/result"), alias.join("channel/result")] {
+        let mut resolve = fixture.command();
+        resolve
+            .args(["skills", "resolve", "--json"])
+            .env("RAVEL_EXIT_FILE", &channel);
+        check(&run(&mut resolve), "skills resolve");
+
+        let mut launch = fixture.command();
+        launch
+            .args([
+                "start-session",
+                "--kind",
+                "check",
+                "--json",
+                "--prompt",
+                "task",
+            ])
+            .env("RAVEL_EXIT_FILE", &channel);
+        check(&run(&mut launch), "a launch");
+    }
+
+    // The control: without the inherited channel the same source launches.
+    let launch = fixture.start_with(&[], "task");
+    assert_eq!(launch.code, Some(0), "{}", launch.stderr);
+    let notice: Value = serde_json::from_str(
+        launch
+            .stderr
+            .lines()
+            .find(|line| line.starts_with('{'))
+            .expect("routing notice"),
+    )
+    .unwrap();
+    assert_eq!(notice["skills"]["sources"][0]["id"], "pack", "{notice}");
+    assert!(marker.exists());
 }
 
 #[test]

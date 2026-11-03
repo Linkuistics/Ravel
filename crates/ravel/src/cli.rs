@@ -1,6 +1,6 @@
 //! Ravel's two public verbs. Result stdout is an opaque byte stream.
 use crate::refusal::{EXIT_MALFORMED, Refusal, Stage};
-use clap::{Args, Parser, Subcommand};
+use clap::{ArgAction, ArgMatches, Args, Parser, Subcommand};
 use std::ffi::OsString;
 use std::path::PathBuf;
 
@@ -54,12 +54,13 @@ pub enum SkillsCommand {
 pub struct RunArgs {
     #[command(flatten)]
     pub selection: SelectionArgs,
-    /// Confine the managed process; configuration script selection remains outside the sandbox
-    #[arg(long)]
-    pub confine: bool,
-    /// Grant a regular runtime file read-only to a confined process; repeatable
-    #[arg(long, value_name = "FILE", requires = "confine")]
-    pub runtime_read: Vec<PathBuf>,
+    /// Withdrawn in 2.0.0. The flag parses in every form, with or without a
+    /// value, so that [`withdrawn`] can refuse it after the parse.
+    #[arg(long, hide = true, num_args = 0..=1, default_missing_value = "", action = ArgAction::Append, value_name = "VALUE")]
+    pub confine: Vec<OsString>,
+    /// Withdrawn in 2.0.0, as `--confine` is.
+    #[arg(long, hide = true, num_args = 0..=1, default_missing_value = "", action = ArgAction::Append, value_name = "FILE")]
+    pub runtime_read: Vec<OsString>,
     /// Allocate the private session channel beneath this existing writable directory
     #[arg(long, value_name = "DIR")]
     pub exit_dir: Option<PathBuf>,
@@ -109,6 +110,34 @@ pub struct SelectionArgs {
     /// Let the configuration script read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the configEnv setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value
     #[arg(long, value_name = "NAME")]
     pub config_env: Vec<OsString>,
+}
+
+/// The withdrawn confinement flag that comes first on a parsed `start-session`
+/// command line, refused as `confinement_withdrawn`
+/// (docs/specs/session-execution.md, "No confinement"). A word that clap took
+/// as the value of another flag, such as the text of `--prompt --confine`, is
+/// caller data and has no index here.
+pub fn withdrawn(matches: &ArgMatches) -> Option<Refusal> {
+    let (_, start) = matches
+        .subcommand()
+        .filter(|(name, _)| *name == "start-session")?;
+    let flag = [("confine", "--confine"), ("runtime_read", "--runtime-read")]
+        .into_iter()
+        .filter_map(|(id, flag)| start.index_of(id).map(|at| (at, flag)))
+        .min()
+        .map(|(_, flag)| flag)?;
+    Some(
+        Refusal::new(
+            "confinement_withdrawn",
+            Stage::Cli,
+            EXIT_MALFORMED,
+            format!("{flag} was withdrawn in Ravel 2.0.0, which does not confine a session"),
+            "remove --confine and --runtime-read, and select the sandbox of the harness in the \
+             configuration script, such as codex --sandbox workspace-write; Ravel 1.1 keeps \
+             --confine",
+        )
+        .input(flag),
+    )
 }
 
 impl SelectionArgs {

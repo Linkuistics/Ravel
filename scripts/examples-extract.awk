@@ -16,7 +16,7 @@
 #   xc-NNNN/path           the repository-relative path the label names
 #   xc-NNNN/text           the excerpt block: its lines, each ending in LF
 #   ex-NNNN/where          PAGE:LINE of the example's label paragraph
-#   ex-NNNN/requires       one required platform feature per line (may be absent)
+
 #   ex-NNNN/files/PATH     a file block's bytes; ex-NNNN/executable lists bin/ paths
 #   ex-NNNN/run-K/command  the shell text of the K-th command
 #   ex-NNNN/run-K/stdout{,.mode}, stderr{,.mode}, status
@@ -33,7 +33,7 @@ BEGIN {
   # so a block of either is a fragment, an example or an excerpt, never bare.
   split("text yaml yml markdown md diff ini xml html ruby python", names, " ")
   for (i in names) nonrunnable[names[i]] = 1
-  known_requirement["confinement"] = 1
+
   file_open = 0
   nexcerpts = 0
   x_pending = 0
@@ -147,8 +147,6 @@ function start_example(line) {
   runs = 0
   files_closed = 0
   delete seen
-  delete ex_requires
-  nrequires = 0
 }
 
 function end_example(   k, ok) {
@@ -306,26 +304,11 @@ function handle_block(lang, start, text, nlines,   label, path, k, body) {
 
 # --- directives ----------------------------------------------------------------
 
-function directive(line, text,   name) {
-  # <!-- example: requires NAME -->
+function directive(line, text) {
+  # The convention has no directive. An `<!-- example: ... -->` comment fails,
+  # so that a stale platform requirement cannot pass unread.
   if (text !~ /^<!--[ ]*example:/) return
-  if (ctx != "complete") {
-    fail(line, "an example directive sits outside a complete example")
-    return
-  }
-  if (match(text, /^<!--[ ]*example:[ ]*requires[ ]+[a-z][a-z-]*[ ]*-->$/)) {
-    name = text
-    sub(/^<!--[ ]*example:[ ]*requires[ ]+/, "", name)
-    sub(/[ ]*-->$/, "", name)
-    if (!(name in known_requirement)) {
-      fail(line, "unknown requirement \"" name "\" (the known requirements are listed in docs/book/examples.md)")
-      return
-    }
-    printf "%s\n", name >> (exdir "/requires")
-    close(exdir "/requires")
-  } else {
-    fail(line, "malformed example directive; the only one is <!-- example: requires NAME -->")
-  }
+  fail(line, "the example convention has no directive (docs/book/examples.md)")
 }
 
 # --- line loop ---------------------------------------------------------------------

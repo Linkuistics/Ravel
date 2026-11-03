@@ -14,7 +14,6 @@
 # Environment (used by the controls; callers normally set none):
 #   RAVEL_FRONT                    the binary to run (default target/debug/ravel)
 #   EXAMPLES_TIMEOUT               seconds one command may run (default 60)
-#   EXAMPLES_ASSUME_MISSING        feature names to treat as absent on this host
 #   EXAMPLES_ROOT, EXAMPLES_EXTRACT  the checkout and extractor of a mutated copy
 set -euo pipefail
 IFS=$'\n\t'
@@ -38,32 +37,6 @@ usage() {
 # The seam's constants, kept in one place and matched to cli.rs by the controls.
 readonly SEAM_PATH_TAIL="/usr/bin:/bin"
 
-# Is the platform feature named by a `requires` directive absent here? Prints
-# the reason and returns 0 when it is absent; returns 1 when it is present.
-feature_missing() {
-  local name="$1" assumed assumed_list=()
-  IFS=' ' read -ra assumed_list <<<"${EXAMPLES_ASSUME_MISSING:-}"
-  for assumed in ${assumed_list[@]+"${assumed_list[@]}"}; do
-    if [[ "$assumed" == "$name" ]]; then
-      echo "$name is assumed missing (EXAMPLES_ASSUME_MISSING)"
-      return 0
-    fi
-  done
-  case "$name" in
-    confinement)
-      case "$(uname -s)" in
-        Darwin)
-          [[ -x /usr/bin/sandbox-exec ]] || { echo "confinement needs /usr/bin/sandbox-exec, which is absent"; return 0; }
-          ;;
-        Linux)
-          command -v bwrap >/dev/null 2>&1 || { echo "confinement needs bwrap on PATH, which is absent"; return 0; }
-          ;;
-        *) echo "confinement is not supported on $(uname -s)"; return 0 ;;
-      esac
-      ;;
-  esac
-  return 1
-}
 
 # Refuse a binary older than its production Rust inputs before any example
 # runs. Rhai re-executes this binary, so there is no separate worker to pair.
@@ -164,21 +137,12 @@ compare_stream() {
   return 0
 }
 
-# Run one extracted example; echo "pass", "skip" or "fail" on the last line of
-# the report it prints, with detail lines before it.
+# Run one extracted example; echo "pass" or "fail" on the last line of the
+# report it prints, with detail lines before it. Every example runs on every
+# platform: the convention has no platform requirement.
 run_example() {
   local exdir="$1" front="$2" where scratch real_tmp mode
   where="$(cat "$exdir/where")"
-
-  if [[ -f "$exdir/requires" ]]; then
-    local requirement reason
-    while IFS= read -r requirement; do
-      if reason="$(feature_missing "$requirement")" && [[ -n "$reason" ]]; then
-        printf 'skip %s: %s\n' "$where" "$reason"
-        return 0
-      fi
-    done <"$exdir/requires"
-  fi
 
   real_tmp="$(mktemp -d "${TMPDIR:-/tmp}/ravel-example.XXXXXX")"
   scratch="$(cd "$real_tmp" && pwd -P)"
@@ -262,7 +226,7 @@ check() {
     sed 's/^/  /' "$stage/errors" >&2
   fi
 
-  local passed=0 failed=0 skipped=0 exdir line
+  local passed=0 failed=0 exdir line
   for exdir in "$stage"/ex-*; do
     [[ -d "$exdir" ]] || continue
     # A page that breaks the convention runs nothing: what an example claims
@@ -273,7 +237,6 @@ check() {
     line="$(head -n 1 <<<"$result")"
     case "$line" in
       pass*) passed=$((passed + 1)) ;;
-      skip*) skipped=$((skipped + 1)) ;;
       FAIL*) failed=$((failed + 1)) ;;
     esac
     printf '%s\n' "$result" >&2
@@ -281,8 +244,8 @@ check() {
 
   local fragments
   fragments="$(cut -d' ' -f2 "$stage/counts")"
-  printf 'examples: %d passed, %d failed, %d skipped; %d fragment(s) not run; %d page error(s)\n' \
-    "$passed" "$failed" "$skipped" "$fragments" "$errors"
+  printf 'examples: %d passed, %d failed; %d fragment(s) not run; %d page error(s)\n' \
+    "$passed" "$failed" "$fragments" "$errors"
   ((failed == 0 && errors == 0))
 }
 

@@ -137,8 +137,7 @@ impl Fixture {
         command
     }
 
-    /// Ravel's own files in the private `TMPDIR`: result channels and
-    /// confined run directories.
+    /// Ravel's own files in the private `TMPDIR`: result channels.
     fn left_in_tmp(&self) -> Vec<String> {
         fs::read_dir(&self.tmp)
             .unwrap()

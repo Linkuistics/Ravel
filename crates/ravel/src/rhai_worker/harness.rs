@@ -10,22 +10,20 @@
 //! deadline of one run and the stop.
 //!
 //! Every outcome of a run is data for the script, except a cleanup failure. A
-//! cleanup failure is a process group that survives the run, or a private
-//! directory that stays.
+//! cleanup failure is a process group that survives the run, or a result
+//! channel that stays.
 
 use std::ffi::{OsStr, OsString};
 use std::os::unix::process::ExitStatusExt as _;
 use std::path::{Path, PathBuf};
 
 use keyed_launch::{
-    Argv, Captured, CapturedLaunch, End, EntrySignals, FilesystemGrants, Group, LaunchEvent,
-    StopRequest,
+    Argv, Captured, CapturedLaunch, End, EntrySignals, Group, LaunchEvent, StopRequest,
 };
 use serde_json::{Value, json};
 
 #[cfg(test)]
 use crate::completion::{EXIT_FILE_VARIABLE, SessionChannel};
-use crate::confinement::{Basis, Confined};
 use crate::environment::CONFIG_RUN;
 use crate::program;
 use crate::refusal::{EXIT_WORKER, Refusal, Stage};
@@ -38,25 +36,16 @@ use ravel::{EXIT_FILE_VARIABLE, SessionChannel};
 pub const OUTPUT_BYTES: usize = 1024 * 1024;
 
 /// How the Ravel CLI launches a harness run. It takes the signal state to hand
-/// on, and what `--confine` and `--exit-dir` said on the command line.
+/// on, and what `--exit-dir` said on the command line.
 #[derive(Clone, Debug, Default)]
 pub struct RunSetup {
     /// The signal state the CLI inherited, which each run starts with.
     pub entry: EntrySignals,
-    /// Present when the caller passed `--confine`.
-    pub confine: Option<ConfineSetup>,
     /// The `--exit-dir`, beneath which the channel of a run is allocated.
     pub exit_dir: Option<PathBuf>,
     /// The descriptor path of this session's skill delivery, or `None` with
     /// delivery disabled. A run receives it as `RAVEL_SKILL_DIRECTORIES`.
     pub skill_directories: Option<OsString>,
-}
-
-/// What a confined run is granted, and what it is kept from.
-#[derive(Clone, Debug)]
-pub struct ConfineSetup {
-    pub basis: Basis,
-    pub runtime_read: Vec<PathBuf>,
 }
 
 /// A request of the script, as the worker checked and sent it.
@@ -185,7 +174,7 @@ pub enum Executed {
     /// The run is over, or it never started.
     Finished(Finished),
     /// The run left something behind: a process group that survived, a child
-    /// that was not reaped, or a private directory that stayed. This ends the
+    /// that was not reaped, or a result channel that stayed. This ends the
     /// evaluation.
     Cleanup {
         launched: bool,
@@ -241,9 +230,9 @@ pub struct Plan {
 /// Launch the run and wait for its end. `stop` asks the runner to stop it, and
 /// `timed_out` says that the stop is the deadline of the run.
 ///
-/// The run receives the environment of a managed process, or the confined
-/// environment, and the marker. It receives a result channel of its own, whose
-/// path replaces `RAVEL_EXIT_FILE`.
+/// The run receives the environment of a managed process and the marker. It
+/// receives a result channel of its own, whose path replaces
+/// `RAVEL_EXIT_FILE`.
 pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Executed {
     let Plan {
         name,
@@ -267,46 +256,11 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
         ))
     };
 
-    // The private run directory comes first, so that the channel lives in it.
-    let confined = match &setup.confine {
-        Some(confine) => {
-            match Confined::prepare_for(
-                &confine.basis,
-                setup.exit_dir.as_deref(),
-                &confine.runtime_read,
-                false,
-            ) {
-                Ok(confined) => Some(confined),
-                Err(refusal) => return unlaunched(refusal.message.clone()),
-            }
-        }
-        None => None,
-    };
-    let remove = |confined: Option<Confined>, reports: &mut Vec<String>| {
-        if let Some(Err(error)) = confined.map(Confined::remove) {
-            reports.push(error);
-        }
-    };
     let temporary = std::env::temp_dir();
-    let parent = setup
-        .exit_dir
-        .as_deref()
-        .or_else(|| confined.as_ref().map(Confined::exit_dir))
-        .unwrap_or(&temporary);
+    let parent = setup.exit_dir.as_deref().unwrap_or(&temporary);
     let channel = match SessionChannel::allocate(parent) {
         Ok(channel) => channel,
-        Err(error) => {
-            let mut reports = Vec::new();
-            remove(confined, &mut reports);
-            return if reports.is_empty() {
-                unlaunched(format!("cannot allocate its result channel: {error}"))
-            } else {
-                Executed::Cleanup {
-                    launched: false,
-                    reports,
-                }
-            };
-        }
+        Err(error) => return unlaunched(format!("cannot allocate its result channel: {error}")),
     };
 
     let argv = Argv::new(
@@ -317,9 +271,6 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
     let scrub = crate::run::scrubbed(setup.skill_directories.as_ref());
     let mut granted: Vec<(OsString, OsString)> =
         vec![(OsString::from(CONFIG_RUN), OsString::from("1"))];
-    if let Some(confined) = &confined {
-        granted.extend(confined.environment());
-    }
     granted.extend(crate::run::skill_environment(
         setup.skill_directories.as_ref(),
     ));
@@ -327,20 +278,6 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
         .iter()
         .map(|(name, value)| (name.as_os_str(), value.as_os_str()))
         .collect();
-    let reads = confined.as_ref().map(Confined::reads);
-    let grants = confined
-        .as_ref()
-        .zip(reads.as_ref())
-        .map(|(confined, reads)| (confined, reads.as_slice()));
-    let filesystem = grants.map(|(confined, runtime_read)| FilesystemGrants {
-        writable: &confined.writable,
-        runtime_read,
-        read_trees: &confined.read_trees,
-    });
-    let working = confined
-        .as_ref()
-        .map_or(cwd.as_path(), |confined| confined.writable[0].as_path());
-
     let mut launched = false;
     let ran = keyed_launch::run_captured(
         CapturedLaunch {
@@ -349,13 +286,12 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
             scrub: &scrub,
             grant: &grant,
             transparent: Some(&setup.entry),
-            cwd: Some(working),
+            cwd: Some(&cwd),
             escalation: ESCALATION,
             stdin: &stdin,
             limit: OUTPUT_BYTES,
             stop,
         },
-        filesystem.as_ref(),
         &mut |event| {
             if event == LaunchEvent::Started {
                 launched = true;
@@ -375,7 +311,6 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
             if let Err(error) = channel.close() {
                 reports.push(format!("cannot remove the result channel: {error}"));
             }
-            remove(confined, &mut reports);
             return if reports.is_empty() {
                 unlaunched(message)
             } else {
@@ -401,7 +336,6 @@ pub fn execute(plan: Plan, stop: &StopRequest, timed_out: &StopRequest) -> Execu
     if let Err(error) = channel.close() {
         cleanup.push(format!("cannot remove the result channel: {error}"));
     }
-    remove(confined, &mut cleanup);
     if group_survived || !cleanup.is_empty() {
         reports.extend(cleanup);
         return Executed::Cleanup { launched, reports };

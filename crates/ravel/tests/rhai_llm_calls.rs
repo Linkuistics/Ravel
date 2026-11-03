@@ -467,7 +467,7 @@ fn an_ungranted_credential_in_the_caller_environment_reaches_no_script_value_or_
 }
 
 #[test]
-fn an_unconfined_run_gets_the_caller_home_and_the_ungranted_credential_unchanged() {
+fn a_run_gets_the_caller_home_and_the_ungranted_credential_unchanged() {
     let source = rhai_script(
         r#"fn select(request, context) {
     let probe = "";

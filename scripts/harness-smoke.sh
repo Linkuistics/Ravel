@@ -208,7 +208,7 @@ case "$harness" in
     schema_source='let schema = ravel::json_parse(`'"$schema"'`);'
     ;;
   codex)
-    # The schema travels as a file in the sandbox. An unconfined run can read it.
+    # The schema travels as a file in the sandbox, which a run can read.
     # The final message, which is the answer, is all of stdout.
     printf '%s\n' "$schema" >"$work/answer-schema.json"
     call="ravel::run_harness(#{

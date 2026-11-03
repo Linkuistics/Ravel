@@ -97,7 +97,7 @@ fn pid_of(file: &Path) -> i32 {
 }
 
 /// Nothing of Ravel's is left in the sandbox's private `TMPDIR`: no result
-/// channel, no confined run directory.
+/// channel.
 fn assert_clean(sandbox: &Sandbox) {
     let left: Vec<_> = fs::read_dir(&sandbox.tmp)
         .unwrap()
@@ -866,95 +866,48 @@ fn a_run_that_hangs_past_the_whole_deadline_ends_the_evaluation_and_clears_its_g
 }
 
 #[test]
-fn a_confined_run_has_a_private_run_directory_and_the_confined_environment() {
+fn a_run_writes_where_the_caller_can_and_has_the_marker_and_the_caller_temporary_directory() {
+    // Ravel applies no confinement, so a run writes beside the caller's home
+    // and uses the caller's TMPDIR. The harness sandbox, which the
+    // configuration script selects, is its only boundary.
     let sandbox = Sandbox::new();
-    // The harness writes what it saw into its working directory, which a
-    // confined run may write, because the managed process is confined too and
-    // could not record it.
-    let script = harness(
+    harness(
         &sandbox,
-        "confined-agent",
+        "plain-agent",
         &format!(
-            "touch ./inside || echo no-write-in-cwd > ./observed\n\
-             touch \"$HOME/outside\" 2>/dev/null && echo wrote-home >> ./observed\n\
-             echo \"token=${{PRIVATE_TOKEN-unset}}\" >> ./observed\n\
+            "touch \"$HOME/outside\" 2>/dev/null && echo wrote-home >> ./observed\n\
              echo \"marker=${{RAVEL_CONFIG_RUN-unset}}\" >> ./observed\n\
              echo \"tmp=$TMPDIR\" >> ./observed\n\
-             {FRONT:?} end-session confined-result"
+             {FRONT:?} end-session plain-result"
         ),
     );
-    settings(&sandbox, &["confined-agent"], 1);
+    settings(&sandbox, &["plain-agent"], 1);
     sandbox.personal_rhai(&rhai_script(
         r#"fn select(request, context) {
-    let run = ravel::run_harness(#{ harness: "confined-agent", args: [] });
-    if run.status != "exited" || run.result != "confined-result" {
-        throw "the confined run did not finish: " + ravel::json_encode(run);
+    let run = ravel::run_harness(#{ harness: "plain-agent", args: [] });
+    if run.status != "exited" || run.result != "plain-result" {
+        throw "the run did not finish: " + ravel::json_encode(run);
     }
     #{ status: "selected", program: "fake-agent", args: [], provider: "p", model: "m",
        effort: "e", reason: "r" }
 }"#,
     ));
-    let mut command = sandbox.command();
-    command
-        .args([
-            "start-session",
-            "--prompt",
-            "p",
-            "--kind",
-            "check",
-            "--json",
-            "--confine",
-            "--runtime-read",
-        ])
-        .arg(&script)
-        .arg("--runtime-read")
-        .arg(sandbox.bin.join("fake-agent"))
-        .env("PRIVATE_TOKEN", "must not reach a confined run");
 
-    let output = run(&mut command);
-    assert_eq!(output.code, Some(0), "{}", output.stderr);
+    start(&sandbox, &[]).report();
 
-    let observed = fs::read_to_string(sandbox.cwd.join("observed")).unwrap();
-    assert!(!observed.contains("no-write-in-cwd"), "{observed}");
-    assert!(!observed.contains("wrote-home"), "{observed}");
-    assert!(observed.contains("token=unset"), "{observed}");
-    assert!(observed.contains("marker=1"), "{observed}");
-    // The temporary directory is the run's own, under the private run directory.
-    let tmp = observed
-        .lines()
-        .find_map(|line| line.strip_prefix("tmp="))
-        .unwrap();
-    assert!(tmp.contains("ravel-confined-"), "{observed}");
-    assert!(sandbox.cwd.join("inside").exists());
-    assert!(!sandbox.home.join("outside").exists());
-    assert_clean(&sandbox);
-
-    // The firing control: without `--confine` the same run writes to the home
-    // and sees the caller variable, so the confinement is what stopped both.
-    fs::remove_file(sandbox.cwd.join("observed")).unwrap();
-    let mut command = sandbox.command();
-    command
-        .args([
-            "start-session",
-            "--prompt",
-            "p",
-            "--kind",
-            "check",
-            "--json",
-        ])
-        .env("PRIVATE_TOKEN", "visible");
-    let open = run(&mut command);
-    assert_eq!(open.code, Some(0), "{}", open.stderr);
     let observed = fs::read_to_string(sandbox.cwd.join("observed")).unwrap();
     assert!(observed.contains("wrote-home"), "{observed}");
-    assert!(observed.contains("token=visible"), "{observed}");
     assert!(observed.contains("marker=1"), "{observed}");
+    assert!(
+        observed.contains(&format!("tmp={}", sandbox.tmp.display())),
+        "{observed}"
+    );
     assert!(sandbox.home.join("outside").exists());
+    assert_clean(&sandbox);
 }
 
 #[test]
-fn an_unconfined_run_has_the_caller_variables_that_a_confined_run_lacks() {
-    // The firing control of the confined case above.
+fn a_run_has_the_caller_variables() {
     let sandbox = Sandbox::new();
     let recorded = sandbox.recording_agent();
     harness(
@@ -1260,8 +1213,8 @@ fn the_first_consumed_signal_stays_the_cause() {
     assert_clean(&sandbox);
 }
 
-/// A harness that leaves a directory in its private run directory that nobody
-/// can remove, and then runs `after`. The test must restore it.
+/// A harness that leaves a directory that nobody can remove beside its result
+/// channel, and then runs `after`. The test must restore it.
 fn locking_harness(sandbox: &Sandbox, after: &str) {
     harness(
         sandbox,

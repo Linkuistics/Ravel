@@ -29,7 +29,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # toolchain fetches below, and unzip/xz for checkout-local book tools.
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
-      bubblewrap build-essential ca-certificates curl git jq perl procps \
+      build-essential ca-certificates curl git jq perl procps \
       python3 shellcheck unzip util-linux xz-utils bash coreutils findutils \
  && rm -rf /var/lib/apt/lists/*
 
@@ -63,14 +63,15 @@ RUN set -eux; \
     toolchain="/opt/rustup/toolchains/${RUST_VERSION}-${rust_host}"; \
     { for tool in "$toolchain/bin/rustc" "$toolchain/bin/cargo" "$toolchain/bin/cargo-clippy" \
                   "$toolchain/bin/rustfmt" /opt/cargo/bin/cargo-nextest \
-                  /usr/local/bin/task /usr/bin/jq /usr/bin/shellcheck /usr/bin/bwrap; do \
+                  /usr/local/bin/task /usr/bin/jq /usr/bin/shellcheck; do \
         printf '%s  %s\n' "$(sha256sum "$tool" | cut -d' ' -f1)" "$tool"; \
       done; } >/opt/native-linux/tools.txt; \
     cat /opt/native-linux/tools.txt
 
-# The product's filesystem confinement and several protected checks behave
-# differently for root (permission bits are not enforced), so the campaign runs
-# as an ordinary user, as release-smoke's floor container does (--user 1000:1000).
+# The read-only file modes of skill snapshots and several protected checks
+# behave differently for root (permission bits are not enforced), so the
+# campaign runs as an ordinary user, as release-smoke's floor container does
+# (--user 1000:1000).
 RUN id -u ubuntu | grep -qx 1000 \
  && install -d -o ubuntu -g ubuntu /work /home/ubuntu/.cargo
 USER ubuntu

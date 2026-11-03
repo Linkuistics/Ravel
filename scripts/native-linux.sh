@@ -113,25 +113,33 @@ stage_git() {
     git init -q .'
 }
 
-# The container's security options, and why each is needed. Used by both routes
-# (for amd64, by the helper that holds the emulated namespace).
+# The container's security options for each route, and why each is needed.
 #
-# seccomp=unconfined: Docker's built-in profile refuses unshare(2) to a
-# container without CAP_SYS_ADMIN, which the product's bubblewrap confinement
-# needs. scripts/release-smoke.sh records the same finding and prefers lifting
-# the filter to granting SYS_ADMIN. systempaths=unconfined is the second
-# finding, measured here (k49): Docker masks parts of /proc, and the kernel
-# refuses a new procfs mount inside a user namespace when the container's /proc
-# is partly hidden ("Can't mount proc on /newroot/proc"), which bubblewrap's
-# --proc needs. Neither option adds a capability: the container keeps Docker's
-# default capability set.
+# --init, on both routes: orphaned descendants are reparented to the
+# container's PID 1, and `sleep` as PID 1 never reaps them, so a launcher that
+# correctly killed and abandoned a group left unreaped zombies that every
+# group-absence check then reads as "present". A host's init reaps; so must
+# this one.
 #
-# --init is the third: orphaned descendants are reparented to the container's
-# PID 1, and `sleep` as PID 1 never reaps them, so a launcher that correctly
-# killed and abandoned a group left unreaped zombies that every group-absence
-# check then reads as "present". A host's init reaps; so must this one.
+# seccomp=unconfined, on the amd64 helper that holds the emulated namespace:
+# Docker's built-in profile refuses unshare(2) to a container without
+# CAP_SYS_ADMIN, and the helper creates a user namespace and mounts a private
+# binfmt_misc instance in it. scripts/release-smoke.sh records the same finding
+# and prefers lifting the filter to granting SYS_ADMIN. The helper also keeps
+# systempaths=unconfined, which bubblewrap's --proc needed (k49), because no
+# amd64 campaign has run without it since Ravel withdrew its confinement.
+# Neither option adds a capability: the container keeps Docker's default
+# capability set.
+#
+# The arm64 container needs neither option. Both served Ravel's bubblewrap
+# confinement, which Ravel 2.0.0 withdrew
+# (docs/adr/ravel-does-not-confine-a-session.md).
 container_options() {
-  printf '%s\n' --init --security-opt seccomp=unconfined --security-opt systempaths=unconfined
+  case "$1" in
+    arm64) printf '%s\n' --init ;;
+    amd64) printf '%s\n' --init --security-opt seccomp=unconfined --security-opt systempaths=unconfined ;;
+    *) die "no container options for $1" ;;
+  esac
 }
 
 # The pinned x86-64 emulator and the options that make it a faithful guest, from
@@ -175,7 +183,7 @@ cmd_up() {
   docker image inspect "ravel-native-linux:$arch" >/dev/null 2>&1 ||
     die "no image for $arch (run: native-linux.sh image $arch)"
   docker rm -f "$name" >/dev/null 2>&1 || true
-  while IFS= read -r option; do options+=("$option"); done < <(container_options)
+  while IFS= read -r option; do options+=("$option"); done < <(container_options "$arch")
 
   if [ "$arch" = arm64 ]; then
     docker run -d --name "$name" --platform linux/arm64 "${options[@]}" \

@@ -10,15 +10,12 @@ pub(crate) struct Control {
     pub(crate) paths: Vec<PathBuf>,
     pub(crate) attempts: usize,
     pub(crate) route: String,
-    pub(crate) all_created: Vec<(String, PathBuf)>,
-    pub(crate) all_attempts: Vec<String>,
 }
 thread_local! { pub(crate) static CONTROL: RefCell<Control> = RefCell::new(Control::default()); }
 
 pub(crate) fn created(role: &str, path: &Path) {
     CONTROL.with(|c| {
         let mut c = c.borrow_mut();
-        c.all_created.push((role.to_owned(), path.to_owned()));
         if c.role == role {
             c.paths.push(path.to_owned());
         }
@@ -82,17 +79,6 @@ fn mutate(role: &str, path: &Path) {
     });
 }
 pub(crate) fn cleanup(role: &str, path: &Path) -> io::Result<()> {
-    CONTROL.with(|c| c.borrow_mut().all_attempts.push(role.to_owned()));
-    let outer_failure = CONTROL.with(|c| {
-        role == "confined"
-            && (c.borrow().route.starts_with("worker-") || c.borrow().route.starts_with("cancel-"))
-    });
-    if outer_failure {
-        return Err(io::Error::new(
-            io::ErrorKind::ResourceBusy,
-            "remove_dir_all: injected outer busy error (os error 16)",
-        ));
-    }
     let active = CONTROL.with(|c| c.borrow().role == role);
     if !active {
         return Ok(());

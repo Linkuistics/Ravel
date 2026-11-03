@@ -81,14 +81,13 @@ outside() {
 # namespace's root, then hold the namespace.
 #
 # Why a pivot_root and not a chroot (the release smoke's choice): unshare(2)
-# refuses CLONE_NEWUSER to a chrooted process, and the product's confinement
-# runs bubblewrap, so the guest is made the namespace's actual root and
-# nsenter lands in it directly. That is not what stops confinement here. What
-# does is measured and recorded in the campaign's evidence: QEMU's user-mode
-# emulator runs a second thread (its RCU thread) in every emulated process, so
-# unshare(CLONE_NEWUSER), which needs a single-threaded caller, fails EINVAL for
-# any emulated process. No emulated process can create a user namespace, so the
-# product's bubblewrap confinement cannot run in this environment at all.
+# refuses CLONE_NEWUSER to a chrooted process, and Ravel's withdrawn
+# confinement ran bubblewrap, so the guest became the namespace's actual root
+# and nsenter lands in it directly. A chroot would serve the present product
+# too; the pivot_root stays because the measured campaigns used it. Those
+# campaigns also recorded that QEMU's user-mode emulator runs a second thread
+# (its RCU thread) in every emulated process, so unshare(CLONE_NEWUSER), which
+# needs a single-threaded caller, fails EINVAL for any emulated process.
 in_namespace() {
   local inputs="$1" cpu="$2" binfmt="$FLOOR/run/binfmt" maps line end vdso=0
   mkdir -p "$binfmt" "$FLOOR/oldroot"

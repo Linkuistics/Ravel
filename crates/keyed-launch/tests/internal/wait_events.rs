@@ -200,9 +200,8 @@ fn a_surviving_group_is_reported_beside_the_childs_status() {
     assert_eq!(ended.end, End::Exited);
 }
 
-/// Cancellation has a mode. An interactive or noninteractive child's group is
-/// forwarded the launcher's own signal and given the kill-grace; a confined
-/// child's group is killed at once.
+/// An interactive or noninteractive child's group is forwarded the launcher's
+/// own signal and given the kill-grace.
 #[test]
 fn cancellation_forwards_or_kills_by_mode() {
     let _serial = serial();
@@ -230,10 +229,6 @@ fn cancellation_forwards_or_kills_by_mode() {
                 "wait",
                 "confirm",
             ][..],
-        ),
-        (
-            Mode::Confined,
-            &["kill", "poll", "poll", "kill-group", "wait", "confirm"][..],
         ),
     ] {
         let dir = tempfile::TempDir::new().unwrap();

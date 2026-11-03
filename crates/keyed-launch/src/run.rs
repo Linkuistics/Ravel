@@ -186,8 +186,8 @@ pub enum End {
     /// The *launcher's* process was sent SIGTERM or SIGHUP — or SIGINT, for a
     /// launch with no terminal — **during this launch**. An interactive or
     /// noninteractive child's group was sent the same signal and, after the
-    /// kill-grace, SIGKILL; a confined child's group was killed at once. Either
-    /// way it was reaped, never left orphaned onto the terminal. The channel
+    /// kill-grace, SIGKILL. Either way it was reaped, never left orphaned onto
+    /// the terminal. The channel
     /// cannot express this case — an interrupt normally leaves no channel file.
     ///
     /// **The signal is carried rather than merely noted** so a launcher can
@@ -1125,7 +1125,7 @@ pub fn run_observed_with_start_check(
     observer: &mut dyn FnMut(LaunchEvent),
     start_check: &mut dyn FnMut() -> std::io::Result<()>,
 ) -> Result<Ended, LaunchError> {
-    run_with_output(launch.into(), observer, start_check, None, None, None).map(|(ended, _)| ended)
+    run_with_output(launch.into(), observer, start_check, None, None).map(|(ended, _)| ended)
 }
 
 /// Run a noninteractive child in a new POSIX session, without a controlling
@@ -1160,7 +1160,6 @@ pub fn run_noninteractive(
         &mut |_| {},
         &mut || Ok(()),
         Some(output),
-        None,
         None,
     )
     .map(|(ended, _)| ended)
@@ -1213,7 +1212,7 @@ pub struct Captured {
     pub overflow: bool,
 }
 
-/// Run a captured job, confined by `grants` when they are given.
+/// Run a captured job.
 ///
 /// The runner installs no signal handler for a captured job. It takes no signal
 /// of the launcher, so the caller keeps the signals of its own process. The
@@ -1226,17 +1225,8 @@ pub struct Captured {
 /// the job existed or after.
 pub fn run_captured(
     launch: CapturedLaunch<'_>,
-    grants: Option<&crate::FilesystemGrants<'_>>,
     observer: &mut dyn FnMut(LaunchEvent),
 ) -> Result<Captured, LaunchError> {
-    let command = match grants {
-        Some(grants) => {
-            let mut command = crate::confinement::command_with_grants(launch.argv, grants)?;
-            command.env_clear();
-            Some(command)
-        }
-        None => None,
-    };
     let overflow = StopRequest::new();
     let capture = Capture {
         stdin: launch.stdin,
@@ -1253,8 +1243,7 @@ pub fn run_captured(
         cwd: launch.cwd,
         escalation: launch.escalation,
     };
-    let (ended, piped) =
-        run_with_output(job, observer, &mut || Ok(()), None, command, Some(capture))?;
+    let (ended, piped) = run_with_output(job, observer, &mut || Ok(()), None, Some(capture))?;
     let piped = piped.ok_or_else(|| LaunchError::new("a captured job returned no output"))?;
     Ok(Captured {
         ended,
@@ -1264,54 +1253,17 @@ pub fn run_captured(
     })
 }
 
-/// Confine a noninteractive job with EOF stdin and inherited stdout/stderr.
-/// Start a new POSIX session, close inherited descriptors above stderr on
-/// exec, and clear the environment before applying Launch's explicit grants.
-/// The channel is granted last. Observations have `run_observed`'s ordering;
-/// cancellation kills the group immediately, so a nested supervisor finishes
-/// within its enclosing supervisor's grace.
-pub fn run_confined_observed(
-    launch: Launch<'_>,
-    policy: &crate::FilesystemGrants<'_>,
-    observer: &mut dyn FnMut(LaunchEvent),
-) -> Result<Ended, LaunchError> {
-    run_confined_observed_with_start_check(launch, policy, observer, &mut || Ok(()))
-}
-
-/// Confined counterpart of [`run_observed_with_start_check`], with the same
-/// callback, failure-settlement and event contract.
-pub fn run_confined_observed_with_start_check(
-    launch: Launch<'_>,
-    policy: &crate::FilesystemGrants<'_>,
-    observer: &mut dyn FnMut(LaunchEvent),
-    start_check: &mut dyn FnMut() -> std::io::Result<()>,
-) -> Result<Ended, LaunchError> {
-    let mut command = crate::confinement::command_with_grants(launch.argv, policy)?;
-    command.env_clear();
-    run_with_output(
-        launch.into(),
-        observer,
-        start_check,
-        None,
-        Some(command),
-        None,
-    )
-    .map(|(ended, _)| ended)
-}
-
 fn run_with_output(
     launch: Job<'_>,
     observer: &mut dyn FnMut(LaunchEvent),
     start_check: &mut dyn FnMut() -> std::io::Result<()>,
     output: Option<File>,
-    confined_command: Option<Command>,
     capture: Option<Capture<'_>>,
 ) -> Result<(Ended, Option<Piped>), LaunchError> {
-    let mode = match (&capture, &output, &confined_command) {
-        (Some(_), _, _) => Mode::Captured,
-        (None, _, Some(_)) => Mode::Confined,
-        (None, Some(_), None) => Mode::Noninteractive,
-        (None, None, None) => Mode::Interactive,
+    let mode = match (&capture, &output) {
+        (Some(_), _) => Mode::Captured,
+        (None, Some(_)) => Mode::Noninteractive,
+        (None, None) => Mode::Interactive,
     };
     let detached = mode != Mode::Interactive;
     // A detached child is in a session of its own and could never be handed
@@ -1327,11 +1279,8 @@ fn run_with_output(
     let sigchld_ignored = restore_child_watching()?;
     let descriptor_limit = if detached { descriptor_limit()? } else { 3 };
 
-    let mut command = confined_command.unwrap_or_else(|| {
-        let mut command = Command::new(launch.argv.program());
-        command.arg0(launch.argv.arg0()).args(launch.argv.args());
-        command
-    });
+    let mut command = Command::new(launch.argv.program());
+    command.arg0(launch.argv.arg0()).args(launch.argv.args());
     if detached {
         command.stdin(Stdio::null());
     }
@@ -1695,7 +1644,6 @@ const KILLED_POLL_INTERVAL: Duration = Duration::from_millis(10);
 enum Mode {
     Interactive,
     Noninteractive,
-    Confined,
     /// A noninteractive job whose caller owns the pipes and asks for the stop.
     /// It installs no signal handler and takes no signal of the launcher.
     Captured,
@@ -2257,8 +2205,6 @@ fn watch(
         #[cfg(test)]
         native_tests::runner_active();
         // Check cancellation before accepting even an already-exited child.
-        // In nested launches the outer supervisor may have only a short grace
-        // left, which is why a confined child is killed at once.
         #[cfg(test)]
         let retake = native_tests::first_latch_broken("guard");
         #[cfg(not(test))]
@@ -2272,16 +2218,9 @@ fn watch(
             interrupted = Some(signal);
             #[cfg(test)]
             native_tests::first_consumed(signal);
-            if mode == Mode::Confined {
-                child.signal(libc::SIGKILL);
-                let by = Instant::now() + ERROR_SETTLEMENT;
-                child.bound(by);
-                watch = Watch::Killed(by);
-            } else {
-                child.signal(signal);
-                if matches!(watch, Watch::Running | Watch::Signalled(_)) {
-                    watch = Watch::Terminated(Instant::now());
-                }
+            child.signal(signal);
+            if matches!(watch, Watch::Running | Watch::Signalled(_)) {
+                watch = Watch::Terminated(Instant::now());
             }
         }
 

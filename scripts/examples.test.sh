@@ -88,7 +88,7 @@ expect_pass() {
 # ---------------------------------------------------------------- the controls
 
 control_pass() {
-  expect_pass pass '^examples: 3 passed, 0 failed, 0 skipped; 1 fragment\(s\) not run; 0 page error\(s\)$' "$PAGES/pass.md"
+  expect_pass pass '^examples: 3 passed, 0 failed; 1 fragment\(s\) not run; 0 page error\(s\)$' "$PAGES/pass.md"
 }
 
 control_stdout_changed() {
@@ -254,26 +254,10 @@ control_only_the_scratch_root_is_normalised() {
   expect_fail only_the_scratch_root_is_normalised 'does not contain the text the example claims' "$page"
 }
 
-control_skip_is_not_a_pass() {
-  local output status=0
-  output="$(EXAMPLES_ASSUME_MISSING=confinement checker "$PAGES/skip.md" 2>&1)" || status=$?
-  if ((status != 0)) || ! grep -qE '^examples: 0 passed, 0 failed, 1 skipped;' <<<"$output" ||
-    ! grep -qE '^skip .*skip.md:[0-9]+: confinement is assumed missing' <<<"$output"; then
-    echo "control skip_is_not_a_pass: a skipped example was not reported as skipped with its reason:" >&2
-    printf '%s\n' "$output" | indent >&2
-    return 1
-  fi
-  # Where the feature is present the same example runs, and its wrong claim fails.
-  # A separate shell: the checker's constants are readonly.
-  if ! bash -c 'source "$1"; feature_missing confinement >/dev/null' _ "$SCRIPT"; then
-    expect_fail skip_runs_where_available 'FAIL .*skip.md' "$PAGES/skip.md"
-  fi
-}
-
-control_unknown_requirement() {
+control_a_directive_fails() {
   local page
-  page="$(mutated unknownreq 'requires confinement' 'requires gpu' skip.md)"
-  expect_fail unknown_requirement 'unknown requirement "gpu"' "$page"
+  page="$(mutated directive '**Command**' $'<!-- example: requires confinement -->\n\n**Command**')"
+  expect_fail a_directive_fails 'the example convention has no directive' "$page"
 }
 
 control_file_after_command() {
@@ -373,14 +357,14 @@ control_directory_and_two_pages() {
 control_a_page_with_no_examples() {
   local page="$WORK/prose.md"
   printf '# Prose\n\nFragment: nothing runs.\n\n```ts\nconst a = 1;\n```\n' >"$page"
-  expect_pass a_page_with_no_examples '^examples: 0 passed, 0 failed, 0 skipped; 1 fragment' "$page"
+  expect_pass a_page_with_no_examples '^examples: 0 passed, 0 failed; 1 fragment' "$page"
 }
 
 # Page shapes the extractor must read the same way Markdown does, and shapes
 # that would hide a runnable block and so must be refused.
 
 control_shapes_are_read() {
-  expect_pass shapes_are_read '^examples: 3 passed, 0 failed, 0 skipped; 1 fragment' "$PAGES/shapes.md"
+  expect_pass shapes_are_read '^examples: 3 passed, 0 failed; 1 fragment' "$PAGES/shapes.md"
 }
 
 control_fragment_covers_one_block() {
@@ -441,7 +425,7 @@ excerpt_page() {
 control_excerpt_blocks_agree() {
   local page output status=0
   page="$(excerpt_page)"
-  expect_pass excerpt_page_examples '^examples: 3 passed, 0 failed, 0 skipped; 1 fragment\(s\) not run; 0 page error\(s\)$' "$page" || return 1
+  expect_pass excerpt_page_examples '^examples: 3 passed, 0 failed; 1 fragment\(s\) not run; 0 page error\(s\)$' "$page" || return 1
   output="$(bash "$ROOT/scripts/excerpts.sh" check "$page" 2>&1)" || status=$?
   if ((status != 0)) || ! grep -qE '^excerpts: 1 passed, 0 failed; 0 page error\(s\)$' <<<"$output"; then
     echo "control excerpt_blocks_agree: the excerpt check does not pass the page:" >&2
@@ -648,7 +632,7 @@ CONTROLS=(
   missing_fake_program without_worker missing_front unlabelled_runnable_block
   unlabelled_block_in_example unknown_label stderr_changed
   stderr_partial_is_not_exact stderr_includes_absent newline_mode
-  only_the_scratch_root_is_normalised skip_is_not_a_pass unknown_requirement
+  only_the_scratch_root_is_normalised a_directive_fails
   file_after_command path_escape duplicate_file timeout environment_is_cleared
   nothing_personal_is_read empty_home_and_fakes_only directory_and_two_pages
   a_page_with_no_examples shapes_are_read fragment_covers_one_block
@@ -692,7 +676,7 @@ mutants() {
   # A control that already fails would "kill" any mutant aimed at it, so each
   # named control is first run against the unmutated checker.
   local baseline=(status_changed stdout_changed stderr_includes_absent stale_source
-    unknown_and_bare_languages environment_is_cleared skip_is_not_a_pass timeout
+    unknown_and_bare_languages environment_is_cleared a_directive_fails timeout
     unlabelled_runnable_block pass commands_run_in_numeric_order fragment_covers_one_block
     prose_between_label_and_block shapes_are_read
     list_item_fences duplicate_result_blocks crlf_is_refused a_label_cannot_run_a_command
@@ -746,8 +730,8 @@ mutants() {
     $'      TMPDIR="$scratch/tmp" \\\n' '' environment_is_cleared
   try_mutant stdin-inherited examples.sh \
     'exec </dev/null' 'true' environment_is_cleared
-  try_mutant skip-counted-as-pass examples.sh \
-    'skip*) skipped=$((skipped + 1)) ;;' 'skip*) passed=$((passed + 1)) ;;' skip_is_not_a_pass
+  try_mutant directive-ignored examples-extract.awk \
+    $'  if (text !~ /^<!--[ ]*example:/) return\n' $'  return\n' a_directive_fails
   try_mutant no-timeout examples.sh \
     'alarm $limit;' 'alarm 0;' timeout
   try_mutant page-errors-ignored examples.sh \

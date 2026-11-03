@@ -50,14 +50,13 @@ pub struct Choice {
 pub struct Prepared {
     pub inputs: Inputs,
     pub entry: ConfigEntry,
-    pub settings_path: Option<std::path::PathBuf>,
     /// The prepared skill delivery, or `None` with delivery disabled.
     pub skills: Option<Delivery>,
 }
 
 /// Read the settings, the caller inputs and the entry, then resolve the skill
-/// sources and prepare the prompt. A skill refusal comes before confinement,
-/// the worker and the result channel
+/// sources and prepare the prompt. A skill refusal comes before the worker
+/// and the result channel
 /// (docs/specs/skill-discovery.md, "Ownership and order").
 pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
     let home = std::env::var_os("HOME");
@@ -73,15 +72,9 @@ pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {
         config_dir,
         &inputs.prompt.text,
     )?;
-    let settings_path = home
-        .as_deref()
-        .map(Path::new)
-        .filter(|path| path.is_absolute())
-        .map(|path| path.join(crate::settings::SETTINGS_FILE));
     Ok(Prepared {
         inputs,
         entry,
-        settings_path,
         skills,
     })
 }
@@ -91,7 +84,6 @@ pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected,
         inputs,
         entry,
         skills,
-        ..
     } = prepared;
     let source = entry.display();
     let evaluated = evaluate_and_resolve_rhai(inputs, entry, skills, setup);
