@@ -14,17 +14,33 @@ pub const RESOLUTION_MAX_MS: u64 = 3_600_000;
 /// The checked `skills` object.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct SkillSettings {
-    pub sources: Vec<SourceSetting>,
+    /// The configured sources, or `None` when the settings name no
+    /// `sources`. The default skill directory then supplies the source set.
+    pub sources: Option<Vec<SourceSetting>>,
     pub mandatory: Vec<MandatorySetting>,
     pub resolution_timeout_ms: u64,
     /// Whether the settings file sets `resolutionTimeoutMs`.
     pub resolution_timeout_set: bool,
 }
 
+/// The value of an absent `skills` key: no `sources`, so the default skill
+/// directory supplies the source set, and no mandatory file.
+impl Default for SkillSettings {
+    fn default() -> Self {
+        SkillSettings {
+            sources: None,
+            mandatory: Vec::new(),
+            resolution_timeout_ms: RESOLUTION_DEFAULT_MS,
+            resolution_timeout_set: false,
+        }
+    }
+}
+
 impl SkillSettings {
-    /// Delivery is enabled when either array holds a record.
-    pub fn enabled(&self) -> bool {
-        !self.sources.is_empty() || !self.mandatory.is_empty()
+    /// Whether delivery is disabled before any directory is read:
+    /// `"sources": []` with no mandatory reference.
+    pub fn switched_off(&self) -> bool {
+        self.sources.as_ref().is_some_and(Vec::is_empty) && self.mandatory.is_empty()
     }
 }
 
@@ -40,8 +56,10 @@ pub struct SourceSetting {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct MandatorySetting {
-    /// The index of the configured source in `sources`.
-    pub source: usize,
+    /// The ID of a source in the source set. With `sources`, the parser
+    /// checked that it names a configured source. Without `sources`, the
+    /// resolution looks for it in the default skill directory.
+    pub source: String,
     /// A normalised file path, relative to that source.
     pub path: String,
 }
@@ -106,27 +124,36 @@ pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
             })?,
     };
 
-    let records = array(required(fields, at, "sources")?, "skills.sources")?;
-    let mut sources = Vec::with_capacity(records.len());
-    for (index, record) in records.iter().enumerate() {
-        let source = source(record, &format!("skills.sources[{index}]"))?;
-        if sources
-            .iter()
-            .any(|known: &SourceSetting| known.id == source.id)
-        {
-            return Err(problem(
-                format!("skills.sources[{index}].id"),
-                format!("repeats the source ID {:?}", source.id),
-            ));
+    let sources = match fields.get("sources") {
+        None => None,
+        Some(value) => {
+            let records = array(value, "skills.sources")?;
+            let mut sources = Vec::with_capacity(records.len());
+            for (index, record) in records.iter().enumerate() {
+                let source = source(record, &format!("skills.sources[{index}]"))?;
+                if sources
+                    .iter()
+                    .any(|known: &SourceSetting| known.id == source.id)
+                {
+                    return Err(problem(
+                        format!("skills.sources[{index}].id"),
+                        format!("repeats the source ID {:?}", source.id),
+                    ));
+                }
+                sources.push(source);
+            }
+            Some(sources)
         }
-        sources.push(source);
-    }
+    };
 
-    let records = array(required(fields, at, "mandatory")?, "skills.mandatory")?;
-    if !records.is_empty() && sources.is_empty() {
+    let records = match fields.get("mandatory") {
+        None => &[][..],
+        Some(value) => array(value, "skills.mandatory")?.as_slice(),
+    };
+    if !records.is_empty() && sources.as_ref().is_some_and(Vec::is_empty) {
         return Err(problem(
             "skills.mandatory",
-            "names mandatory files, but no source is configured",
+            "names mandatory files, but sources is empty",
         ));
     }
     let mut mandatory: Vec<MandatorySetting> = Vec::with_capacity(records.len());
@@ -134,16 +161,19 @@ pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
         let at = format!("skills.mandatory[{index}]");
         let fields = object(record, &at)?;
         only(fields, &at, &["source", "path"])?;
-        let id = string(required(fields, &at, "source")?, &format!("{at}.source"))?;
-        let source = sources
-            .iter()
-            .position(|source| source.id == id)
-            .ok_or_else(|| {
-                problem(
-                    format!("{at}.source"),
-                    format!("names {id:?}, which is not a configured source ID"),
-                )
-            })?;
+        let source_at = format!("{at}.source");
+        let id = string(required(fields, &at, "source")?, &source_at)?;
+        if !source_id(id) {
+            return Err(problem(source_at, format!("is {id:?}, {ID_GRAMMAR}")));
+        }
+        if let Some(sources) = &sources
+            && !sources.iter().any(|source| source.id == id)
+        {
+            return Err(problem(
+                source_at,
+                format!("names {id:?}, which is not a configured source ID"),
+            ));
+        }
         let path_at = format!("{at}.path");
         let path = relative(required(fields, &at, "path")?, &path_at)?;
         if path == "." {
@@ -151,14 +181,17 @@ pub fn parse(value: &Value) -> Result<SkillSettings, Problem> {
         }
         if mandatory
             .iter()
-            .any(|known| known.source == source && known.path == path)
+            .any(|known| known.source == id && known.path == path)
         {
             return Err(problem(
                 at,
                 format!("repeats the reference {id:?} {path:?}"),
             ));
         }
-        mandatory.push(MandatorySetting { source, path });
+        mandatory.push(MandatorySetting {
+            source: id.to_owned(),
+            path,
+        });
     }
 
     Ok(SkillSettings {
@@ -192,13 +225,7 @@ fn source(value: &Value, at: &str) -> Result<SourceSetting, Problem> {
     let id_at = format!("{at}.id");
     let id = string(required(fields, at, "id")?, &id_at)?;
     if !source_id(id) {
-        return Err(problem(
-            id_at,
-            format!(
-                "is {id:?}, not 1 to 64 lowercase ASCII letters and digits in groups that \
-                 single hyphens separate, starting with a letter"
-            ),
-        ));
+        return Err(problem(id_at, format!("is {id:?}, {ID_GRAMMAR}")));
     }
 
     let path_at = format!("{at}.path");
@@ -238,7 +265,13 @@ fn source(value: &Value, at: &str) -> Result<SourceSetting, Problem> {
     })
 }
 
-fn source_id(id: &str) -> bool {
+/// What a value outside the source-ID grammar fails to be.
+pub const ID_GRAMMAR: &str = "not 1 to 64 lowercase ASCII letters and digits in groups that \
+     single hyphens separate, starting with a letter";
+
+/// Whether `id` has the source-ID grammar. A default source takes its ID from
+/// its entry name, so the listing applies the same grammar.
+pub fn source_id(id: &str) -> bool {
     !id.is_empty()
         && id.len() <= 64
         && id.starts_with(|first: char| first.is_ascii_lowercase())
@@ -342,30 +375,83 @@ mod tests {
                           {"source": "core", "path": "spine.md"}]
         });
         let settings = parse(&value).unwrap();
-        assert!(settings.enabled());
+        assert!(!settings.switched_off());
         assert_eq!(settings.resolution_timeout_ms, 1000);
-        assert_eq!(settings.sources[0].roots, [".", "skills"]);
+        let sources = settings.sources.as_ref().unwrap();
+        assert_eq!(sources[0].roots, [".", "skills"]);
         assert_eq!(
             settings.mandatory,
             [
                 MandatorySetting {
-                    source: 1,
+                    source: "research".into(),
                     path: "kinds/a/SKILL.md".into()
                 },
                 MandatorySetting {
-                    source: 0,
+                    source: "core".into(),
                     path: "spine.md".into()
                 },
             ]
         );
-        assert_eq!(settings.sources[1].path, "/packs/r");
+        assert_eq!(sources[1].path, "/packs/r");
     }
 
     #[test]
     fn empty_arrays_disable_delivery_and_the_deadline_defaults() {
         let settings = parse(&skills(json!([]), json!([]))).unwrap();
-        assert!(!settings.enabled());
+        assert!(settings.switched_off());
         assert_eq!(settings.resolution_timeout_ms, RESOLUTION_DEFAULT_MS);
+        let settings = parse(&json!({"schemaVersion": 1, "sources": []})).unwrap();
+        assert!(settings.switched_off());
+        assert_eq!(settings.mandatory, []);
+    }
+
+    #[test]
+    fn without_sources_the_default_directory_supplies_the_source_set() {
+        let settings = parse(&json!({"schemaVersion": 1})).unwrap();
+        assert_eq!(settings, SkillSettings::default());
+        assert_eq!(settings.sources, None);
+        assert!(!settings.switched_off());
+        // A mandatory reference keeps its ID for the listing to find.
+        let settings = parse(&json!({
+            "schemaVersion": 1,
+            "mandatory": [{"source": "grove-core", "path": "spine/SKILL.md"}]
+        }))
+        .unwrap();
+        assert_eq!(settings.sources, None);
+        assert_eq!(
+            settings.mandatory,
+            [MandatorySetting {
+                source: "grove-core".into(),
+                path: "spine/SKILL.md".into()
+            }]
+        );
+        assert!(!settings.switched_off());
+    }
+
+    #[test]
+    fn without_sources_a_mandatory_reference_still_refuses_when_malformed() {
+        for (value, location) in [
+            (
+                json!({"schemaVersion": 1, "mandatory": [{"source": "Core", "path": "x"}]}),
+                "skills.mandatory[0].source",
+            ),
+            (
+                json!({"schemaVersion": 1, "mandatory": [{"source": "a", "path": "x"},
+                                                         {"source": "a", "path": "x"}]}),
+                "skills.mandatory[1]",
+            ),
+            (
+                json!({"schemaVersion": 1, "mandatory": [{"source": "a", "path": "../x"}]}),
+                "skills.mandatory[0].path",
+            ),
+            (
+                json!({"schemaVersion": 1, "mandatory": {}}),
+                "skills.mandatory",
+            ),
+        ] {
+            let found = parse(&value).unwrap_err();
+            assert_eq!(found.location, location, "{value}: {}", found.what);
+        }
     }
 
     #[test]
@@ -373,10 +459,6 @@ mod tests {
         let ok = local("a", json!(["."]));
         for (value, location) in [
             (json!([]), "skills"),
-            (
-                json!({"schemaVersion": 1, "sources": []}),
-                "skills.mandatory",
-            ),
             (
                 json!({"schemaVersion": 2, "sources": [], "mandatory": []}),
                 "skills.schemaVersion",

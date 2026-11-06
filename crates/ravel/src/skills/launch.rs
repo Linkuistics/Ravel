@@ -1,4 +1,4 @@
-//! Launch preparation: `start-session` resolves the configured sources and
+//! Launch preparation: `start-session` resolves the skill sources and
 //! wraps the caller's task in the prepared prompt before the worker
 //! (docs/specs/skill-discovery.md, "Ownership and order" and "The prepared
 //! prompt").
@@ -9,7 +9,7 @@ use std::time::Instant;
 use serde_json::{Map, Value, json};
 use sha2::{Digest as _, Sha256};
 
-use super::{Resolution, refuse, resolve_protecting};
+use super::{Resolution, effective, refuse, resolve_protecting};
 use crate::inputs::PROMPT_LIMIT;
 use crate::limits::{Bound, Origin};
 use crate::refusal::{EXIT_WORKER, Refusal, Stage};
@@ -33,6 +33,8 @@ pub struct Delivery {
     /// The preamble, the label and the caller block.
     pub prompt: String,
     pub resolution_ms: u128,
+    /// The default skill directory when it supplied the source set.
+    pub default_directory: Option<String>,
 }
 
 impl Delivery {
@@ -68,6 +70,7 @@ impl Delivery {
         json!({
             "descriptorPath": self.descriptor_path,
             "resolutionMs": self.resolution_ms,
+            "defaultDirectory": self.default_directory,
             "sources": sources,
             "originalPrompt": measure(original),
             "prompt": measure(&self.prompt),
@@ -92,14 +95,6 @@ pub fn prepare(
     config_dir: &Path,
     original: &str,
 ) -> Result<Option<Delivery>, Refusal> {
-    let enabled = home.is_some_and(Path::is_absolute)
-        && settings
-            .skills
-            .as_ref()
-            .is_some_and(super::settings::SkillSettings::enabled);
-    if !enabled {
-        return Ok(None);
-    }
     let started = Instant::now();
     let resolved = match resolve_protecting(home, settings, &[config_dir])? {
         Resolution::Disabled => return Ok(None),
@@ -107,8 +102,7 @@ pub fn prepare(
     };
     // A consumed signal wins over a refusal of the prepared prompt too.
     let prompt = wrap(&resolved.instructions, original, &mut random_nonce).map_err(|refusal| {
-        let skills = settings.skills.as_ref().expect("delivery is enabled");
-        let watch = super::watch::Watch::start(skills);
+        let watch = super::watch::Watch::start(&effective(settings));
         watch.enter("the preparation of the prompt", None);
         watch.overrule(refusal)
     })?;
@@ -117,6 +111,7 @@ pub fn prepare(
         descriptor: resolved.descriptor,
         prompt,
         resolution_ms: started.elapsed().as_millis(),
+        default_directory: resolved.default_directory,
     }))
 }
 

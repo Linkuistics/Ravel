@@ -61,10 +61,8 @@ impl Watch {
     #[cfg(test)]
     pub fn unbounded() -> Watch {
         Watch::start(&SkillSettings {
-            sources: Vec::new(),
-            mandatory: Vec::new(),
             resolution_timeout_ms: super::settings::RESOLUTION_MAX_MS,
-            resolution_timeout_set: false,
+            ..SkillSettings::default()
         })
     }
 
@@ -208,10 +206,9 @@ mod tests {
 
     fn settings(ms: u64, set: bool) -> SkillSettings {
         SkillSettings {
-            sources: Vec::new(),
-            mandatory: Vec::new(),
             resolution_timeout_ms: ms,
             resolution_timeout_set: set,
+            ..SkillSettings::default()
         }
     }
 

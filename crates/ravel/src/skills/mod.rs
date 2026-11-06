@@ -1,5 +1,6 @@
-//! Skill source resolution: the configured local sources, their retained
-//! snapshots, the directory descriptor and the preamble. The skill discovery
+//! Skill source resolution: the configured local sources or the sources of
+//! the default skill directory, their retained snapshots, the directory
+//! descriptor and the preamble. The skill discovery
 //! specification owns the contract (docs/specs/skill-discovery.md).
 //!
 //! Ravel reads no `SKILL.md`, frontmatter or skill name here. It copies and
@@ -8,7 +9,10 @@
 mod bounds;
 mod cache;
 pub mod command;
+#[cfg(test)]
+mod default_tests;
 mod dir;
+mod installed;
 pub mod launch;
 mod preamble;
 #[cfg(test)]
@@ -17,6 +21,7 @@ pub mod settings;
 mod snapshot;
 pub mod watch;
 
+use std::borrow::Cow;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::io::{self, ErrorKind};
@@ -45,12 +50,84 @@ const CONFIG_DIR: &str = ".config/ravel";
 /// The descriptor file inside its retained directory.
 pub const DESCRIPTOR_FILE: &str = "directories.json";
 
-/// A configured source as refusals name it.
+/// A source as refusals name it.
 #[derive(Debug)]
 pub struct Located {
     pub id: String,
-    /// Its settings location, such as `skills.sources[1]`.
+    /// Its settings location, such as `skills.sources[1]`, or the entry path
+    /// of a default source.
     pub location: String,
+}
+
+/// Where a source of the source set comes from.
+#[derive(Clone, Debug)]
+enum Place {
+    /// The index of a configured source in `skills.sources`.
+    Setting(usize),
+    /// The entry path of a default source. A refusal names it in place of a
+    /// settings location
+    /// (docs/specs/skill-discovery.md#entries-and-roots).
+    Entry(String),
+}
+
+impl Place {
+    /// The location of the field `suffix` of this source, such as `.path`.
+    /// A default source has no fields, so its location is its entry path.
+    fn location(&self, suffix: &str) -> String {
+        match self {
+            Place::Setting(index) => format!("skills.sources[{index}]{suffix}"),
+            Place::Entry(path) => path.clone(),
+        }
+    }
+}
+
+/// A source of the source set, configured or default.
+#[derive(Clone, Debug)]
+struct Source {
+    id: String,
+    path: String,
+    roots: Vec<String>,
+    place: Place,
+}
+
+/// A mandatory reference, with the position of its source in the source set.
+#[derive(Clone, Debug)]
+struct Mandatory {
+    source: usize,
+    path: String,
+}
+
+/// The sources that one resolution captures, and the mandatory references
+/// into them.
+#[derive(Debug)]
+struct SourceSet {
+    sources: Vec<Source>,
+    mandatory: Vec<Mandatory>,
+    /// The default skill directory when it supplied the source set.
+    default_directory: Option<String>,
+}
+
+impl SourceSet {
+    /// Delivery is disabled when the source set and the mandatory references
+    /// are both empty.
+    fn empty(&self) -> bool {
+        self.sources.is_empty() && self.mandatory.is_empty()
+    }
+
+    /// The settings location of the sources, or the default skill directory.
+    fn location(&self) -> String {
+        self.default_directory
+            .clone()
+            .unwrap_or_else(|| "skills.sources".to_owned())
+    }
+
+    /// How a bound refusal names the sources.
+    fn origin(&self) -> &'static str {
+        match self.default_directory {
+            Some(_) => "default",
+            None => "configured",
+        }
+    }
 }
 
 /// A refusal of the `skills` stage, exit 3.
@@ -79,6 +156,8 @@ pub struct Resolved {
     pub descriptor: Value,
     /// The preamble, without a final newline.
     pub instructions: String,
+    /// The default skill directory when it supplied the source set.
+    pub default_directory: Option<String>,
 }
 
 impl Resolved {
@@ -96,7 +175,8 @@ impl Resolved {
     }
 }
 
-/// Resolve the configured sources of `settings`, read from `home`.
+/// Resolve the sources of `settings`, read from `home`: the configured ones,
+/// or without `sources` the ones of the default skill directory.
 pub fn resolve(home: Option<&Path>, settings: &Settings) -> Result<Resolution, Refusal> {
     resolve_protecting(home, settings, &[])
 }
@@ -109,57 +189,162 @@ pub fn resolve_protecting(
     settings: &Settings,
     also: &[&Path],
 ) -> Result<Resolution, Refusal> {
-    let (Some(home), Some(skills)) = (
-        home.filter(|home| home.is_absolute()),
-        settings.skills.as_ref().filter(|skills| skills.enabled()),
-    ) else {
+    let Some(home) = home.filter(|home| home.is_absolute()) else {
         return Ok(Resolution::Disabled);
     };
-    let watch = Watch::start(skills);
-    let resolved = watched(home, skills, also, Limits::current(), &watch)
+    let skills = effective(settings);
+    // `"sources": []` reads no record and no directory.
+    if skills.switched_off() {
+        return Ok(Resolution::Disabled);
+    }
+    let watch = Watch::start(&skills);
+    let resolved = source_set(&skills, &watch)
+        .and_then(|set| {
+            if set.empty() {
+                return Ok(None);
+            }
+            watched(home, &set, also, Limits::current(), &watch).map(Some)
+        })
         .and_then(|resolved| {
             watch.enter("the end of the resolution", None);
             watch.check().map(|()| resolved)
         })
         .map_err(|refusal| watch.overrule(refusal))?;
-    Ok(Resolution::Resolved(resolved))
+    Ok(resolved.map_or(Resolution::Disabled, Resolution::Resolved))
+}
+
+/// The `skills` object of `settings`, or the value of an absent key.
+pub(crate) fn effective(settings: &Settings) -> Cow<'_, SkillSettings> {
+    settings
+        .skills
+        .as_ref()
+        .map_or_else(|| Cow::Owned(SkillSettings::default()), Cow::Borrowed)
+}
+
+/// The source set of `skills`. With `sources`, the array names it exactly.
+/// Without `sources`, the default skill directory supplies it, and each
+/// mandatory reference must name one of its sources.
+fn source_set(skills: &SkillSettings, watch: &Watch) -> Result<SourceSet, Refusal> {
+    let (sources, default_directory) = match &skills.sources {
+        Some(configured) => {
+            let sources = configured
+                .iter()
+                .enumerate()
+                .map(|(index, source)| Source {
+                    id: source.id.clone(),
+                    path: source.path.clone(),
+                    roots: source.roots.clone(),
+                    place: Place::Setting(index),
+                })
+                .collect();
+            (sources, None)
+        }
+        None => {
+            watch.enter("the read of the installation record", None);
+            watch.check()?;
+            match installed::directory()? {
+                None => (Vec::new(), None),
+                Some(directory) => {
+                    watch.enter("the listing of the default skill directory", None);
+                    let sources = installed::list(&directory, watch)?
+                        .into_iter()
+                        .map(|entry| Source {
+                            place: Place::Entry(entry.path.clone()),
+                            id: entry.id,
+                            path: entry.path,
+                            roots: entry.roots,
+                        })
+                        .collect();
+                    #[cfg(test)]
+                    faults::listed_default(Path::new(&directory));
+                    (sources, Some(directory))
+                }
+            }
+        }
+    };
+    let mut mandatory = Vec::with_capacity(skills.mandatory.len());
+    for (position, reference) in skills.mandatory.iter().enumerate() {
+        let Some(source) = sources
+            .iter()
+            .position(|source: &Source| source.id == reference.source)
+        else {
+            // The parser already refused an unknown ID of configured sources.
+            return Err(absent_default(
+                position,
+                &reference.source,
+                default_directory.as_deref(),
+            ));
+        };
+        mandatory.push(Mandatory {
+            source,
+            path: reference.path.clone(),
+        });
+    }
+    Ok(SourceSet {
+        sources,
+        mandatory,
+        default_directory,
+    })
+}
+
+/// The refusal of a mandatory reference to a source that the default skill
+/// directory does not hold.
+fn absent_default(position: usize, id: &str, directory: Option<&str>) -> Refusal {
+    let (holder, source) = match directory {
+        Some(directory) => (
+            format!("the default skill directory {directory} does not hold it"),
+            format!("{directory}/{id}"),
+        ),
+        None => (
+            "the installation has no installation record, so it has no default skill directory"
+                .to_owned(),
+            id.to_owned(),
+        ),
+    };
+    refuse(
+        "skill_source_missing",
+        format!("the mandatory reference skills.mandatory[{position}] names the source {id:?}, but {holder}"),
+        "install the package that supplies the source, or name the source in skills.sources",
+    )
+    .source(source)
+    .location(format!("skills.mandatory[{position}].source"))
 }
 
 /// The resolution of enabled delivery under `watch`, within `limits`.
 fn watched(
     home: &Path,
-    skills: &SkillSettings,
+    set: &SourceSet,
     also: &[&Path],
     limits: Limits,
     watch: &Watch,
 ) -> Result<Resolved, Refusal> {
+    // The bounds count the default sources after the listing.
     bounds::count(
         bounds::SOURCES,
         limits.sources,
-        skills.sources.len(),
-        "the configured sources",
+        set.sources.len(),
+        &format!("the {} sources", set.origin()),
     )
-    .map_err(|refusal| refusal.location("skills.sources"))?;
+    .map_err(|refusal| refusal.location(set.location()))?;
     bounds::count(
         bounds::SEARCH_DIRECTORIES,
         limits.search_directories,
-        skills.sources.iter().map(|source| source.roots.len()).sum(),
-        "the configured search directories",
+        set.sources.iter().map(|source| source.roots.len()).sum(),
+        &format!("the {} search directories", set.origin()),
     )
-    .map_err(|refusal| refusal.location("skills.sources"))?;
+    .map_err(|refusal| refusal.location(set.location()))?;
     bounds::count(
         bounds::MANDATORY_FILES,
         limits.mandatory_files,
-        skills.mandatory.len(),
+        set.mandatory.len(),
         "the configured mandatory files",
     )
     .map_err(|refusal| refusal.location("skills.mandatory"))?;
     let protected = Protected::new(home, also);
-    let origins = skills
+    let origins = set
         .sources
         .iter()
-        .enumerate()
-        .map(|(index, source)| origin(index, source, &protected))
+        .map(|source| origin(source, &protected))
         .collect::<Result<Vec<_>, _>>()?;
     watch.enter("the opening of the cache", None);
     watch.check()?;
@@ -174,15 +359,15 @@ fn watched(
     // The retained file of each mandatory reference so far, by its snapshot
     // and its real path in the tree, with the position of that reference.
     let mut reached = BTreeMap::new();
-    for (index, (source, origin)) in skills.sources.iter().zip(&origins).enumerate() {
+    for (index, (source, origin)) in set.sources.iter().zip(&origins).enumerate() {
         let located = Located {
             id: source.id.clone(),
-            location: format!("skills.sources[{index}]"),
+            location: source.place.location(""),
         };
         // A link can lead a reference to its file, so capture also knows the
         // real path of each one. An unreadable target then reports as
         // mandatory guidance.
-        let mandatory: BTreeSet<String> = skills
+        let mandatory: BTreeSet<String> = set
             .mandatory
             .iter()
             .filter(|reference| reference.source == index)
@@ -208,8 +393,7 @@ fn watched(
             .check()
             .and_then(|()| check_roots(&capture.tree(), source, origin, &located))
             .and_then(|()| {
-                skills
-                    .mandatory
+                set.mandatory
                     .iter()
                     .enumerate()
                     .filter(|(_, reference)| reference.source == index)
@@ -265,7 +449,7 @@ fn watched(
 
     watch.enter("the publication of the descriptor", None);
     watch.check()?;
-    let descriptor = descriptor(skills, &records);
+    let descriptor = descriptor(set, &records);
     let bytes = serde_json::to_vec(&descriptor).expect("a JSON value encodes");
     bounded(
         bounds::DESCRIPTOR_BYTES,
@@ -307,6 +491,7 @@ fn watched(
         descriptor_path,
         descriptor,
         instructions,
+        default_directory: set.default_directory.clone(),
     })
 }
 
@@ -413,21 +598,27 @@ struct LocalOrigin {
     text: String,
 }
 
-fn origin(
-    index: usize,
-    source: &settings::SourceSetting,
-    protected: &Protected,
-) -> Result<LocalOrigin, Refusal> {
+fn origin(source: &Source, protected: &Protected) -> Result<LocalOrigin, Refusal> {
     let path = &source.path;
-    let at = format!("skills.sources[{index}]");
+    let at = source.place.location("");
+    let remedy = match source.place {
+        Place::Setting(_) => "restore the source directory, or change the settings deliberately",
+        // A package manager can remove the entry after the listing, during
+        // an upgrade (docs/specs/skill-discovery.md, "Changes under running
+        // sessions").
+        Place::Entry(_) => {
+            "run the command again after the package manager has finished, or reinstall the \
+             package that installed the source"
+        }
+    };
     let missing = |what: String| {
         refuse(
             "skill_source_missing",
             format!("the source {:?} at {path} {what}", source.id),
-            "restore the source directory, or change the settings deliberately",
+            remedy,
         )
         .source(path.clone())
-        .location(format!("{at}.path"))
+        .location(source.place.location(".path"))
     };
     let canonical = match Path::new(path).canonicalize() {
         Ok(canonical) => canonical,
@@ -474,7 +665,7 @@ fn origin(
 /// Each root must be a directory in the captured tree. An empty one is valid.
 fn check_roots(
     tree: &Path,
-    source: &settings::SourceSetting,
+    source: &Source,
     origin: &LocalOrigin,
     located: &Located,
 ) -> Result<(), Refusal> {
@@ -494,7 +685,7 @@ fn check_roots(
             "restore the root directory in the source, or change the settings deliberately",
         )
         .source(path.display().to_string())
-        .location(format!("{}.roots[{index}]", located.location)));
+        .location(source.place.location(&format!(".roots[{index}]"))));
     }
     Ok(())
 }
@@ -619,7 +810,7 @@ struct Record {
 
 /// The descriptor value. Its member order is canonical, because a
 /// `serde_json` object without `preserve_order` sorts its keys.
-fn descriptor(skills: &SkillSettings, records: &[Record]) -> Value {
+fn descriptor(set: &SourceSet, records: &[Record]) -> Value {
     let sources: Vec<Value> = records
         .iter()
         .map(|record| {
@@ -634,7 +825,7 @@ fn descriptor(skills: &SkillSettings, records: &[Record]) -> Value {
         .collect();
     let mut seen = BTreeSet::new();
     let mut directories = Vec::new();
-    for (source, record) in skills.sources.iter().zip(records) {
+    for (source, record) in set.sources.iter().zip(records) {
         for root in &source.roots {
             let path = joined(&record.root, root);
             if seen.insert(path.clone()) {
@@ -642,7 +833,7 @@ fn descriptor(skills: &SkillSettings, records: &[Record]) -> Value {
             }
         }
     }
-    let mandatory: Vec<Value> = skills
+    let mandatory: Vec<Value> = set
         .mandatory
         .iter()
         .map(|reference| {
@@ -702,6 +893,12 @@ pub(crate) mod faults {
         pub limits: Option<super::bounds::Limits>,
         /// The signal that the watch of this thread sees as consumed.
         pub signal: Option<crate::cancellation::Signal>,
+        /// The installation prefix, in place of the one two levels above the
+        /// test executable.
+        pub prefix: Option<std::path::PathBuf>,
+        /// After the listing of the default skill directory, before capture,
+        /// with the directory path.
+        pub listed_default: Option<PathHook>,
     }
 
     thread_local! { pub static HOOKS: RefCell<Hooks> = RefCell::new(Hooks::default()); }
@@ -754,6 +951,14 @@ pub(crate) mod faults {
 
     pub fn signal() -> Option<crate::cancellation::Signal> {
         HOOKS.with(|cell| cell.borrow().signal)
+    }
+
+    pub fn prefix() -> Option<std::path::PathBuf> {
+        HOOKS.with(|cell| cell.borrow().prefix.clone())
+    }
+
+    pub fn listed_default(path: &Path) {
+        fire(|hooks| &mut hooks.listed_default, |hook| hook(path));
     }
 
     pub fn removing(path: &Path) -> io::Result<()> {

@@ -18,7 +18,7 @@ pub struct Cli {
 }
 #[derive(Debug, Subcommand)]
 pub enum Command {
-    /// Route the prompt, with any configured skill directories, through an owner Rhai configuration script and supervise its selected process
+    /// Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process
     #[command(
         after_help = "Only the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./config.rhai --param profile=careful --prompt 'Check and end with a result'"
     )]
@@ -31,7 +31,7 @@ pub enum Command {
         #[arg(value_name = "RESULT")]
         result: String,
     },
-    /// Resolve the skill sources of the owner settings, without a configuration script or a harness
+    /// Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness
     Skills {
         #[command(subcommand)]
         command: SkillsCommand,
@@ -40,9 +40,9 @@ pub enum Command {
 
 #[derive(Debug, Subcommand)]
 pub enum SkillsCommand {
-    /// Capture the configured skill sources, store their snapshots and print the discovery instructions
+    /// Capture the skill sources, store their snapshots and print the discovery instructions
     #[command(
-        after_help = "The command reads the skills object of ~/.config/ravel/settings.json. It evaluates no configuration script, creates no result channel and launches no harness. It takes no skill name, task or source override.\n\nCache side effect: each run copies the current bytes of every local source and stores immutable snapshots and a directory descriptor under ~/.cache/ravel/skills/v1. Ravel never removes them automatically. A failure can leave complete snapshots, but never a partial descriptor.\n\nOutput: the discovery instructions, with a final newline. With --json, one object with schemaVersion 1 and status \"resolved\", and descriptorPath, sources, directories, mandatory and instructions. When delivery is disabled, the plain output is empty, --json prints {\"schemaVersion\":1,\"status\":\"disabled\"}, and the status is 0. A failure goes to stderr with a nonzero status and prints no instructions: 2 for a command-line or settings problem, 3 for a skill refusal, 5 for an internal failure.\n\nExamples:\n  ravel skills resolve\n  ravel skills resolve --json"
+        after_help = "The command reads the skills object of ~/.config/ravel/settings.json. When the settings name no sources, it reads the sources of the default skill directory, which the record share/ravel/installation.json of the installation names; \"sources\": [] turns that default off. It evaluates no configuration script, creates no result channel and launches no harness. It takes no skill name, task or source override.\n\nCache side effect: each run copies the current bytes of every local source and stores immutable snapshots and a directory descriptor under ~/.cache/ravel/skills/v1. Ravel never removes them automatically. A failure can leave complete snapshots, but never a partial descriptor.\n\nOutput: the discovery instructions, with a final newline. With --json, one object with schemaVersion 1 and status \"resolved\", and descriptorPath, sources, directories, mandatory and instructions. When delivery is disabled, the plain output is empty, --json prints {\"schemaVersion\":1,\"status\":\"disabled\"}, and the status is 0. A failure goes to stderr with a nonzero status and prints no instructions: 2 for a command-line or settings problem, 3 for a skill refusal, 5 for an internal failure.\n\nExamples:\n  ravel skills resolve\n  ravel skills resolve --json"
     )]
     Resolve {
         /// Print one JSON object, and render a failure as a JSON failure document on stderr

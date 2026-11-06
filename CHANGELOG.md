@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- Read the default skill directory. When the settings name no
+  `skills.sources`, Ravel reads the installation record
+  `share/ravel/installation.json` two levels above its canonical executable.
+  The record names the default skill directory, and each entry there is a
+  source, with the roots `skills` and `craft` where each exists. The sources
+  follow the byte order of their IDs. `sources` and `mandatory` are optional,
+  and `"sources": []` turns the default off. An absent record or directory
+  supplies no source. A malformed record, or an entry that is not a source,
+  refuses as `skill_directory_invalid`, stage `skills`, exit 3, and names the
+  entry. The `skills` object of the JSON routing notice gains
+  `defaultDirectory`. The release archives and `task install` write no record.
 - Remove operating-system confinement. `start-session` refuses `--confine`
   and `--runtime-read` as `confinement_withdrawn`, stage `cli`, exit 2. The
   refusal comes before Ravel reads the settings or runs the worker. Its

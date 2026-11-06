@@ -21,7 +21,8 @@ records.
 The line implements this contract, with the refusal of a source `type` other
 than `local` in [settings](#settings). The
 [default skill directory](#default-skill-directory) joined the contract before
-the 2.0.0 cut, and its implementation is ahead.
+the 2.0.0 cut, and the line implements it. The formula channels that write the
+installation record are ahead.
 
 The [actual harness trials](#actual-harness-trials) are still ahead.
 The [design evidence](../skill-discovery-design-evidence.md)

@@ -900,6 +900,57 @@ record](#linux-floor-repair-record) still covers the link floor. Grove's
 `grove-confinement-removal-k146` runs `task release:smoke` once for the
 aarch64 Linux target.
 
+## Default skill directory record
+
+Grove's `ravel-default-directory-k225` implemented the
+[default skill directory](specs/skill-discovery.md#default-skill-directory)
+on this line on 2026-11-06. The base of the work is `78d833d24364`, the
+design of Grove's `ravel-default-skill-directory-k218`. Nobody pushed the
+line, and no release consumes it.
+
+The module `crates/ravel/src/skills/installed.rs` reads the installation
+record and lists the directory. The resolver builds one source set from the
+settings or from that listing. A refusal about a default source names its
+entry path in place of a settings location.
+
+The specification leaves four details open. The code gives these answers:
+
+- Ravel cannot find the canonical path of its own executable. That refuses
+  as `skill_directory_invalid`.
+- A dangling link at the record path refuses as an unreadable record. Only a
+  path that does not exist is an absent record.
+- A default skill directory that exists but cannot be listed refuses as
+  `skill_directory_invalid`. So does one that is not a directory.
+- Without `sources`, a mandatory `source` must still have the source-ID
+  grammar, or it refuses as `settings_invalid`.
+
+| Subject | Record |
+| --- | --- |
+| Toolchain | Rust 1.99.1, `rustc` commit `58cf8f9c3` of 2026-10-13. The SHA-256 of `Cargo.lock` is `a06e97c65ecca6d1490180467621834d4cd1c4a7d7fcffb142d4c86566e07266`, unchanged |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| `task check` | Exit 0. 708 of 708 run tests passed, and 48 were skipped. The diff of the working copy had one digest before and after the run |
+| `task docs:examples` | Exit 0. 21 examples passed with no page error. The development build has no record, so each example still shows `"skills":null` |
+| `task smoke` | Exit 0, through the executable and through a relative link. `scripts/install.sh` writes no record |
+
+The public row "Default skill directory" runs in
+`crates/ravel/tests/skills_default.rs`. A copy of the development build sits
+in a keg of the shape `cellar/ravel/2.0.0`, and the prefix links to it. The
+record names a fixture directory of relative links into other kegs and of
+real directories. A unit test in `crates/ravel/src/skills/default_tests.rs`
+removes a source after the listing through a fault hook.
+
+Seventeen mutants each made their test fail. Eleven of them accepted one
+refusing row of the entry table each, and each row was run alone. The others
+accepted an entry with neither root and read a malformed record as absent.
+They also reversed the byte order and the order of the roots, listed dot
+entries and removed `defaultDirectory` from the notice.
+
+This stage ran no Linux campaign, no `release:smoke` and no `task smoke:pair`.
+Grove's `ravel-installation-record-k226` owns the formula channels that write
+the record, their installed tests on macOS and Linux, and the book chapters.
+Until then, chapter 6 of the book still states the earlier rules for
+`skills.sources`, `skills.mandatory` and the routing notice.
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and

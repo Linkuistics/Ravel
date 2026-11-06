@@ -918,6 +918,8 @@ fn the_help_shows_both_forms_the_disabled_result_and_the_cache_side_effect() {
         "\"disabled\"",
         "~/.cache/ravel/skills/v1",
         "never removes them automatically",
+        "default skill directory",
+        "share/ravel/installation.json",
     ] {
         assert!(help.contains(text), "{text}: {help}");
     }
