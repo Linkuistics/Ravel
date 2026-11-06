@@ -1,3 +1,4 @@
+require "json"
 require "shellwords"
 
 class Ravel < Formula
@@ -29,6 +30,17 @@ class Ravel < Formula
     # Rhai is embedded in the executable; examples and Rust notices are data.
     bin.install "bin/ravel"
     (share/"ravel").install "share/ravel/examples", "share/ravel/notices"
+    # docs/specs/skill-discovery.md, "The installation record". The shared
+    # prefix, not the keg, so the keg-only ravel@2 names the same directory.
+    # HOMEBREW_PREFIX: https://docs.brew.sh/Formula-Cookbook#variables-for-directory-locations
+    write_installation_record(share, HOMEBREW_PREFIX/"share/ravel/skills")
+  end
+
+  # Write SHARE/ravel/installation.json, naming SKILL_DIRECTORY.
+  def write_installation_record(share, skill_directory)
+    (share/"ravel").mkpath
+    record = { schemaVersion: 1, skillDirectory: skill_directory.to_s }
+    (share/"ravel/installation.json").write("#{JSON.generate(record)}\n")
   end
 
   test do
@@ -65,5 +77,41 @@ class Ravel < Formula
       assert_equal result, shell_output(command.shelljoin)
     end
     assert_equal [], Dir.children(testpath/"tmp")
+
+    # The record that install wrote names the shared skill directory.
+    record = JSON.parse((share/"ravel/installation.json").read)
+    assert_equal({ "schemaVersion" => 1, "skillDirectory" => "#{HOMEBREW_PREFIX}/share/ravel/skills" }, record)
+    # The sandbox denies writes to HOMEBREW_PREFIX, and a fixture there would
+    # reach every running session. A copy of the executable is a private
+    # installation: Ravel finds its record beside the canonical executable.
+    relocated = testpath/"relocated"
+    (relocated/"bin").mkpath
+    cp bin/"ravel", relocated/"bin/ravel"
+    chmod 0755, relocated/"bin/ravel"
+    skills = testpath/"skills"
+    write_installation_record(relocated/"share", skills)
+    (skills/"fixture/skills/check").mkpath
+    (skills/"fixture/skills/check/SKILL.md").write "---\nname: check\ndescription: fixture\n---\n"
+    no_settings = ["/usr/bin/env", "-i", "PATH=/usr/bin:/bin",
+                   "HOME=#{testpath}/home", "TMPDIR=#{testpath}/tmp", (relocated/"bin/ravel").to_s]
+    resolved = JSON.parse(shell_output((no_settings + ["skills", "resolve", "--json"]).shelljoin))
+    assert_equal "resolved", resolved["status"]
+    assert_equal ["fixture"], resolved["sources"].map { |source| source["id"] }
+    assert_equal (skills/"fixture").realpath.to_s, resolved["sources"][0]["originPath"]
+    # A launch protects the directory of its configuration script, which
+    # must not hold the source.
+    (testpath/"launch").mkpath
+    cp testpath/"config.rhai", testpath/"launch/config.rhai"
+    launch = no_settings + ["start-session", "--kind", "check", "--config", (testpath/"launch/config.rhai").to_s,
+                            "--prompt", "task", "--json"]
+    shell_output("#{launch.shelljoin} 2>#{(testpath/"notice").to_s.shellescape}")
+    notice = (testpath/"notice").readlines.filter_map do |line|
+      document = JSON.parse(line) if line.start_with?("{")
+      document if document&.key?("selection")
+    end
+    assert_equal [skills.to_s], notice.map { |document| document["skills"]["defaultDirectory"] }
+  ensure
+    # Snapshots are read-only by design. Let Homebrew remove the test path.
+    chmod_R "u+w", testpath/"home" if (testpath/"home").exist?
   end
 end

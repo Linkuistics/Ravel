@@ -13,6 +13,12 @@
   refuses as `skill_directory_invalid`, stage `skills`, exit 3, and names the
   entry. The `skills` object of the JSON routing notice gains
   `defaultDirectory`. The release archives and `task install` write no record.
+- Write the installation record from the Homebrew formula. Installation
+  writes `share/ravel/installation.json`, which names
+  `HOMEBREW_PREFIX/share/ravel/skills`, so the keg-only `ravel@2` names the
+  same directory as `ravel`. The formula test reads the record and resolves
+  a fixture source through a private copy of the executable. The release
+  checks the installed record with `scripts/installed-record.sh`.
 - Remove operating-system confinement. `start-session` refuses `--confine`
   and `--runtime-read` as `confinement_withdrawn`, stage `cli`, exit 2. The
   refusal comes before Ravel reads the settings or runs the worker. Its

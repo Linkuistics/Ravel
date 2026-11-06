@@ -22,6 +22,10 @@ for runtime in bun node grove grove-llm harness-dispatch; do
   ! command -v "$runtime" >/dev/null 2>&1 || fail "isolated PATH contains $runtime"
 done
 [[ ! -e "$prefix/libexec/ravel" ]] || fail 'retired libexec/ravel is installed'
+# Only a Homebrew formula knows its prefix and writes the installation record
+# (docs/specs/skill-discovery.md). An archive or install.sh writes none.
+[[ ! -e "$prefix/share/ravel/installation.json" && ! -L "$prefix/share/ravel/installation.json" ]] ||
+  fail 'an archive or script installation holds share/ravel/installation.json'
 for asset in examples/static.rhai examples/sample.rhai examples/llm.rhai notices/THIRD-PARTY-NOTICES.md; do
   [[ -s "$prefix/share/ravel/$asset" && ! -x "$prefix/share/ravel/$asset" ]] || fail "missing or executable installed $asset"
 done

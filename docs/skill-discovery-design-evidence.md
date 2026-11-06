@@ -946,10 +946,54 @@ They also reversed the byte order and the order of the roots, listed dot
 entries and removed `defaultDirectory` from the notice.
 
 This stage ran no Linux campaign, no `release:smoke` and no `task smoke:pair`.
-Grove's `ravel-installation-record-k226` owns the formula channels that write
-the record, their installed tests on macOS and Linux, and the book chapters.
-Until then, chapter 6 of the book still states the earlier rules for
-`skills.sources`, `skills.mandatory` and the routing notice.
+The next section records the formula, its installed tests and the book.
+
+## Installation record of the formula
+
+Grove's `ravel-installation-record-k226` made the formula write the
+[installation record](specs/skill-discovery.md#the-installation-record) on
+2026-11-06. The base is `da736c1fc255`. Nobody pushed the line.
+
+Ravel renders one template, `scripts/templates/ravel.rb.tmpl`. The
+`CHANNEL=versioned-2` tooling of [release channels](specs/release-channels.md)
+does not exist yet, so `ravel@2` will inherit the record from this template.
+The record takes its directory from `HOMEBREW_PREFIX`, not from the keg.
+
+| Seam | What it shows |
+| --- | --- |
+| Formula `test` | The record that `install` wrote names `HOMEBREW_PREFIX/share/ravel/skills`. A copy of the installed executable, with a record from the same formula method, resolves a fixture source with no settings. Its routing notice gives that directory as `defaultDirectory` |
+| `task release:formula` | The real install and test methods run in a private prefix. A keg-only `RavelAT2` class from the same rendered text writes the same record bytes and passes the same test |
+| `scripts/installed-record.sh` | After the release installs the formula, it compares the bytes of the installed record with the formula's bytes. `task check` runs its controls |
+| `scripts/installed-smoke.sh` | An archive or `scripts/install.sh` installation holds no record |
+
+`brew test` runs in Homebrew's sandbox, which denies writes to
+`HOMEBREW_PREFIX`. A fixture there would also reach every running session.
+The fixture directory is therefore private to the test.
+
+`skills resolve --json` holds no `defaultDirectory`, as the specification
+states. The test reads that member from the routing notice of
+`start-session --json`.
+
+| Subject | Record |
+| --- | --- |
+| Platform | aarch64 macOS 27.0.1, build 26A434, Darwin 27.0.0 |
+| `task check` | Exit 0. 708 of 708 run tests passed, and 48 were skipped. The diff of the working copy had one digest before and after the run |
+| `task release:formula` | Exit 0, from fresh unreleased archives. Both classes passed |
+| Linux Homebrew | The harness ran in the arm64 `homebrew/brew` image, digest `b0072bfdebf5`, against the aarch64 GNU archive. Both classes passed, and the record named `/home/linuxbrew/.linuxbrew/share/ravel/skills`. The x86_64 archive ran no formula test |
+| Book checks | `task docs:examples` passed 21 examples. `docs:book:build`, `docs:excerpts`, `docs:breaks` and strict `ste.sh` on chapters 5 and 6 passed |
+| `task smoke` | Exit 0, through the executable and through a relative link |
+
+Three template mutants each failed `task release:formula` for the intended
+reason. A record that named the keg failed the record assertion. No record
+failed the exact file list. A link in place of the copied executable
+resolved as `disabled`. A parse-based `installed-record.sh` accepted a
+repeated member, and its test caught it. An extracted archive with a
+planted record failed the installed smoke test.
+
+Chapters 5, 6 and 11 of the book now state optional `sources` and
+`mandatory`, the default skill directory, the record,
+`skill_directory_invalid` and `defaultDirectory`. Chapter 11 still describes
+earlier formula checks in other rows. The rollout's book work owns them.
 
 ## Checks of these documents
 

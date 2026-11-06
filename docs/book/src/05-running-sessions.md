@@ -474,8 +474,13 @@ Ravel uses standard output only for the result. This example does not need a
 ### Give the agent the owner's skill directories
 
 The owner can configure skill sources in the `skills` object of the settings.
-Then each `start-session` prepares those sources before it evaluates the
-configuration script. The caller and the configuration script need no new
+Without that configuration, Ravel reads the sources that packages install in
+its [default skill directory](06-reference.md#default-skill-directory). With
+Homebrew, that directory is `$(brew --prefix)/share/ravel/skills`.
+`"sources": []` in the `skills` object turns the default skill directory off.
+
+When there are sources, each `start-session` prepares them before it
+evaluates the configuration script. The caller and the configuration script need no new
 input for this. Ravel finds no skill and gives no meaning to a skill name. The
 agent finds and reads the skills that apply to its work.
 
@@ -1395,8 +1400,10 @@ gives `configEnvironment`, `resolution`, `promptSource`, the captured
 
 The member `skills` is `null` with skill delivery disabled. Otherwise it
 gives the descriptor path, the sources, the resolution time and the byte
-count and digest of each prompt. The
-member `config` describes the configuration script. The member `context` is the selection context, not the
+count and digest of each prompt. It also gives the default skill directory
+when that directory supplied the sources.
+
+The member `config` describes the configuration script. The member `context` is the selection context, not the
 result channel. Grant diagnostics show the name of each environment variable
 and whether it is set. They never show its value.
 

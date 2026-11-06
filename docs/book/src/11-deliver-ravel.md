@@ -116,7 +116,8 @@ the executable and data files. `task notices` generates the notice file under
 The manifest check rejects extra files and directories, missing files,
 symlinks in place of files, and executables without execute permission. Caller programs,
 caller adapters, owner configuration, choice files, development dependencies
-and probe directories do not belong in an archive. The pack step also excludes
+and probe directories do not belong in an archive. Nor does the
+installation record, because only an installation knows its prefix. The pack step also excludes
 macOS extended attributes and their AppleDouble metadata files.
 
 `task release:test` tests the manifest check. It compares the manifest with a
@@ -231,7 +232,9 @@ before it tests them.
 A Homebrew formula tells Homebrew which archive to fetch, how to install it,
 and how to test the installation. Ravel's template is
 `scripts/templates/ravel.rb.tmpl`. It selects one of the three target archives
-and installs its `bin` and `libexec` directories. It has no Grove dependency.
+and installs `bin/ravel` and the data under `share/ravel`. It also writes the
+[installation record](06-reference.md#default-skill-directory), which names
+`$(brew --prefix)/share/ravel/skills`. It has no Grove dependency.
 
 `task release:formula` requires all three current-version archives in
 `target/archives`. It builds the four native probe workers, checks each
@@ -253,7 +256,9 @@ Homebrew's directory for one installed version.
 
 | Formula check | What it establishes |
 |---|---|
-| Installed paths | The temporary prefix has exactly the archive's `bin` and `libexec` contents |
+| Installed paths | The temporary prefix has exactly the archive's `bin` and `share` contents and the installation record |
+| Installation record | The record names `$(brew --prefix)/share/ravel/skills`. A copy of the installed executable, with a private record, resolves a fixture source with no settings and reports its directory |
+| Keg-only `ravel@2` | A keg-only class from the same formula text writes the same record bytes and passes the same test |
 | Real configuration script and shell fake agent | The SDK and static example work through a symlink to the installed CLI |
 | Result comparisons | Ordinary, empty, multiline and option-like results return unchanged |
 | Cleared environment | The session uses private home and temporary directories, with no host TypeScript runtime |
@@ -273,7 +278,8 @@ Do not copy this formula into a tap or upload these archives as a release.
 The version-cut task builds fresh archives from the tag and tests their formula.
 
 The final installation uses `linkuistics/taps/ravel`. Its `brew test ravel`
-checks the real installed keg. The temporary-prefix check above does not replace
+checks the real installed keg. Then `scripts/installed-record.sh` compares the
+bytes of the installed record with the record that the formula writes. The temporary-prefix check above does not replace
 that final check.
 
 ## Prepare a version cut
@@ -392,7 +398,7 @@ the lock when the task succeeds or fails.
 | Test the formula and archives | Test the formula in temporary prefixes, then run the smoke test for every target at its floors |
 | Send the source and release | Push `main`, push the tag and create the GitHub release |
 | Deliver the book and formula | Put the book on the Pages branch, check it with `verify`, then update the tap |
-| Check the installation | Update Homebrew, install or upgrade Ravel, run its test, and check its version and GitHub assets |
+| Check the installation | Update Homebrew, install or upgrade Ravel, run its test, and check its installation record, its version and GitHub assets |
 | Check the book on the site | Run `scripts/release-book.sh live vX.Y.Z` against the served pages |
 
 The activity shows which checks precede the first public write and where each
@@ -696,7 +702,7 @@ retain every unrelated formula.
 
 If only local installation failed, run `brew update` again. If Ravel is not
 installed, install `linkuistics/taps/ravel`. Otherwise, upgrade `ravel`. Run
-`brew test ravel` and the Homebrew-prefix binary's version check. Inspect the matched worker
+`brew test ravel`, `scripts/installed-record.sh` and the Homebrew-prefix binary's version check. Inspect the matched worker
 layout and GitHub's three assets. A missing local installation needs no new cut.
 
 If only the `live` check failed, keep the release and tap unchanged.

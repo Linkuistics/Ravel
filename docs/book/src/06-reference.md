@@ -615,7 +615,9 @@ Do you want an agent to read the skill sources of the owner, but outside a
 session? `ravel skills resolve` prepares those sources and prints the discovery
 instructions. You then give that text to an independent harness.
 
-The command reads the [`skills` object](#settingsjson) of the settings. It
+The command reads the [`skills` object](#settingsjson) of the settings.
+Without `sources` in that object, it reads the
+[default skill directory](#default-skill-directory) instead. It
 evaluates no configuration script, creates no result channel and launches no
 harness. It takes no skill name, task, prompt or source override. Ravel reads
 no `SKILL.md` file, no frontmatter and no skill name.
@@ -624,7 +626,7 @@ Each source is a local directory. Ravel runs no Git or other VCS command and
 makes no network request for a source. A checkout of a repository is an
 ordinary local source, and a tool outside Ravel makes and updates it.
 
-For each configured source, the command copies the current bytes of the
+For each source, the command copies the current bytes of the
 whole source directory. The copy leaves out each `.git` and `.jj` entry, at
 every level. The command checks each search directory and each mandatory file
 in the copy. Then it stores an immutable snapshot of the copy in the cache. It
@@ -656,9 +658,13 @@ The table gives the inputs and the outputs.
 | The resolution deadline passed | Nothing. The refusal goes to standard error. | `124` |
 | INT, TERM or HUP during the resolution | Nothing. The refusal goes to standard error, and Ravel raises the same signal again. | `130`, `143` or `129` |
 
-Delivery is disabled when the settings file is absent, when it has no `skills`
-key, or when `sources` and `mandatory` are both empty. Delivery is also
-disabled without an absolute `HOME`. A disabled resolution creates no cache.
+Delivery is disabled when a resolution has no source and no mandatory file:
+
+- `"sources": []` with no mandatory file disables delivery.
+- Without `sources`, a default skill directory that supplies no source disables delivery.
+- Without an absolute `HOME`, Ravel reads no settings and no default skill directory.
+
+A disabled resolution creates no cache.
 
 With `--json`, a resolved object holds these members:
 
@@ -667,7 +673,7 @@ With `--json`, a resolved object holds these members:
 | `schemaVersion` | `1`. |
 | `status` | `"resolved"`. A disabled object holds only `schemaVersion` and `status`. |
 | `descriptorPath` | The absolute path of the retained `directories.json`. |
-| `sources` | One record for each source, in configured order: `id`, `type`, `resourceDigest`, `snapshotRoot` and `originPath`. |
+| `sources` | One record for each source, in configured order or in the byte order of default source IDs: `id`, `type`, `resourceDigest`, `snapshotRoot` and `originPath`. |
 | `directories` | One record for each search directory: `source` and the absolute `path`. A repeated path appears once, at its first position. |
 | `mandatory` | One record for each mandatory file, in configured order: `source` and the absolute `path`. |
 | `instructions` | The discovery instructions, without the final newline of the plain form. |
@@ -727,7 +733,8 @@ These skill refusals have stage `skills` and status 3:
 
 | Code | Cause | Remedy |
 |---|---|---|
-| `skill_source_missing` | A source directory or a configured search directory does not exist. | Restore the directory, or change the settings deliberately. |
+| `skill_source_missing` | A source directory or a configured search directory does not exist. Or a mandatory file names a source that the default skill directory does not hold. | Restore or install the source, or change the settings deliberately. |
+| `skill_directory_invalid` | The installation record is invalid, or an entry of the default skill directory is not a source. | Remove or repair the entry, or reinstall the package that installed it. |
 | `skill_source_changed` | A local source changed while Ravel copied it. | Keep the source quiet, then try again. |
 | `skill_mandatory_invalid` | A mandatory file is missing, unreadable, not a regular file or not UTF-8. | Restore the file as UTF-8 text, or change the reference. |
 | `skill_resource_invalid` | An entry that a snapshot cannot keep exactly. Examples are an absolute link, a link to a missing target, a link in a cycle and a link out of the source. A special file, an unreadable file and a name that is not exact UTF-8 or holds a control character also refuse. So do two names that the filesystem of the cache cannot keep apart, and a name whose spelling it changes. | Repair, rename or remove the named entry. |
@@ -745,6 +752,73 @@ refusal keeps its code and also reports the failure.
 A run that stops because of a signal such as KILL can leave a temporary
 directory. Remove it only when no Ravel run is active.
 
+#### Default skill directory
+
+Do you install skill sources with a package manager? Then Ravel can read
+them with no settings. A package, such as a Homebrew formula, puts its source
+in the default skill directory. Ravel reads that directory when the settings
+name no `sources`. That includes an absent settings file and a settings file
+without `skills`. `"sources": []` turns the default skill directory off.
+
+Ravel finds the directory through its installation record, the file
+`share/ravel/installation.json` below `PREFIX`. `PREFIX` is the parent of the
+directory that holds the canonical path of the Ravel executable. The record
+is a JSON object with exactly these members:
+
+| Member | Value |
+|---|---|
+| `schemaVersion` | The integer `1`. |
+| `skillDirectory` | The absolute UTF-8 path of the default skill directory. It has no empty segment, `.`, `..`, tilde, control character or separator at the end. |
+
+Each Homebrew formula of Ravel writes the record at installation. Its
+`skillDirectory` is `$(brew --prefix)/share/ravel/skills`, for example
+`/opt/homebrew/share/ravel/skills`. The keg-only `ravel@2` names the same
+directory as the unversioned `ravel`.
+
+The release archives and `task install` write no record, because only the
+installation knows its prefix. A build in `target` and a copied executable
+also have no record. Such an installation has no default skill directory.
+Its settings name the sources, or delivery is disabled.
+
+An absent record is valid. A record that is unreadable, not a regular file,
+not UTF-8 or not such an object refuses as `skill_directory_invalid`. A
+repeated member refuses the same way. Ravel reads no record when the settings
+name `sources`.
+
+Ravel lists the default skill directory at each resolution. An absent
+directory supplies no source and refuses nothing. The table gives the result
+of each entry:
+
+| Entry | Result |
+|---|---|
+| A name that starts with `.`, such as `.DS_Store` | Ravel ignores it. |
+| A directory that has a valid source ID as its name and holds `skills`, `craft` or both | A source. The entry name is its ID. |
+| A symbolic link whose chain ends at such a directory | A source, as above. |
+| A directory that holds neither `skills` nor `craft` | Refuses. |
+| A name that is not a valid source ID | Refuses. |
+| A regular file, or another object that is not a directory | Refuses. |
+| A link to a missing target, or a link in a cycle | Refuses. |
+
+Each refusal is `skill_directory_invalid`, status 3, and it names the entry.
+Remove the entry, or reinstall the package that installed it.
+`brew cleanup --prune-prefix` removes a Homebrew link to a missing target.
+
+The search directories of a default source are `skills` and `craft`, in that
+order, where each exists. Its source path is the path of the entry. Default
+sources follow the byte order of their IDs. A refusal about a default source
+names its entry path in place of a settings location.
+
+A mandatory file can name a default source by its ID. An ID that the
+directory does not hold refuses as `skill_source_missing`. The
+[JSON routing notice](#json-routing-notice) of a launch gives the directory as
+`skills.defaultDirectory`.
+
+An upgrade of a package can remove its source for a short time. A resolution
+in that interval delivers the other sources. A mandatory file in the absent
+source refuses as `skill_source_missing`. The default skill directory belongs
+to the installation, not to a `HOME`, so a separate `HOME` receives the same
+default sources.
+
 #### Bounds, deadline and cancellation
 
 Each resolution has fixed count and byte bounds. A value equal to a bound
@@ -755,9 +829,9 @@ directory or a mandatory file, or disables delivery to meet a bound.
 
 | Subject | Bound | `bound.name` |
 |---|---|---|
-| Configured sources | 16 | `skillSources` |
-| Configured search directories, in all sources together | 256 | `skillSearchDirectories` |
-| Configured mandatory files | 256 | `skillMandatoryFiles` |
+| Sources, configured or default | 16 | `skillSources` |
+| Search directories, in all sources together | 256 | `skillSearchDirectories` |
+| Mandatory files | 256 | `skillMandatoryFiles` |
 | One mandatory file | 65,536 bytes | `mandatoryFileBytes` |
 | One regular file of a source | 16,777,216 bytes (16 MiB) | `resourceBytes` |
 | The regular files of one source | 134,217,728 bytes (128 MiB) | `sourceBytes` |
@@ -766,7 +840,8 @@ directory or a mandatory file, or disables delivery to meet a bound.
 | The descriptor | 1,048,576 bytes | `descriptorBytes` |
 | The discovery instructions | 1,048,576 bytes | `preambleBytes` |
 
-Ravel checks the three counts of the settings before it copies a file. It
+Ravel checks the three counts before it copies a file, after it lists the
+default skill directory. It
 checks the other bounds during the copy, and it stops at the first entry or
 file that passes a bound. Then the value in the refusal starts with "at
 least", because Ravel did not count the rest of the source. Each source adds
@@ -1053,7 +1128,7 @@ after the supervision attempt. The tables below give each member.
 | `config` | The configuration script: `path`, the canonical path of its entry, `version`, the owner's `VERSION` string, and `modules`, the file measurements described below. |
 | `worker` | `path`, the re-executed binary, `version`, its package version, `buildId`, its build identity, and `rhaiVersion`, its Rhai version. Ravel checks the worker identity before evaluation. This is not code signing. |
 | `selectionMs` | The elapsed time of the evaluation of the configuration script, in milliseconds. |
-| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `sources`, `originalPrompt` and `prompt`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured`. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
+| `skills` | `null` with skill delivery disabled. Otherwise an object with `descriptorPath`, `resolutionMs`, `defaultDirectory`, `sources`, `originalPrompt` and `prompt`. `defaultDirectory` is the absolute default skill directory when it supplied the sources, otherwise `null`. Each source record holds `id`, `type`, `resourceDigest` and `disposition`, which is `captured`. `originalPrompt` and `prompt` each hold `bytes` and `sha256`. The member shows no prompt text, no skill text and no environment value. |
 | `context` | `null` when there is no delivered selection context. Otherwise, the report in the next table. It is never the session-result context. |
 | `bounds` | Objects named `selection`, `context`, `source`, `sources`, `message`, `diagnostics` and `harnessRuns`. Each has its field for the value with a unit (`ms`, `bytes`, `sources` or `runs`) and `from`. `from` gives `default`, `fixed`, `settings.json` or the flag that set the value. |
 | `configEnvironment` | An array of `{name, set}` grants. `set` is a boolean that shows whether the caller has the variable, never its value. Ravel does not add the [base variables](#variables-that-ravel-and-the-configuration-script-read) that `ravel::env` permits to this list. |
@@ -1385,7 +1460,7 @@ a JSON object. `end-session` reads neither the settings nor the configuration sc
 | `configEnv` | Optional array of environment-variable names. The default is no extra grants. Each name is nonempty UTF-8 without `=` and cannot match a reserved grant class. Flags add names. Ravel merges duplicates, and unset values stay absent. Grants permit `ravel::env` reads. They change no managed-process or harness-run environment. | [Set bounds and environment grants](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `harnesses` | Optional object of named programs for harness runs. Default: no entries. Each entry has the fields below. Final selections need no entry. | [Harness entries](04-write-a-configuration-script.md#run-a-harness-during-evaluation) |
 | `budgets` | Optional object with only `harnessRuns`. An empty object uses the default budget. | [Evaluation budgets](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
-| `skills` | Optional object with exactly `schemaVersion`, `sources`, `mandatory` and the optional `resolutionTimeoutMs`. Without it, skill delivery is disabled. The fields are below. | [`skills resolve`](#skills-resolve) |
+| `skills` | Optional object with exactly `schemaVersion` and the optional `sources`, `mandatory` and `resolutionTimeoutMs`. Without it, or without `sources`, the [default skill directory](#default-skill-directory) supplies the sources. The fields are below. | [`skills resolve`](#skills-resolve) |
 
 A harness name contains 1–64 lowercase ASCII letters, digits or dashes.
 The first character is a letter or digit. Ravel refuses unknown nested fields.
@@ -1396,12 +1471,12 @@ The first character is a letter or digit. Ravel refuses unknown nested fields.
 | `harnesses.NAME.capabilities` | Optional array of nonempty strings. Default: empty. Discovery repeats these owner labels without interpretation. |
 | `budgets.harnessRuns` | Optional integer from 0 to 16 inclusive. Default: 0. Only settings can raise it. Each launched harness run consumes one. |
 | `skills.schemaVersion` | Required. The integer `1`. |
-| `skills.sources` | Required array of source records, in the order of presentation. An empty array and an empty `mandatory` array disable delivery. |
+| `skills.sources` | Optional array of source records, in the order of presentation. With it, the array names exactly the sources, and Ravel reads no default skill directory. `[]` with no mandatory file disables delivery. |
 | `skills.sources[N].id` | Required unique token of 1 to 64 lowercase ASCII letters and digits. Single hyphens separate groups, and the first character is a letter. |
 | `skills.sources[N].type` | Required. `local`, the only source type. Ravel reads it before the other fields of the record. A missing value or another value refuses at this location. |
 | `skills.sources[N].path` | Required. An absolute UTF-8 directory path. Ravel expands no tilde and no environment variable. |
 | `skills.sources[N].roots` | Required nonempty array of search directories, relative to the source. `.` is the source itself. A repeated root refuses. |
-| `skills.mandatory` | Required array of records with exactly `source` and `path`, in the order to read them. `source` names a configured source ID. `path` is a file, relative to that source, and `.` is not a file. A repeated reference refuses. |
+| `skills.mandatory` | Optional array of records with exactly `source` and `path`, in the order to read them. `source` names the ID of a source in `sources`, or without `sources` a source of the default skill directory. `path` is a file, relative to that source, and `.` is not a file. A repeated reference refuses. |
 | `skills.resolutionTimeoutMs` | Optional integer from 1,000 to 3,600,000. Default: 120,000. It bounds one complete resolution, and a breach refuses as `skill_resolution_timeout`, status 124. No flag changes it. |
 
 A relative path in `skills` is normalised. It has no absolute start, no empty
@@ -1415,7 +1490,8 @@ These problems report `settings_invalid`, status 2:
 - invalid JSON, or a document that is not an object
 - a `configEnv` that is not an array of strings
 - a malformed `harnesses` entry or `budgets` object, also an invalid `harnessRuns` value
-- a malformed `skills` object, an unknown field in it, or a mandatory record that names an unknown source
+- a malformed `skills` object or an unknown field in it
+- with `sources`, a mandatory record that names a source outside `sources`
 - a source `type` other than `local`, such as `git`. The remedy tells you to make any checkout of a repository with a tool outside Ravel, and to name its directory in a `local` record
 - a repeated member name in any object of the file, for every key
 
@@ -1729,7 +1805,8 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 
 | Code | Stage | Status | Meaning and remedy | Taught in |
 |---|---|---|---|---|
-| `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Restore it, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
+| `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Or a mandatory file names a source that the default skill directory does not hold. Restore or install the source, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
+| `skill_directory_invalid` | `skills` | 3 | The installation record is invalid, or an entry of the default skill directory is not a source. Remove or repair the entry, or reinstall the package that installed it. | [Default skill directory](#default-skill-directory) |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
 | `skill_access_unavailable` | `skills` | 3 | A source overlaps a protected path: the configuration, the settings file or the directory of the configuration entry. The skill cache and the result channel of an enclosing session are also protected. Move the source. | [Skill delivery at launch](#skill-delivery-at-launch) |
@@ -2265,6 +2342,7 @@ See [install Ravel](03-a-complete-session.md#install-ravel-and-check-its-version
 | `share/ravel/examples/sample.rhai` | Editable choice script, with an import of `static.rhai`. |
 | `share/ravel/examples/llm.rhai` | Editable model-assisted script, with an import of `static.rhai`. |
 | `share/ravel/notices/THIRD-PARTY-NOTICES.md` | The licence notices of the Rust dependencies inside `bin/ravel`. |
+| `share/ravel/installation.json` | Only in a Homebrew installation. The installation record, which names the [default skill directory](#default-skill-directory). |
 
 The installation, the release archive and the Homebrew formula carry the same notice file.
 The archive carries the project `README.md` and `LICENSE` at its root.

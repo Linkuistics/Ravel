@@ -25,6 +25,7 @@ run_check formatting cargo fmt --all --check
 run_check scripts shellcheck scripts/*.sh
 run_check book-bun-integrity bash scripts/book-bun.test.sh
 run_check harness-smoke-fakes bash scripts/harness-smoke.test.sh
+run_check installed-record bash scripts/installed-record.test.sh
 run_check lint cargo clippy --locked --workspace --all-targets
 run_check terminal-recovery bash scripts/terminal-recovery-check.sh
 printf 'check: complete log: %s\n' "$log"

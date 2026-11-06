@@ -401,6 +401,9 @@ tasks:
           brew install linkuistics/taps/ravel
         fi
       - brew test ravel
+      # The record names the shared skill directory, not the keg
+      # (docs/specs/skill-discovery.md, "The installation record").
+      - bash scripts/installed-record.sh "$(brew --prefix ravel)" "$(brew --prefix)/share/ravel/skills"
       - |
         tag="$(git describe --tags --exact-match HEAD)"
         version="${tag#v}"
