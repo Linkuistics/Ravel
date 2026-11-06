@@ -8,6 +8,11 @@
       "description": "The Ravel CLI resolves sources before the Rhai worker launches."
     },
     {
+      "id": "default-directory",
+      "title": "Default skill directory",
+      "description": "Where the sources come from when the settings name no sources, and how Homebrew fills that directory."
+    },
+    {
       "id": "frames",
       "title": "Prompt bounds and frames",
       "description": "Where the prepared prompt travels, and which bound applies at each step."
@@ -24,17 +29,26 @@
     }
   ],
   "discussion": {
-    "title": "Withdraw confinement from Ravel 2.0.0",
-    "status": "Human decision of 2026-11-03 recorded. The specification states the 2.0.0 contract, and the removal from the code is ahead",
-    "summary": "Ravel 2.0.0 applies no operating-system confinement. start-session refuses --confine and --runtime-read as confinement_withdrawn, stage cli, exit 2. The managed process and each harness run read the retained resources at their absolute paths, and the harness sandbox that the configuration script selects is their only boundary. The source overlap refusal and the read-only snapshot modes stay. The read grants, the protected configuration reads, the writable overlap check and the held tree identities go.",
+    "title": "Read the default skill directory without settings",
+    "status": "Proposed by ravel-default-skill-directory-k218 on 2026-11-06. It applies the human's choice of a Ravel default in 2.0.0. Implementation is ahead",
+    "summary": "When the settings name no sources, Ravel reads the default skill directory that its installation record names. Ravel's Homebrew formula writes that record with HOMEBREW_PREFIX/share/ravel/skills. Each entry is one source, with the roots skills and craft that exist. Explicit sources replace the default, and \"sources\": [] turns it off. The default belongs to the installation, so a separate HOME does not isolate it.",
     "diagramIds": [
-      "permissions",
+      "source-set",
+      "homebrew-directory",
       "preparation"
     ],
     "updatedDiagrams": [
       {
-        "id": "permissions",
-        "summary": "Replaced the read-only grants with absolute paths, and added the harness sandbox as the only boundary of the managed harness and each harness run. The protected paths now refuse an overlapping source before capture, with the skill cache among them."
+        "id": "source-set",
+        "summary": "New view: explicit sources replace the default, the record names the directory, and each malformed record or entry refuses before capture."
+      },
+      {
+        "id": "homebrew-directory",
+        "summary": "New view: the formula writes the record, Homebrew links each entry, and an upgrade leaves an entry absent while it installs the new keg."
+      },
+      {
+        "id": "preparation",
+        "summary": "The settings box now names the default skill directory as the source set when the settings name no sources."
       }
     ]
   },
@@ -44,7 +58,21 @@
       "group": "preparation",
       "title": "Prepare before the worker launches",
       "source": "preparation.mmd",
-      "caption": "No configured sources means no preamble and no cache work. A source failure refuses at stage skills, before the worker launches. The script puts request.prompt into the harness arguments and reads request.originalPrompt for task analysis. Mandatory reads precede caller actions, and callers qualify first accordingly."
+      "caption": "An empty source set means no preamble and no cache work. Without sources in the settings, the default skill directory supplies the set. A source failure refuses at stage skills, before the worker launches. The script puts request.prompt into the harness arguments and reads request.originalPrompt for task analysis. Mandatory reads precede caller actions, and callers qualify first accordingly."
+    },
+    {
+      "id": "homebrew-directory",
+      "group": "default-directory",
+      "title": "Homebrew fills the directory",
+      "source": "homebrew-directory.mmd",
+      "caption": "Ravel's formula writes the record with the prefix of that Homebrew installation, so a keg-only ravel@2, a Linux prefix and a Cellar inside the repository all name the right directory. Homebrew unlinks the earlier keg before it installs the new one. A launch in that interval delivers the other sources and refuses nothing, and a rerun captures the new keg."
+    },
+    {
+      "id": "source-set",
+      "group": "default-directory",
+      "title": "Choose the source set",
+      "source": "source-set.mmd",
+      "caption": "Explicit sources replace the default, so \"sources\": [] turns it off. Without sources, the installation record beside the canonical executable names the default skill directory, and each entry is one source with the roots skills and craft that exist. An absent record or directory gives an empty set and refuses nothing. A malformed record or entry refuses before capture. A mandatory reference to an absent default source refuses as skill_source_missing."
     },
     {
       "id": "frames",

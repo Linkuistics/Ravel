@@ -1,9 +1,12 @@
 # Skill sources are local directories
 
-Ravel reads each skill source from a local directory that the owner
-configures. It does not fetch, install or update a source. Skill delivery runs
+Ravel reads each skill source from a local directory. The owner configures
+that directory, or a package installs it in the default skill directory. Ravel
+does not fetch, install or update a source. Skill delivery runs
 no VCS command and makes no network request. A tool outside Ravel puts each
-checkout in place and chooses its revision. The
+checkout in place and chooses its revision.
+
+The
 [skill discovery specification](../specs/skill-discovery.md#settings) owns the
 settings record and the refusal of every other source type. Its section
 [sources outside Ravel](../specs/skill-discovery.md#sources-outside-ravel)

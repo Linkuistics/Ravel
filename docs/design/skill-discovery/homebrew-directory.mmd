@@ -1,0 +1,17 @@
+sequenceDiagram
+  participant F as Ravel formula
+  participant B as brew
+  participant K as Skill formula keg
+  participant D as Default skill directory
+  participant R as Ravel launch
+  F->>F: Write share/ravel/installation.json<br/>skillDirectory = HOMEBREW_PREFIX/share/ravel/skills
+  B->>K: Install share/ravel/skills/ID in the keg
+  B->>D: Link the entry ID to the keg
+  R->>D: Read the record, list the entries
+  R->>K: Capture ID through the link<br/>originPath names the keg
+  Note over B,D: brew upgrade of the skill formula
+  B->>D: Unlink the earlier keg: ID absent
+  R->>D: List the entries: ID absent, no refusal<br/>A mandatory file in ID refuses
+  B->>K: Install the new keg
+  B->>D: Link the new keg: ID present again
+  R->>K: A rerun captures the new keg

@@ -23,6 +23,10 @@ records the reason and the rejected alternatives.
 | Unversioned | `ravel.rb`, class `Ravel` | Its selected prefix and `bin/ravel`. |
 | Major 2 | `ravel@2.rb`, class `RavelAT2`, `keg_only :versioned_formula` | Versioned prefix and `bin/ravel`, never the default PATH command. |
 
+Each formula writes the
+[installation record](skill-discovery.md#the-installation-record) into its keg
+at installation, and its installed verification reads that record.
+
 Follow Homebrew's [versioned-formula convention](https://docs.brew.sh/Versions).
 The versioned install writes no competing shared-prefix command and changes
 neither unversioned formula nor installation. Its formula test uses the real

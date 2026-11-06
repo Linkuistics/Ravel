@@ -1,0 +1,34 @@
+flowchart TD
+  start["Start here: a launch or skills resolve<br/>reads the settings"]:::start
+  home{"Absolute HOME?"}
+  sources{"skills.sources<br/>present?"}
+  configured["Source set: exactly<br/>the configured sources<br/>No record read"]
+  record{"Installation record<br/>beside the canonical<br/>executable?"}
+  dir{"Default skill<br/>directory exists?"}
+  list["List the entries<br/>Ignore dot names"]
+  defaults["Source set: each entry<br/>in byte order of IDs<br/>Roots: skills, craft"]
+  invalid["skill_directory_invalid<br/>stage skills, exit 3<br/>No worker"]
+  empty{"Source set and<br/>mandatory both empty?"}
+  disabled["Delivery disabled<br/>No cache work<br/>No preamble"]
+  mandatory{"Each mandatory ID<br/>in the source set?"}
+  missing["settings_invalid with sources<br/>skill_source_missing without"]
+  capture["Capture and publish<br/>as any local source"]
+  start -->|1| home
+  home -->|"2. yes"| sources
+  home -.->|no| disabled
+  sources -->|"3. yes"| configured
+  sources -->|"3. no"| record
+  record -->|"4. valid"| dir
+  record -.->|"absent: empty set"| empty
+  record -.->|malformed| invalid
+  dir -->|"5. yes"| list
+  dir -.->|"absent: empty set"| empty
+  list -->|"6. every entry valid"| defaults
+  list -.->|"bad name, file,<br/>dangling link, no root"| invalid
+  configured -->|7| empty
+  defaults -->|7| empty
+  empty -.->|yes| disabled
+  empty -->|"8. no"| mandatory
+  mandatory -.->|no| missing
+  mandatory -->|"9. yes"| capture
+  classDef start fill:#173451,color:#fff,stroke:#102a43,font-weight:bold
