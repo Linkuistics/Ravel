@@ -995,6 +995,50 @@ Chapters 5, 6 and 11 of the book now state optional `sources` and
 `skill_directory_invalid` and `defaultDirectory`. Chapter 11 still describes
 earlier formula checks in other rows. The rollout's book work owns them.
 
+## Packaging record of a default source
+
+Grove's `ravel-packaging-guidance-k301` added
+[packaging a default source](specs/skill-discovery.md#packaging-a-default-source)
+on 2026-11-11. The base is `ff14cba826b0`. Nobody pushed the line. The
+change is documentation only. No product code, test or formula of Ravel
+changed.
+
+Grove's `skill-keg-link-layout-k274` found the defect and measured the
+remedy on 2026-11-10. Grove commit `7e3673f3c83` holds that design and its
+experiment. Grove's review `skill-keg-link-layout-k291` repeated the source
+reading, and its finding L7 assigned this change to Ravel.
+
+| Subject | Observation |
+| --- | --- |
+| Homebrew | `7.0.12-221-gbc63375`. `Keg#link_dir` and `Keg#resolve_any_conflicts` matched [`keg.rb` at `3ccfa1d07143`](https://github.com/Homebrew/brew/blob/3ccfa1d07143/Library/Homebrew/keg.rb) byte for byte |
+| `Keg#link_dir` | It tests `src.symlink? \|\| src.file?` before `src.directory?`. `Pathname#find` does not descend into a symlink. A source alias is therefore one entry under the `:link` and the `:mkpath` strategies |
+| `Keg#resolve_any_conflicts` | It replaces a directory link into another keg with a real directory. It links the displaced subtree again with `:mkpath` |
+| Ravel | The accepted 2.0 build, SHA-256 `3a9a9129573e4d827a317f6b793ba990044080a31a7b667b64cc153a2f974a0b`, resolved each case through a clone with a fixture installation record |
+
+The experiment called Homebrew's actual `Keg#link` and `Keg#unlink` in a
+private prefix with two kegs. It ran each case in both orders, with the same
+results:
+
+| Fixture operation | Result |
+| --- | --- |
+| A real source directory under `share`, linked alone | Resolves with its reference digest |
+| A second keg of that layout linked | The first source expands into file links. `skill_resource_invalid` |
+| Both sources installed as payloads behind source aliases | Both entries stay symlinks. Both reference digests stay |
+| An upgrade of one aliased keg, then removal of its old keg | The entry reaches the replacement. Both digests stay |
+
+The rule leaves the entry table and the source boundary unchanged. A source
+alias is a link whose chain ends at a source, which the resolver already
+admits.
+
+| Check of this change | Result |
+| --- | --- |
+| `task check` | Exit 0. 708 of 708 run tests passed, and 48 were skipped |
+| Book | `docs:book:build` passed with no warning. `docs:excerpts` passed 12 excerpts. Strict `ste.sh` passed `CONTEXT.md` and chapter 6. `docs:breaks` passed chapter 6 |
+| Prose | The technical-communication checker reports no hard finding in the specification, this record or the views index. Chapter 6 keeps its 3 earlier findings, and this change adds none |
+| Links | 400 local links and anchors in the changed documents resolve. A planted anchor fails the check |
+| View | The viewer renders the Homebrew directory view, its caption and the current discussion in a browser. The manifest parses, and the anchor `#diagram-homebrew-directory` is unchanged |
+| Earlier statement | A search of the line finds neither "put their sources" nor the keg path that the old view installed |
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and

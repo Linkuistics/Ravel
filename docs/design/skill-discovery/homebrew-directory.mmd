@@ -5,13 +5,15 @@ sequenceDiagram
   participant D as Default skill directory
   participant R as Ravel launch
   F->>F: Write share/ravel/installation.json<br/>skillDirectory = HOMEBREW_PREFIX/share/ravel/skills
-  B->>K: Install share/ravel/skills/ID in the keg
-  B->>D: Link the entry ID to the keg
+  B->>K: Install the payload libexec/skill-sources/ID
+  B->>K: Install the source alias share/ravel/skills/ID<br/>a relative directory symlink to the payload
+  B->>D: Link the entry ID to the alias in the keg
+  Note over B,D: Another keg links into the directory<br/>The alias stays one entry, and brew never enters the payload
   R->>D: Read the record, list the entries
-  R->>K: Capture ID through the link<br/>originPath names the keg
+  R->>K: Capture ID through the entry and the alias<br/>originPath names the payload
   Note over B,D: brew upgrade of the skill formula
   B->>D: Unlink the earlier keg: ID absent
   R->>D: List the entries: ID absent, no refusal<br/>A mandatory file in ID refuses
   B->>K: Install the new keg
   B->>D: Link the new keg: ID present again
-  R->>K: A rerun captures the new keg
+  R->>K: A rerun captures the new payload

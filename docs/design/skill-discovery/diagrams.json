@@ -29,26 +29,17 @@
     }
   ],
   "discussion": {
-    "title": "Read the default skill directory without settings",
-    "status": "Proposed by ravel-default-skill-directory-k218 on 2026-11-06. It applies the human's choice of a Ravel default in 2.0.0. Implementation is ahead",
-    "summary": "When the settings name no sources, Ravel reads the default skill directory that its installation record names. Ravel's Homebrew formula writes that record with HOMEBREW_PREFIX/share/ravel/skills. Each entry is one source, with the roots skills and craft that exist. Explicit sources replace the default, and \"sources\": [] turns it off. The default belongs to the installation, so a separate HOME does not isolate it.",
+    "title": "Keep each default source intact",
+    "status": "Added by Grove's ravel-packaging-guidance-k301 on 2026-11-11, before the 2.0.0 cut. The rule binds packages. Ravel's resolver does not change",
+    "summary": "A package installs each source as a private payload and exposes it through a relative directory symlink, the source alias. With Homebrew, the payload is libexec/skill-sources/ID in the keg and the alias is share/ravel/skills/ID. A real source directory under share can expand into links to its individual files when a later keg links into the same directory. Those links leave the source boundary, and Ravel refuses the whole resolution. Homebrew links an alias as one entry and never enters the payload.",
     "diagramIds": [
-      "source-set",
       "homebrew-directory",
-      "preparation"
+      "source-set"
     ],
     "updatedDiagrams": [
       {
-        "id": "source-set",
-        "summary": "New view: explicit sources replace the default, the record names the directory, and each malformed record or entry refuses before capture."
-      },
-      {
         "id": "homebrew-directory",
-        "summary": "New view: the formula writes the record, Homebrew links each entry, and an upgrade leaves an entry absent while it installs the new keg."
-      },
-      {
-        "id": "preparation",
-        "summary": "The settings box now names the default skill directory as the source set when the settings name no sources."
+        "summary": "The keg now holds a private payload and a source alias. The entry links to the alias, another keg leaves it one entry, and originPath names the payload."
       }
     ]
   },
@@ -65,7 +56,7 @@
       "group": "default-directory",
       "title": "Homebrew fills the directory",
       "source": "homebrew-directory.mmd",
-      "caption": "Ravel's formula writes the record with the prefix of that Homebrew installation, so a keg-only ravel@2, a Linux prefix and a Cellar inside the repository all name the right directory. Homebrew unlinks the earlier keg before it installs the new one. A launch in that interval delivers the other sources and refuses nothing, and a rerun captures the new keg."
+      "caption": "Ravel's formula writes the record with the prefix of that Homebrew installation, so a keg-only ravel@2, a Linux prefix and a Cellar inside the repository all name the right directory. Each skill formula installs a private payload and a source alias, so conflict repair for another keg leaves the source intact. Homebrew unlinks the earlier keg before it installs the new one. A launch in that interval delivers the other sources and refuses nothing, and a rerun captures the new keg."
     },
     {
       "id": "source-set",

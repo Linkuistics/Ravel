@@ -135,15 +135,20 @@ _Avoid_: confinement, for anything that Ravel 2.0.0 does
 ## Skill delivery
 
 **Skill source**: A local directory that the **Owner** names in the
-**Settings**, or that a package installs in the **Default skill directory**.
+**Settings**, or that a package exposes in the **Default skill directory**.
 It supplies skill guidance and the resources of that guidance. Ravel reads it
 and never fetches, installs or updates it. A tool outside Ravel puts it in
 place, for example as a checkout of a repository or as a Homebrew keg.
 
 **Default skill directory**: The directory whose entries are the **Skill
 sources** when the **Settings** name no `sources`. Each entry name is a source
-ID. Homebrew formulae link their sources into it. It belongs to one Ravel
-installation, not to a `HOME`.
+ID. Homebrew formulae link their **Source aliases** into it. It belongs to one
+Ravel installation, not to a `HOME`.
+
+**Source alias**: A relative directory symlink that a package installs in
+place of a **Skill source**. It names a private copy of the source in the same
+package. A package manager that merges directories then never expands the
+source into links to its files.
 
 **Installation record**: The file `share/ravel/installation.json` in the
 prefix of one Ravel installation. It names the **Default skill directory** of

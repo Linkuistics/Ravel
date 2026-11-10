@@ -755,8 +755,8 @@ directory. Remove it only when no Ravel run is active.
 #### Default skill directory
 
 Do you install skill sources with a package manager? Then Ravel can read
-them with no settings. A package, such as a Homebrew formula, puts its source
-in the default skill directory. Ravel reads that directory when the settings
+them with no settings. A package, such as a Homebrew formula, exposes its
+source in the default skill directory. Ravel reads that directory when the settings
 name no `sources`. That includes an absent settings file and a settings file
 without `skills`. `"sources": []` turns the default skill directory off.
 
@@ -818,6 +818,22 @@ in that interval delivers the other sources. A mandatory file in the absent
 source refuses as `skill_source_missing`. The default skill directory belongs
 to the installation, not to a `HOME`, so a separate `HOME` receives the same
 default sources.
+
+A package keeps each source intact. It installs the source as a private copy
+and adds a relative directory symlink to that copy. A Homebrew formula uses
+these paths in its keg:
+
+| Path in the keg | Content |
+|---|---|
+| `libexec/skill-sources/ID/` | The private copy of the source, with its executable bits and its links. |
+| `share/ravel/skills/ID` | The relative directory symlink `../../../libexec/skill-sources/ID`. |
+
+Homebrew links the symlink into the default skill directory as one entry. Do
+not install a real source directory under `share/ravel/skills`. When another
+keg links into the same directory, Homebrew can replace that source with links
+to its individual files. Those links go out of the source, so each resolution
+refuses as `skill_resource_invalid`. The sources of every other package then
+fail too.
 
 #### Bounds, deadline and cancellation
 

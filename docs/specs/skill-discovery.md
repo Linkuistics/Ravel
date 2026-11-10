@@ -251,10 +251,13 @@ owner's guidance.
 A package manager can be unable to write into `HOME`. Homebrew is the case,
 because its sandbox denies those writes. A package can still install skill
 sources beside Ravel. The **default skill directory** is the one directory
-where such packages put their sources. Ravel reads it when the settings name no
-`sources`.
+where such packages expose their sources. Ravel reads it when the settings name
+no `sources`.
 [Installed skill sources are the default](../adr/installed-skill-sources-are-the-default.md)
 records why.
+
+Each package keeps its sources intact, as
+[packaging a default source](#packaging-a-default-source) states.
 
 ### The installation record
 
@@ -326,6 +329,57 @@ Default sources follow the byte order of their IDs, in the descriptor and in
 the preamble. That order chooses no skill. The [bounds](#bounds) count the
 default sources and their roots. A refusal about a default source names its
 entry path in place of a settings location.
+
+### Packaging a default source
+
+A package installs each source as a private payload. It exposes the payload
+through a relative directory symlink, the **source alias**. The default skill
+directory then holds a link to the alias, not a copy of the source. A Homebrew
+formula uses this layout in its keg:
+
+| Path in the keg | Content |
+| --- | --- |
+| `libexec/skill-sources/ID/` | The payload: the source directory, with its executable bits and its links |
+| `share/ravel/skills/ID` | The source alias: the relative directory symlink `../../../libexec/skill-sources/ID` |
+
+Homebrew links the alias into `HOMEBREW_PREFIX/share/ravel/skills/ID`. That
+entry is a link whose chain ends at a source, a row of the entry table.
+Capture canonicalises the source root, so `originPath` names the payload in
+the versioned keg.
+
+A real source directory under `share` does not stay intact. Homebrew first
+links a directory that one keg holds as a single directory link. A second
+keg can link into the same directory. `Keg#resolve_any_conflicts` then
+replaces the link with a real directory. It links the displaced subtree again
+with the `:mkpath` strategy, which descends into each real directory.
+
+The source of the first keg thus becomes a tree of links to its individual
+files. Each such link leaves the source boundary, so Ravel refuses the whole
+resolution as `skill_resource_invalid`. One such package therefore blocks the
+sources of every other package.
+
+`Keg#link_dir` handles a symlink as a file, even when the symlink names a
+directory. Homebrew therefore links each source alias as one entry under both
+strategies, and it never descends into a payload. Both methods are in
+[`keg.rb` at `3ccfa1d07143`](https://github.com/Homebrew/brew/blob/3ccfa1d07143/Library/Homebrew/keg.rb).
+The [packaging record](../skill-discovery-design-evidence.md#packaging-record-of-a-default-source)
+gives the measurement on the accepted build.
+
+- Homebrew's cleaner prunes nothing in `libexec`. It sets file modes only
+  under `bin`, `sbin` and `lib`. A payload therefore keeps its files and their
+  modes. A dangling alias is an installation defect, and its entry refuses.
+- Two formulae that install one source ID conflict at that entry. Homebrew
+  then leaves the whole later keg unlinked, with its other sources and its
+  executables. The owner resolves the ownership before the next launch. An
+  overwrite that conceals the duplicate is not a remedy.
+- The `examples`, `notices` and `installation.json` of Ravel's own formula are
+  in `share/ravel`, outside the default skill directory. They are not sources
+  and need no alias.
+- Another package manager follows the same rule when it merges the
+  directories of several packages.
+
+This rule binds packages, not Ravel. The entry table and the source boundary
+do not change. Ravel does not inspect how a package installed an entry.
 
 ### Changes under running sessions
 
@@ -488,8 +542,9 @@ request, so it needs no Git executable and no network.
 records why.
 
 A tool outside Ravel puts each source directory in place and chooses its
-contents. A package manager is such a tool. A Homebrew formula puts its sources
-in the [default skill directory](#default-skill-directory).
+contents. A package manager is such a tool. A Homebrew formula exposes its
+sources in the [default skill directory](#default-skill-directory) through
+[source aliases](#packaging-a-default-source).
 
 A checkout of a Git or jj repository is an ordinary local source.
 Ravel captures its current files, with uncommitted changes, and leaves out the
