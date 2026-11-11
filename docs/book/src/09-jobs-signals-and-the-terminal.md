@@ -204,6 +204,13 @@ and an `ESRCH` absence check. The report alone never confirms cleanup.
 Ravel writes retained reports as `ravel:` lines on standard error, or in
 `operationReports` with `--json`.
 
+The same refusal can occur before Ravel observes the exit. The result's TERM
+can reach the group while its leader is inside its exit teardown. The leader's
+own PID still accepts the signal, but `waitid` does not report the exit yet.
+Ravel therefore continues to watch after a group stop answers `EPERM`. The
+report then waits for the same three checks. A refused stop to the direct
+child, or another error, ends the watch at once.
+
 If the group still answers the query with success or `EPERM` after the confirmation wait, Ravel reports it and
 returns no result to the caller. A query error also prevents success.
 On an observation or reap error, Ravel attempts bounded cleanup and reports

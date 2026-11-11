@@ -1039,6 +1039,114 @@ admits.
 | View | The viewer renders the Homebrew directory view, its caption and the current discussion in a browser. The manifest parses, and the anchor `#diagram-homebrew-directory` is unchanged |
 | Earlier statement | A search of the line finds neither "put their sources" nor the keg path that the old view installed |
 
+## Stop record of an exiting group
+
+Grove's `ravel-stop-eperm-k302` diagnosed and repaired a stop failure of
+the accepted 2.0 build on 2026-11-11. The base is `5e778ef86b8d`. Nobody
+pushed the line.
+
+Grove's `core-candidate-restaging-k300` ran the staging case `stale-copy`
+on Codex 0.167.0. The agent sent its result. Ravel then exited 5 with
+`supervision_failed` and this message:
+
+```text
+required job stop failed; stop attempt 1 target -32130 signal 15:
+Operation not permitted (os error 1); stop attempt 3 target -32130
+signal 9: Operation not permitted (os error 1); and reaped
+```
+
+### Cause
+
+The result's TERM met the child's own exit. `watch` checks for an exit,
+then sends the escalation TERM to the group and to the child. While the
+leader is inside its exit teardown, Darwin finds no member that it can
+signal, so the group signal fails with `EPERM`. `waitid` does not report
+the exit yet, and the leader's own PID still accepts the signal. Before the
+repair, `watch` ended supervision at the first stop report. The approved
+rule for an `EPERM` report applied only after the observed exit.
+
+A C probe measured the two facts on macOS 27.0.1 (26A434):
+
+| Probe case | Result |
+| --- | --- |
+| A zombie-only group, before the reap | Signal 0, TERM and KILL to the group failed with `EPERM`. TERM to the PID succeeded. Signal 0 to the group failed with `ESRCH` after the reap |
+| A leader exits after it touched 64 MB, three runs | The group TERM failed with `EPERM` from 0.03 to 0.07 ms after the exit. `waitid` reported the exit 0.9 to 2.7 ms after it. TERM to the PID succeeded |
+| A leader exits after it touched 2 GB, three runs | The same, with the exit visible 11 to 26 ms after it |
+
+The process of `stale-copy-codex-2` was Codex itself, because the trial's
+wrapper `trial-launch.sh` executes the harness in its place. Codex exits
+after its last turn, about when the 2-second grace ends.
+
+Ravel 1.1.0 has the same check in `watch`. The published driver can
+therefore end a real session this way. The result is lost, and the Grove
+loop stops with the session's leaf in its committed state.
+
+### Repair
+
+`watch` keeps a group-target `EPERM` report and continues to watch. The
+report goes with whatever ends the watch. After the observed exit, the
+existing rule keeps it only beside the actual reap, terminal recovery and
+an `ESRCH` absence check. A refused stop to the direct child, or another
+error, still ends the watch at once. The bounded escalation is unchanged:
+a child that does not exit reaches KILL and the post-KILL deadline.
+[The result-job completion specification](specs/result-job-completion.md)
+states the rule, and chapter 9 of the book explains it.
+
+The fake process of `wait_events.rs` gained stop reports. These tests cover
+the change:
+
+| Test | Before the repair | After the repair |
+| --- | --- | --- |
+| `a_group_eperm_at_escalation_waits_for_the_exit_and_confirmed_absence` | Failed with the trace of the staging failure | Passed. The three reports stay in order |
+| `a_group_eperm_at_escalation_fails_beside_a_present_group` | Failed | Passed. The session fails with every report |
+| `other_stop_refusals_at_escalation_fail_at_once` | Passed | Passed |
+| `a_child_refusal_beside_a_group_eperm_fails_at_once` | Not run | Passed |
+| `a_kept_group_report_goes_with_each_later_failure` | Not run | Passed. A fatal KILL refusal, a failed observation and the post-KILL deadline each carry the kept report |
+
+One fresh-context review read the change against the specification. It
+found no path to success without the three confirmations, and no lost
+report. Its two actionable findings were gaps in the tests, and the last two
+tests close them. Five mutations of `run.rs` each failed at least one test:
+
+| Mutation | Tests that failed |
+| --- | --- |
+| `all` in place of `any` in the fatal check | 7 |
+| No kept report at the post-KILL deadline | 1 |
+| No kept report at a failed observation | 1 |
+| No kept report at a fatal refusal | 3 |
+| Every stop report fatal, as before the repair | 3 |
+
+The rule has one accepted limit. A group can also answer `EPERM` while the
+child runs. The child must first leave its group, and only members that
+Ravel may not signal stay in it. Watching then continues, and the child still
+receives each stop directly.
+
+If those members exit before the absence check, the session succeeds. A descendant
+in the child's new group stays outside the check. A child that calls
+`setsid` and exits already escapes the check in the same way.
+
+### Reproduction through the command
+
+A managed program sent its result, touched 2 GB and exited at a set time
+after it began. The session polls at 500-millisecond intervals, so an exit
+near 2,500 ms puts the teardown just before the TERM. The sweep ran 13
+offsets from 2,100 to 3,500 ms with each build. The HOME held only the
+off value of the skill settings.
+
+| Build | Trials whose group TERM failed with `EPERM` | Outcome of those trials | Controls at 2,100 and 3,500 ms |
+| --- | --- | --- | --- |
+| Accepted, SHA-256 `3a9a9129573e…` | 5, including one single trial at 2,500 ms | Each exited 5 with `supervision_failed` and the staging message | Exit 0 with the result |
+| Repaired, SHA-256 `503759e5d12c…` | 7, from 2,485 to 2,515 ms | Each exited 0 with the result. The TERM report stayed as a `ravel:` line | Exit 0 with the result |
+
+The digests of both builds, the program, the configuration script and the
+sweep script did not change during the runs.
+
+| Check of this change | Result |
+| --- | --- |
+| `task check` | Exit 0. 713 of 713 run tests passed, and 48 were skipped |
+| `task test:native-entry` | 35 front, 22 runner and 2 `start_check` tests passed |
+| Book | `docs:book:build` passed with no warning. `docs:excerpts` passed 12 excerpts |
+
 ## Checks of these documents
 
 The technical-communication checker reports no hard finding in the new and

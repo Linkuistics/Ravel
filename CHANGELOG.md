@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Keep watching after a group stop answers `EPERM`. On macOS, the TERM of a
+  sent result can meet the child's own exit. During the exit teardown, the
+  group refuses the signal, but the exit is not visible yet. Ravel 1.1 then
+  ended the session as `supervision_failed`, exit 5, without the result. The
+  report now waits for the reap, terminal recovery and confirmed group
+  absence, as a report after the exit does. A refused stop to the direct
+  child, or another error, still fails at once.
 - Read the default skill directory. When the settings name no
   `skills.sources`, Ravel reads the installation record
   `share/ravel/installation.json` two levels above its canonical executable.

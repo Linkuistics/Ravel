@@ -1698,6 +1698,19 @@ struct StopReport {
     error: std::io::Error,
 }
 
+impl StopReport {
+    /// Whether the report can come from a group whose leader is exiting.
+    ///
+    /// Darwin refuses a group signal with EPERM once no member counts as
+    /// signallable. A leader inside its exit teardown no longer counts, and
+    /// `waitid` does not report its exit yet. The leader's own PID still takes
+    /// the signal, so only a group target qualifies. Measured on macOS 27.0.1
+    /// for ravel-stop-eperm-k302: the window lasted 1 to 26 ms.
+    fn exit_race(&self) -> bool {
+        self.target < 0 && self.error.raw_os_error() == Some(libc::EPERM)
+    }
+}
+
 impl std::fmt::Display for StopReport {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -2187,6 +2200,10 @@ fn watch(
     let mut interrupted: Option<i32> = None;
     let mut escalated = false;
     let mut stopped = false;
+    // Group reports that the exit race explains. Watching continues, and the
+    // reports go with whatever ends the watch: the rule after the observed
+    // exit retains them only beside the reap, recovery and confirmed absence.
+    let mut retained: Vec<StopReport> = Vec::new();
 
     loop {
         if let Watch::Killed(by) = watch
@@ -2194,7 +2211,8 @@ fn watch(
         {
             return Err(error_settlement(
                 child,
-                LaunchError::new("post-SIGKILL deadline expired").with_consumed_signal(interrupted),
+                append_stops(LaunchError::new("post-SIGKILL deadline expired"), &retained)
+                    .with_consumed_signal(interrupted),
                 by,
                 false,
                 observer,
@@ -2239,9 +2257,12 @@ fn watch(
                 };
                 return Err(error_settlement(
                     child,
-                    LaunchError::new(format!(
-                        "cannot wait on the launched child: {error}; SIGKILL attempted"
-                    ))
+                    append_stops(
+                        LaunchError::new(format!(
+                            "cannot wait on the launched child: {error}; SIGKILL attempted"
+                        )),
+                        &retained,
+                    )
                     .with_consumed_signal(interrupted),
                     by,
                     false,
@@ -2286,14 +2307,16 @@ fn watch(
         };
 
         let stops = child.stop_reports();
-        if !stops.is_empty() {
+        let fatal = stops.iter().any(|report| !report.exit_race());
+        retained.extend(stops);
+        if fatal {
             let by = match watch {
                 Watch::Killed(by) => by,
                 _ => Instant::now() + ERROR_SETTLEMENT,
             };
             return Err(error_settlement(
                 child,
-                append_stops(LaunchError::new("required job stop failed"), &stops)
+                append_stops(LaunchError::new("required job stop failed"), &retained)
                     .with_consumed_signal(interrupted),
                 by,
                 false,
@@ -2336,7 +2359,8 @@ fn watch(
         .ok()
         .copied()
         .or_else(|| child.actual_reap());
-    let stops = child.stop_reports();
+    retained.extend(child.stop_reports());
+    let stops = retained;
     if status.is_some() {
         observer(LaunchEvent::Reaped);
     }

@@ -12,6 +12,46 @@ struct FakeProcess {
     group: Group,
     trace: Trace,
     signal_at_reap: Option<i32>,
+    stops: Stops,
+}
+/// The fake group's ID, the PID of its leader.
+const FAKE_PGID: i32 = 4242;
+/// Which numeric target refuses each signal, and with which errno.
+#[derive(Clone, Copy)]
+enum Refusal {
+    Group(i32),
+    Pid(i32),
+    /// Only these attempts, each with its errno.
+    Attempts(&'static [(u32, i32)]),
+}
+/// Stop reports in the form `OwnedChild::stop_target` makes them.
+#[derive(Default)]
+struct Stops {
+    refusal: Option<Refusal>,
+    attempts: u32,
+    reports: Vec<StopReport>,
+}
+impl Stops {
+    fn attempt(&mut self, target: i32, signal: i32) {
+        self.attempts += 1;
+        let errno = match self.refusal {
+            Some(Refusal::Group(errno)) if target < 0 => errno,
+            Some(Refusal::Pid(errno)) if target > 0 => errno,
+            Some(Refusal::Attempts(refused)) => {
+                match refused.iter().find(|(n, _)| *n == self.attempts) {
+                    Some(&(_, errno)) => errno,
+                    None => return,
+                }
+            }
+            _ => return,
+        };
+        self.reports.push(StopReport {
+            attempt: self.attempts,
+            target,
+            signal,
+            error: std::io::Error::from_raw_os_error(errno),
+        });
+    }
 }
 impl Process for FakeProcess {
     fn exited(&mut self) -> std::io::Result<bool> {
@@ -32,13 +72,20 @@ impl Process for FakeProcess {
             libc::SIGKILL => "kill",
             _ => "forward",
         });
+        self.stops.attempt(-FAKE_PGID, signal);
+        self.stops.attempt(FAKE_PGID, signal);
     }
     fn kill_group(&mut self) {
         self.trace.borrow_mut().push("kill-group");
+        self.stops.attempt(-FAKE_PGID, libc::SIGKILL);
+        self.stops.attempt(-FAKE_PGID, libc::SIGKILL);
     }
     fn confirm_gone(&mut self) -> Group {
         self.trace.borrow_mut().push("confirm");
         self.group
+    }
+    fn stop_reports(&mut self) -> Vec<StopReport> {
+        std::mem::take(&mut self.stops.reports)
     }
 }
 fn failed<T>() -> std::io::Result<T> {
@@ -98,6 +145,7 @@ fn confirmed_reap_precedes_recovery_on_every_wait_path() {
                 group: Group::Gone,
                 trace: trace.clone(),
                 signal_at_reap: None,
+                stops: Stops::default(),
             };
             let recovered = RefCell::new(None);
             let outcome = supervise(
@@ -184,6 +232,7 @@ fn a_surviving_group_is_reported_beside_the_childs_status() {
         group: Group::Present { pgid: 4242 },
         trace: Trace::default(),
         signal_at_reap: None,
+        stops: Stops::default(),
     };
     let ended = supervise(
         child,
@@ -198,6 +247,231 @@ fn a_surviving_group_is_reported_beside_the_childs_status() {
     assert_eq!(ended.group, Group::Present { pgid: 4242 });
     assert_eq!(ended.status.code(), Some(3));
     assert_eq!(ended.end, End::Exited);
+}
+
+/// Run the escalation of a sent result against a child that is still running
+/// at the TERM and has exited at the next observation. `refusal` names the
+/// numeric target that refuses each stop, and `group` what the absence query
+/// answers after the reap.
+fn escalate_against(
+    refusal: Refusal,
+    group: Group,
+) -> (Result<Ended, LaunchError>, Vec<&'static str>) {
+    escalate_with(refusal, group, vec![Ok(false), Ok(false), Ok(true)])
+}
+
+/// As [`escalate_against`], with the observations given.
+fn escalate_with(
+    refusal: Refusal,
+    group: Group,
+    polls: Vec<std::io::Result<bool>>,
+) -> (Result<Ended, LaunchError>, Vec<&'static str>) {
+    let dir = tempfile::TempDir::new().unwrap();
+    let channel = Channel::allocate(dir.path()).unwrap();
+    std::fs::write(channel.path(), "staging-ok").unwrap();
+    let trace = Trace::default();
+    let child = FakeProcess {
+        polls: polls.into(),
+        reaps: vec![Ok(ExitStatus::from_raw(0))].into(),
+        group,
+        trace: trace.clone(),
+        signal_at_reap: None,
+        stops: Stops {
+            refusal: Some(refusal),
+            ..Stops::default()
+        },
+    };
+    let outcome = supervise(
+        child,
+        Some(&channel),
+        NO_WAIT,
+        Mode::Noninteractive,
+        &mut |_| trace.borrow_mut().push("reaped"),
+        || {},
+        |_| trace.borrow_mut().push("recover"),
+    );
+    let trace = trace.borrow().clone();
+    (outcome, trace)
+}
+
+/// The race of ravel-stop-eperm-k302, measured on macOS 27.0.1: the result's
+/// TERM reaches a group whose leader is inside its exit teardown. Darwin then
+/// refuses the group signal with EPERM, although `waitid` reports no exit yet
+/// and the leader's own PID takes the signal. Supervision keeps watching, and
+/// the report is judged by the approved rule after the observed exit: retained
+/// only beside the reap, terminal recovery and confirmed absence.
+#[test]
+fn a_group_eperm_at_escalation_waits_for_the_exit_and_confirmed_absence() {
+    let _serial = serial();
+    let (outcome, trace) = escalate_against(Refusal::Group(libc::EPERM), Group::Gone);
+    assert_eq!(
+        trace,
+        [
+            "poll",
+            "poll",
+            "term",
+            "poll",
+            "kill-group",
+            "wait",
+            "reaped",
+            "recover",
+            "confirm"
+        ]
+    );
+    let ended = outcome.expect("a reaped child with a confirmed absent group");
+    assert_eq!(ended.end, End::Escalated);
+    assert_eq!(ended.group, Group::Gone);
+    assert_eq!(
+        ended.operation_reports,
+        [
+            "stop attempt 1 target -4242 signal 15: Operation not permitted (os error 1)",
+            "stop attempt 3 target -4242 signal 9: Operation not permitted (os error 1)",
+            "stop attempt 4 target -4242 signal 9: Operation not permitted (os error 1)",
+        ],
+        "the escalation's report is retained in order, beside the reap's"
+    );
+}
+
+/// The retained escalation report is no confirmation by itself: a group that
+/// still answers after the reap fails the launch with every report.
+#[test]
+fn a_group_eperm_at_escalation_fails_beside_a_present_group() {
+    let _serial = serial();
+    let (outcome, trace) = escalate_against(
+        Refusal::Group(libc::EPERM),
+        Group::Present { pgid: FAKE_PGID },
+    );
+    assert_eq!(trace.last(), Some(&"confirm"));
+    let error = outcome.unwrap_err().to_string();
+    assert!(error.starts_with("required group stop failed"), "{error}");
+    assert!(
+        error.contains("stop attempt 1 target -4242 signal 15"),
+        "{error}"
+    );
+}
+
+/// A refusal that the exit race cannot explain still ends supervision at once:
+/// EPERM from the direct child, which takes a signal even as a zombie, and any
+/// other errno from the group.
+#[test]
+fn other_stop_refusals_at_escalation_fail_at_once() {
+    let _serial = serial();
+    for (refusal, report) in [
+        (
+            Refusal::Pid(libc::EPERM),
+            "stop attempt 2 target 4242 signal 15",
+        ),
+        (
+            Refusal::Group(libc::EINVAL),
+            "stop attempt 1 target -4242 signal 15",
+        ),
+    ] {
+        let (outcome, trace) = escalate_against(refusal, Group::Gone);
+        assert_eq!(
+            trace,
+            ["poll", "poll", "term", "kill", "wait", "reaped", "recover"],
+            "no observation after the refused TERM"
+        );
+        let error = outcome.unwrap_err().to_string();
+        assert!(error.starts_with("required job stop failed"), "{error}");
+        assert!(error.contains(report), "{error}");
+        assert!(error.contains("and reaped"), "{error}");
+    }
+}
+
+/// A group EPERM does not excuse a refused stop to the direct child in the same
+/// tick, as for a child that executed a program it may not signal.
+#[test]
+fn a_child_refusal_beside_a_group_eperm_fails_at_once() {
+    let _serial = serial();
+    let (outcome, trace) = escalate_against(
+        Refusal::Attempts(&[(1, libc::EPERM), (2, libc::EPERM)]),
+        Group::Gone,
+    );
+    assert_eq!(
+        trace,
+        ["poll", "poll", "term", "kill", "wait", "reaped", "recover"]
+    );
+    let error = outcome.unwrap_err().to_string();
+    assert!(error.starts_with("required job stop failed"), "{error}");
+    assert!(
+        error.contains("stop attempt 1 target -4242 signal 15"),
+        "{error}"
+    );
+    assert!(
+        error.contains("stop attempt 2 target 4242 signal 15"),
+        "{error}"
+    );
+}
+
+/// A kept group report goes with each failure that ends the watch later: a
+/// fatal refusal at KILL, a failed observation, and the post-KILL deadline.
+#[test]
+fn a_kept_group_report_goes_with_each_later_failure() {
+    let _serial = serial();
+    // The TERM's group EPERM is kept. The KILL's refusal by the child is fatal.
+    let (outcome, trace) = escalate_with(
+        Refusal::Attempts(&[(1, libc::EPERM), (4, libc::EPERM)]),
+        Group::Gone,
+        vec![Ok(false), Ok(false), Ok(false)],
+    );
+    assert_eq!(
+        trace,
+        [
+            "poll", "poll", "term", "poll", "kill", "kill", "wait", "reaped", "recover"
+        ]
+    );
+    let error = outcome.unwrap_err().to_string();
+    assert!(error.starts_with("required job stop failed"), "{error}");
+    assert!(
+        error.contains("stop attempt 1 target -4242 signal 15"),
+        "{error}"
+    );
+    assert!(
+        error.contains("stop attempt 4 target 4242 signal 9"),
+        "{error}"
+    );
+
+    // The TERM's group EPERM is kept, then the observation fails.
+    let (outcome, _) = escalate_with(
+        Refusal::Group(libc::EPERM),
+        Group::Gone,
+        vec![Ok(false), Ok(false), failed()],
+    );
+    let error = outcome.unwrap_err().to_string();
+    assert!(
+        error.contains("cannot wait on the launched child"),
+        "{error}"
+    );
+    assert!(error.contains("injected wait failure"), "{error}");
+    assert!(
+        error.contains("stop attempt 1 target -4242 signal 15"),
+        "{error}"
+    );
+
+    // A child that never exits: the kept reports do not extend the bound of
+    // two seconds from the first KILL.
+    let polls = (0..2000).map(|_| Ok(false)).collect();
+    let started = Instant::now();
+    let (outcome, _) = escalate_with(Refusal::Group(libc::EPERM), Group::Gone, polls);
+    let elapsed = started.elapsed();
+    let error = outcome.unwrap_err().to_string();
+    assert!(
+        error.starts_with("post-SIGKILL deadline expired"),
+        "{error}"
+    );
+    assert!(
+        error.contains("stop attempt 1 target -4242 signal 15"),
+        "{error}"
+    );
+    assert!(
+        error.contains("stop attempt 3 target -4242 signal 9"),
+        "{error}"
+    );
+    assert!(
+        elapsed < ERROR_SETTLEMENT + Duration::from_secs(10),
+        "the post-KILL bound held: {elapsed:?}"
+    );
 }
 
 /// An interactive or noninteractive child's group is forwarded the launcher's
@@ -240,6 +514,7 @@ fn cancellation_forwards_or_kills_by_mode() {
             group: Group::Gone,
             trace: trace.clone(),
             signal_at_reap: None,
+            stops: Stops::default(),
         };
         // SIGHUP, so the forwarded signal is told apart from the escalation's
         // TERM in the trace. The latch the handler would set; supervision reads it on its first
@@ -283,6 +558,7 @@ fn a_signal_after_the_reap_does_not_cancel_the_reaped_launch() {
             group: Group::Gone,
             trace: Trace::default(),
             signal_at_reap: None,
+            stops: Stops::default(),
         };
         let ended = supervise(
             child,
@@ -316,6 +592,7 @@ fn duration_stops_at_the_reap_before_observation_and_recovery() {
         group: Group::Gone,
         trace: Trace::default(),
         signal_at_reap: None,
+        stops: Stops::default(),
     };
     let delay = Duration::from_millis(150);
     let wall = Instant::now();
@@ -350,6 +627,7 @@ fn the_reap_sample_drains_a_second_cancellation() {
         group: Group::Gone,
         trace: Trace::default(),
         signal_at_reap: Some(libc::SIGTERM),
+        stops: Stops::default(),
     };
     INTERRUPTED_BY.store(libc::SIGHUP, Ordering::Relaxed);
     let ended = supervise(
@@ -415,6 +693,7 @@ fn check_wait_failure(poll_failed: bool, reap_failed: bool) {
             group: Group::Gone,
             trace: trace.clone(),
             signal_at_reap: at_reap,
+            stops: Stops::default(),
         };
         INTERRUPTED_BY.store(early.unwrap_or(0), Ordering::Relaxed);
         let recovered = RefCell::new(None);
@@ -492,6 +771,7 @@ fn cancellation_survives_reported_recovery_failure_and_keeps_late_signal_separat
                 group: Group::Gone,
                 trace: trace.clone(),
                 signal_at_reap: None,
+                stops: Stops::default(),
             };
             INTERRUPTED_BY.store(early.unwrap_or(0), Ordering::Relaxed);
             let error = supervise_reported(

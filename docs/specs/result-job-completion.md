@@ -415,7 +415,12 @@ is not confirmed termination. A stop EPERM report may coexist with successful
 completion only after actual reap, successful terminal recovery and an ESRCH
 group-absence confirmation. The report remains in `Ended::operation_reports`
 and the front's existing single JSON notice (`operationReports`), or its
-non-JSON diagnostics; EPERM itself never establishes absence. Initiating
+non-JSON diagnostics; EPERM itself never establishes absence. A group stop
+during watching that answers EPERM SHALL NOT end the watch by itself. On
+Darwin, a leader inside its exit teardown leaves no signallable member before
+`waitid` reports its exit. That report waits for the same three confirmations.
+A refused stop to the direct child, or any other errno, before the observed
+exit still ends the watch. Initiating
 transition errors remain failures. Only an actual wait confirms reap; no result,
 status, Reaped event or group absence may be invented on expiry or ECHILD.
 After confirmed reap, identity loss or release, numeric signals are forbidden.
