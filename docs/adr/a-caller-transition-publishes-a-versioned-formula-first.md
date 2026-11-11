@@ -14,7 +14,9 @@ Grove release and the promotion.
 
 The trade-off is a transition formula and a second publication step against a
 broken default installation. Keg-only `ravel@2` never becomes the default
-command. A user who wants 2.0 before promotion must name its prefix. The release
+command. A user who wants 2.0 before promotion must name its prefix. On a
+prefix without either formula, Homebrew links a requested versioned formula.
+That installation therefore uses `--skip-link`. The release
 tooling must carry an explicit channel through every step and resume mode.
 
 The design rejected two alternatives. Direct unversioned publication of 2.0.0

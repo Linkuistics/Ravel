@@ -9,7 +9,8 @@
 # published version with --version, as release-promote.sh does. The channel
 # (scripts/release-channel.sh) names the formula. For versioned-2 the formula
 # is keg-only: its prefix holds the only command, and unversioned ravel, its
-# keg and its shared links must stay exactly as they were.
+# keg and its shared links must stay exactly as they were. Its first
+# installation skips the link, also on a prefix without unversioned ravel.
 #
 # Every Homebrew mutation sets HOMEBREW_NO_INSTALL_CLEANUP=1, so no running
 # reader loses an earlier keg (docs/specs/release-channels.md, "Recovery and
@@ -91,7 +92,14 @@ main() {
   export HOMEBREW_NO_INSTALL_CLEANUP=1
   brew update
   if brew list --versions "$CHANNEL_FORMULA" >/dev/null 2>&1; then
+    # An upgrade keeps the keg's link state (upgrade.rb in Homebrew 7.0.13).
     brew upgrade "$CHANNEL_FORMULA"
+  elif [[ -n "$CHANNEL_KEG_ONLY" ]]; then
+    # Homebrew links a requested versioned keg-only formula when neither it
+    # nor its unversioned formula is installed
+    # (FormulaInstaller#auto_link_versioned_keg_only? in Homebrew 7.0.13).
+    # With --skip-link, Homebrew creates only the opt link.
+    brew install --skip-link "$TAP/$CHANNEL_FORMULA"
   else
     brew install "$TAP/$CHANNEL_FORMULA"
   fi

@@ -435,21 +435,27 @@ end' 'ravel v2.0.0'
 }
 
 # A Homebrew prefix in DIR with unversioned ravel 1.1.0 installed and linked.
+# With "fresh", the prefix holds neither ravel nor ravel@2.
 make_brew_prefix() {
   local p="$1"
-  mkdir -p "$p/Cellar/ravel/1.1.0/bin" "$p/Cellar/ravel/1.1.0/share/ravel" "$p/opt" "$p/bin" "$p/share/ravel/skills"
+  mkdir -p "$p/opt" "$p/bin" "$p/share/ravel/skills"
+  : >"$p/.log"
+  [[ "${2:-}" != fresh ]] || return 0
+  mkdir -p "$p/Cellar/ravel/1.1.0/bin" "$p/Cellar/ravel/1.1.0/share/ravel"
   printf '#!/bin/sh\necho "ravel 1.1.0"\n' >"$p/Cellar/ravel/1.1.0/bin/ravel"
   chmod +x "$p/Cellar/ravel/1.1.0/bin/ravel"
   printf '{"schemaVersion":1,"skillDirectory":"%s"}\n' "$p/share/ravel/skills" >"$p/Cellar/ravel/1.1.0/share/ravel/installation.json"
   ln -s ../Cellar/ravel/1.1.0 "$p/opt/ravel"
   ln -s ../Cellar/ravel/1.1.0/bin/ravel "$p/bin/ravel"
-  : >"$p/.log"
 }
 
 write_brew() {
   cat >"$fixtures/bin/brew" <<'SH'
 #!/usr/bin/env bash
-# A Homebrew fixture over FAKE_BREW_PREFIX. Faults: FAKE_BREW_LINK=1 links a
+# A Homebrew fixture over FAKE_BREW_PREFIX. As Homebrew 7.0.13 does, an
+# install of ravel@2 without --skip-link links its keg into the shared bin
+# when neither ravel nor ravel@2 is installed
+# (FormulaInstaller#auto_link_versioned_keg_only?). Faults: FAKE_BREW_LINK=1 links a
 # versioned keg into the shared bin, FAKE_BREW_KEG_ONLY=false reports it as
 # not keg-only, FAKE_BREW_RECORD=keg names the keg in its record,
 # FAKE_BREW_BIN_VERSION makes its command report another version,
@@ -460,8 +466,10 @@ write_brew() {
 set -euo pipefail
 p="$FAKE_BREW_PREFIX"
 log() { printf '%s\n' "$*" >>"$p/.log"; }
+skip_link=0
 install_keg() {
-  local name="$1" v="$FAKE_BREW_VERSION" keg dir
+  local name="$1" v="$FAKE_BREW_VERSION" keg dir link="${FAKE_BREW_LINK:-0}"
+  if [[ "$name" == ravel@2 && "$skip_link" == 0 && ! -d "$p/Cellar/ravel" && ! -d "$p/Cellar/ravel@2" ]]; then link=1; fi
   keg="$p/Cellar/$name/$v"
   mkdir -p "$keg/bin" "$keg/share/ravel"
   printf '#!/bin/sh\necho "ravel %s"\n' "${FAKE_BREW_BIN_VERSION:-$v}" >"$keg/bin/ravel"
@@ -470,7 +478,7 @@ install_keg() {
   [[ "${FAKE_BREW_RECORD:-}" == keg ]] && dir="$keg/share/ravel/skills"
   printf '{"schemaVersion":1,"skillDirectory":"%s"}\n' "$dir" >"$keg/share/ravel/installation.json"
   ln -sfn "../Cellar/$name/$v" "$p/opt/$name"
-  if [[ "$name" == ravel || "${FAKE_BREW_LINK:-0}" == 1 ]]; then ln -sfn "../Cellar/$name/$v/bin/ravel" "$p/bin/ravel"; fi
+  if [[ "$name" == ravel || "$link" == 1 ]]; then ln -sfn "../Cellar/$name/$v/bin/ravel" "$p/bin/ravel"; fi
   if [[ "${FAKE_BREW_REMOVE_OLD:-0}" == 1 ]]; then rm -rf "$p/Cellar/ravel/1.1.0"; fi
   if [[ "${FAKE_BREW_UPGRADE_UNVERSIONED:-0}" == 1 ]]; then
     cp -R "$p/Cellar/ravel/1.1.0" "$p/Cellar/ravel/1.1.1"
@@ -486,7 +494,12 @@ case "$1" in
     [[ -d "$p/Cellar/$3" ]] || exit 1
     echo "$3 $(ls "$p/Cellar/$3" | tr '\n' ' ')"
     ;;
-  install) log "install $2 cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"; install_keg "${2##*/}" ;;
+  install)
+    log "install ${*:2} cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"
+    if [[ "$2" == --skip-link ]]; then skip_link=1; fi
+    formula="${!#}"
+    install_keg "${formula##*/}"
+    ;;
   upgrade)
     log "upgrade $2 cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"
     [[ -d "$p/Cellar/$2/$FAKE_BREW_VERSION" ]] || install_keg "$2"
@@ -495,7 +508,7 @@ case "$1" in
   info)
     name="$3" keg_only=false reason=null linked=null
     if [[ "$name" == ravel@2 ]]; then keg_only="${FAKE_BREW_KEG_ONLY:-true}" reason='{"reason":":versioned_formula","explanation":""}'; fi
-    if [[ "$name" == ravel || "${FAKE_BREW_LINK:-0}" == 1 ]]; then linked="\"$(basename "$(readlink "$p/opt/$name")")\""; fi
+    if [[ "$name" == ravel || "$(readlink "$p/bin/ravel" || true)" == "../Cellar/$name/"* ]]; then linked="\"$(basename "$(readlink "$p/opt/$name")")\""; fi
     installed="$(ls "$p/Cellar/$name" 2>/dev/null | jq -Rsc 'split("\n")[:-1] | map({version: .})')"
     printf '{"formulae":[{"name":"%s","keg_only":%s,"keg_only_reason":%s,"linked_keg":%s,"installed":%s}]}\n' \
       "$name" "$keg_only" "$reason" "$linked" "$installed"
@@ -522,10 +535,18 @@ section_install() {
   refuses 'install with an unknown channel' 'unknown release channel' install --channel stable
   [[ ! -s "$p/.log" ]] || fail 'a refused channel ran Homebrew'
 
+  # Without either formula, Homebrew links a plain install of ravel@2.
+  p="$fixtures/brew-fresh" && make_brew_prefix "$p" fresh && export FAKE_BREW_PREFIX="$p"
+  install --channel versioned-2 >"$fixtures/out" 2>&1 ||
+    fail "the versioned install on a prefix without ravel refused: $(tail -n 3 "$fixtures/out")"
+  [[ ! -e "$p/bin/ravel" && ! -L "$p/bin/ravel" ]] || fail "the versioned install linked $p/bin/ravel on a prefix without ravel"
+  [[ "$(readlink "$p/opt/ravel@2")" == ../Cellar/ravel@2/2.0.0 ]] || fail 'the versioned install on a prefix without ravel has no opt link'
+  ok 'ravel@2 installs without a shared command on a prefix without ravel or ravel@2'
+
   p="$fixtures/brew-versioned" && make_brew_prefix "$p" && export FAKE_BREW_PREFIX="$p"
   before="$(unversioned_links "$p")"
   install --channel versioned-2 >"$fixtures/out" 2>&1 || fail "the versioned install refused: $(tail -n 3 "$fixtures/out")"
-  [[ "$(cat "$p/.log")" == $'update cleanup=1\ninstall linkuistics/taps/ravel@2 cleanup=1\ntest ravel@2' ]] ||
+  [[ "$(cat "$p/.log")" == $'update cleanup=1\ninstall --skip-link linkuistics/taps/ravel@2 cleanup=1\ntest ravel@2' ]] ||
     fail "the versioned install ran $(tr '\n' ';' <"$p/.log")"
   [[ "$(unversioned_links "$p")" == "$before" ]] || fail 'the versioned install changed unversioned ravel'
   [[ ! -e "$fixtures/decoy-ran" ]] || fail 'the verification ran the command on PATH'
@@ -854,6 +875,7 @@ promote overwrites ravel.rb	scripts/release-promote.sh	    die "the tap's Formul
 promote never keeps	scripts/release-promote.sh	  if tap_holds main@origin "$dir"; then	  if false; then
 promote recommits	scripts/release-promote.sh	  if [[ "$main" != "$origin" ]]; then	  if false; then
 promote skips install	scripts/release-promote.sh	  bash "$REPO_ROOT/scripts/release-install.sh" --channel unversioned --version "$version" ||	  true ||
+install links ravel@2	scripts/release-install.sh	    brew install --skip-link "$TAP/$CHANNEL_FORMULA"	    brew install "$TAP/$CHANNEL_FORMULA"
 install drops old kegs	scripts/release-install.sh	    [[ -z "$earlier" || -x "$earlier/bin/ravel" ]] ||	    true ||
 task promote unversioned	Taskfile.yml	bash scripts/release-promote.sh --version {{shellQuote .VERSION}}	bash scripts/release-promote.sh --version 2.0.0 --readiness x
 EOF

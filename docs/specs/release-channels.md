@@ -32,6 +32,11 @@ The versioned install writes no competing shared-prefix command and changes
 neither unversioned formula nor installation. Its formula test uses the real
 installed layout, private settings and a fake harness.
 
+Homebrew links a requested versioned keg-only formula into the shared prefix
+when neither that formula nor its unversioned formula is installed. The first
+installation of `ravel@2` therefore uses `brew install --skip-link`. An
+upgrade keeps the link state of the installed keg.
+
 ## Release interface
 
 Extend existing tasks with one explicit channel carried through preparation,
@@ -72,7 +77,8 @@ The implementation keeps these rules in the following places:
 - `scripts/release-formula.sh` renders both classes from one template and
   tests each through Homebrew's install and test methods. The test fails when
   the two texts differ beyond the class line and the `keg_only` line.
-- `scripts/release-install.sh` installs with cleanup suppressed. It verifies
+- `scripts/release-install.sh` installs with cleanup suppressed. It installs
+  `versioned-2` for the first time with `--skip-link`. It verifies
   the keg's `bin/ravel` and installation record, the keg-only state and the
   opt prefix. For `versioned-2`, it also verifies that unversioned `ravel` is
   unchanged.
@@ -252,7 +258,8 @@ under one HOME remain incompatible. Private formula tests do not change that.
 Extend release-lifecycle fixtures and actual formula install/test methods.
 Cover baseline versus target channel, resume exits, wrong-channel refusal,
 `versioned-2` refusal after promotion, and unchanged unversioned formula during
-versioned delivery. Cover unchanged archives and the `ravel@2` deprecation
+versioned delivery. Cover a versioned install on a prefix without either
+formula. Cover unchanged archives and the `ravel@2` deprecation
 during promotion, idempotent retries and preserved old prefixes.
 `scripts/release-channel.test.sh` holds these fixtures and their mutants.
 `task release:formula` loads the deprecated `ravel@2.rb` through Homebrew on
