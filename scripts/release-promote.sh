@@ -59,10 +59,15 @@ usage() {
 
 # json_problems FILE FILTER [JQ ARGS...]: print each problem that FILTER, a
 # jq expression that yields strings, finds in FILE. Refuse a file that is not
-# JSON.
+# exactly one JSON object: jq runs FILTER once per document, so an empty file
+# would otherwise yield no problem.
 json_problems() {
   local file="$1" filter="$2"
   shift 2
+  if ! jq -es 'length == 1 and (.[0] | type == "object")' "$file" >/dev/null 2>&1; then
+    echo "$file is not one JSON object"
+    return 0
+  fi
   # A missing or mistyped field yields false here, never an empty result.
   jq -r "$@" 'def matches($re): [strings | test($re)] | any; '"$filter" "$file" 2>/dev/null || echo "$file is not JSON"
 }
@@ -186,7 +191,7 @@ commit_promotion() {
 push_promotion() {
   local commit
   commit="$(tap_head main)"
-  jj -R "$TAP_DIR" git push -b main ||
+  tap_push "$TAP_DIR" ||
     die "the push of the tap's promotion commit $commit failed. It stays local; run release:promote again to verify and push it"
 }
 
@@ -296,8 +301,9 @@ main() {
     die "cannot render ravel@2.rb from the public assets"
   render_archive_formula "$scratch/assets" "$version" "$scratch/template" "$scratch/promoted/ravel.rb" unversioned ||
     die "cannot render ravel.rb from the public assets"
-  # The tag's date keeps a retry's rendering byte for byte the same.
-  date="$(TZ=UTC git -C "$REPO_ROOT" log -1 --format=%cd --date=format-local:%Y-%m-%d "$tag_commit")"
+  # The tag's date at UTC-12 is never in the future in Homebrew's local time
+  # zone, and it keeps a retry's rendering byte for byte the same.
+  date="$(promotion_deprecation_date "$REPO_ROOT" "$tag_commit")"
   reason="$(deprecate_versioned_formula "$scratch/versioned/ravel@2.rb" "$scratch/promoted/ravel@2.rb" "$date")" || die "$reason"
   bash "$REPO_ROOT/scripts/release-formula.sh" --test "$version" "$scratch/assets" \
     "$scratch/versioned/ravel@2.rb" "$scratch/promoted/ravel.rb" "$scratch/promoted/ravel@2.rb" ||

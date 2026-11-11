@@ -410,7 +410,9 @@ tasks:
       # "Recover a partial release without another bump"
       # (docs/book/src/11-deliver-ravel.md), gives the recovery.
       - scripts/release-smoke.sh --archives target/dist
-      - jj git push -b main
+      # The tag goes to origin below, so the bookmark names it too: without
+      # --remote, jj pushes to its git.push setting.
+      - jj git push --remote origin -b main
       - git push origin "$(git describe --tags --exact-match HEAD)"
       # Publication order: GitHub Release, then the book on the Pages branch,
       # then the tap. The same chapter 11 section gives the recovery for each stop.

@@ -652,8 +652,8 @@ tag that is already public. A correction in the checkout alone cannot correct
 the book page that `released` reads at the tag. If the source and the tag
 disagree, stop until that decision is made.
 
-After all smoke routes pass, retry only a missing `jj git push -b main` or
-`git push origin vX.Y.Z`. Before you continue, check that the remote tag
+After all smoke routes pass, retry only a missing
+`jj git push --remote origin -b main` or `git push origin vX.Y.Z`. Before you continue, check that the remote tag
 resolves to the release commit. Do not force a public tag.
 
 If GitHub has no release for the tag, run `scripts/release-publish.sh` after

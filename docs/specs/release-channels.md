@@ -110,7 +110,8 @@ and book chapter 4, which the refusal's remedy cites.
 
 Render and test the unversioned class from those same verified assets. In the
 same tap commit, mark `ravel@2` deprecated in favour of unversioned `ravel`, and
-change nothing else in it. Publish that one commit through jj. `ravel@2` stays
+change nothing else in it. Publish that one commit through jj to the tap's
+`origin`, the remote that the task fetched and verified. `ravel@2` stays
 installable at the promoted version. Verify the unversioned installation with
 cleanup suppressed.
 
@@ -138,7 +139,8 @@ which `scripts/release-evidence.sh` wrote during the cut. The task holds the
 release lock, and `scripts/release-promote.sh` does this work in order:
 
 1. Verify the evidence and the receipt. Both are local files, so a missing
-   receipt refuses before any network read.
+   receipt refuses before any network read. Each must be exactly one JSON
+   object. An empty file refuses.
 2. Verify that the public tag has the cut's commit and that the GitHub Release
    is complete.
 3. Download the three assets. Compare each SHA-256 with the evidence.
@@ -157,12 +159,15 @@ The deprecation is one line after the `keg_only` line, which is the place
 that Homebrew's component order gives it:
 
 ```ruby
-  deprecate! date: "<tag date>", because: :versioned_formula, replacement_formula: "ravel"
+  deprecate! date: "<promotion date>", because: :versioned_formula, replacement_formula: "ravel"
 ```
 
-Homebrew 7.0.13 requires the date. The date is the UTC date of the tag's
-commit, so each retry renders the same bytes. `scripts/release-channel.sh`
-owns the line and its insertion.
+Homebrew 7.0.13 requires the date. Homebrew marks the formula deprecated
+only when the date is not after its local date. The date is the date of the
+tag's commit at UTC−12. No time zone is behind UTC−12, so that date is never
+in the future after the tag, also west of UTC. The date depends only on the
+tag, so each retry renders the same bytes. `scripts/release-channel.sh` owns
+the line, its date and its insertion.
 
 | Tap state on the remote | Behaviour |
 | --- | --- |
@@ -171,12 +176,23 @@ owns the line and its insertion.
 | `ravel@2.rb` is the published versioned formula, and `ravel.rb` has a major below 2 | Make one commit, and push it through jj. |
 | Any other state | Report the difference, and change nothing. |
 
-The tap must be a jj repository with a clean working copy. Installation runs
+The tap must be a jj repository with a clean working copy. The task fetches
+and pushes the remote `origin` by name. A `git.push` setting of jj does not
+select another remote.
+
+Installation runs
 `scripts/release-install.sh --channel unversioned --version 2.0.0`. It
 upgrades with `HOMEBREW_NO_INSTALL_CLEANUP=1` and verifies the linked keg,
-the shared command and the installation record. It refuses when an earlier
-`ravel` or `ravel@2` keg lost its `bin/ravel`. A repeated upgrade of a current
-formula changes nothing, so a matching installation stays.
+the shared command and the installation record. Before the mutation it
+records each earlier `ravel` and `ravel@2` keg: each path, its type, a link's
+target, and a file's executable bit and SHA-256. It refuses when any of them
+changed afterwards. The 1.1.0 keg's `bin/ravel` runs
+`libexec/ravel/ravel-policy` and reads its SDK. Thus `bin/ravel` alone does
+not prove that a legacy launch still works.
+
+Homebrew's own `INSTALL_RECEIPT.json` must stay, but its content can change,
+because Homebrew rewrites it and Ravel does not read it. A repeated upgrade of
+a current formula changes nothing, so a matching installation stays.
 
 The promotion evidence records the tag commit, the asset digests and the book.
 It records the receipt's digest and consumer, and the tap commit. It records

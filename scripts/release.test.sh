@@ -243,7 +243,7 @@ for level in patch minor major; do
     fail "release:$level does not read the Pages site after publication"
   fi
   # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
-  for publishing in 'jj git push -b main' 'git push origin "$(git describe --tags --exact-match HEAD)"' \
+  for publishing in 'jj git push --remote origin -b main' 'git push origin "$(git describe --tags --exact-match HEAD)"' \
     'scripts/release-publish.sh --channel versioned-2'; do
     line="$(dry_line "$publishing")"
     if [[ -z "$line" ]] || ((line < smoke)); then

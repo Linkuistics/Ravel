@@ -81,10 +81,11 @@ for channel in "${RELEASE_CHANNELS[@]}"; do
   render_archive_formula "$dir" "$version" "$root/scripts/templates/ravel.rb.tmpl" "$scratch/$CHANNEL_FILE" "$channel" ||
     die "archive/formula validation failed for CHANNEL=$channel"
 done
-# Any past date deprecates at once. The commit date of HEAD is one.
+# A date that is not in the future deprecates at once. HEAD's promotion date
+# is such a date in every local time zone.
 mkdir "$scratch/promoted"
 reason="$(deprecate_versioned_formula "$scratch/ravel@2.rb" "$scratch/promoted/ravel@2.rb" \
-  "$(TZ=UTC git -C "$root" log -1 --format=%cd --date=format-local:%Y-%m-%d)")" || die "$reason"
+  "$(promotion_deprecation_date "$root" HEAD)")" || die "$reason"
 homebrew_test "$version" "$dir" "$scratch/ravel@2.rb" "$scratch/ravel.rb" "$scratch/promoted/ravel@2.rb"
 for channel in "${RELEASE_CHANNELS[@]}"; do
   [[ -z "$selected" || "$channel" == "$selected" ]] || continue

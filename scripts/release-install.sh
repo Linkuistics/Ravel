@@ -15,8 +15,11 @@
 # Every Homebrew mutation sets HOMEBREW_NO_INSTALL_CLEANUP=1, so no running
 # reader loses an earlier keg (docs/specs/release-channels.md, "Recovery and
 # existing processes"). The script never runs cleanup, uninstall or reinstall.
-# Every ravel and ravel@2 keg present before the mutation must remain, with its
-# executable bin/ravel, because a running reader may still use it. A repeated
+# Every ravel and ravel@2 keg present before the mutation must remain with each
+# of its files unchanged, because a running reader may still use any of them:
+# the 1.1.0 keg's bin/ravel runs libexec/ravel/ravel-policy and reads its SDK.
+# Homebrew's own INSTALL_RECEIPT.json must remain, but its content may change,
+# because Homebrew rewrites it and no reader of Ravel reads it. A repeated
 # run upgrades a current formula, which Homebrew only warns about, so a
 # matching installation stays as it is.
 set -euo pipefail
@@ -53,6 +56,31 @@ installed_kegs() {
   return 0
 }
 
+# keg_manifest KEG: one line per path in KEG, sorted: its type, a symbolic
+# link's target, and a file's executable bit and SHA-256. Homebrew's
+# INSTALL_RECEIPT.json at the keg's root is listed by presence only. A missing
+# keg has an empty manifest.
+keg_manifest() {
+  local keg="$1" rel path mode
+  [[ -d "$keg" ]] || return 0
+  while IFS= read -r rel; do
+    path="$keg/${rel#./}"
+    if [[ -L "$path" ]]; then
+      printf '%s link %s\n' "$rel" "$(readlink "$path")"
+    elif [[ -d "$path" ]]; then
+      printf '%s dir\n' "$rel"
+    elif [[ "$rel" == ./INSTALL_RECEIPT.json ]]; then
+      printf '%s receipt\n' "$rel"
+    elif [[ -f "$path" ]]; then
+      mode=-
+      [[ -x "$path" ]] && mode=x
+      printf '%s file %s %s\n' "$rel" "$mode" "$(shasum -a 256 <"$path" | cut -d' ' -f1)"
+    else
+      printf '%s other\n' "$rel"
+    fi
+  done < <(cd "$keg" && find . -print | LC_ALL=C sort)
+}
+
 # What this script must not change in unversioned ravel: its installed
 # versions, its linked keg and the shared prefix's command.
 unversioned_state() {
@@ -82,9 +110,12 @@ main() {
   [[ -z "$CHANNEL_MAJOR" || "$(version_major "$version")" == "$CHANNEL_MAJOR" ]] ||
     die "CHANNEL=$CHANNEL_ID installs only major $CHANNEL_MAJOR, not $version"
 
-  local brew_prefix before='' kegs_before earlier
+  local brew_prefix before='' kegs_before earlier manifests=() index
   brew_prefix="$(brew --prefix)"
   kegs_before="$(installed_kegs "$brew_prefix")"
+  while IFS= read -r earlier; do
+    [[ -n "$earlier" ]] && manifests+=("$(keg_manifest "$earlier")")
+  done <<<"$kegs_before"
   if [[ -n "$CHANNEL_KEG_ONLY" ]]; then
     before="$(unversioned_state "$brew_prefix")"
   fi
@@ -105,10 +136,13 @@ main() {
   fi
   brew test "$CHANNEL_FORMULA"
 
-  # Running readers keep their kegs.
+  # Running readers keep their kegs, file for file.
+  index=0
   while IFS= read -r earlier; do
-    [[ -z "$earlier" || -x "$earlier/bin/ravel" ]] ||
-      die "the earlier keg $earlier lost its bin/ravel; a running reader may need it. Restore it before any cleanup"
+    [[ -n "$earlier" ]] || continue
+    [[ "$(keg_manifest "$earlier")" == "${manifests[index]}" ]] ||
+      die "the earlier keg $earlier changed: $(diff <(printf '%s\n' "${manifests[index]}") <(keg_manifest "$earlier") | grep '^[<>]' | head -n 4 | tr '\n' ';') A running reader may need it. Restore it before any cleanup"
+    index=$((index + 1))
   done <<<"$kegs_before"
 
   # Class, keg-only state, destination and prefix, together.

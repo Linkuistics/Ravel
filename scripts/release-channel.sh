@@ -141,6 +141,16 @@ deprecate_versioned_formula() {
   awk -v keg_only="$keg_only" -v line="$line" '{ print } $0 == keg_only { print line }' "$input" >"$output"
 }
 
+# promotion_deprecation_date REPO REVISION: the date of REVISION's commit at
+# UTC-12, as YYYY-MM-DD. Homebrew 7.0.13 marks a formula deprecated only when
+# this date is at most Date.today in the local time zone (formula.rb,
+# deprecate!). No time zone is behind UTC-12, so after the commit the date is
+# never in the future, west of UTC included. It depends only on the commit, so
+# each retry renders the same bytes. The POSIX time zone AOE12 is UTC-12.
+promotion_deprecation_date() {
+  TZ=AOE12 git -C "$1" log -1 --format=%cd --date=format-local:%Y-%m-%d "$2"
+}
+
 # tap_fetch TAP: fetch the tap's remote main, through jj in a jj tap.
 tap_fetch() {
   local tap="$1"
@@ -149,6 +159,13 @@ tap_fetch() {
   else
     git -C "$tap" fetch -q origin
   fi
+}
+
+# tap_push TAP: push the jj tap's main to origin, the remote that tap_fetch
+# reads. Without --remote, jj pushes to its git.push setting, which can name
+# another remote.
+tap_push() {
+  jj -R "$1" git push --remote origin -b main
 }
 
 # tap_formula_text TAP FILE: print Formula/FILE as the tap's remote main had it

@@ -43,7 +43,7 @@ check_tap() {
     die "tap working tree is dirty; preserve its changes before publishing"
   if [[ -d "$TAP_DIR/.jj" ]]; then
     command -v jj >/dev/null || die "jj tap requires jj on PATH"
-    jj -R "$TAP_DIR" git fetch
+    jj -R "$TAP_DIR" git fetch --remote origin
     [[ -n "$(jj -R "$TAP_DIR" log --no-graph -r 'main & main@origin' -T commit_id)" ]] ||
       die "tap main differs from origin; integrate or push its work before publishing"
   else
@@ -134,7 +134,7 @@ push_formula_to_tap() {
     jj -R "$TAP_DIR" describe -m "$CHANNEL_FORMULA v${version}"
     jj -R "$TAP_DIR" bookmark set main -r @
     jj -R "$TAP_DIR" new main
-    jj -R "$TAP_DIR" git push -b main
+    tap_push "$TAP_DIR"
   else
     git -C "$TAP_DIR" add "Formula/$CHANNEL_FILE"
     git -C "$TAP_DIR" commit -m "$CHANNEL_FORMULA v${version}"
