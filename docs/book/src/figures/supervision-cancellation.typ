@@ -15,7 +15,7 @@
   msg("managed", "channel", "Send \"candidate\" with end-session", role: "result"),
   note("managed", "channel", [Ravel keeps the first complete result. \ end-session success does not confirm delivery.]),
   div([Cancellation reaches the Ravel CLI]),
-  msg("managed", "cli", [INT (the example below)]),
+  msg("managed", "cli", [INT from managed process]),
   msg("cli", "managed", [Attempt to stop the managed process's group]),
   msg("cli", "cli", [Attempt reap and terminal recovery if lent. \ Check whether the group is gone]),
   msg("cli", "channel", [Attempt result channel cleanup]),

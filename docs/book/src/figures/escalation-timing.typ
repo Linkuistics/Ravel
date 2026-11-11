@@ -15,7 +15,7 @@
   (
     lifeline("process", [Managed \ child], "external", (
       state([Runs], to: "term"),
-      state([Ignores \ TERM], to: "kill"),
+      state([Continues \ after TERM], to: "kill"),
       state([Exit not yet \ observed], to: "exit"),
       state([Exited, \ unreaped], role: "note"),
     )),
@@ -107,7 +107,8 @@
   [Time runs left to right. Distances are not to scale. A and B are alternatives. Both continue at C.],
   [Blue: runner inside the Ravel CLI. Grey: child and group. Pale child state: exited but unreaped. X: confirmed reap.],
   [A signal arrow is an attempt, not proof of exit. The final group query sends no signal.],
-  [Poll intervals: 500 milliseconds before escalation KILL, then 10 milliseconds. The scheduler can add delay.],
+  [Managed-process polls: 500 milliseconds before escalation KILL, then 10 milliseconds. The scheduler can add delay.],
+  [Harness runs use the same grace stages, with 20-millisecond polls before KILL and no terminal loan.],
   [The first escalation KILL starts one 2-second retry bound for exit checks and reap attempts. Errors do not restart it.],
   [An expired bound or unconfirmed cleanup returns no result. C shows the normal path, not every failure path.],
   [Early exit during either grace skips later escalation. Descendants receive no new grace.],

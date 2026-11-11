@@ -1,0 +1,356 @@
+{
+  "w": 700.0,
+  "h": 564.38671875,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Processes and authority in ravel-parts — C4 container view",
+      "x": 350.0,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 534.875,
+      "h": 12.15625
+    },
+    {
+      "id": "cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 215.0,
+      "y0": 26.15625,
+      "x1": 485.0,
+      "y1": 112.403125
+    },
+    {
+      "id": "cli-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«container»",
+      "x": 350,
+      "y": 41.71484374999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "cli-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI",
+      "x": 350,
+      "y": 56.35156249999999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 12.15625
+    },
+    {
+      "id": "cli-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Coordinates both runs and their separate result channels.",
+      "x": 350,
+      "y": 86.91640625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 246.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 0.0,
+      "y0": 356.15625,
+      "x1": 200.0,
+      "y1": 460.73984375
+    },
+    {
+      "id": "worker-stereo",
+      "shape": "text",
+      "role": "ravel",
+      "face": "qual",
+      "text": "«container»",
+      "x": 100,
+      "y": 371.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "worker-name",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai worker",
+      "x": 100,
+      "y": 386.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 108.1796875,
+      "h": 12.15625
+    },
+    {
+      "id": "worker-desc",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "Evaluates the configuration. No session-result authority.",
+      "x": 100,
+      "y": 426.084765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 176.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "advisor",
+      "shape": "box",
+      "role": "external",
+      "x0": 250.0,
+      "y0": 356.15625,
+      "x1": 450.0,
+      "y1": 460.73984375
+    },
+    {
+      "id": "advisor-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«container»",
+      "x": 350,
+      "y": 371.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "advisor-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "fake-advisor",
+      "x": 350,
+      "y": 386.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 112.03125,
+      "h": 12.15625
+    },
+    {
+      "id": "advisor-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Harness run. Sends advice through its own result channel.",
+      "x": 350,
+      "y": 426.084765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 176.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "agent",
+      "shape": "box",
+      "role": "external",
+      "x0": 500.0,
+      "y0": 356.15625,
+      "x1": 700.0,
+      "y1": 460.73984375
+    },
+    {
+      "id": "agent-stereo",
+      "shape": "text",
+      "role": "external",
+      "face": "qual",
+      "text": "«container»",
+      "x": 600,
+      "y": 371.71484375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 71.54296875,
+      "h": 9.1171875
+    },
+    {
+      "id": "agent-name",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "fake-agent",
+      "x": 600,
+      "y": 386.3515625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 97.6015625,
+      "h": 12.15625
+    },
+    {
+      "id": "agent-desc",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Managed process. Sends finished through the session result channel.",
+      "x": 600,
+      "y": 426.084765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 176.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "rel-cli-worker",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          215.0,
+          69.2796875
+        ],
+        [
+          207.5,
+          69.2796875
+        ],
+        [
+          207.5,
+          408.448046875
+        ],
+        [
+          200.0,
+          408.448046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-worker-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Starts and reaps",
+      "x": 270.5,
+      "y": 238.86386718749998,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 110.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-cli-advisor",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          350,
+          112.403125
+        ],
+        [
+          350,
+          356.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-advisor-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Supervises during selection",
+      "x": 423.0,
+      "y": 234.27968750000002,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 130.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "rel-cli-agent",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          485.0,
+          69.2796875
+        ],
+        [
+          492.5,
+          69.2796875
+        ],
+        [
+          492.5,
+          408.448046875
+        ],
+        [
+          500.0,
+          408.448046875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "rel-cli-agent-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launches after worker cleanup",
+      "x": 565.5,
+      "y": 238.86386718749998,
+      "anchor": "center",
+      "align": "left",
+      "wrapped": true,
+      "w": 130.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 62.26171875,
+      "y0": 478.73984375,
+      "x1": 637.73828125,
+      "y1": 564.38671875
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel processes. Grey: programs in the example.\nThe CLI starts and supervises the harness run and the final managed process.\nThe two result channels are separate and exist at different stages.\nThe worker cannot send the final session result.",
+      "x": 350.0,
+      "y": 521.5632812499999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 547.4765625,
+      "h": 65.64687500000001
+    }
+  ]
+}

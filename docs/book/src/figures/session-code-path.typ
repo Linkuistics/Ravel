@@ -1,4 +1,4 @@
-// The chapter 3 example through the code — one authoritative sequence source.
+// The chapter 8 example through the code — one authoritative sequence source.
 // Runner actions stay on the original CLI lifeline. Conditional section labels
 // carry the optional escalation region without adding a new layout primitive.
 #import "_sequence.typ": *
@@ -6,10 +6,11 @@
 
 #let parts = (
   part("caller", [caller]),
-  part("cli", [Ravel CLI \ (runner inside)], kind: "ravel"),
+  part("cli", [Ravel CLI \ with runner], kind: "ravel"),
   part("worker", [Rhai \ worker], kind: "ravel"),
+  part("advisor", [advisor \ harness run]),
   part("managed", [managed \ process]),
-  part("end", [Ravel CLI \ (end-session)], kind: "ravel"),
+  part("end", [Ravel CLI \ end-session], kind: "ravel"),
   part("channel", [result \ channel], kind: "temporary", db: true),
 )
 
@@ -18,30 +19,30 @@
   msg("cli", "cli", [main → run \ Check inputs and script path]),
   div([Configuration evaluation]),
   msg("cli", "worker", [Start in private directory], create: true),
-  msg("worker", "worker", [Change to / \ Register embedded modules]),
   msg("worker", "cli", [hello: worker identity], dashed: true),
-  msg("cli", "cli", [Check worker identity]),
-  msg("cli", "worker", [evaluate: script path \ and request]),
-  msg("worker", "worker", [Import configuration script]),
-  msg("worker", "cli", [Script description], dashed: true),
-  msg("cli", "cli", [judge: check description]),
-  msg("cli", "worker", [select: request command]),
-  msg("worker", "worker", [Call script select]),
-  msg("worker", "cli", [Selected command], dashed: true),
-  msg("cli", "cli", [judge: check command]),
-  msg("cli", "worker", [Close socket. End and reap]),
+  msg("cli", "cli", [Check worker identity. Reader thread reads config.rhai]),
+  msg("cli", "worker", [evaluate: source and request]),
+  msg("worker", "worker", [Evaluate configuration script]),
+  msg("worker", "cli", [host: run_harness]),
+  msg("cli", "advisor", [Runner starts harness with its own result channel and RAVEL_CONFIG_RUN=1], create: true),
+  msg("advisor", "cli", [Result through harness channel. Cleanup and reap], dashed: true),
+  destroy("advisor"),
+  msg("cli", "worker", [reply: harness result], dashed: true),
+  msg("worker", "cli", [selection], dashed: true),
+  msg("cli", "cli", [reply_judge: check selection]),
+  msg("worker", "worker", [Exit after selection]),
+  msg("cli", "cli", [Reap worker]),
   destroy("worker"),
   msg("cli", "cli", [Collect diagnostics \ Remove worker directory \ Resolve fake-agent]),
   div([Managed launch]),
   msg("cli", "cli", [Reserve stdout \ Redirect stdout to stderr]),
   msg("cli", "channel", [Allocate channel directory], create: true),
-  msg("cli", "cli", [Check cancellation \ Prepare argv and environment]),
+  msg("cli", "cli", [Write routing notice \ try_block_and_check \ Prepare argv and environment]),
   msg("cli", "managed", [Runner: spawn in own group \ Set new RAVEL_EXIT_FILE], create: true),
   note("cli", "managed", [Before exec: child takes terminal if Ravel owns foreground.]),
   msg("cli", "cli", [Started: start check \ restores mask \ Then watch]),
   note("cli", "managed", [Inside watch: parent lends terminal if Ravel owns foreground.]),
   div([Send the result]),
-  msg("managed", "caller", [Print prompt to caller stderr]),
   msg("managed", "end", [end-session finished], create: true),
   msg("end", "end", [Read RAVEL_EXIT_FILE]),
   msg("end", "channel", [Check directory \ Write and flush temporary file], role: "result"),
@@ -72,6 +73,6 @@
 #render(sequence([The session code path — UML sequence], parts, rows, (
   [Blue: Ravel. Grey: external processes. Gold: files. Green: result.],
   [X: confirmed reap or removal. Second CLI exit/reap omitted.],
-  [Example without selection context or a terminal.],
+  [The advisor is fake-advisor. Example without selection context or a terminal.],
   [Early child exit skips the optional region. Later checks still find the result.],
-), max-label: 90))
+), max-label: 65))

@@ -1,6 +1,6 @@
 {
   "w": 775.90625,
-  "h": 2457.9750000000004,
+  "h": 3134.7390625000003,
   "elements": [
     {
       "id": "title",
@@ -31,11 +31,11 @@
         ],
         [
           775.90625,
-          1131.640625
+          1168.3140625
         ],
         [
           94.671875,
-          1131.640625
+          1168.3140625
         ],
         [
           94.671875,
@@ -66,23 +66,23 @@
       "pts": [
         [
           2.0390625,
-          1161.640625
+          1198.3140625
         ],
         [
-          753.8681640625,
-          1161.640625
+          770.556640625,
+          1198.3140625
         ],
         [
-          753.8681640625,
-          1720.6109375
-        ],
-        [
-          2.0390625,
-          1720.6109375
+          770.556640625,
+          1775.62109375
         ],
         [
           2.0390625,
-          1161.640625
+          1775.62109375
+        ],
+        [
+          2.0390625,
+          1198.3140625
         ]
       ],
       "dashed": true,
@@ -95,7 +95,7 @@
       "face": "head",
       "text": "Public writes — first push of main",
       "x": 18.0390625,
-      "y": 1175.71875,
+      "y": 1212.3921875,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -109,23 +109,23 @@
       "pts": [
         [
           0.0,
-          1750.6109375
+          1805.62109375
         ],
         [
-          768.029296875,
-          1750.6109375
+          775.90625,
+          1805.62109375
         ],
         [
-          768.029296875,
-          2228.9812500000003
-        ],
-        [
-          0.0,
-          2228.9812500000003
+          775.90625,
+          2474.61171875
         ],
         [
           0.0,
-          1750.6109375
+          2474.61171875
+        ],
+        [
+          0.0,
+          1805.62109375
         ]
       ],
       "dashed": true,
@@ -138,11 +138,54 @@
       "face": "head",
       "text": "Local installation and final checks",
       "x": 16.0,
-      "y": 1764.6890625,
+      "y": 1819.69921875,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
       "w": 269.90625,
+      "h": 12.15625
+    },
+    {
+      "id": "promotion",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          59.232421875,
+          2504.61171875
+        ],
+        [
+          775.90625,
+          2504.61171875
+        ],
+        [
+          775.90625,
+          2921.071875
+        ],
+        [
+          59.232421875,
+          2921.071875
+        ],
+        [
+          59.232421875,
+          2504.61171875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "promotion-title",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Separate promotion",
+      "x": 75.232421875,
+      "y": 2518.68984375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 159.7421875,
       "h": 12.15625
     },
     {
@@ -461,33 +504,33 @@
       "id": "build",
       "shape": "box",
       "role": "phase",
-      "x0": 179.291015625,
+      "x0": 157.90625,
       "y0": 878.046875,
-      "x1": 420.521484375,
-      "y1": 906.68359375
+      "x1": 441.90625,
+      "y1": 943.35703125
     },
     {
       "id": "build-text",
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Build archives in target/dist.",
+      "text": "Build archives and formula for CHANNEL\nin target/dist.",
       "x": 299.90625,
-      "y": 892.365234375,
+      "y": 910.701953125,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 197.23046875,
-      "h": 10.63671875
+      "wrapped": true,
+      "w": 240.0,
+      "h": 47.31015625
     },
     {
       "id": "test",
       "shape": "box",
       "role": "phase",
       "x0": 193.56787109375,
-      "y0": 936.68359375,
+      "y0": 973.35703125,
       "x1": 406.24462890625,
-      "y1": 983.65703125
+      "y1": 1020.33046875
     },
     {
       "id": "test-text",
@@ -496,7 +539,7 @@
       "face": "body",
       "text": "Test the formula, then\nsmoke-test every target",
       "x": 299.90625,
-      "y": 960.1703125,
+      "y": 996.84375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -510,19 +553,19 @@
       "pts": [
         [
           299.90625,
-          1048.648828125
+          1085.322265625
         ],
         [
           321.90625,
-          1064.648828125
+          1101.322265625
         ],
         [
           299.90625,
-          1080.648828125
+          1117.322265625
         ],
         [
           277.90625,
-          1064.648828125
+          1101.322265625
         ]
       ]
     },
@@ -533,7 +576,7 @@
       "face": "body",
       "text": "All passed?",
       "x": 269.90625,
-      "y": 1064.648828125,
+      "y": 1101.322265625,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -545,9 +588,9 @@
       "shape": "box",
       "role": "outcome",
       "x0": 475.90625,
-      "y0": 1013.65703125,
+      "y0": 1050.33046875,
       "x1": 759.90625,
-      "y1": 1115.640625
+      "y1": 1152.3140625
     },
     {
       "id": "local-failure-text",
@@ -556,7 +599,7 @@
       "face": "body",
       "text": "Keep the cut local.\nCheck the tag and correct the cause.\nRebuild the book and archives.\nRepeat the tests.",
       "x": 617.90625,
-      "y": 1064.648828125,
+      "y": 1101.322265625,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -568,9 +611,9 @@
       "shape": "box",
       "role": "phase",
       "x0": 174.5947265625,
-      "y0": 1195.796875,
+      "y0": 1232.4703125,
       "x1": 425.2177734375,
-      "y1": 1224.43359375
+      "y1": 1261.10703125
     },
     {
       "id": "push-text",
@@ -579,7 +622,7 @@
       "face": "body",
       "text": "Push main, then push the tag",
       "x": 299.90625,
-      "y": 1210.115234375,
+      "y": 1246.788671875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -593,19 +636,19 @@
       "pts": [
         [
           299.90625,
-          1261.9203125
+          1298.59375
         ],
         [
           321.90625,
-          1277.9203125
+          1314.59375
         ],
         [
           299.90625,
-          1293.9203125
+          1330.59375
         ],
         [
           277.90625,
-          1277.9203125
+          1314.59375
         ]
       ]
     },
@@ -616,7 +659,7 @@
       "face": "body",
       "text": "Both sent?",
       "x": 269.90625,
-      "y": 1277.9203125,
+      "y": 1314.59375,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -627,10 +670,10 @@
       "id": "push-failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 459.2177734375,
-      "y0": 1254.43359375,
-      "x1": 699.3408203125,
-      "y1": 1301.40703125
+      "x0": 475.90625,
+      "y0": 1291.10703125,
+      "x1": 716.029296875,
+      "y1": 1338.0804687500001
     },
     {
       "id": "push-failure-text",
@@ -638,8 +681,8 @@
       "role": "outcome",
       "face": "body",
       "text": "After build and smoke pass,\nretry only the missing push.",
-      "x": 579.279296875,
-      "y": 1277.9203125,
+      "x": 595.9677734375,
+      "y": 1314.59375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -651,9 +694,9 @@
       "shape": "box",
       "role": "phase",
       "x0": 186.701171875,
-      "y0": 1331.40703125,
+      "y0": 1368.0804687500001,
       "x1": 413.111328125,
-      "y1": 1378.38046875
+      "y1": 1415.0539062500002
     },
     {
       "id": "github-text",
@@ -662,7 +705,7 @@
       "face": "body",
       "text": "Create the GitHub release\nwith its three archives",
       "x": 299.90625,
-      "y": 1354.89375,
+      "y": 1391.5671875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -674,9 +717,9 @@
       "shape": "box",
       "role": "phase",
       "x0": 175.818359375,
-      "y0": 1408.38046875,
+      "y0": 1445.0539062500002,
       "x1": 423.994140625,
-      "y1": 1455.35390625
+      "y1": 1492.02734375
     },
     {
       "id": "pages-text",
@@ -685,7 +728,7 @@
       "face": "body",
       "text": "Put the book on gh-pages.\nCheck the branch with verify.",
       "x": 299.90625,
-      "y": 1431.8671875,
+      "y": 1468.540625,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -699,19 +742,19 @@
       "pts": [
         [
           299.90625,
-          1502.008984375
+          1538.682421875
         ],
         [
           321.90625,
-          1518.008984375
+          1554.682421875
         ],
         [
           299.90625,
-          1534.008984375
+          1570.682421875
         ],
         [
           277.90625,
-          1518.008984375
+          1554.682421875
         ]
       ]
     },
@@ -722,7 +765,7 @@
       "face": "body",
       "text": "Complete?",
       "x": 269.90625,
-      "y": 1518.008984375,
+      "y": 1554.682421875,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -733,10 +776,10 @@
       "id": "github-failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 459.2177734375,
-      "y0": 1485.35390625,
-      "x1": 737.8681640625,
-      "y1": 1550.6640625
+      "x0": 475.90625,
+      "y0": 1522.02734375,
+      "x1": 754.556640625,
+      "y1": 1587.3375
     },
     {
       "id": "github-failure-text",
@@ -744,8 +787,8 @@
       "role": "outcome",
       "face": "body",
       "text": "Complete the release and assets.\nResume with –book-only,\nthen –tap-only.",
-      "x": 598.54296875,
-      "y": 1518.008984375,
+      "x": 615.2314453125,
+      "y": 1554.682421875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -756,24 +799,24 @@
       "id": "tap",
       "shape": "box",
       "role": "phase",
-      "x0": 190.21142578125,
-      "y0": 1580.6640625,
-      "x1": 409.60107421875,
-      "y1": 1627.6375
+      "x0": 157.90625,
+      "y0": 1617.3375,
+      "x1": 441.90625,
+      "y1": 1682.6476562500002
     },
     {
       "id": "tap-text",
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Copy, commit and push\nthe intended tap formula",
+      "text": "Copy, commit and push\nthe CHANNEL formula: ravel or ravel@2",
       "x": 299.90625,
-      "y": 1604.15078125,
+      "y": 1649.9925781250001,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 175.3896484375,
-      "h": 28.9734375
+      "wrapped": true,
+      "w": 240.0,
+      "h": 47.31015625
     },
     {
       "id": "tap-complete",
@@ -782,19 +825,19 @@
       "pts": [
         [
           299.90625,
-          1665.12421875
+          1720.134375
         ],
         [
           321.90625,
-          1681.12421875
+          1736.134375
         ],
         [
           299.90625,
-          1697.12421875
+          1752.134375
         ],
         [
           277.90625,
-          1681.12421875
+          1736.134375
         ]
       ]
     },
@@ -805,7 +848,7 @@
       "face": "body",
       "text": "Complete?",
       "x": 269.90625,
-      "y": 1681.12421875,
+      "y": 1736.134375,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -816,10 +859,10 @@
       "id": "tap-failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 459.2177734375,
-      "y0": 1657.6375,
-      "x1": 725.9873046875,
-      "y1": 1704.6109375
+      "x0": 475.90625,
+      "y0": 1712.6476562500002,
+      "x1": 742.67578125,
+      "y1": 1759.62109375
     },
     {
       "id": "tap-failure-text",
@@ -827,8 +870,8 @@
       "role": "outcome",
       "face": "body",
       "text": "Retain local tap work.\nFinish only this formula change.",
-      "x": 592.6025390625,
-      "y": 1681.12421875,
+      "x": 609.291015625,
+      "y": 1736.134375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -839,46 +882,46 @@
       "id": "update",
       "shape": "box",
       "role": "phase",
-      "x0": 192.13916015625,
-      "y0": 1784.7671875,
-      "x1": 407.67333984375,
-      "y1": 1831.7406250000001
+      "x0": 157.90625,
+      "y0": 1839.77734375,
+      "x1": 441.90625,
+      "y1": 1923.42421875
     },
     {
       "id": "update-text",
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Run brew update.\nInstall or upgrade Ravel.",
+      "text": "Run brew update. Install or upgrade\nthe selected formula with cleanup suppressed.",
       "x": 299.90625,
-      "y": 1808.25390625,
+      "y": 1881.60078125,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 171.5341796875,
-      "h": 28.9734375
+      "wrapped": true,
+      "w": 240.0,
+      "h": 65.64687500000001
     },
     {
       "id": "verify",
       "shape": "box",
       "role": "phase",
-      "x0": 176.54296875,
-      "y0": 1861.7406250000001,
-      "x1": 423.26953125,
-      "y1": 1945.3875
+      "x0": 157.90625,
+      "y0": 1953.42421875,
+      "x1": 441.90625,
+      "y1": 2037.07109375
     },
     {
       "id": "verify-text",
       "shape": "text",
       "role": "phase",
       "face": "body",
-      "text": "Run brew test ravel.\nCheck Ravel’s version\nat the Homebrew prefix.\nCheck GitHub’s three assets.",
+      "text": "Test the selected formula. Check its keg,\ninstallation record and three assets.",
       "x": 299.90625,
-      "y": 1903.5640625,
+      "y": 1995.24765625,
       "anchor": "center",
       "align": "center",
-      "wrapped": false,
-      "w": 202.7265625,
+      "wrapped": true,
+      "w": 240.0,
       "h": 65.64687500000001
     },
     {
@@ -888,19 +931,19 @@
       "pts": [
         [
           299.90625,
-          1992.042578125
+          2083.726171875
         ],
         [
           321.90625,
-          2008.042578125
+          2099.726171875
         ],
         [
           299.90625,
-          2024.042578125
+          2115.726171875
         ],
         [
           277.90625,
-          2008.042578125
+          2099.726171875
         ]
       ]
     },
@@ -911,7 +954,7 @@
       "face": "body",
       "text": "All passed?",
       "x": 269.90625,
-      "y": 2008.042578125,
+      "y": 2099.726171875,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -922,10 +965,10 @@
       "id": "install-failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 468.029296875,
-      "y0": 1975.3875,
-      "x1": 676.802734375,
-      "y1": 2040.6976562500001
+      "x0": 475.90625,
+      "y0": 2067.07109375,
+      "x1": 684.6796875,
+      "y1": 2132.38125
     },
     {
       "id": "install-failure-text",
@@ -933,8 +976,8 @@
       "role": "outcome",
       "face": "body",
       "text": "Correct the installation.\nRepeat its checks.\nKeep the same version.",
-      "x": 572.416015625,
-      "y": 2008.042578125,
+      "x": 580.29296875,
+      "y": 2099.726171875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -942,13 +985,96 @@
       "h": 47.31015625
     },
     {
+      "id": "evidence",
+      "shape": "box",
+      "role": "phase",
+      "x0": 190.734375,
+      "y0": 2162.38125,
+      "x1": 409.078125,
+      "y1": 2209.3546875
+    },
+    {
+      "id": "evidence-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "Record release evidence\nwith release-evidence.sh",
+      "x": 299.90625,
+      "y": 2185.86796875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 174.34375,
+      "h": 28.9734375
+    },
+    {
+      "id": "evidence-complete",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          2246.84140625
+        ],
+        [
+          321.90625,
+          2262.84140625
+        ],
+        [
+          299.90625,
+          2278.84140625
+        ],
+        [
+          277.90625,
+          2262.84140625
+        ]
+      ]
+    },
+    {
+      "id": "evidence-complete-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Evidence written?",
+      "x": 269.90625,
+      "y": 2262.84140625,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 125.1455078125,
+      "h": 10.63671875
+    },
+    {
+      "id": "evidence-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 475.90625,
+      "y0": 2239.3546875,
+      "x1": 718.55859375,
+      "y1": 2286.328125
+    },
+    {
+      "id": "evidence-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Correct the evidence inputs.\nWrite the receipt again.",
+      "x": 597.232421875,
+      "y": 2262.84140625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 198.65234375,
+      "h": 28.9734375
+    },
+    {
       "id": "live",
       "shape": "box",
       "role": "phase",
       "x0": 165.783203125,
-      "y0": 2070.6976562500004,
+      "y0": 2316.328125,
       "x1": 434.029296875,
-      "y1": 2099.3343750000004
+      "y1": 2344.96484375
     },
     {
       "id": "live-text",
@@ -957,7 +1083,7 @@
       "face": "body",
       "text": "Check the served book with live",
       "x": 299.90625,
-      "y": 2085.0160156250004,
+      "y": 2330.646484375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
@@ -971,19 +1097,19 @@
       "pts": [
         [
           299.90625,
-          2155.1578125
+          2400.78828125
         ],
         [
           321.90625,
-          2171.1578125
+          2416.78828125
         ],
         [
           299.90625,
-          2187.1578125
+          2432.78828125
         ],
         [
           277.90625,
-          2171.1578125
+          2416.78828125
         ]
       ]
     },
@@ -994,7 +1120,7 @@
       "face": "body",
       "text": "Book visible?",
       "x": 269.90625,
-      "y": 2171.1578125,
+      "y": 2416.78828125,
       "anchor": "east",
       "align": "center",
       "wrapped": false,
@@ -1005,10 +1131,10 @@
       "id": "pages-failure",
       "shape": "box",
       "role": "outcome",
-      "x0": 468.029296875,
-      "y0": 2129.3343750000004,
-      "x1": 752.029296875,
-      "y1": 2212.9812500000003
+      "x0": 475.90625,
+      "y0": 2374.96484375,
+      "x1": 759.90625,
+      "y1": 2458.61171875
     },
     {
       "id": "pages-failure-text",
@@ -1016,8 +1142,8 @@
       "role": "outcome",
       "face": "body",
       "text": "Check the branch and Pages setting.\nEnable Pages if disabled.\nRepeat only live.",
-      "x": 610.029296875,
-      "y": 2171.1578125,
+      "x": 617.90625,
+      "y": 2416.78828125,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -1025,11 +1151,147 @@
       "h": 65.64687500000001
     },
     {
+      "id": "channel",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          2538.76796875
+        ],
+        [
+          321.90625,
+          2554.76796875
+        ],
+        [
+          299.90625,
+          2570.76796875
+        ],
+        [
+          277.90625,
+          2554.76796875
+        ]
+      ]
+    },
+    {
+      "id": "channel-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Promote versioned release?",
+      "x": 269.90625,
+      "y": 2554.76796875,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 194.673828125,
+      "h": 10.63671875
+    },
+    {
+      "id": "unversioned-done",
+      "shape": "circle",
+      "role": "control",
+      "x": 486.90625,
+      "y": 2554.76796875,
+      "r": 11
+    },
+    {
+      "id": "unversioned-done-core",
+      "shape": "circle",
+      "role": "initial",
+      "x": 486.90625,
+      "y": 2554.76796875,
+      "r": 6
+    },
+    {
+      "id": "promote",
+      "shape": "box",
+      "role": "phase",
+      "x0": 157.90625,
+      "y0": 2600.76796875,
+      "x1": 441.90625,
+      "y1": 2702.7515625
+    },
+    {
+      "id": "promote-text",
+      "shape": "text",
+      "role": "phase",
+      "face": "body",
+      "text": "After the compatible caller is ready:\nrelease:promote copies the same release\nfrom ravel@2 to ravel",
+      "x": 299.90625,
+      "y": 2651.759765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 240.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "promotion-complete",
+      "shape": "polygon",
+      "role": "control",
+      "pts": [
+        [
+          299.90625,
+          2776.91171875
+        ],
+        [
+          321.90625,
+          2792.91171875
+        ],
+        [
+          299.90625,
+          2808.91171875
+        ],
+        [
+          277.90625,
+          2792.91171875
+        ]
+      ]
+    },
+    {
+      "id": "promotion-complete-question",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Promotion complete?",
+      "x": 269.90625,
+      "y": 2792.91171875,
+      "anchor": "east",
+      "align": "center",
+      "wrapped": false,
+      "w": 148.50390625,
+      "h": 10.63671875
+    },
+    {
+      "id": "promotion-failure",
+      "shape": "box",
+      "role": "outcome",
+      "x0": 475.90625,
+      "y0": 2732.7515625,
+      "x1": 759.90625,
+      "y1": 2853.071875
+    },
+    {
+      "id": "promotion-failure-text",
+      "shape": "text",
+      "role": "outcome",
+      "face": "body",
+      "text": "Correct the cause, then retry promotion.\nIt keeps formulae that agree, pushes a\nlocal commit and finishes installation.",
+      "x": 617.90625,
+      "y": 2792.91171875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 240.0,
+      "h": 102.3203125
+    },
+    {
       "id": "done",
       "shape": "circle",
       "role": "control",
       "x": 299.90625,
-      "y": 2269.9812500000003,
+      "y": 2894.071875,
       "r": 11
     },
     {
@@ -1037,7 +1299,7 @@
       "shape": "circle",
       "role": "initial",
       "x": 299.90625,
-      "y": 2269.9812500000003,
+      "y": 2894.071875,
       "r": 6
     },
     {
@@ -1324,11 +1586,11 @@
       "pts": [
         [
           299.90625,
-          906.68359375
+          943.35703125
         ],
         [
           299.90625,
-          936.68359375
+          973.35703125
         ]
       ],
       "dashed": false,
@@ -1341,11 +1603,11 @@
       "pts": [
         [
           299.90625,
-          983.65703125
+          1020.33046875
         ],
         [
           299.90625,
-          1048.648828125
+          1085.322265625
         ]
       ],
       "dashed": false,
@@ -1358,11 +1620,11 @@
       "pts": [
         [
           321.90625,
-          1064.648828125
+          1101.322265625
         ],
         [
           475.90625,
-          1064.648828125
+          1101.322265625
         ]
       ],
       "dashed": false,
@@ -1375,7 +1637,7 @@
       "face": "body",
       "text": "[no]",
       "x": 398.90625,
-      "y": 1060.648828125,
+      "y": 1097.322265625,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1389,11 +1651,11 @@
       "pts": [
         [
           299.90625,
-          1080.648828125
+          1117.322265625
         ],
         [
           299.90625,
-          1195.796875
+          1232.4703125
         ]
       ],
       "dashed": false,
@@ -1406,7 +1668,7 @@
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 1138.2228515625,
+      "y": 1174.8962890625,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1420,11 +1682,11 @@
       "pts": [
         [
           299.90625,
-          1224.43359375
+          1261.10703125
         ],
         [
           299.90625,
-          1261.9203125
+          1298.59375
         ]
       ],
       "dashed": false,
@@ -1437,11 +1699,11 @@
       "pts": [
         [
           321.90625,
-          1277.9203125
+          1314.59375
         ],
         [
-          459.2177734375,
-          1277.9203125
+          475.90625,
+          1314.59375
         ]
       ],
       "dashed": false,
@@ -1453,8 +1715,8 @@
       "role": "label",
       "face": "body",
       "text": "[no]",
-      "x": 390.56201171875,
-      "y": 1273.9203125,
+      "x": 398.90625,
+      "y": 1310.59375,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1468,11 +1730,11 @@
       "pts": [
         [
           299.90625,
-          1293.9203125
+          1330.59375
         ],
         [
           299.90625,
-          1331.40703125
+          1368.0804687500001
         ]
       ],
       "dashed": false,
@@ -1485,7 +1747,7 @@
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 1312.663671875,
+      "y": 1349.3371093750002,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1499,11 +1761,11 @@
       "pts": [
         [
           299.90625,
-          1378.38046875
+          1415.0539062500002
         ],
         [
           299.90625,
-          1408.38046875
+          1445.0539062500002
         ]
       ],
       "dashed": false,
@@ -1516,11 +1778,11 @@
       "pts": [
         [
           299.90625,
-          1455.35390625
+          1492.02734375
         ],
         [
           299.90625,
-          1502.008984375
+          1538.682421875
         ]
       ],
       "dashed": false,
@@ -1533,11 +1795,11 @@
       "pts": [
         [
           321.90625,
-          1518.008984375
+          1554.682421875
         ],
         [
-          459.2177734375,
-          1518.008984375
+          475.90625,
+          1554.682421875
         ]
       ],
       "dashed": false,
@@ -1549,8 +1811,8 @@
       "role": "label",
       "face": "body",
       "text": "[no]",
-      "x": 390.56201171875,
-      "y": 1514.008984375,
+      "x": 398.90625,
+      "y": 1550.682421875,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1564,11 +1826,11 @@
       "pts": [
         [
           299.90625,
-          1534.008984375
+          1570.682421875
         ],
         [
           299.90625,
-          1580.6640625
+          1617.3375
         ]
       ],
       "dashed": false,
@@ -1581,7 +1843,7 @@
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 1557.3365234375,
+      "y": 1594.0099609375002,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1595,11 +1857,11 @@
       "pts": [
         [
           299.90625,
-          1627.6375
+          1682.6476562500002
         ],
         [
           299.90625,
-          1665.12421875
+          1720.134375
         ]
       ],
       "dashed": false,
@@ -1612,11 +1874,11 @@
       "pts": [
         [
           321.90625,
-          1681.12421875
+          1736.134375
         ],
         [
-          459.2177734375,
-          1681.12421875
+          475.90625,
+          1736.134375
         ]
       ],
       "dashed": false,
@@ -1628,8 +1890,8 @@
       "role": "label",
       "face": "body",
       "text": "[no]",
-      "x": 390.56201171875,
-      "y": 1677.12421875,
+      "x": 398.90625,
+      "y": 1732.134375,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1643,11 +1905,11 @@
       "pts": [
         [
           299.90625,
-          1697.12421875
+          1752.134375
         ],
         [
           299.90625,
-          1784.7671875
+          1839.77734375
         ]
       ],
       "dashed": false,
@@ -1660,7 +1922,7 @@
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 1740.945703125,
+      "y": 1795.955859375,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1674,11 +1936,11 @@
       "pts": [
         [
           299.90625,
-          1831.7406250000001
+          1923.42421875
         ],
         [
           299.90625,
-          1861.7406250000001
+          1953.42421875
         ]
       ],
       "dashed": false,
@@ -1691,11 +1953,11 @@
       "pts": [
         [
           299.90625,
-          1945.3875
+          2037.07109375
         ],
         [
           299.90625,
-          1992.042578125
+          2083.726171875
         ]
       ],
       "dashed": false,
@@ -1708,11 +1970,11 @@
       "pts": [
         [
           321.90625,
-          2008.042578125
+          2099.726171875
         ],
         [
-          468.029296875,
-          2008.042578125
+          475.90625,
+          2099.726171875
         ]
       ],
       "dashed": false,
@@ -1724,8 +1986,8 @@
       "role": "label",
       "face": "body",
       "text": "[no]",
-      "x": 394.9677734375,
-      "y": 2004.042578125,
+      "x": 398.90625,
+      "y": 2095.726171875,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1733,30 +1995,109 @@
       "h": 10.63671875
     },
     {
-      "id": "flow-installed-live",
+      "id": "flow-installed-evidence",
       "shape": "line",
       "role": "relation",
       "pts": [
         [
           299.90625,
-          2024.042578125
+          2115.726171875
         ],
         [
           299.90625,
-          2070.6976562500004
+          2162.38125
         ]
       ],
       "dashed": false,
       "arrow": true
     },
     {
-      "id": "flow-installed-live-label",
+      "id": "flow-installed-evidence-label",
       "shape": "text",
       "role": "label",
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 2047.3701171875,
+      "y": 2139.0537109375,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-evidence-evidence-complete",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          2209.3546875
+        ],
+        [
+          299.90625,
+          2246.84140625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-evidence-complete-evidence-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          2262.84140625
+        ],
+        [
+          475.90625,
+          2262.84140625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "evidence-complete-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 2258.84140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-evidence-complete-live",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          2278.84140625
+        ],
+        [
+          299.90625,
+          2316.328125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-evidence-complete-live-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 2297.584765625,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1770,11 +2111,11 @@
       "pts": [
         [
           299.90625,
-          2099.3343750000004
+          2344.96484375
         ],
         [
           299.90625,
-          2155.1578125
+          2400.78828125
         ]
       ],
       "dashed": false,
@@ -1787,11 +2128,11 @@
       "pts": [
         [
           321.90625,
-          2171.1578125
+          2416.78828125
         ],
         [
-          468.029296875,
-          2171.1578125
+          475.90625,
+          2416.78828125
         ]
       ],
       "dashed": false,
@@ -1803,8 +2144,8 @@
       "role": "label",
       "face": "body",
       "text": "[no]",
-      "x": 394.9677734375,
-      "y": 2167.1578125,
+      "x": 398.90625,
+      "y": 2412.78828125,
       "anchor": "south",
       "align": "center",
       "wrapped": false,
@@ -1812,30 +2153,171 @@
       "h": 10.63671875
     },
     {
-      "id": "flow-served-done",
+      "id": "flow-served-channel",
       "shape": "line",
       "role": "relation",
       "pts": [
         [
           299.90625,
-          2187.1578125
+          2432.78828125
         ],
         [
           299.90625,
-          2258.9812500000003
+          2538.76796875
         ]
       ],
       "dashed": false,
       "arrow": true
     },
     {
-      "id": "flow-served-done-label",
+      "id": "flow-served-channel-label",
       "shape": "text",
       "role": "label",
       "face": "body",
       "text": "[yes]",
       "x": 307.90625,
-      "y": 2223.06953125,
+      "y": 2485.778125,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-channel-unversioned-done",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          2554.76796875
+        ],
+        [
+          475.90625,
+          2554.76796875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "channel-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 2550.76796875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-channel-promote",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          2570.76796875
+        ],
+        [
+          299.90625,
+          2600.76796875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-channel-promote-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 2585.76796875,
+      "anchor": "west",
+      "align": "center",
+      "wrapped": false,
+      "w": 35.1162109375,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-promote-promotion-complete",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          2702.7515625
+        ],
+        [
+          299.90625,
+          2776.91171875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-promotion-complete-promotion-failure",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          321.90625,
+          2792.91171875
+        ],
+        [
+          475.90625,
+          2792.91171875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "promotion-complete-guard-right",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[no]",
+      "x": 398.90625,
+      "y": 2788.91171875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": false,
+      "w": 28.3623046875,
+      "h": 10.63671875
+    },
+    {
+      "id": "flow-promotion-complete-done",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          299.90625,
+          2808.91171875
+        ],
+        [
+          299.90625,
+          2883.071875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "flow-promotion-complete-done-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "[yes]",
+      "x": 307.90625,
+      "y": 2845.991796875,
       "anchor": "west",
       "align": "center",
       "wrapped": false,
@@ -1846,24 +2328,24 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 105.314453125,
-      "y0": 2298.9812500000003,
-      "x1": 670.591796875,
-      "y1": 2457.9750000000004
+      "x0": 63.48876953125,
+      "y0": 2939.071875,
+      "x1": 712.41748046875,
+      "y1": 3134.7390625000003
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: sequential actions. Grey: stop and recover manually.\nA failure stops at its own step. Later actions do not run.\nEach guard covers the actions since the previous decision.\nEight grey exits name recovery points in the chapter’s recovery table.\nThe book build stays local. The Pages branch push precedes the tap.\nAfter a version write, keep that version. Do not start another version cut.\nA source/tag mismatch needs a decision. Never move a public tag.\nTask removes its lock on exit. After an abrupt stop, check for a live task first.",
+      "text": "Blue: sequential actions. Grey: stop and recover manually.\nA failure stops at its own step. Later actions do not run.\nEach guard covers the actions since the previous decision.\nGrey exits show recovery points. The chapter table also covers evidence and promotion.\nCHANNEL selects ravel@2 or ravel through build, tap and installation.\nPromotion is separate from the version cut and needs no new archives.\nThe book build stays local. The Pages branch push precedes the tap.\nAfter a version write, keep that version. Do not start another version cut.\nA source/tag mismatch needs a decision. Never move a public tag.\nTask removes its lock on exit. After an abrupt stop, check for a live task first.",
       "x": 387.953125,
-      "y": 2378.478125,
+      "y": 3036.90546875,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 537.27734375,
-      "h": 138.99375
+      "w": 620.9287109375,
+      "h": 175.6671875
     }
   ]
 }

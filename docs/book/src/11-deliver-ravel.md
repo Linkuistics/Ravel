@@ -137,6 +137,12 @@ directories:
 | `share/ravel/notices/THIRD-PARTY-NOTICES.md` | Rust dependency notices |
 | `README.md`, `LICENSE` | Project entry and licence |
 
+The installed-file view separates Ravel’s Homebrew record from a skill source’s payload and links.
+
+![The Ravel prefix contains bin/ravel, examples, notices and the Homebrew installation record. A separate skill source keg contains the payload and alias. The shared prefix links to that alias.](figures/installed-files.svg)
+
+[Open the installed-file view at full size](figures/installed-files.svg).
+
 [Chapter 6's installed-layout view](06-reference.md#installed-layout) shows
 the executable and the data files. `task notices` generates the notice file
 under `target/notices/`. The installation and the archive build copy those bytes unchanged.
@@ -539,14 +545,14 @@ The activity shows which checks come before the first public write and where
 each failure resumes. After a version write, recovery keeps the selected
 version.
 
-The eight grey exits refer to the
+The grey exits refer to the
 [recovery table](#recover-a-partial-release-without-another-bump). Each
 decision summarises the checks since the previous decision. A failure stops
 at its own step, before the later actions in that group. The book build stays
 local. The Pages branch check comes before the tap update. The check of the
 served site comes last.
 
-![The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update. Eight recovery branches cover failures through the final Pages check. After a version write, none starts another version cut.](figures/release-delivery.svg)
+![The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update, installation and release evidence. Recovery branches cover failures through the final Pages check. The selected channel determines the formula. A separate promotion makes the same release available through ravel. After a version write, none starts another version cut.](figures/release-delivery.svg)
 
 [Open the release activity at full size.](figures/release-delivery.svg)
 

@@ -366,6 +366,12 @@ evaluation in this order:
 5. It removes the private directories and reports every cleanup failure.
 6. It reads the cancellation latch again, and then it refuses.
 
+The sequence shows why harness cleanup precedes worker teardown, and why a later signal changes the final refusal.
+
+![At the deadline Ravel stops the harness group and reaps the run before it stops and reaps the worker. After directory cleanup it reads the latch again. A later TERM changes the outcome from selection_timeout, status 124, to selection_cancelled, status 143.](figures/selection-deadline.svg)
+
+[Open the deadline sequence at full size](figures/selection-deadline.svg).
+
 The **latch** is a variable of the Ravel CLI. Its signal handlers keep the
 first INT, TERM or HUP there.
 
@@ -685,6 +691,13 @@ During supervision, the runner checks for cancellation before it accepts an
 observed child exit. The Ravel CLI also checks signals around supervision and
 final cleanup. Cancellation skips the result's initial grace. If the kill grace
 has already begun, cancellation does not restart it.
+
+The sequence shows why a sent result cannot survive cancellation during supervision.
+Ravel attempts cleanup before it raises the signal again.
+
+![The managed process sends candidate, then sends INT to the Ravel CLI. Cleanup attempts precede cancellation, and the caller receives no result.](figures/supervision-cancellation.svg)
+
+[Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
 
 The managed process can itself supervise another process, for example a nested
 `ravel start-session`. The forwarded signal and the kill grace let that

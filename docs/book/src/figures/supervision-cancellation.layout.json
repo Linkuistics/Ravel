@@ -1,6 +1,6 @@
 {
   "w": 680.0,
-  "h": 1000.00078125,
+  "h": 1018.3375000000001,
   "elements": [
     {
       "id": "title",
@@ -27,7 +27,7 @@
         ],
         [
           45.86328125,
-          853.34375
+          871.68046875
         ]
       ],
       "dashed": true,
@@ -44,7 +44,7 @@
         ],
         [
           220.86328125,
-          853.34375
+          871.68046875
         ]
       ],
       "dashed": true,
@@ -61,7 +61,7 @@
         ],
         [
           407.86328125,
-          853.34375
+          871.68046875
         ]
       ],
       "dashed": true,
@@ -78,7 +78,7 @@
         ],
         [
           582.86328125,
-          853.34375
+          871.68046875
         ]
       ],
       "dashed": true,
@@ -396,11 +396,11 @@
       "pts": [
         [
           407.86328125,
-          339.1625
+          357.49921875
         ],
         [
           220.86328125,
-          339.1625
+          357.49921875
         ]
       ],
       "dashed": false,
@@ -411,14 +411,14 @@
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "INT (the example below)",
+      "text": "INT from managed process",
       "x": 314.36328125,
-      "y": 335.1625,
+      "y": 353.49921875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
-      "w": 174.0673828125,
-      "h": 10.63671875
+      "w": 175.0,
+      "h": 28.9734375
     },
     {
       "id": "msg-3",
@@ -427,11 +427,11 @@
       "pts": [
         [
           220.86328125,
-          402.47265625
+          420.809375
         ],
         [
           407.86328125,
-          402.47265625
+          420.809375
         ]
       ],
       "dashed": false,
@@ -444,7 +444,7 @@
       "face": "body",
       "text": "Attempt to stop the managed process’s group",
       "x": 314.36328125,
-      "y": 398.47265625,
+      "y": 416.809375,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -458,19 +458,19 @@
       "pts": [
         [
           220.86328125,
-          449.464453125
+          467.80117187499997
         ],
         [
           242.86328125,
-          449.464453125
+          467.80117187499997
         ],
         [
           242.86328125,
-          467.464453125
+          485.80117187499997
         ],
         [
           220.86328125,
-          467.464453125
+          485.80117187499997
         ]
       ],
       "dashed": false,
@@ -483,7 +483,7 @@
       "face": "body",
       "text": "Attempt reap and terminal recovery if lent.\nCheck whether the group is gone",
       "x": 248.86328125,
-      "y": 458.464453125,
+      "y": 476.80117187499997,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -497,11 +497,11 @@
       "pts": [
         [
           220.86328125,
-          527.09296875
+          545.4296875
         ],
         [
           582.86328125,
-          527.09296875
+          545.4296875
         ]
       ],
       "dashed": false,
@@ -514,7 +514,7 @@
       "face": "body",
       "text": "Attempt result channel cleanup",
       "x": 401.86328125,
-      "y": 523.09296875,
+      "y": 541.4296875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -528,19 +528,19 @@
       "pts": [
         [
           220.86328125,
-          546.5796875
+          564.91640625
         ],
         [
           242.86328125,
-          546.5796875
+          564.91640625
         ],
         [
           242.86328125,
-          564.5796875
+          582.91640625
         ],
         [
           220.86328125,
-          564.5796875
+          582.91640625
         ]
       ],
       "dashed": false,
@@ -553,7 +553,7 @@
       "face": "body",
       "text": "Attempt other required cleanup",
       "x": 248.86328125,
-      "y": 555.5796875,
+      "y": 573.91640625,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -567,23 +567,23 @@
       "pts": [
         [
           142.26953125,
-          582.06640625
+          600.403125
         ],
         [
           660.1328125,
-          582.06640625
+          600.403125
         ],
         [
           670.1328125,
-          592.06640625
+          610.403125
         ],
         [
           670.1328125,
-          625.03984375
+          643.3765625000001
         ],
         [
           142.26953125,
-          625.03984375
+          643.3765625000001
         ]
       ]
     },
@@ -594,15 +594,15 @@
       "pts": [
         [
           660.1328125,
-          582.06640625
+          600.403125
         ],
         [
           660.1328125,
-          592.06640625
+          610.403125
         ],
         [
           670.1328125,
-          592.06640625
+          610.403125
         ]
       ],
       "dashed": false,
@@ -615,7 +615,7 @@
       "face": "body",
       "text": "Ravel reports a failed attempt. It does not treat it as confirmed cleanup.\nNo X certifies process or directory removal on every path.",
       "x": 406.201171875,
-      "y": 603.553125,
+      "y": 621.8898437500001,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
@@ -629,19 +629,19 @@
       "pts": [
         [
           220.86328125,
-          683.2
+          701.5367187500001
         ],
         [
           242.86328125,
-          683.2
+          701.5367187500001
         ],
         [
           242.86328125,
-          701.2
+          719.5367187500001
         ],
         [
           220.86328125,
-          701.2
+          719.5367187500001
         ]
       ],
       "dashed": false,
@@ -654,7 +654,7 @@
       "face": "body",
       "text": "Keep cancellation primary. Return no result to the caller.\nRetain original failure and cleanup reports",
       "x": 248.86328125,
-      "y": 692.2,
+      "y": 710.5367187500001,
       "anchor": "west",
       "align": "left",
       "wrapped": true,
@@ -668,11 +668,11 @@
       "pts": [
         [
           220.86328125,
-          843.34375
+          861.68046875
         ],
         [
           45.86328125,
-          843.34375
+          861.68046875
         ]
       ],
       "dashed": true,
@@ -685,7 +685,7 @@
       "face": "body",
       "text": "Report cancellation and raise INT again\n(shell status 130). Return no result to the caller",
       "x": 133.36328125,
-      "y": 839.34375,
+      "y": 857.68046875,
       "anchor": "south",
       "align": "center",
       "wrapped": true,
@@ -697,9 +697,9 @@
       "shape": "box",
       "role": "key",
       "x0": 6.0,
-      "y0": 859.34375,
+      "y0": 877.68046875,
       "x1": 674.0,
-      "y1": 1000.00078125
+      "y1": 1018.3375000000001
     },
     {
       "id": "key-text",
@@ -708,7 +708,7 @@
       "face": "body",
       "text": "Blue: Ravel process. Grey: external participants. Gold cylinder: temporary files.\nGreen carries a sent value, but no green arrow reaches the caller.\nThe managed process’s group includes descendants that stay in that group.\nINT goes directly to the Ravel CLI here. Terminal Ctrl-C can reach only the group.\nHUP and TERM use shell statuses 129 and 143. If signal propagation fails, Ravel exits with the numeric status.\nCleanup problems cannot turn cancellation into success or permit result delivery.",
       "x": 340.0,
-      "y": 929.672265625,
+      "y": 948.0089843750001,
       "anchor": "center",
       "align": "center",
       "wrapped": true,

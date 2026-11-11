@@ -1,0 +1,743 @@
+{
+  "w": 820.11328125,
+  "h": 681.6281250000001,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "A harness call across the host bridge — UML sequence",
+      "x": 410.056640625,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 492.28125,
+      "h": 12.15625
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          71.08984375,
+          50.3125
+        ],
+        [
+          71.08984375,
+          626.6546875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-runtime",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          233.08984375,
+          71.26875000000001
+        ],
+        [
+          233.08984375,
+          626.6546875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-reader",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          368.08203125,
+          71.26875000000001
+        ],
+        [
+          368.08203125,
+          626.6546875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-runner",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          530.08203125,
+          50.3125
+        ],
+        [
+          530.08203125,
+          626.6546875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-advisor",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          747.09765625,
+          363.1875
+        ],
+        [
+          747.09765625,
+          442.79765625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 136.1796875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai worker",
+      "x": 71.08984375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 108.1796875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-runtime",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 169.6953125,
+      "y0": 26.156250000000004,
+      "x1": 296.484375,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-runtime-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "CLI runtime\nthread",
+      "x": 233.08984375,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 104.7890625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-reader",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 310.484375,
+      "y0": 26.156250000000004,
+      "x1": 425.6796875,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-reader-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "CLI reader\nthread",
+      "x": 368.08203125,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 93.1953125,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-runner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 488.6796875,
+      "y0": 26.15625,
+      "x1": 571.484375,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-runner-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "runner",
+      "x": 530.08203125,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.8046875,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          71.08984375,
+          116.24218750000001
+        ],
+        [
+          233.08984375,
+          116.24218750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "host frame: run_harness",
+      "x": 152.08984375,
+      "y": 112.24218750000001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 150.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          233.08984375,
+          142.87890625
+        ],
+        [
+          368.08203125,
+          142.87890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Dispatch call",
+      "x": 300.5859375,
+      "y": 138.87890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 91.9951171875,
+      "h": 10.63671875
+    },
+    {
+      "id": "note-18",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          169.6953125,
+          154.87890625
+        ],
+        [
+          415.6796875,
+          154.87890625
+        ],
+        [
+          425.6796875,
+          164.87890625
+        ],
+        [
+          425.6796875,
+          216.1890625
+        ],
+        [
+          169.6953125,
+          216.1890625
+        ]
+      ]
+    },
+    {
+      "id": "note-18-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          415.6796875,
+          154.87890625
+        ],
+        [
+          415.6796875,
+          164.87890625
+        ],
+        [
+          425.6796875,
+          164.87890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-18-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Runtime continues to watch cancellation, deadline and worker.",
+      "x": 297.6875,
+      "y": 185.533984375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 235.984375,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          368.08203125,
+          246.844140625
+        ],
+        [
+          390.08203125,
+          246.844140625
+        ],
+        [
+          390.08203125,
+          264.844140625
+        ],
+        [
+          368.08203125,
+          264.844140625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Resolve advisor. Allocate its result channel.",
+      "x": 396.08203125,
+      "y": 255.844140625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 122.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          368.08203125,
+          306.1359375
+        ],
+        [
+          530.08203125,
+          306.1359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Run harness",
+      "x": 449.08203125,
+      "y": 302.1359375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 88.3310546875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          530.08203125,
+          351.109375
+        ],
+        [
+          680.08203125,
+          351.109375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Start in a new session",
+      "x": 605.08203125,
+      "y": 347.109375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 138.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-advisor",
+      "shape": "box",
+      "role": "external",
+      "x0": 680.08203125,
+      "y0": 339.03125,
+      "x1": 814.11328125,
+      "y1": 363.1875
+    },
+    {
+      "id": "head-advisor-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "fake-advisor",
+      "x": 747.09765625,
+      "y": 351.109375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 112.03125,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "result",
+      "pts": [
+        [
+          747.09765625,
+          385.82421875
+        ],
+        [
+          530.08203125,
+          385.82421875
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "result",
+      "face": "body",
+      "text": "Output and result",
+      "x": 638.58984375,
+      "y": 381.82421875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 125.4775390625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          530.08203125,
+          405.3109375
+        ],
+        [
+          552.08203125,
+          405.3109375
+        ],
+        [
+          552.08203125,
+          423.3109375
+        ],
+        [
+          530.08203125,
+          423.3109375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Stop group and reap",
+      "x": 558.08203125,
+      "y": 414.3109375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 122.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-33-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          739.09765625,
+          434.79765625
+        ],
+        [
+          755.09765625,
+          450.79765625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-33-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          739.09765625,
+          450.79765625
+        ],
+        [
+          755.09765625,
+          434.79765625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          530.08203125,
+          477.434375
+        ],
+        [
+          368.08203125,
+          477.434375
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Captured data",
+      "x": 449.08203125,
+      "y": 473.434375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 102.5361328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          368.08203125,
+          496.92109375
+        ],
+        [
+          390.08203125,
+          496.92109375
+        ],
+        [
+          390.08203125,
+          514.92109375
+        ],
+        [
+          368.08203125,
+          514.92109375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Remove harness result channel",
+      "x": 396.08203125,
+      "y": 505.92109375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 122.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-10",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          368.08203125,
+          547.04453125
+        ],
+        [
+          233.08984375,
+          547.04453125
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Run map",
+      "x": 300.5859375,
+      "y": 543.04453125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 64.3984375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-11",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          233.08984375,
+          573.68125
+        ],
+        [
+          71.08984375,
+          573.68125
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "reply frame",
+      "x": 152.08984375,
+      "y": 569.68125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 83.087890625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-12",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          71.08984375,
+          593.16796875
+        ],
+        [
+          93.08984375,
+          593.16796875
+        ],
+        [
+          93.08984375,
+          611.16796875
+        ],
+        [
+          71.08984375,
+          611.16796875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-12-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Script receives stdout and result",
+      "x": 99.08984375,
+      "y": 602.16796875,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 122.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 150.57470703125,
+      "y0": 632.6546875,
+      "x1": 669.53857421875,
+      "y1": 681.6281250000001
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel. Grey: the harness. X: confirmed reap.\nThe harness result channel is separate from the final session channel.",
+      "x": 410.056640625,
+      "y": 657.14140625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 490.9638671875,
+      "h": 28.9734375
+    }
+  ]
+}

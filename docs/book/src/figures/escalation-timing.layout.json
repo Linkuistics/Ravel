@@ -1,6 +1,6 @@
 {
   "w": 799.8955078125,
-  "h": 1407.2453125000002,
+  "h": 1443.9187500000003,
   "elements": [
     {
       "id": "title",
@@ -245,13 +245,13 @@
       "shape": "text",
       "role": "external",
       "face": "body",
-      "text": "Ignores\nTERM",
+      "text": "Continues\nafter TERM",
       "x": 398.93505859375,
       "y": 119.84218750000001,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 51.8095703125,
+      "w": 76.7744140625,
       "h": 28.9734375
     },
     {
@@ -1767,21 +1767,21 @@
       "x0": 65.94775390625,
       "y0": 1101.5578125000002,
       "x1": 733.94775390625,
-      "y1": 1407.2453125000002
+      "y1": 1443.9187500000003
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Time runs left to right. Distances are not to scale. A and B are alternatives. Both continue at C.\nBlue: runner inside the Ravel CLI. Grey: child and group. Pale child state: exited but unreaped. X: confirmed reap.\nA signal arrow is an attempt, not proof of exit. The final group query sends no signal.\nPoll intervals: 500 milliseconds before escalation KILL, then 10 milliseconds. The scheduler can add delay.\nThe first escalation KILL starts one 2-second retry bound for exit checks and reap attempts. Errors do not restart it.\nAn expired bound or unconfirmed cleanup returns no result. C shows the normal path, not every failure path.\nEarly exit during either grace skips later escalation. Descendants receive no new grace.\nAfter reap, Ravel sends no signal to that group ID. Query success or EPERM does not confirm absence.\nThe CLI supplies the grace values. They are not a session deadline or a wall-clock guarantee.",
+      "text": "Time runs left to right. Distances are not to scale. A and B are alternatives. Both continue at C.\nBlue: runner inside the Ravel CLI. Grey: child and group. Pale child state: exited but unreaped. X: confirmed reap.\nA signal arrow is an attempt, not proof of exit. The final group query sends no signal.\nManaged-process polls: 500 milliseconds before escalation KILL, then 10 milliseconds. The scheduler can add delay.\nHarness runs use the same grace stages, with 20-millisecond polls before KILL and no terminal loan.\nThe first escalation KILL starts one 2-second retry bound for exit checks and reap attempts. Errors do not restart it.\nAn expired bound or unconfirmed cleanup returns no result. C shows the normal path, not every failure path.\nEarly exit during either grace skips later escalation. Descendants receive no new grace.\nAfter reap, Ravel sends no signal to that group ID. Query success or EPERM does not confirm absence.\nThe CLI supplies the grace values. They are not a session deadline or a wall-clock guarantee.",
       "x": 399.94775390625,
-      "y": 1254.4015625000002,
+      "y": 1272.7382812500002,
       "anchor": "center",
       "align": "center",
       "wrapped": true,
       "w": 640.0,
-      "h": 285.68750000000006
+      "h": 322.3609375000001
     }
   ]
 }

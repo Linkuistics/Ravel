@@ -128,12 +128,15 @@ and alt text follow `ste.md` and the contract's STE writing rules.
 | `session-outcomes` | Work phases and final outcomes. Cleanup is attempted on every path; an attempt need not succeed. The only green route requires a valid result, no cancellation, confirmed cleanup and a successful final write. The diagram groups operations rather than giving the full precedence algorithm. |
 | `settled-exit-status` | Outcome precedence for `start-session`, not implementation call order: cancellation, original failure, required cleanup, final write. Ravel attempts cleanup before it reports. After evaluation, an original failure keeps its status if later cleanup fails. Failed harness cleanup can first replace an evaluation deadline with status 5. The filename keeps links stable. |
 | `outcome-precedence` | The source priority in `Handlers::finalise`, then the report and decision order in `settle`. Signal sources have priority, not an order of arrival. Under cancellation, an original failure is reported before cleanup errors and group survival. The flow groups cleanup attempts. It does not place each system call in time. Only a pass of every decision reaches the final write. |
-| `release-delivery` | Sequential release actions, with local checks and the tagged book build before the first push of `main`. The GitHub release precedes the Pages branch push and `verify`, which precede the tap. The served-site check, `live`, comes last. Each decision summarises the actions since the previous decision. A failure stops at its own step. Eight grey exits name manual recovery points, with no new version cut after a version write. The chapter's recovery table gives the full procedure. |
+| `release-delivery` | Sequential release actions, with local checks and the tagged book build before the first push of `main`. The GitHub release precedes the Pages branch push and `verify`, which precede the tap. The served-site check, `live`, comes last. Each decision summarises the actions since the previous decision. A failure stops at its own step. Grey exits name manual recovery points, with no new version cut after a version write. CHANNEL selects the formula, and a separate promotion moves the same release to ravel. The chapter's recovery table gives the full procedure. |
+| `host-bridge` | The worker, runtime thread, reader thread and runner exchange one harness call. The harness channel is separate from the final session channel. |
+| `session-authority` | The example separates the worker, harness run and managed process. The CLI supervises each and the two runs use separate result channels. |
+| `selection-deadline` | The deadline stops the harness run before worker teardown. The second example adds a signal to the CLI, which changes the final outcome. Signal arrows are attempts. |
 | `selection-cancellation`, `supervision-cancellation` | The fake evaluation harness or final managed process sends INT directly to the Ravel CLI. These are not keyboard signals. Harness cleanup precedes worker teardown during selection. Cleanup steps are attempts and no X promises confirmed removal. Cancellation suppresses the result. HUP/TERM use the same rule. |
-| `source-components` | The request checks, host control and linked runner share one CLI process. The Rhai worker is a separate process of the same executable. The runner supervises evaluation harness runs and the final managed process at different times. The boundary means process membership, not a restriction of access. |
+| `source-components` | Skill preparation, the reader thread, host runtime, request checks and linked runner share one CLI process. The Rhai worker is a separate process of the same executable. The runner supervises evaluation harness runs and the final managed process at different times. The boundary means process membership, not a restriction of access. |
 | `escalation-timing` | A and B compare full escalation with early child exit. Both continue at C, the normal cleanup path. Signal arrows are attempts, not confirmed exit. Group stops precede reap. Terminal recovery precedes the signal-0 query, where only ESRCH confirms absence. Poll intervals and retry bounds supply no wall-clock guarantee. The time axis is not to scale. |
 | `terminal-lending-recovery` | The terminal lease spans the exec attempt. A shows spawn-reported success, normal supervision and outcome-dependent recovery. B shows failed spawn or unknown status, with conditional handback and no promised reap. The runner stays inside the CLI. A1 and A2 are alternative holder rules, not consecutive takeovers. The X certifies only A's child reap. The private pipe carries a group record, not proof of exec. |
-| `installed-files` | One executable supplies the CLI, linked runner and Rhai worker's engine. Outlines group installation directories. The file group lists the three editable Rhai examples. The key names third-party notices without an unsettled path. It identifies the archive-only README and licence. |
+| `installed-files` | One executable supplies the CLI, linked runner and Rhai worker's engine. Outlines group installation directories. The file group lists the three editable Rhai examples. The Homebrew record and a separate skill source keg show the default-source path. The key names third-party notices without an unsettled path. It identifies the archive-only README and licence. |
 
 Chapters 1–6 also use page-native tables for the sent result through cleanup and
 return, responsibilities, result versus
@@ -1532,3 +1535,39 @@ pass did not inspect every rendered chapter region, an editor preview,
 GitHub's source view, the released Pages site, another theme, a narrower
 viewport or another operating system. Browser layout and figure reproduction
 do not establish reader comprehension. Read 1 remains the owner's checkpoint.
+
+### Ravel 2.0.0 inside chapters (`ravel-book-inside-k310`, 2026-11-12)
+
+The art pass read all eleven chapters. It updated the source, installation,
+full session, outcome and release views. New views separate the example's
+process authority, host threads and deadline cleanup. Chapter 9 also embeds
+the shared supervision cancellation sequence. The timing key distinguishes
+managed-process polls from harness polls. Its TERM state permits a handler
+that writes a note and continues.
+
+Firefox in an isolated Linux guest displayed the local light book in a
+1200-by-1000 window with a measured 750-pixel chapter column. Scroll
+continuations covered the complete revised figures and their keys. The
+release activity now uses a separate promotion partition, which reduces its
+width from 1106 to 788 units without smaller type. Its body text is about
+13.3 pixels at chapter width. Shorter participant headings and narrower
+message wrapping reduce the session sequence from 988 to 895 units. Its
+body text is about 11.7 pixels. No overlap or clipping was visible.
+
+The formula-state tables carry the before-cut, versioned-cut and promotion
+comparison. A separate channel diagram would repeat that comparison. The
+installed view supplies the skill payload and both links. Chapter 7's source
+view and chapter 11's manifest table carry the component relation without a
+second embedded component drawing. These are editorial choices, not contract
+restrictions or failures of the medium.
+
+The shared cancellation figures retain their focus on cleanup and suppressed
+results. Chapter 8's adjacent explanations carry the intermediate diagnostics.
+A second skill-preparation drawing would repeat chapter 7's ordered list and
+recipient table. These are also editorial choices. No figure was declined
+because the medium could not carry it.
+
+This pass supplies no reader-comprehension result, published-site inspection,
+editor-preview inspection or new platform qualification. The full-size links
+remain available beside the figures. The owner's reader checkpoints remain
+separate from this art pass.

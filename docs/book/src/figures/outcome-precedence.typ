@@ -43,6 +43,7 @@
   [Signal sources have priority, not an order of arrival.],
   [The look(true) snapshot uses the CLI latch, then an eligible queued signal.],
   [The decisions run in precedence order: the first that applies gives the outcome.],
-  [Cancellation wins over every failure. An original failure keeps its own status.],
+  [Cancellation normally wins. Cancelled skill resolution keeps skill_resolution_cancelled.],
+  [An original failure keeps its own status when cancellation does not apply.],
   [The write happens only when every earlier decision passes.],
 )))

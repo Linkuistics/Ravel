@@ -2373,7 +2373,7 @@ Ravel completes host calls, reaps the worker and removes its directory before th
 > The same linked runner supervises evaluation harness runs and the final managed process at different times.
 > It does not define a sandbox or a supported library interface.
 
-![Source responsibilities: crates/ravel checks requests, controls host calls and decides the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate Rhai worker uses the same binary to evaluate the configuration script and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the configuration script. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
+![Source responsibilities: crates/ravel prepares skills and checks requests. Its reader thread and runtime control host calls and decide the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate Rhai worker uses the same binary to evaluate the configuration script and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the configuration script. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
 
 > **Figure link:** [Open the source-responsibility view at full size](figures/source-components.svg).
 
@@ -2381,7 +2381,7 @@ Ravel completes host calls, reaps the worker and removes its directory before th
 > One executable supplies both the CLI and the separate Rhai worker. The three Rhai examples remain editable files.
 > Directory outlines do not show concurrent process lifetimes.
 
-![Installed files: bin/ravel contains the CLI, linked runner and Rhai engine. The CLI starts the same binary as a Rhai worker. Under share/ravel, examples holds three editable files: static.rhai, sample.rhai and llm.rhai. The notices directory holds THIRD-PARTY-NOTICES.md for Rust dependencies. The archive adds README.md and LICENSE at its root.](figures/installed-files.svg)
+![Installed files: bin/ravel contains the CLI, linked runner and Rhai engine. The CLI starts the same binary as a Rhai worker. Under share/ravel, examples holds three editable files: static.rhai, sample.rhai and llm.rhai. The notices directory holds THIRD-PARTY-NOTICES.md for Rust dependencies. Homebrew adds installation.json. A separate skill-source keg holds a payload and alias, with a link in the shared prefix.](figures/installed-files.svg)
 
 > **Figure link:** [Open the installed-file view at full size](figures/installed-files.svg).
 

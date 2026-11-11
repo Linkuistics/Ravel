@@ -49,6 +49,12 @@ When you finish the steps, the directory holds these paths:
 └── …                   the fakes and the command write five files
 ```
 
+The process view separates the harness run from the managed process. Each uses its own result channel.
+
+![The Ravel CLI starts and reaps the Rhai worker, supervises fake-advisor during selection, then launches fake-agent after worker cleanup. The harness run and managed process use separate result channels.](figures/session-authority.svg)
+
+[Open the process authority view at full size](figures/session-authority.svg).
+
 Each path has one purpose:
 
 | Path | Who makes it | Purpose |
@@ -239,7 +245,7 @@ checkout.
 The figure shows the same parts and their relations. The dashed outline is the
 Ravel CLI process.
 
-![Source responsibilities: crates/ravel checks requests, controls host calls and decides the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate Rhai worker uses the same binary to evaluate the configuration script and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the configuration script. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
+![Source responsibilities: crates/ravel prepares skills and checks requests. Its reader thread and runtime control host calls and decide the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate Rhai worker uses the same binary to evaluate the configuration script and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the configuration script. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
 
 [Open the source-responsibility view at full size](figures/source-components.svg).
 
@@ -397,13 +403,11 @@ replies. Follow the `advisor` call:
 | 6 | The Ravel CLI | `rhai_worker/harness.rs`, `host.rs` | Removes the run's result channel and sends a `reply` frame with the run's map |
 | 7 | The Rhai worker | `rhai_worker/bridge.rs` | Gives the map to the script. `run.stdout` is `short`, and `run.result` is `advice`. |
 
-Chapter 4 shows the same sequence for a fake Claude Code. The figure is
-general: its harness is named `claude`, but its steps are the steps of the
-table.
+The sequence separates the two CLI threads. The runtime can watch the worker while the reader waits for the harness run.
 
-![The Rhai worker requests a claude harness run from the Ravel CLI and waits. The CLI checks the budget and starts the run with its own result channel. The run reads standard input, writes its answer and exits. After cleanup the CLI returns a map to the worker. The configuration script selects, the CLI reaps the worker, writes the routing notice and starts the managed process.](figures/evaluation-harness.svg)
+![The worker sends a host frame to the runtime thread. The reader thread resolves the harness and asks the runner to supervise it. After group cleanup and channel removal, the runtime returns the run map to the worker.](figures/host-bridge.svg)
 
-[Open the evaluation harness sequence at full size](figures/evaluation-harness.svg).
+[Open the host bridge sequence at full size](figures/host-bridge.svg).
 
 Why are there two threads in the Ravel CLI during evaluation? The Ravel CLI
 serves the socket from a Tokio runtime on one thread. Tokio is the Rust library

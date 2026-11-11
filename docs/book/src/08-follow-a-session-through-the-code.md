@@ -336,6 +336,8 @@ The refusal example below prints `type_of(context)`, and the output is `()`.
 
 ## Follow the harness run through the host bridge
 
+[Chapter 7's host bridge sequence](07-the-parts-of-ravel.md#the-host-bridge-carries-each-request-to-the-ravel-cli) shows how the runtime and reader threads divide this call.
+
 The first statement of `select` calls `ravel::run_harness`. The table follows
 that call. Each row names the thread or process that acts.
 

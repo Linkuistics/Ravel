@@ -1,6 +1,6 @@
 {
   "w": 744.57470703125,
-  "h": 1084.5843750000001,
+  "h": 1102.92109375,
   "elements": [
     {
       "id": "title",
@@ -957,24 +957,24 @@
       "id": "key",
       "shape": "box",
       "role": "key",
-      "x0": 78.741943359375,
+      "x0": 56.678955078125,
       "y0": 925.590625,
-      "x1": 665.832763671875,
-      "y1": 1084.5843750000001
+      "x1": 687.895751953125,
+      "y1": 1102.92109375
     },
     {
       "id": "key-text",
       "shape": "text",
       "role": "label",
       "face": "body",
-      "text": "Blue: steps. Grey: outcomes. A diamond is a decision.\nThe label in square brackets is the guard of a flow.\nRavel attempts all cleanup steps before it chooses an outcome.\nSignal sources have priority, not an order of arrival.\nThe look(true) snapshot uses the CLI latch, then an eligible queued signal.\nThe decisions run in precedence order: the first that applies gives the outcome.\nCancellation wins over every failure. An original failure keeps its own status.\nThe write happens only when every earlier decision passes.",
+      "text": "Blue: steps. Grey: outcomes. A diamond is a decision.\nThe label in square brackets is the guard of a flow.\nRavel attempts all cleanup steps before it chooses an outcome.\nSignal sources have priority, not an order of arrival.\nThe look(true) snapshot uses the CLI latch, then an eligible queued signal.\nThe decisions run in precedence order: the first that applies gives the outcome.\nCancellation normally wins. Cancelled skill resolution keeps skill_resolution_cancelled.\nAn original failure keeps its own status when cancellation does not apply.\nThe write happens only when every earlier decision passes.",
       "x": 372.287353515625,
-      "y": 1005.0875000000001,
+      "y": 1014.255859375,
       "anchor": "center",
       "align": "center",
       "wrapped": false,
-      "w": 559.0908203125,
-      "h": 138.99375
+      "w": 603.216796875,
+      "h": 157.33046875
     }
   ]
 }
