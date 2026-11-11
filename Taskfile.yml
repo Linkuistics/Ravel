@@ -343,8 +343,26 @@ tasks:
     cmds:
       - bash scripts/release-notes.sh {{.CLI_ARGS}}
 
+  release:promote:
+    desc: Publish the complete ravel@2 release VERSION as unversioned ravel, with no cut, build, tag or book change (READINESS and EVIDENCE default to target/release-evidence)
+    requires:
+      vars:
+        - name: VERSION
+    preconditions:
+      - sh: test -d .jj && test -d .git && test "$(pwd -P)" = "$(jj workspace root --name default)"
+        msg: Run releases from Ravel's default colocated jj workspace.
+    cmds:
+      - |
+        mkdir .jj/release-lock || {
+          echo 'Another release holds .jj/release-lock. If it was interrupted, confirm it has stopped before removing the lock.' >&2
+          exit 1
+        }
+      - defer: rmdir .jj/release-lock
+      # docs/specs/release-channels.md, "Promotion interface".
+      - bash scripts/release-promote.sh --version {{shellQuote .VERSION}}{{if .READINESS}} --readiness {{shellQuote .READINESS}}{{end}}{{if .EVIDENCE}} --evidence {{shellQuote .EVIDENCE}}{{end}}
+
   release:lifecycle:test:
-    desc: Test independent release refusal, order, notes, dry cuts, the release channels with their mutants and the book's delivery in isolated fixtures (needs task setup)
+    desc: Test independent release refusal, order, notes, dry cuts, the release channels and promotion with their mutants and the book's delivery in isolated fixtures (needs task setup)
     silent: true
     cmds:
       - bash scripts/release-check.sh lifecycle

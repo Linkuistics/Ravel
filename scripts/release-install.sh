@@ -3,9 +3,10 @@
 # Install the release of the selected channel from the tap and verify the
 # installation through its own keg, never through the command on PATH.
 #
-# Usage: release-install.sh --channel CHANNEL
+# Usage: release-install.sh --channel CHANNEL [--version X.Y.Z]
 #
-# Run at the tagged release commit, after release-publish.sh. The channel
+# Run at the tagged release commit, after release-publish.sh, or name the
+# published version with --version, as release-promote.sh does. The channel
 # (scripts/release-channel.sh) names the formula. For versioned-2 the formula
 # is keg-only: its prefix holds the only command, and unversioned ravel, its
 # keg and its shared links must stay exactly as they were.
@@ -13,6 +14,10 @@
 # Every Homebrew mutation sets HOMEBREW_NO_INSTALL_CLEANUP=1, so no running
 # reader loses an earlier keg (docs/specs/release-channels.md, "Recovery and
 # existing processes"). The script never runs cleanup, uninstall or reinstall.
+# Every ravel and ravel@2 keg present before the mutation must remain, with its
+# executable bin/ravel, because a running reader may still use it. A repeated
+# run upgrades a current formula, which Homebrew only warns about, so a
+# matching installation stays as it is.
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -38,6 +43,15 @@ formula_info() {
   }'
 }
 
+# Every installed ravel and ravel@2 keg, one directory per line.
+installed_kegs() {
+  local brew_prefix="$1" keg
+  for keg in "$brew_prefix"/Cellar/ravel/* "$brew_prefix"/Cellar/ravel@2/*; do
+    [[ -d "$keg" ]] && printf '%s\n' "$keg"
+  done
+  return 0
+}
+
 # What this script must not change in unversioned ravel: its installed
 # versions, its linked keg and the shared prefix's command.
 unversioned_state() {
@@ -48,20 +62,28 @@ unversioned_state() {
 }
 
 main() {
-  [[ $# == 2 && "$1" == --channel ]] || die 'usage: release-install.sh --channel CHANNEL'
-  local reason
+  local usage='usage: release-install.sh --channel CHANNEL [--version X.Y.Z]' reason version=''
+  [[ ($# == 2 || $# == 4) && "$1" == --channel ]] || die "$usage"
+  if (($# == 4)); then
+    [[ "$3" == --version ]] || die "$usage"
+    version="$4"
+    [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "not a release version: $version"
+  fi
   reason="$(channel_select "$2")" || die "$reason"
   channel_select "$2"
 
-  local tag version
-  tag="$(git -C "$REPO_ROOT" describe --tags --exact-match HEAD)" || die 'HEAD is not a release tag; run at the tagged release commit'
-  version="${tag#v}"
-  [[ "$tag" == "v$version" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "not a release tag: $tag"
+  local tag
+  if [[ -z "$version" ]]; then
+    tag="$(git -C "$REPO_ROOT" describe --tags --exact-match HEAD)" || die 'HEAD is not a release tag; run at the tagged release commit or pass --version'
+    version="${tag#v}"
+    [[ "$tag" == "v$version" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "not a release tag: $tag"
+  fi
   [[ -z "$CHANNEL_MAJOR" || "$(version_major "$version")" == "$CHANNEL_MAJOR" ]] ||
     die "CHANNEL=$CHANNEL_ID installs only major $CHANNEL_MAJOR, not $version"
 
-  local brew_prefix before=''
+  local brew_prefix before='' kegs_before earlier
   brew_prefix="$(brew --prefix)"
+  kegs_before="$(installed_kegs "$brew_prefix")"
   if [[ -n "$CHANNEL_KEG_ONLY" ]]; then
     before="$(unversioned_state "$brew_prefix")"
   fi
@@ -74,6 +96,12 @@ main() {
     brew install "$TAP/$CHANNEL_FORMULA"
   fi
   brew test "$CHANNEL_FORMULA"
+
+  # Running readers keep their kegs.
+  while IFS= read -r earlier; do
+    [[ -z "$earlier" || -x "$earlier/bin/ravel" ]] ||
+      die "the earlier keg $earlier lost its bin/ravel; a running reader may need it. Restore it before any cleanup"
+  done <<<"$kegs_before"
 
   # Class, keg-only state, destination and prefix, together.
   local info keg prefix

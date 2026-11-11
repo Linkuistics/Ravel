@@ -3,7 +3,8 @@
 Grove's coordinated-release specification names the one release owner for the
 2.0.0 transition and owns the order between products. The focused design review
 of this document and its integration are complete. The release tasks carry the
-channel as "Release interface" states. The promotion task remains ahead.
+channel as "Release interface" states. `release:promote` implements "Promotion
+without another release".
 
 ## One release, two formula channels
 
@@ -111,10 +112,109 @@ On retry, the task verifies and retains a matching existing formula, commit or
 installation. Report mismatches. Do not overwrite them to make a retry pass.
 
 Consumer readiness is explicit input from the coordinating release owner.
-Ravel's runtime acquires no Grove version table or dependency. Release-tool
-implementation settles the receipt shape and plumbing, with actionable errors
-and deterministic fixtures. Grove finish invokes this already prepared task
-only after its compatible release and installed verification succeed.
+Ravel's runtime acquires no Grove version table or dependency. "Consumer
+readiness receipt" below gives the receipt's shape. Grove finish invokes this
+already prepared task only after its compatible release and installed
+verification succeed.
+
+### Promotion interface
+
+Run the promotion from Ravel's default colocated workspace:
+
+```sh
+RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:promote VERSION=2.0.0
+```
+
+`READINESS=FILE` names the readiness receipt. Its default is
+`target/release-evidence/v2.0.0.readiness.json`. `EVIDENCE=FILE` names the
+cut's release evidence. Its default is `target/release-evidence/v2.0.0.json`,
+which `scripts/release-evidence.sh` wrote during the cut. The task holds the
+release lock, and `scripts/release-promote.sh` does this work in order:
+
+1. Verify the evidence and the receipt. Both are local files, so a missing
+   receipt refuses before any network read.
+2. Verify that the public tag has the cut's commit and that the GitHub Release
+   is complete.
+3. Download the three assets. Compare each SHA-256 with the evidence.
+4. Verify that the cut's book commit last changed `v2.0.0/` on the Pages
+   branch. The root index must list the release.
+5. Fetch the tap. The receipt's consumer formula must have the receipt's
+   consumer version there.
+6. Render both classes from the downloaded assets with the template at the
+   tag's commit. Add the deprecation to the versioned rendering. Test the
+   three files through Homebrew with `release-formula.sh --test`.
+7. Bring the tap to the promotion as the table below states.
+8. Install and verify unversioned `ravel`.
+9. Write `target/release-evidence/v2.0.0.promotion.json`.
+
+The deprecation is one line after the `keg_only` line, which is the place
+that Homebrew's component order gives it:
+
+```ruby
+  deprecate! date: "<tag date>", because: :versioned_formula, replacement_formula: "ravel"
+```
+
+Homebrew 7.0.13 requires the date. The date is the UTC date of the tag's
+commit, so each retry renders the same bytes. `scripts/release-channel.sh`
+owns the line and its insertion.
+
+| Tap state on the remote | Behaviour |
+| --- | --- |
+| `ravel.rb` and `ravel@2.rb` hold the promotion | Keep both. |
+| Local `main` is one promotion commit ahead of the remote | Push that commit. |
+| `ravel@2.rb` is the published versioned formula, and `ravel.rb` has a major below 2 | Make one commit, and push it through jj. |
+| Any other state | Report the difference, and change nothing. |
+
+The tap must be a jj repository with a clean working copy. Installation runs
+`scripts/release-install.sh --channel unversioned --version 2.0.0`. It
+upgrades with `HOMEBREW_NO_INSTALL_CLEANUP=1` and verifies the linked keg,
+the shared command and the installation record. It refuses when an earlier
+`ravel` or `ravel@2` keg lost its `bin/ravel`. A repeated upgrade of a current
+formula changes nothing, so a matching installation stays.
+
+The promotion evidence records the tag commit, the asset digests and the book.
+It records the receipt's digest and consumer, and the tap commit. It records
+both formula digests, the deprecation date, the installed keg and every
+retained keg.
+
+### Consumer readiness receipt
+
+The coordinating release owner writes the receipt after the compatible
+consumer release and its installed verification. For the 2.0.0 transition,
+that owner is Grove's finish session. The receipt is one JSON object:
+
+| Field | Value |
+| --- | --- |
+| `schemaVersion` | `1`. |
+| `kind` | `"ravel-promotion-readiness"`. |
+| `ravel.version` | The promoted version, such as `"2.0.0"`. |
+| `ravel.tagCommit` | The tag commit from the cut's release evidence. |
+| `ravel.assets` | The three `name` and `sha256` entries from the cut's release evidence. |
+| `consumer.name` | The consumer, such as `"grove"`. |
+| `consumer.version` | The compatible consumer release, as `X.Y.Z`. |
+| `consumer.formula` | The consumer's formula file in the same tap, such as `"grove.rb"`. Its `version` line must equal `consumer.version`. |
+| `consumer.verifiedAt` | The UTC time of the installed verification, such as `"2026-11-20T09:30:00Z"`. |
+| `consumer.verifiedRoutes` | A list of the route names that the consumer verified. Ravel does not interpret them. |
+
+[The example receipt](release-channels-readiness.example.json) has
+placeholder identities. The lifecycle fixtures bind that example to a fixture
+cut, so its shape stays valid. Ravel reads no consumer version table. The
+receipt and the consumer formula in the tap are its only consumer inputs.
+
+This command writes the receipt from the cut's evidence, in Ravel's default
+workspace:
+
+```sh
+jq --arg version 22.9.0 --arg at "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+  '{schemaVersion: 1, kind: "ravel-promotion-readiness",
+    ravel: {version: "2.0.0", tagCommit, assets},
+    consumer: {name: "grove", version: $version, formula: "grove.rb", verifiedAt: $at,
+      verifiedRoutes: ["native-1.1", "native-2.0-delivery-disabled", "directory-2.0"]}}' \
+  target/release-evidence/v2.0.0.json >target/release-evidence/v2.0.0.readiness.json
+```
+
+Replace `22.9.0` with the compatible Grove release that finish published and
+verified.
 
 ## Recovery and existing processes
 
@@ -127,7 +227,9 @@ existing tap commits, and retry only failed installation/live verification.
 
 Promotion has a separate boundary. A published formula with failed installation
 needs installation recovery. An unpushed tap commit needs its push. Neither
-condition warrants another Ravel release.
+condition warrants another Ravel release. Run `task release:promote
+VERSION=2.0.0` again for both. It keeps the published formulae and pushes a
+local promotion commit.
 
 Retain active callers' full original prefixes. For this transition that includes
 the original 1.1.0 keg and ending path. Apply `HOMEBREW_NO_INSTALL_CLEANUP=1`
@@ -151,7 +253,11 @@ Extend release-lifecycle fixtures and actual formula install/test methods.
 Cover baseline versus target channel, resume exits, wrong-channel refusal,
 `versioned-2` refusal after promotion, and unchanged unversioned formula during
 versioned delivery. Cover unchanged archives and the `ravel@2` deprecation
-during promotion, idempotent retries and preserved old prefixes. Full release
-still needs current Rust, book, archive/platform and public installed
-verification. Schema reconciliation and real directory acceptance are release
+during promotion, idempotent retries and preserved old prefixes.
+`scripts/release-channel.test.sh` holds these fixtures and their mutants.
+`task release:formula` loads the deprecated `ravel@2.rb` through Homebrew on
+every run.
+
+Full release still needs current Rust, book, archive/platform and public
+installed verification. Schema reconciliation and real directory acceptance are release
 inputs, not claims that release fixtures establish.

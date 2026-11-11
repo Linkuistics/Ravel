@@ -5,8 +5,8 @@ require "formula_assertions"
 require "json"
 require "tmpdir"
 
-source, *rest = ARGV
-raise "expected SOURCE then CHANNEL FORMULA PREFIX TESTPATH for each channel" unless !rest.empty? && (rest.length % 4).zero?
+source, deprecated, *rest = ARGV
+raise "expected SOURCE DEPRECATED then CHANNEL FORMULA PREFIX TESTPATH for each channel" unless !rest.empty? && (rest.length % 4).zero?
 groups = rest.each_slice(4).to_h { |channel, file, prefix, testpath| [channel, [file, prefix, testpath]] }
 raise "expected the channels versioned-2 and unversioned, got #{groups.keys.inspect}" unless groups.keys.sort == %w[unversioned versioned-2]
 RECORD = "share/ravel/installation.json".freeze
@@ -79,3 +79,22 @@ records = groups.to_h do |channel, (file, prefix, testpath)|
 end
 raise "the channels wrote different installation records" unless records.values.uniq.length == 1
 puts "release-formula: both channels wrote the same installation record"
+
+# Promotion: ravel@2.rb gains one deprecate! line after keg_only and changes
+# nothing else. Homebrew's own loader must then report it deprecated in
+# favour of ravel. A separate namespace keeps RavelAT2 above intact.
+# https://github.com/Homebrew/brew/blob/7.0.13/Library/Homebrew/formulary.rb (from_contents)
+deprecated_text = File.read(deprecated)
+deprecation = deprecated_text.lines.grep(/^\s*deprecate!/)
+raise "the deprecated formula has #{deprecation.length} deprecate! lines" unless deprecation.length == 1
+unless deprecation[0].match?(/\A  deprecate! date: "\d{4}-\d{2}-\d{2}", because: :versioned_formula, replacement_formula: "ravel"\n\z/)
+  raise "unexpected deprecation #{deprecation[0].inspect}"
+end
+raise "the deprecated formula changes more than its deprecate! line" unless deprecated_text.sub(deprecation[0], "") == texts["versioned-2"]
+raise "deprecate! does not follow keg_only" unless deprecated_text.include?("\n  keg_only :versioned_formula\n#{deprecation[0]}")
+promoted = Formulary.from_contents("ravel@2", Pathname(deprecated), deprecated_text)
+raise "the promoted ravel@2 is not deprecated" unless promoted.deprecated?
+raise "the promoted ravel@2 has reason #{promoted.deprecation_reason.inspect}" unless promoted.deprecation_reason == :versioned_formula
+raise "the promoted ravel@2 names #{promoted.deprecation_replacement_formula.inspect}" unless promoted.deprecation_replacement_formula == "ravel"
+raise "the promoted ravel@2 is not keg-only" unless promoted.keg_only?
+puts "release-formula: Homebrew loads the promoted ravel@2 as deprecated in favour of ravel"

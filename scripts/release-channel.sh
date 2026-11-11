@@ -108,6 +108,39 @@ channel_baseline_file() {
   fi
 }
 
+# The deprecate! line that promotion adds to ravel@2.rb, dated DATE
+# (YYYY-MM-DD). Homebrew 7.0.13 requires date: and names the reason and the
+# replacement formula:
+# https://github.com/Homebrew/brew/blob/7.0.13/Library/Homebrew/formula.rb
+# (deprecate!) and Library/Homebrew/deprecate_disable.rb (:versioned_formula).
+promotion_deprecation() {
+  printf '  deprecate! date: "%s", because: :versioned_formula, replacement_formula: "ravel"\n' "$1"
+}
+
+# deprecate_versioned_formula INPUT OUTPUT DATE: write INPUT, a rendered
+# ravel@2.rb, to OUTPUT with the promotion's deprecate! line directly after
+# its keg_only line. Homebrew's component order puts deprecate! after
+# keg_only (Library/Homebrew/ast_constants.rb). Nothing else changes. Refuse
+# input without exactly one keg_only line or with a deprecate! line.
+deprecate_versioned_formula() {
+  local input="$1" output="$2" date="$3" keg_only line
+  [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] || {
+    echo "not a deprecation date: $date"
+    return 1
+  }
+  keg_only='  keg_only :versioned_formula'
+  [[ "$(grep -cFx -- "$keg_only" "$input")" == 1 ]] || {
+    echo "$input has no single '$keg_only' line"
+    return 1
+  }
+  if grep -Eq '^[[:space:]]*deprecate!' "$input"; then
+    echo "$input is already deprecated"
+    return 1
+  fi
+  line="$(promotion_deprecation "$date")"
+  awk -v keg_only="$keg_only" -v line="$line" '{ print } $0 == keg_only { print line }' "$input" >"$output"
+}
+
 # tap_fetch TAP: fetch the tap's remote main, through jj in a jj tap.
 tap_fetch() {
   local tap="$1"

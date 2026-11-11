@@ -2,8 +2,9 @@
 # Release channel fixtures for docs/specs/release-channels.md: the channel
 # rules, the two rendered classes, the Taskfile's required CHANNEL, the
 # baseline against the target channel, publication and each resume, the
-# installation through the versioned keg, and the release evidence. Local jj
-# and Git remotes stand for GitHub and the tap; gh and brew are fixtures.
+# installation through the versioned keg, the release evidence and the
+# promotion to unversioned ravel. Local jj and Git remotes stand for GitHub
+# and the tap; gh and brew are fixtures.
 #
 # With "mutants", it changes one rule at a time in a copy of the release
 # scripts and the Taskfile and shows that a control then fails.
@@ -56,6 +57,7 @@ controls() {
   section_publish
   section_install
   section_evidence
+  section_promote
   echo 'release channel tests: all passed'
 }
 
@@ -175,6 +177,17 @@ section_taskfile() {
     if grep -E 'brew (install|upgrade|test)|--channel unversioned' "$fixtures/dry"; then fail "release:$level bypasses the channel"; fi
   done
   ok 'the release tasks require CHANNEL and carry it to every step'
+
+  refuses 'release:promote without VERSION' 'missing required variables: VERSION' task --dir "$repo" release:promote
+  [[ ! -e "$repo/.jj/release-lock" ]] || fail 'release:promote took the lock before refusing'
+  task --dir "$repo" --dry release:promote VERSION=2.0.0 >"$fixtures/dry" 2>&1
+  grep -Fxq "task: [release:promote] bash scripts/release-promote.sh --version 2.0.0" "$fixtures/dry" ||
+    fail "release:promote does not run the promotion: $(tr '\n' ' ' <"$fixtures/dry")"
+  task --dir "$repo" --dry release:promote VERSION=2.0.0 'READINESS=/r d.json' EVIDENCE=e.json >"$fixtures/dry" 2>&1
+  grep -Fxq "task: [release:promote] bash scripts/release-promote.sh --version 2.0.0 --readiness '/r d.json' --evidence e.json" "$fixtures/dry" ||
+    fail "release:promote does not pass READINESS and EVIDENCE: $(tr '\n' ' ' <"$fixtures/dry")"
+  if grep -E 'cargo|release-(build|publish|book|prepare)\.sh|git push' "$fixtures/dry"; then fail 'release:promote cuts, builds or publishes'; fi
+  ok 'release:promote requires VERSION and runs only the promotion'
 }
 
 # A Cargo workspace at VERSION in REPO, committed by the caller.
@@ -439,8 +452,11 @@ write_brew() {
 # A Homebrew fixture over FAKE_BREW_PREFIX. Faults: FAKE_BREW_LINK=1 links a
 # versioned keg into the shared bin, FAKE_BREW_KEG_ONLY=false reports it as
 # not keg-only, FAKE_BREW_RECORD=keg names the keg in its record,
-# FAKE_BREW_BIN_VERSION makes its command report another version and
-# FAKE_BREW_UPGRADE_UNVERSIONED=1 also upgrades and relinks unversioned ravel.
+# FAKE_BREW_BIN_VERSION makes its command report another version,
+# FAKE_BREW_UPGRADE_UNVERSIONED=1 also upgrades and relinks unversioned ravel
+# and FAKE_BREW_REMOVE_OLD=1 removes the 1.1.0 keg, as a cleanup would. An
+# upgrade of a formula whose version is installed changes nothing, as in
+# Homebrew, which only warns.
 set -euo pipefail
 p="$FAKE_BREW_PREFIX"
 log() { printf '%s\n' "$*" >>"$p/.log"; }
@@ -455,6 +471,7 @@ install_keg() {
   printf '{"schemaVersion":1,"skillDirectory":"%s"}\n' "$dir" >"$keg/share/ravel/installation.json"
   ln -sfn "../Cellar/$name/$v" "$p/opt/$name"
   if [[ "$name" == ravel || "${FAKE_BREW_LINK:-0}" == 1 ]]; then ln -sfn "../Cellar/$name/$v/bin/ravel" "$p/bin/ravel"; fi
+  if [[ "${FAKE_BREW_REMOVE_OLD:-0}" == 1 ]]; then rm -rf "$p/Cellar/ravel/1.1.0"; fi
   if [[ "${FAKE_BREW_UPGRADE_UNVERSIONED:-0}" == 1 ]]; then
     cp -R "$p/Cellar/ravel/1.1.0" "$p/Cellar/ravel/1.1.1"
     ln -sfn ../Cellar/ravel/1.1.1 "$p/opt/ravel"
@@ -470,7 +487,10 @@ case "$1" in
     echo "$3 $(ls "$p/Cellar/$3" | tr '\n' ' ')"
     ;;
   install) log "install $2 cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"; install_keg "${2##*/}" ;;
-  upgrade) log "upgrade $2 cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"; install_keg "$2" ;;
+  upgrade)
+    log "upgrade $2 cleanup=${HOMEBREW_NO_INSTALL_CLEANUP:-unset}"
+    [[ -d "$p/Cellar/$2/$FAKE_BREW_VERSION" ]] || install_keg "$2"
+    ;;
   test) log "test $2" ;;
   info)
     name="$3" keg_only=false reason=null linked=null
@@ -542,12 +562,12 @@ section_evidence() {
   "$real_git" -C "$site" checkout -q -b gh-pages
   mkdir "$site/v2.0.0"
   printf 'book\n' >"$site/v2.0.0/index.html"
-  printf 'v2.0.0\n' >"$site/index.html"
+  printf '<a href="v2.0.0/">ravel 2.0.0</a>\n' >"$site/index.html"
   "$real_git" -C "$site" add -A
   "$real_git" -C "$site" commit -qm 'Book for v2.0.0'
   local book_commit
   book_commit="$("$real_git" -C "$site" rev-parse HEAD)"
-  printf 'v2.0.0 later\n' >"$site/index.html"
+  printf '<a href="v2.0.0/">ravel 2.0.0</a> (newest)\n' >"$site/index.html"
   "$real_git" -C "$site" commit -qam 'Later index'
   "$real_git" -C "$site" push -q "$fixtures/source-remote.git" gh-pages
   local tap_commit
@@ -575,6 +595,200 @@ section_evidence() {
   [[ "$(jq -S '.assets |= sort_by(.name)' "$fixtures/evidence.json")" == "$(jq -S . <<<"$expected")" ]] ||
     fail "the evidence differs: $(diff <(jq -S '.assets |= sort_by(.name)' "$fixtures/evidence.json") <(jq -S . <<<"$expected") | head -n 12 | tr '\n' ' ')"
   ok 'the evidence names the channel, tag commit, asset digests, book commit, tap commit and installed keg'
+}
+
+# The promotion of the published ravel@2 2.0.0 to unversioned ravel. It reuses
+# the tag, the archives, the book and the evidence of the sections above, with
+# a fresh tap in state B and a prefix that holds ravel 1.1.0 and ravel@2.
+section_promote() {
+  local source="$fixtures/source" tap="$fixtures/promote-tap" remote="$fixtures/promote-tap-remote.git" p
+  local evidence="$source/target/release-evidence/v2.0.0.json" readiness="$source/target/release-evidence/v2.0.0.readiness.json"
+  export RELEASE_TEST_FORMULA_CALLS="$fixtures/formula-calls" RELEASE_TEST_STRAY="$fixtures/stray"
+  cp "$subject/scripts/release-promote.sh" "$source/scripts/"
+  # The Homebrew test has its live check, task release:formula. The stub
+  # records each call and refuses on request.
+  cat >"$source/scripts/release-formula.sh" <<'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+[[ "$1" == --test && $# == 6 && -f "$4" && -f "$5" && -f "$6" ]] || exit 96
+printf '%s %s %s %s\n' "$1" "$2" "${4##*/}" "${5##*/}" >>"$RELEASE_TEST_FORMULA_CALLS"
+[[ "${RELEASE_TEST_FORMULA_FAIL:-0}" != 1 ]]
+SH
+  # Promotion builds nothing: cargo and the build script only record a call.
+  mkdir -p "$fixtures/promote-bin"
+  # shellcheck disable=SC2016 # evaluated by the stubs
+  printf '#!/bin/sh\necho "cargo $*" >>"$RELEASE_TEST_STRAY"\nexit 1\n' >"$fixtures/promote-bin/cargo"
+  # shellcheck disable=SC2016 # evaluated by the stubs
+  printf '#!/bin/sh\necho "release-build $*" >>"$RELEASE_TEST_STRAY"\nexit 1\n' >"$source/scripts/release-build.sh"
+  chmod +x "$fixtures/promote-bin/cargo" "$source/scripts/release-build.sh" "$source/scripts/release-formula.sh"
+
+  # State B: ravel 1.1.0, the published ravel@2 2.0.0 and a consumer at 22.8.0.
+  "$real_git" init -q --bare "$remote"
+  # A marker file makes the remote reject a push.
+  printf '#!/bin/sh\n[ ! -e "%s/reject-push" ]\n' "$fixtures" >"$remote/hooks/pre-receive"
+  chmod +x "$remote/hooks/pre-receive"
+  jj git init --colocate "$tap" >/dev/null
+  mkdir -p "$tap/Formula"
+  printf 'class Ravel < Formula\n  version "1.1.0"\nend\n' >"$tap/Formula/ravel.rb"
+  cp "$fixtures/ravel@2.rb" "$tap/Formula/ravel@2.rb"
+  printf 'class Grove < Formula\n  version "22.8.0"\nend\n' >"$tap/Formula/grove.rb"
+  printf 'separate command\n' >"$tap/Formula/ravel-lite.rb"
+  jj -R "$tap" describe -m 'state B' >/dev/null
+  jj -R "$tap" git remote add origin "$remote"
+  jj -R "$tap" git push --named main=@ >/dev/null 2>&1
+  jj -R "$tap" new main >/dev/null 2>&1
+  export RAVEL_TAP_DIR="$tap"
+
+  p="$fixtures/brew-promote" && make_brew_prefix "$p" && export FAKE_BREW_PREFIX="$p" FAKE_BREW_VERSION=2.0.0
+  brew install linkuistics/taps/ravel@2 >/dev/null
+  : >"$p/.log"
+
+  # The documented example receipt, bound to this cut.
+  receipt() {
+    jq --slurpfile ev "$evidence" --arg version "${1:-22.9.0}" \
+      '.ravel.tagCommit = $ev[0].tagCommit | .ravel.assets = $ev[0].assets | .consumer.version = $version' \
+      "$repo_root/docs/specs/release-channels-readiness.example.json"
+  }
+  # shellcheck disable=SC2031 # PATH is this test's own
+  promote() { (cd "$source" && PATH="$fixtures/promote-bin:$PATH" bash scripts/release-promote.sh "$@"); }
+  tip() { "$real_git" --git-dir="$remote" rev-parse main; }
+  remote_file() { "$real_git" --git-dir="$remote" show "main:Formula/$1"; }
+  dist_digests() { shasum -a 256 "$RELEASE_TEST_DIST/"*.tar.xz; }
+  local tip_b dist_before gh_before book_before
+  tip_b="$(tip)"
+  dist_before="$(dist_digests)"
+  gh_before="$(cat "$RELEASE_TEST_LOG")"
+  book_before="$(cat "$RELEASE_TEST_BOOK_CALLS")"
+  untouched() {
+    [[ "$(tip)" == "$tip_b" ]] || fail "$1 changed the tap"
+    [[ ! -s "$p/.log" ]] || fail "$1 ran Homebrew: $(tr '\n' ';' <"$p/.log")"
+  }
+
+  # Refusals before any tap write or Homebrew mutation.
+  refuses 'promote without a version' 'usage' promote
+  refuses 'promote a major-1 version' 'has major 1' promote --version 1.1.1
+  refuses 'promote without evidence' 'no release evidence' promote --version 2.0.0 --evidence "$fixtures/absent.json"
+  refuses 'promote without a readiness receipt' 'no consumer readiness receipt' promote --version 2.0.0
+  [[ ! -e "$RELEASE_TEST_FORMULA_CALLS" ]] || fail 'a missing receipt reached the formula test'
+  receipt | jq '.ravel.assets[0].sha256 = ("0" * 64)' >"$readiness"
+  refuses 'a receipt for other archives' 'ravel.assets are not the cut asset digests' promote --version 2.0.0
+  receipt | jq 'del(.consumer.verifiedRoutes)' >"$readiness"
+  refuses 'a receipt without routes' 'consumer.verifiedRoutes' promote --version 2.0.0
+  receipt >"$readiness"
+  refuses 'promotion before the compatible consumer' "Formula/grove.rb is at 22.8.0, not the receipt's 22.9.0" promote --version 2.0.0
+  untouched 'an unready promotion'
+  tap_commit "$tap" grove.rb 'class Grove < Formula
+  version "22.9.0"
+end' 'grove v22.9.0'
+  tip_b="$(tip)"
+  refuses 'a mismatched archive' 'has SHA-256' with_env RELEASE_TEST_DOWNLOAD_CORRUPT=1 promote --version 2.0.0
+  jq '.tagCommit = ("0" * 40)' "$evidence" >"$fixtures/evidence-tag.json"
+  receipt | jq '.ravel.tagCommit = ("0" * 40)' >"$fixtures/readiness-tag.json"
+  refuses 'evidence of another tag commit' 'public tag v2.0.0 is' promote --version 2.0.0 --evidence "$fixtures/evidence-tag.json" --readiness "$fixtures/readiness-tag.json"
+  jq '.book.commit = ("0" * 40)' "$evidence" >"$fixtures/evidence-book.json"
+  refuses 'evidence of another book' 'book of v2.0.0 on gh-pages was last changed' promote --version 2.0.0 --evidence "$fixtures/evidence-book.json"
+  refuses 'a failed formula test' 'failed their Homebrew test' with_env RELEASE_TEST_FORMULA_FAIL=1 promote --version 2.0.0
+  untouched 'a refused verification'
+  tap_commit "$tap" ravel@2.rb "$(cat "$fixtures/ravel@2.rb")
+# edited" 'ravel@2 edited'
+  tip_b="$(tip)"
+  refuses 'an unexpected ravel@2.rb' 'neither the published formula' promote --version 2.0.0
+  untouched 'an unexpected ravel@2.rb'
+  tap_commit "$tap" ravel@2.rb "$(cat "$fixtures/ravel@2.rb")" 'ravel@2 v2.0.0'
+  tip_b="$(tip)"
+  ok 'promotion refuses without evidence, a matching receipt, the compatible consumer, the cut identities or the published ravel@2'
+
+  # A rejected push leaves one local commit; the retry pushes that commit.
+  touch "$fixtures/reject-push"
+  refuses 'a rejected tap push' 'stays local' promote --version 2.0.0
+  rm "$fixtures/reject-push"
+  untouched 'a rejected push'
+  local local_commit
+  local_commit="$(jj -R "$tap" log --no-graph -r main -T commit_id)"
+  [[ "$local_commit" != "$tip_b" ]] || fail 'the rejected push left no local promotion commit'
+  promote --version 2.0.0 >"$fixtures/out" 2>&1 || fail "the promotion retry refused: $(tail -n 3 "$fixtures/out")"
+  grep -Fq "pushing the tap's local promotion commit $local_commit" "$fixtures/out" || fail 'the retry did not push the local commit'
+  [[ "$(tip)" == "$local_commit" ]] || fail 'the retry published a commit other than the local promotion'
+  [[ "$("$real_git" --git-dir="$remote" rev-parse main~1)" == "$tip_b" ]] || fail 'the promotion is not one commit on state B'
+
+  # One commit: ravel.rb from the same assets, ravel@2.rb gains one line.
+  local date
+  date="$(TZ=UTC "$real_git" -C "$source" log -1 --format=%cd --date=format-local:%Y-%m-%d 'v2.0.0^{commit}')"
+  # shellcheck disable=SC2016 # evaluated by the child shell
+  bash -c 'source "$1" && deprecate_versioned_formula "$2" "$3" "$4"' _ "$subject/scripts/release-channel.sh" \
+    "$fixtures/ravel@2.rb" "$fixtures/ravel@2.promoted.rb" "$date" >/dev/null || fail 'cannot derive the expected deprecated ravel@2.rb'
+  remote_file ravel.rb | cmp -s - "$fixtures/ravel.rb" || fail 'the promoted ravel.rb is not the unversioned rendering of the release assets'
+  remote_file ravel@2.rb | cmp -s - "$fixtures/ravel@2.promoted.rb" || fail 'the promoted ravel@2.rb is not the published one with its deprecation'
+  [[ "$(diff <(cat "$fixtures/ravel@2.rb") <(remote_file ravel@2.rb) | grep -c '^[<>]')" == 1 ]] ||
+    fail 'the promotion changed more than one line of ravel@2.rb'
+  remote_file ravel@2.rb | grep -Fxq "  deprecate! date: \"$date\", because: :versioned_formula, replacement_formula: \"ravel\"" ||
+    fail 'ravel@2.rb is not deprecated in favour of ravel'
+  [[ "$("$real_git" --git-dir="$remote" diff --name-only main~1 main | tr '\n' ' ')" == 'Formula/ravel.rb Formula/ravel@2.rb ' ]] ||
+    fail 'the promotion commit changed other tap files'
+  [[ "$("$real_git" --git-dir="$remote" log -1 --format=%s main)" == 'ravel v2.0.0 (promote ravel@2 v2.0.0)' ]] ||
+    fail 'the promotion commit is not named'
+  [[ "$(remote_file ravel-lite.rb)" == 'separate command' ]] || fail 'the promotion changed another formula'
+  [[ -z "$("$real_git" -C "$tap" status --porcelain)" ]] || fail 'the tap is not clean after promotion'
+  ok 'one pushed tap commit renders ravel.rb from the release assets and deprecates ravel@2 in favour of ravel'
+
+  # Nothing was cut, built, uploaded or rewritten.
+  [[ "$(dist_digests)" == "$dist_before" ]] || fail 'the promotion changed an archive'
+  [[ "$(cat "$RELEASE_TEST_LOG")" == "$gh_before" ]] || fail 'the promotion created a GitHub Release'
+  [[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == "$book_before" ]] || fail 'the promotion called the book step'
+  [[ ! -e "$RELEASE_TEST_STRAY" ]] || fail "the promotion built: $(cat "$RELEASE_TEST_STRAY")"
+  grep -Fxq -- '--test 2.0.0 ravel@2.rb ravel.rb' "$RELEASE_TEST_FORMULA_CALLS" || fail 'the promotion did not test its formulae through Homebrew'
+  ok 'promotion leaves the archives, the GitHub Release and the book unchanged and builds nothing'
+
+  # Installation upgrades ravel and keeps every earlier keg.
+  [[ "$(cat "$p/.log")" == $'update cleanup=1\nupgrade ravel cleanup=1\ntest ravel' ]] ||
+    fail "the promotion's installation ran $(tr '\n' ';' <"$p/.log")"
+  [[ "$("$p/Cellar/ravel/1.1.0/bin/ravel" --version)" == 'ravel 1.1.0' ]] || fail 'the 1.1.0 keg is gone'
+  [[ -x "$p/Cellar/ravel@2/2.0.0/bin/ravel" ]] || fail 'the ravel@2 keg is gone'
+  [[ "$(readlink "$p/opt/ravel")" == ../Cellar/ravel/2.0.0 && "$p/bin/ravel" -ef "$p/Cellar/ravel/2.0.0/bin/ravel" ]] ||
+    fail 'unversioned ravel does not select the 2.0.0 keg'
+  local record="$source/target/release-evidence/v2.0.0.promotion.json"
+  jq -e --arg tap "$(tip)" --arg ravel "$(remote_file ravel.rb | shasum -a 256 | cut -d' ' -f1)" \
+    --arg versioned "$(remote_file ravel@2.rb | shasum -a 256 | cut -d' ' -f1)" --arg date "$date" \
+    --arg old "$p/Cellar/ravel/1.1.0" --arg versionedKeg "$p/Cellar/ravel@2/2.0.0" --slurpfile ev "$evidence" '
+    .schemaVersion == 1 and .tagCommit == $ev[0].tagCommit and .assets == $ev[0].assets
+    and .tap.commit == $tap and .tap.deprecationDate == $date
+    and .tap.formulae == [{file: "Formula/ravel.rb", sha256: $ravel}, {file: "Formula/ravel@2.rb", sha256: $versioned}]
+    and .readiness.consumer.version == "22.9.0" and .installed.version == "ravel 2.0.0"
+    and (.installed.retainedKegs | sort) == ([$old, $versionedKeg] | sort)' "$record" >/dev/null ||
+    fail "the promotion evidence is wrong: $(jq -c . "$record" | cut -c1-300)"
+  ok 'installation upgrades ravel with cleanup suppressed, keeps the 1.1.0 and ravel@2 kegs and is recorded'
+
+  # A retry keeps the published promotion and the matching installation.
+  tip_b="$(tip)"
+  : >"$p/.log"
+  promote --version 2.0.0 >"$fixtures/out" 2>&1 || fail "the repeated promotion refused: $(tail -n 3 "$fixtures/out")"
+  grep -Fq 'the tap already holds the promotion; kept' "$fixtures/out" || fail 'the repeated promotion did not keep the tap'
+  [[ "$(tip)" == "$tip_b" ]] || fail 'the repeated promotion changed the tap'
+  [[ "$(cd "$p/Cellar/ravel" && printf '%s ' *)" == '1.1.0 2.0.0 ' ]] || fail 'the repeated promotion changed the kegs'
+  ok 'a retry keeps the published promotion and the matching installation'
+
+  # A retry reports a mismatch and overwrites nothing.
+  tap_commit "$tap" ravel.rb 'class Ravel < Formula
+  version "2.0.0"
+end' 'ravel v2.0.0 by another hand'
+  tip_b="$(tip)"
+  : >"$p/.log"
+  refuses 'a promotion over another ravel.rb' 'ravel.rb is not this promotion' promote --version 2.0.0
+  untouched 'a mismatched ravel.rb'
+  [[ "$(remote_file ravel.rb)" == $'class Ravel < Formula\n  version "2.0.0"\nend' ]] || fail 'the mismatched ravel.rb was overwritten'
+  tap_commit "$tap" ravel.rb "$(cat "$fixtures/ravel.rb")" 'ravel v2.0.0'
+  p="$fixtures/brew-promote-mismatch" && make_brew_prefix "$p" && export FAKE_BREW_PREFIX="$p"
+  mkdir -p "$p/Cellar/ravel/2.0.0/bin"
+  printf '#!/bin/sh\necho "ravel 2.0.9"\n' >"$p/Cellar/ravel/2.0.0/bin/ravel"
+  chmod +x "$p/Cellar/ravel/2.0.0/bin/ravel"
+  ln -sfn ../Cellar/ravel/2.0.0 "$p/opt/ravel"
+  ln -sfn ../Cellar/ravel/2.0.0/bin/ravel "$p/bin/ravel"
+  refuses 'a promotion over another installation' 'does not report ravel 2.0.0' promote --version 2.0.0
+  [[ "$("$p/Cellar/ravel/2.0.0/bin/ravel" --version)" == 'ravel 2.0.9' ]] || fail 'the mismatched installation was overwritten'
+  p="$fixtures/brew-promote-cleanup" && make_brew_prefix "$p" && export FAKE_BREW_PREFIX="$p"
+  refuses 'an installation that removes the 1.1.0 keg' 'earlier keg .*/1.1.0 lost its bin/ravel' with_env FAKE_BREW_REMOVE_OLD=1 promote --version 2.0.0
+  ok 'a retry reports a mismatched formula or installation and overwrites neither, and a removed old keg refuses'
+  unset RAVEL_TAP_DIR
 }
 
 # Each mutant: FILE, then the exact text it replaces, then its replacement,
@@ -628,6 +842,20 @@ install skips record	scripts/release-install.sh	  bash "$REPO_ROOT/scripts/insta
 evidence any formula	scripts/release-evidence.sh	-- "Formula/$CHANNEL_FILE")"	-- "Formula/ravel.rb")"
 evidence trusts assets	scripts/release-evidence.sh	    cmp -s "$scratch/assets/$name" "$DIST_DIR/$name" ||	    true ||
 evidence any book commit	scripts/release-evidence.sh	FETCH_HEAD -- "$tag/")"	FETCH_HEAD)"
+promotion deprecates nothing	scripts/release-channel.sh	'{ print } $0 == keg_only { print line }'	'{ print }'
+promote skips readiness	scripts/release-promote.sh	  verify_readiness "$readiness" "$evidence" "$version"	  :
+promote skips tag	scripts/release-promote.sh	  [[ "$remote" == "$commit" ]] ||	  true ||
+promote trusts assets	scripts/release-promote.sh	    [[ "$actual" == "$expected" ]] ||	    true ||
+promote skips book	scripts/release-promote.sh	  verify_book "$version" "$book_commit"	  :
+promote skips consumer	scripts/release-promote.sh	  [[ "$consumer_actual" == "$consumer_version" ]] ||	  true ||
+promote skips formula test	scripts/release-promote.sh	  bash "$REPO_ROOT/scripts/release-formula.sh" --test	  : "$REPO_ROOT/scripts/release-formula.sh" --test
+promote any ravel@2	scripts/release-promote.sh	root:Formula/ravel@2.rb 2>/dev/null) "$versioned" ||	root:Formula/ravel@2.rb 2>/dev/null) "$versioned" || true ||
+promote overwrites ravel.rb	scripts/release-promote.sh	    die "the tap's Formula/ravel@2.rb holds the promotion, but	    : "the tap's Formula/ravel@2.rb holds the promotion, but
+promote never keeps	scripts/release-promote.sh	  if tap_holds main@origin "$dir"; then	  if false; then
+promote recommits	scripts/release-promote.sh	  if [[ "$main" != "$origin" ]]; then	  if false; then
+promote skips install	scripts/release-promote.sh	  bash "$REPO_ROOT/scripts/release-install.sh" --channel unversioned --version "$version" ||	  true ||
+install drops old kegs	scripts/release-install.sh	    [[ -z "$earlier" || -x "$earlier/bin/ravel" ]] ||	    true ||
+task promote unversioned	Taskfile.yml	bash scripts/release-promote.sh --version {{shellQuote .VERSION}}	bash scripts/release-promote.sh --version 2.0.0 --readiness x
 EOF
 }
 
