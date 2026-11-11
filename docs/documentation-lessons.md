@@ -1233,6 +1233,32 @@ The refusal example of chapter 8 prints `type_of(context)`, and the check claims
 If no example shows it, add the print to the nearest complete example.
 Otherwise, say that the value comes from a reading of the source.
 
+### L78. Measure a claim that a chapter changes little
+
+A plan can say that a chapter changes little because its subject did not change. That statement is a claim about the code, and the plan did not measure it.
+Compare the subject's source at the chapter's last thorough revision with the current source. Then read each statement of the chapter against the change.
+
+**Source:** Session evidence, `ravel-book-inside-k331`, 2026-11-12.
+**Ravel application:** The paused charter said that the runner was unchanged, so chapter 9 would change least.
+
+From the book's last whole copy-edit, `b8903f3a8537`, `crates/keyed-launch/` changed in 19 files. The runner gained a third launch mode, `run_captured`, for harness runs. That mode has its own POSIX session, pipes, stop request and poll interval, and it installs no signal handler.
+Chapter 9 named none of it. Its cancellation table, its launch-mode table, its signal-state section and its guarantees needed changes.
+
+**Check:** Before you mark a chapter as almost unchanged, show the diff of its subject since its last thorough revision. Name each statement of the chapter that the diff can reach.
+
+### L79. Show a precedence rule with a pair of runs that differ in one line
+
+A rule such as “a signal wins over the deadline” is a comparison. One run shows only one side of it.
+Two complete examples that differ in one line show both sides, and each run is a control for the other. A program in the example can make the timing deterministic, so the example needs no test harness.
+
+**Source:** Session evidence, `ravel-book-inside-k331`, 2026-11-12.
+**Ravel application:** Chapter 9's `ravel-parts-deadline` has a fake harness that writes a note at TERM and stays. The deadline alone gives `selection_timeout`, status 124.
+
+In the second example, the fake's `trap` also sends TERM to its parent, the Ravel CLI. That TERM arrives after the deadline and before the kill grace ends, which is the case of the specification's scenario. The result is `selection_cancelled`, status 143, with `selection_timeout` under “original failure:”.
+A control copy that claimed 124 for the second example failed.
+
+**Check:** For each precedence rule that the text states, find the two claimed runs that show it. Name the one line in which they differ.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.
