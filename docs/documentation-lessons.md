@@ -1016,6 +1016,9 @@ The following checks apply the rules where a judgement has no standalone executa
 | L63 | A search of each changed page for the old term, with each match classified. `ste.md` and `CONTEXT.md` hold the term map. |
 | L64 | A search of the whole document for real-run fragments of each changed example, and a new run when an input that it shows changed. |
 | L65 | A list of the inbound link texts of each changed heading, each classified, and a read of each destination that a link text describes. |
+| L73 | For each observation of a demonstration, the value that the other role would give. |
+| L74 | A list of the link targets outside `docs/book/src/`, each resolved from its page and checked against the built site. |
+| L75 | For each complete example, the files that the product reads by the location of its executable, and the claimed lines that they can change. |
 
 ### L66. Explain why unfinished work must stop
 
@@ -1161,6 +1164,43 @@ The help and the specification already named the four classes. The chapter now n
 The same read found that the installed-layout table lacked the notice file that the installation now places.
 
 **Check:** For each list in a reference entry, name the source that defines it, such as a function, a constant or a manifest. Compare each item. A test that asserts the complement, such as names that stay grantable, is direct evidence.
+
+### L73. Observe the property that tells two roles apart
+
+A demonstration that two roles are separate must observe a property that differs between them.
+When one executable has two roles, its name and its program path are the same in both. Such an observation cannot show which role acted.
+
+**Source:** Session evidence, `ravel-book-inside-k329`, 2026-11-11.
+**Ravel application:** Chapter 7's example shows that the Ravel CLI, not the Rhai worker, starts a harness run.
+`ps -o comm=` gave `ravel` for the parent. The worker is the same binary, so that value would be the same if the worker were the parent.
+The fakes now print `ps -o args=`. The Ravel CLI shows `ravel start-session`, and the worker shows `ravel-rhai-config-worker`.
+
+**Check:** For each observation that a demonstration uses, name the value that the other role would give. If the two values are equal, choose another property.
+
+### L74. Name a repository file outside the book instead of a link to it
+
+A relative link from a book page to a file outside the book's source tree works in a checkout and on GitHub.
+The built site does not hold that file, so the same link fails there.
+Name the file and its repository path in code font. Keep the explanation on the page, so that the reader need not open the file.
+
+**Source:** Session evidence, `ravel-book-inside-k329`, 2026-11-11.
+**Ravel application:** The first draft of chapter 7 linked three decision records with `../adr/…`. That path was also wrong: the records are in `docs/adr/`, two levels up.
+Chapter 6 already named a specification by its path, without a link. Chapter 7 now names each record and its path in the same way, and it restates each reason.
+
+**Check:** List each link target outside `docs/book/src/`. Resolve each one from the page's directory. Then decide whether the built site holds it.
+
+### L75. Find the example inputs that the checker's build does not have
+
+An example check runs one build in one environment. A reader runs an installed product in another.
+An input that only the installation has can change the reader's output while the check passes.
+For each example, list the inputs that the product reads outside the command's own environment. Then make the example's claims independent of them, or say how they change the output.
+
+**Source:** Session evidence, `ravel-book-inside-k329`, 2026-11-11.
+**Ravel application:** A Homebrew installation writes `share/ravel/installation.json`. With no `skills.sources`, Ravel then reads the default skill directory, also under `env -i` with an empty `HOME`.
+If that directory holds a source, the prompt gains a preamble. The checkout build has no record, so the examples check cannot see this.
+Chapter 7's example prints neither the prompt nor `RAVEL_SKILL_DIRECTORIES`, and the page says why its output is the same. Chapter 3's first session prints the prompt, and the proof of chapters 7 to 11 received that case.
+
+**Check:** For each complete example, name each file that the product reads by the location of its executable, not by `HOME` or the working directory. Compare a claimed line that such a file can change.
 
 ### Disposition of the task's candidate readings
 
