@@ -1019,6 +1019,8 @@ The following checks apply the rules where a judgement has no standalone executa
 | L73 | For each observation of a demonstration, the value that the other role would give. |
 | L74 | A list of the link targets outside `docs/book/src/`, each resolved from its page and checked against the built site. |
 | L75 | For each complete example, the files that the product reads by the location of its executable, and the claimed lines that they can change. |
+| L76 | For each excerpt and each named function of a walkthrough, the chain of calls from the entry point that reaches it. |
+| L77 | For each question that a walkthrough answers about a runtime value, a claimed line of a complete example that shows the value. |
 
 ### L66. Explain why unfinished work must stop
 
@@ -1201,6 +1203,35 @@ If that directory holds a source, the prompt gains a preamble. The checkout buil
 Chapter 7's example prints neither the prompt nor `RAVEL_SKILL_DIRECTORIES`, and the page says why its output is the same. Chapter 3's first session prints the prompt, and the proof of chapters 7 to 11 received that case.
 
 **Check:** For each complete example, name each file that the product reads by the location of its executable, not by `HOME` or the working directory. Compare a claimed line that such a file can change.
+
+### L76. Check that an excerpt is still on the path that the text describes
+
+An excerpt check shows that the quoted lines still exist in the file. It does not show that the described path still runs through them.
+A change can replace a component and keep its old functions in the file.
+A change can also remove functions that the text names, while the excerpts beside them still pass.
+Trace each excerpt and each named function from the entry point, through the calls that the text describes.
+
+**Source:** Session evidence, `ravel-book-inside-k330`, 2026-11-12.
+**Ravel application:** Before this draft, chapter 8's 12 excerpts passed. Its evaluation section still named `evaluate_and_resolve`, `choice::judge`, `worker::evaluate`, `config::selected` and a TypeScript worker file.
+None of them exists in 2.0.0.
+
+The chapter now follows `choose_prepared`, `evaluate_and_resolve_rhai`, `rhai_worker::front::evaluate` and `worker::supervise`. Its path table names the function of each step, in the order of the calls.
+`main` also no longer calls `Cli::try_parse_from`. The same chapter named it, and no earlier reader reported it.
+
+**Check:** For each excerpt and each named function, name its caller on the described path, up to `main`. A name without a caller on that path is stale, even when its excerpt passes.
+
+### L77. Answer a question about a runtime value with a claimed line
+
+A walkthrough often answers a question such as “what does this function receive here?”. A reading of the source gives the answer for the reader's case only when every branch is understood.
+A complete example that prints the value turns the answer into a claim that the examples check repeats.
+
+**Source:** Session evidence, `ravel-book-inside-k330`, 2026-11-12.
+**Ravel application:** The earlier chapter 8 said that the worker supplies `undefined` without a context, which is TypeScript. The Rhai source sends null in `request.context`, and `evaluate_with` passes it on.
+The refusal example of chapter 8 prints `type_of(context)`, and the check claims `config stdout: The context is ().`. A control copy that claimed `map` failed.
+
+**Check:** For each runtime value that the text states, find the claimed line that shows it.
+If no example shows it, add the print to the nearest complete example.
+Otherwise, say that the value comes from a reading of the source.
 
 ### Disposition of the task's candidate readings
 
