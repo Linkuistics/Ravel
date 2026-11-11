@@ -1,0 +1,8 @@
+   Compiling ravel v1.1.0 (/Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/crates/ravel)
+    Finished `release` profile [optimized] target(s) in 3.49s
+task: [notices:setup] bash scripts/notices.sh setup
+task: [notices] bash scripts/notices.sh generate
+notices: generated target/notices/THIRD-PARTY-NOTICES.md
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+ravel: installed ravel 1.1.0 under /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/install-trial

@@ -1259,6 +1259,32 @@ A control copy that claimed 124 for the second example failed.
 
 **Check:** For each precedence rule that the text states, find the two claimed runs that show it. Name the one line in which they differ.
 
+### L80. Treat the environment of a check as one of its inputs
+
+A test suite reads the environment of the shell that starts it. An exported variable can then do the work that the code under test should do.
+A mutant that removes that work still passes, and the suite fails for a reason that is not in the code.
+Before a check that a book reports, name the variables that the suite or its fakes read from the environment. Run the check without them, or say that they were set.
+
+**Source:** Session evidence, `ravel-book-inside-k308`, 2026-11-12.
+**Ravel application:** The trial script of chapter 11 exported `HOMEBREW_NO_INSTALL_CLEANUP=1`, which the operator's notes ask for on each Homebrew command.
+The fake `brew` of `scripts/release-channel.test.sh` logs that variable from its environment. The mutant that removes the export from `scripts/release-install.sh` therefore passed every control, and `task release:lifecycle:test` failed.
+A second run with `env -u HOMEBREW_NO_INSTALL_CLEANUP` and no other change passed, and each of the 48 mutants failed a control. Chapter 11 now tells the reader to run the suite without the variable.
+
+**Check:** For each suite that a chapter reports, list the variables that the suite's fakes read. Run the suite once with each one set and once without, and compare the results.
+
+### L81. Check each “not yet” statement against the current state
+
+A limit such as “no release carries the book yet” names an event that has not happened. When the event happens, nothing fails, and the statement stays.
+It then tells the reader to avoid a resource that exists, such as a published book.
+For each statement with “yet”, “until” or “no … so far”, find the event that ends it. Check whether that event has happened.
+
+**Source:** Session evidence, `ravel-book-inside-k308`, 2026-11-12.
+**Ravel application:** Chapter 3 said that no release carries the book, and chapter 11 said that the newest release tag, `v1.0.0`, has no `docs/book`.
+The tag `v1.1.0` holds `docs/book`, its chapter 3 has the line `ravel 1.1.0`, and the site serves `https://linkuistics.github.io/Ravel/v1.1.0/` with HTTP 200.
+Chapter 1 also said that the book on GitHub Pages stays unchecked until that release. The three chapters now say that 1.1.0 was the first release that carried the book. Contract section 1, “Omissions and unknowns”, still says that the site is unchecked until that release, and the proof stage received that case.
+
+**Check:** Search the document for “yet”, “until” and “not … so far”. For each match, name the observation that would end the limit, and make it.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.

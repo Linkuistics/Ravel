@@ -1,0 +1,62 @@
+release: lifecycle FAILED; complete log: /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/release-lifecycle.qwsrmG
+Working copy  (@) now at: nmkkzwps 8a2646f1 (empty) (no description set)
+Parent commit (@-)      : rztlonuw 523f91cb main* | Next change
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.BXJslTAnbV/prepare-tap"
+Working copy  (@) now at: vkvloxmu c16ecbed ravel v1.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: the first 2.0.0 cut checks 1.1.0 in ravel.rb and targets ravel@2
+Working copy  (@) now at: rnonsnpz a6f0edbe chore: release v2.0.0
+Parent commit (@-)      : rztlonuw 523f91cb main | Next change
+Moved 1 bookmarks to rnonsnpz a6f0edbe main* | chore: release v2.0.0
+Working copy  (@) now at: xpmrxqox 06213ad9 (empty) (no description set)
+Parent commit (@-)      : rnonsnpz a6f0edbe main* | chore: release v2.0.0
+Done importing changes from the underlying Git repo.
+Working copy  (@) now at: xpmrxqox 27a05d04 Later change
+Parent commit (@-)      : rnonsnpz a6f0edbe main* | chore: release v2.0.0
+Moved 1 bookmarks to xpmrxqox 27a05d04 main* | Later change
+Working copy  (@) now at: uxxxxoss e78700a8 (empty) (no description set)
+Parent commit (@-)      : xpmrxqox 27a05d04 main* | Later change
+release-channel-test: ok: a later 2.x cut before promotion checks 2.0.0 in ravel@2
+release-channel-test: ok: after promotion versioned-2 refuses and unversioned checks ravel.rb
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.BXJslTAnbV/tap"
+Working copy  (@) now at: ukttwstk 6f5a0c43 ravel v1.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: publication requires a known, admitted channel before any write
+release-channel-test: ok: a versioned release writes only ravel@2.rb to origin, and each resume keeps the channel
+release-channel-test: ok: versioned-2 refuses after promotion
+release-channel-test: ok: ravel@2 installs without a shared command on a prefix without ravel or ravel@2
+release-channel-test: ok: ravel@2 installs with cleanup suppressed and verifies through its own keg
+release-channel-test: ok: a linked, non-keg-only, misrecorded or misversioned keg, a changed unversioned ravel or a changed earlier keg refuses
+release-channel-test: ok: Homebrew's rewrite of an earlier keg's INSTALL_RECEIPT.json is accepted
+release-channel-test: ok: the evidence names the channel, tag commit, asset digests, book commit, tap commit and installed keg
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.BXJslTAnbV/promote-tap"
+Working copy  (@) now at: syokunxl f0c9d42c state B
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: promotion refuses without evidence, a matching receipt, the compatible consumer, the cut identities or the published ravel@2
+release-channel-test: ok: one tap commit pushed to origin renders ravel.rb from the release assets and deprecates ravel@2 in favour of ravel
+release-channel-test: ok: promotion leaves the archives, the GitHub Release and the book unchanged and builds nothing
+release-channel-test: ok: installation upgrades ravel with cleanup suppressed, keeps the 1.1.0 and ravel@2 kegs and is recorded
+release-channel-test: ok: a retry keeps the published promotion and the matching installation
+release-channel-test: ok: a retry reports a mismatched formula or installation and overwrites neither, and a removed old keg or worker refuses
+release channel tests: all passed
+release-channel-test: ok: mutant versioned file is ravel.rb: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel.rb|RavelAT2|  keg_only :versioned_formula|2)
+release-channel-test: ok: mutant versioned class is Ravel: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel@2.rb|Ravel|  keg_only :versioned_formula|2)
+release-channel-test: ok: mutant versioned not keg-only: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel@2.rb|RavelAT2||2)
+release-channel-test: ok: mutant omission is unversioned: a control fails (release-channel-test: FAIL: channel_select admitted '')
+release-channel-test: ok: mutant versioned any major: a control fails (release-channel-test: FAIL: channel_admits versioned-2 1.1.1 over unversioned '1.1.0' is admitted, not refused)
+release-channel-test: ok: mutant no promotion refusal: a control fails (release-channel-test: FAIL: channel_admits versioned-2 2.0.1 over unversioned '2.0.0' is admitted, not refused)
+release-channel-test: ok: mutant unversioned major 2 early: a control fails (release-channel-test: FAIL: channel_admits unversioned 2.0.0 over unversioned '1.1.0' is admitted, not refused)
+release-channel-test: ok: mutant baseline always ravel.rb: a control fails (release-channel-test: FAIL: the baseline formula does not follow the channel that published the baseline)
+release-channel-test: ok: mutant render ignores keg_only: a control fails (release-channel-test: FAIL: ravel@2.rb is not keg-only after its licence)
+release-channel-test: ok: mutant render keeps placeholder: a control fails (release-channel-test: FAIL: ravel.rb is keg-only)
+release-channel-test: ok: mutant task channel unchecked: a control fails (release-channel-test: FAIL: release:patch CHANNEL=stable: refused without /CHANNEL has an invalid value : 'sta)
+release-channel-test: ok: mutant task prepare unchannelled: a control fails (release-channel-test: FAIL: release:patch does not run 'bash scripts/release-prepare.sh --channel versioned-2 )
+release-channel-test: ok: mutant task install unchannelled: a control fails (release-channel-test: FAIL: release:patch does not run 'scripts/release-install.sh --channel versioned-2')
+release-channel-test: ok: mutant prepare skips admission: a control fails (release-channel-test: FAIL: unversioned major before promotion: accepted)
+release-channel-test: ok: mutant prepare fixed baseline: a control fails (release-channel-test: FAIL: a missing versioned baseline: refused without /Formula/ravel@2.rb missing/: Fetchi)
+release-channel-test: ok: mutant publish default channel: a control fails (release-channel-test: FAIL: publish  without a channel: refused without /release channel is required/: release)
+release-channel-test: ok: mutant publish skips admission: a control fails (release-channel-test: FAIL: unversioned 2.0.0 before promotion: accepted)
+release-channel-test: ok: mutant publish fixed file: a control fails (release-channel-test: FAIL: --tap-only refused: Working copy  (@) now at: qokourtt b91375ad (empty) (no descri)
+release-channel-test: ok: mutant publish skips the book: a control fails (release-channel-test: FAIL: --tap-only did not verify the book before the tap)
+release-channel-test: FAIL: mutant install keeps cleanup: every control passed
+task: Failed to run task "release:lifecycle:test": exit status 1

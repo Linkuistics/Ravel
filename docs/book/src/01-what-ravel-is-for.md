@@ -751,6 +751,10 @@ evidence as a measured native target.
 The reader checkpoints of the book use the owner as a labelled stand-in for a
 developer new to Ravel. These reads can show the owner's findings, for
 example errors in the book. They cannot show whether a new developer can use
-the book. You can build and examine the local book. Nobody can check how GitHub shows the
-book until the project pushes the branch. The book on GitHub Pages stays
-unchecked until the first release that contains the book.
+the book.
+
+You can build and examine the local book. GitHub shows the
+Markdown of a pushed branch, and nobody checked that view of this copy. The
+book of Ravel 1.1.0 is on GitHub Pages. The book of a later version reaches
+GitHub Pages only with its release. Thus, that copy stays unchecked until
+then.

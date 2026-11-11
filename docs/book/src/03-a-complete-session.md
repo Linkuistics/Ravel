@@ -55,9 +55,11 @@ the two versions are different, open the book for your installed version from
 [the release list on GitHub Pages](https://linkuistics.github.io/Ravel/).
 The release procedure keeps each release's book in its own directory there.
 
-No release carries the book yet. Until the first one does, use the checkout's
-Markdown or local build. [Chapter 11](11-deliver-ravel.md#keep-the-book-with-its-release)
-explains this limit and the address of each release's book.
+Ravel 1.1.0 was the first release that carried the book. A copy of the book
+from a checkout between releases has the placeholder, and its text can
+describe changes that no release has yet.
+[Chapter 11](11-deliver-ravel.md#keep-the-book-with-its-release) explains the
+version line and the address of each release's book.
 
 The directory that `brew --prefix ravel` prints contains the
 [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision), `bin/ravel`.

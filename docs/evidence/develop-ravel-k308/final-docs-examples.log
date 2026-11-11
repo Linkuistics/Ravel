@@ -1,0 +1,31 @@
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+task: [docs:examples] bash scripts/examples.sh check 
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/03-a-complete-session.md:128
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:243
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:521
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:690
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:833
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:967
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1061
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1245
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1361
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1513
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1771
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:1964
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/04-write-a-configuration-script.md:2207
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:360
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:588
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:747
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:997
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:1197
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:1607
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/05-running-sessions.md:1723
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/07-the-parts-of-ravel.md:81
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/08-follow-a-session-through-the-code.md:696
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/08-follow-a-session-through-the-code.md:963
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/09-jobs-signals-and-the-terminal.md:97
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/09-jobs-signals-and-the-terminal.md:407
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/09-jobs-signals-and-the-terminal.md:544
+pass /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/docs/book/src/11-deliver-ravel.md:722
+examples: 27 passed, 0 failed; 72 fragment(s) not run; 0 page error(s)

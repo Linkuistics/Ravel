@@ -1,0 +1,56 @@
+==> /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/prefix\ caf\é/bin/ravel --version
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/config.rhai --prompt exact\ result
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94443 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94443 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/config.rhai --prompt ''
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94522 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94522 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/config.rhai --prompt first'
+'second'
+'
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94545 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94545 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/config.rhai --prompt --help
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94555 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94555 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home-default TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/relocated/bin/ravel skills resolve --json
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/home-default TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/relocated/bin/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/launch/config.rhai --prompt task --json 2>/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/versioned-2/test/notice
+release-formula: actual Homebrew install/test methods passed for ravel@2 from a private prefix
+==> /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/prefix\ caf\é/bin/ravel --version
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/config.rhai --prompt exact\ result
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94621 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94621 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/config.rhai --prompt ''
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94624 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94624 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/config.rhai --prompt first'
+'second'
+'
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94628 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94628 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/config.rhai --prompt --help
+ravel: starting provider fixture, model none, effort none for kind "check"
+fixture stdout
+ravel: stop attempt 1 target -94653 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -94653 signal 9: Operation not permitted (os error 1)
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home-default TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/relocated/bin/ravel skills resolve --json
+==> /usr/bin/env -i PATH\=/usr/bin:/bin HOME\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/home-default TMPDIR\=/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/tmp /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/relocated/bin/ravel start-session --kind check --config /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/launch/config.rhai --prompt task --json 2>/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.SX6wzCeqoX/homebrew/unversioned/test/notice
+release-formula: actual Homebrew install/test methods passed for ravel from a private prefix
+release-formula: both channels wrote the same installation record
+release-formula: Homebrew loads the promoted ravel@2 as deprecated in favour of ravel
+release-formula: rendered and tested /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel@2.rb (unpublished)
+release-formula: rendered and tested /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel.rb (unpublished)

@@ -1,0 +1,68 @@
+task: [release:archives] scripts/release-build.sh --unreleased 
+release-build: cargo /Users/antony/.cargo/bin/cargo
+release-build: unreleased archives of the working copy at v1.1.0
+task: [notices:setup] bash scripts/notices.sh setup
+task: [notices] bash scripts/notices.sh generate
+notices: generated target/notices/THIRD-PARTY-NOTICES.md
+release-build: target aarch64-apple-darwin
+    Finished `release` profile [optimized] target(s) in 0.03s
+02d17ebcf63820f9b5df7cc8279fca6a7e63c44a66e523184b6b1cea04e88527  /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-aarch64-apple-darwin.tar.xz
+release-build: target aarch64-unknown-linux-gnu
+   Compiling ravel v1.1.0 (/Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/crates/ravel)
+warning: linker stderr: ignoring deprecated linker optimization setting "1"
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `ravel` (bin "ravel") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 3.46s
+6f2afcb51c064ee9dc8f0cf21d0fc256551fd4864c3c15b0016f30c429e20d10  /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-aarch64-unknown-linux-gnu.tar.xz
+release-build: target x86_64-unknown-linux-gnu
+   Compiling ravel v1.1.0 (/Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/crates/ravel)
+warning: linker stderr: ignoring deprecated linker optimization setting "1"
+  |
+  = note: `#[warn(linker_messages)]` on by default
+
+warning: `ravel` (bin "ravel") generated 1 warning
+    Finished `release` profile [optimized] target(s) in 3.33s
+6406ae111b20ea4236d1189950f8993736e2bf39a1180dd3af6d489a6e693a47  /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-x86_64-unknown-linux-gnu.tar.xz
+
+release-build: artifacts in /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives
+total 9360
+drwxr-xr-x@  5 antony  staff      160 12 Nov 01:14 .
+drwxr-xr-x@ 81 antony  staff     2592 12 Nov 01:14 ..
+-rw-r--r--@  1 antony  staff  1607212 12 Nov 01:14 ravel-v1.1.0-aarch64-apple-darwin.tar.xz
+-rw-r--r--@  1 antony  staff  1468312 12 Nov 01:14 ravel-v1.1.0-aarch64-unknown-linux-gnu.tar.xz
+-rw-r--r--@  1 antony  staff  1709484 12 Nov 01:14 ravel-v1.1.0-x86_64-unknown-linux-gnu.tar.xz
+task: [release:smoke] scripts/release-smoke.sh 
+release-smoke: floor image docker.io/library/centos:7@sha256:be65f488b7764ad3638f236b7b515b3678369a5124c47b8d32916d6487418ea4, docker 29.9.2 on linux/arm64, zig 0.17.1
+release-smoke: aarch64-apple-darwin: /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-aarch64-apple-darwin.tar.xz
+release-smoke: aarch64-apple-darwin: Darwin 27.0.0 arm64, macOS 27.0.1
+release-smoke: aarch64-apple-darwin: extracted with bsdtar 3.5.3 - libarchive 3.7.4 zlib/1.2.12 liblzma/5.4.3 bz2lib/1.0.8 ; ravel report 1.1.0
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+release-smoke: aarch64-unknown-linux-gnu: /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-aarch64-unknown-linux-gnu.tar.xz
+release-smoke: aarch64-unknown-linux-gnu: linux/arm64 container, native to Docker's linux/arm64
+release-smoke: aarch64-unknown-linux-gnu: glibc 2.17; control: the glibc 2.25 probe was refused (exit 1): /smoke/probes/above-aarch64: /lib64/libc.so.6: version `GLIBC_2.25' not found (required by /smoke/probes/above-aarch64)
+release-smoke: aarch64-unknown-linux-gnu: extracted with tar (GNU tar) 1.26; ravel report 1.1.0
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+release-smoke: aarch64-unknown-linux-gnu: linux/arm64 userland under the pinned QEMU with -cpu cortex-a53, in a linux/arm64 docker.io/library/ubuntu:24.04@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3 container
+release-smoke: aarch64-unknown-linux-gnu: userland unpacked; qemu-aarch64 version 10.2.2 (Debian 1:10.2.2+ds-1), -cpu cortex-a53
+release-smoke: aarch64-unknown-linux-gnu: all 1 ELF files in the archive match the registration, so they run under the model
+release-smoke: aarch64-unknown-linux-gnu: guest address space below 0x1000000000000, with a vDSO
+release-smoke: aarch64-unknown-linux-gnu: CPU control: -cpu cortex-a53 killed the probe at its instruction (exit 132): cpu probe started | qemu: uncaught target signal 4 (Illegal instruction) - core dumped; -cpu max ran it
+release-smoke: aarch64-unknown-linux-gnu: glibc 2.17; control: the glibc 2.25 probe was refused (exit 1): /smoke/probes/above-aarch64: /lib64/libc.so.6: version `GLIBC_2.25' not found (required by /smoke/probes/above-aarch64)
+release-smoke: aarch64-unknown-linux-gnu: extracted with tar (GNU tar) 1.26; ravel report 1.1.0
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+release-smoke: x86_64-unknown-linux-gnu: /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/archives/ravel-v1.1.0-x86_64-unknown-linux-gnu.tar.xz
+release-smoke: x86_64-unknown-linux-gnu: linux/amd64 userland under the pinned QEMU with -cpu Nehalem, in a linux/arm64 docker.io/library/ubuntu:24.04@sha256:008173c23f95b170204355c12626cb5a965d779a7e1283b09e9cffbb1bf33ca3 container
+release-smoke: x86_64-unknown-linux-gnu: userland unpacked; qemu-x86_64 version 10.2.3 (v10.2.3), -cpu Nehalem
+release-smoke: x86_64-unknown-linux-gnu: all 1 ELF files in the archive match the registration, so they run under the model
+release-smoke: x86_64-unknown-linux-gnu: guest address space below 0x800000000000, with a vDSO
+release-smoke: x86_64-unknown-linux-gnu: CPU control: -cpu Nehalem killed the probe at its instruction (exit 132): cpu probe started | qemu: uncaught target signal 4 (Illegal instruction) - core dumped; -cpu max ran it
+release-smoke: x86_64-unknown-linux-gnu: glibc 2.17; control: the glibc 2.25 probe was refused (exit 1): /smoke/probes/above-x86_64: /lib64/libc.so.6: version `GLIBC_2.25' not found (required by /smoke/probes/above-x86_64)
+release-smoke: x86_64-unknown-linux-gnu: extracted with tar (GNU tar) 1.26; ravel report 1.1.0
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+release-smoke: passed: aarch64-apple-darwin aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu

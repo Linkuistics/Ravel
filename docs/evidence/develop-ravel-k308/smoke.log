@@ -1,0 +1,7 @@
+    Finished `release` profile [optimized] target(s) in 0.03s
+task: [notices:setup] bash scripts/notices.sh setup
+task: [notices] bash scripts/notices.sh generate
+notices: generated target/notices/THIRD-PARTY-NOTICES.md
+installed-smoke: direct Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+installed-smoke: symlink Rhai imports/context/params, exact/empty/multiline/flag results, retired format and stale context passed
+ravel: installed ravel 1.1.0 under /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/installed café.K34F2p

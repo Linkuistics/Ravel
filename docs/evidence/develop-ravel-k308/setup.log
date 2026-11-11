@@ -1,0 +1,6 @@
+task: [setup] bash scripts/book-bun.sh setup
+book-bun: Bun 1.4.2 development tool in /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/tools
+task: [setup] bash scripts/book.sh setup
+book: mdBook 0.5.4 development tool in /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/tools
+task: [setup] bash scripts/figures.sh setup
+figures: Typst 0.15.1 with CeTZ 0.4.2 and DejaVu 2.37 fonts in /Users/antony/Development/AgenticOrchestration/Ravel.skill-directory-delivery/target/tools

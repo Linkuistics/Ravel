@@ -1,0 +1,280 @@
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.Lbxen5pIQ4/tap"
+Working copy  (@) now at: ywkrlxov 1d04dad7 fixture
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+Changes to push to origin:
+  bookmark: main [add to 1d04dad7a561]
+Warning: The working-copy commit became immutable; a new commit has been created on top of it.
+Working copy  (@) now at: tsttnvlu 84ca51f8 (empty) (no description set)
+Parent commit (@-)      : ywkrlxov 1d04dad7 main | fixture
+Working copy  (@) now at: momytxsm 9e47460d (empty) (no description set)
+Parent commit (@-)      : ywkrlxov 1d04dad7 main | fixture
+Working copy  (@) now at: momytxsm ea98cb1b (empty) local tap work
+Parent commit (@-)      : ywkrlxov 1d04dad7 main | fixture
+Moved 1 bookmarks to momytxsm ea55e654 main* | local tap work
+Working copy  (@) now at: xzqlqswo f3989461 (empty) (no description set)
+Parent commit (@-)      : momytxsm ea55e654 main* | local tap work
+Changes to push to origin:
+  bookmark: main [move forward from 1d04dad7a561 to ea55e65471cd]
+Fetching from Git remotes: origin
+Nothing changed.
+release-publish: creating GitHub Release v1.2.3
+release-publish: pushing Formula/ravel.rb to /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.Lbxen5pIQ4/tap
+Working copy  (@) now at: sxmxpsvn 3469a9a4 (empty) (no description set)
+Parent commit (@-)      : momytxsm ea55e654 main | local tap work
+Working copy  (@) now at: sxmxpsvn 9edbfa06 ravel v1.2.3
+Parent commit (@-)      : momytxsm ea55e654 main | local tap work
+Moved 1 bookmarks to sxmxpsvn 9edbfa06 main* | ravel v1.2.3
+Working copy  (@) now at: yzzltxkp 94b18ee1 (empty) (no description set)
+Parent commit (@-)      : sxmxpsvn 9edbfa06 main* | ravel v1.2.3
+Changes to push to origin:
+  bookmark: main [move forward from ea55e65471cd to 9edbfa065de8]
+
+release-publish: done. Verify with:
+  scripts/release-install.sh --channel unversioned
+Fetching from Git remotes: origin
+Nothing changed.
+release-publish: pushing Formula/ravel.rb to /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.Lbxen5pIQ4/tap
+Working copy  (@) now at: oxmmvtsv 435320d5 (empty) (no description set)
+Parent commit (@-)      : sxmxpsvn 9edbfa06 main | ravel v1.2.3
+Working copy  (@) now at: oxmmvtsv f99b0ab4 (empty) ravel v1.2.3
+Parent commit (@-)      : sxmxpsvn 9edbfa06 main | ravel v1.2.3
+Moved 1 bookmarks to oxmmvtsv f99b0ab4 main* | (empty) ravel v1.2.3
+Working copy  (@) now at: tvkqxluq 62a3cde6 (empty) (no description set)
+Parent commit (@-)      : oxmmvtsv f99b0ab4 main* | (empty) ravel v1.2.3
+Changes to push to origin:
+  bookmark: main [move forward from 9edbfa065de8 to f99b0ab49611]
+
+release-publish: done. Verify with:
+  scripts/release-install.sh --channel unversioned
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.Lbxen5pIQ4/task"
+Working copy  (@) now at: nynyklqr 5842a230 fixture
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+Changes to push to origin:
+  bookmark: main [add to 5842a23047cc]
+Warning: The working-copy commit became immutable; a new commit has been created on top of it.
+Working copy  (@) now at: wtnzstkx c96cb925 (empty) (no description set)
+Parent commit (@-)      : nynyklqr 5842a230 main | fixture
+Working copy  (@) now at: tpyqlnqp 51698cb9 (empty) (no description set)
+Parent commit (@-)      : nynyklqr 5842a230 main | fixture
+release tests: all passed
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/repo"
+Working copy  (@) now at: rrzxpyqs fdbcd134 Introduce independent sessions
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+Changes to push to origin:
+  bookmark: main [add to fdbcd134f53a]
+Warning: The working-copy commit became immutable; a new commit has been created on top of it.
+Working copy  (@) now at: yrzmkqrv f1cb737e (empty) (no description set)
+Parent commit (@-)      : rrzxpyqs fdbcd134 main | Introduce independent sessions
+Working copy  (@) now at: xoxwvzmp d0c52c34 (empty) (no description set)
+Parent commit (@-)      : rrzxpyqs fdbcd134 main | Introduce independent sessions
+Working copy  (@) now at: xoxwvzmp 5ccde423 Improve session output
+Parent commit (@-)      : rrzxpyqs fdbcd134 main | Introduce independent sessions
+Moved 1 bookmarks to xoxwvzmp 5ccde423 main* | Improve session output
+Working copy  (@) now at: kwumtunq dfc025f3 (empty) (no description set)
+Parent commit (@-)      : xoxwvzmp 5ccde423 main* | Improve session output
+Working copy changes:
+A owner-work.txt
+Working copy  (@) : kwumtunq fc783691 (no description set)
+Parent commit (@-): xoxwvzmp 5ccde423 main* | Improve session output
+Fetching from Git remotes: origin
+Nothing changed.
+release-prepare: saved working change kwumtunqtklwwlmnmtmrxzvoprwolmox (return with: jj edit kwumtunqtklwwlmnmtmrxzvoprwolmox)
+Working copy  (@) now at: qknrzwnq d8e28341 (empty) (no description set)
+Parent commit (@-)      : xoxwvzmp 5ccde423 main* | Improve session output
+Added 0 files, modified 0 files, removed 1 files
+release-prepare: first release, no v0.0.0 baseline; planned minor is 0.1.0
+release-notes: filled Unreleased through main; review prose before cutting
+Working copy  (@) now at: qknrzwnq 9c54e16f docs: prepare release notes
+Parent commit (@-)      : xoxwvzmp 5ccde423 main* | Improve session output
+Moved 1 bookmarks to qknrzwnq 9c54e16f main* | docs: prepare release notes
+Working copy  (@) now at: qxwrvmpx ce48b065 (empty) (no description set)
+Parent commit (@-)      : qknrzwnq 9c54e16f main* | docs: prepare release notes
+release-prepare: generated and committed release notes from commit descriptions
+The working copy has no changes.
+Working copy  (@) : qxwrvmpx ce48b065 (empty) (no description set)
+Parent commit (@-): qknrzwnq 9c54e16f main* | docs: prepare release notes
+Fetching from Git remotes: origin
+Nothing changed.
+release-prepare: saved working change qxwrvmpxmzxwzmvutsxouxqnzkxqotrk (return with: jj edit qxwrvmpxmzxwzmvutsxouxqnzkxqotrk)
+Working copy  (@) now at: wtkrqnrz 618eb089 (empty) (no description set)
+Parent commit (@-)      : qknrzwnq 9c54e16f main* | docs: prepare release notes
+release-prepare: first release, no v0.0.0 baseline; planned minor is 0.1.0
+release-prepare: preserving existing Unreleased notes
+task: [release:notes] bash scripts/release-notes.sh --from-file /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/reviewed
+release-notes: filled Unreleased through @; review prose before cutting
+task: [release:notes] bash scripts/release-notes.sh --from-file /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/reviewed
+release-notes: filled Unreleased through @; review prose before cutting
+Working copy  (@) now at: wtkrqnrz 2c9b604e (empty) Reviewed notes
+Parent commit (@-)      : qknrzwnq 9c54e16f main* | docs: prepare release notes
+Moved 1 bookmarks to wtkrqnrz 2c9b604e main* | (empty) Reviewed notes
+Working copy  (@) now at: rqsolmwy 1590e09e (empty) (no description set)
+Parent commit (@-)      : wtkrqnrz 2c9b604e main* | (empty) Reviewed notes
+Working copy  (@) now at: rqsolmwy 697d9ddb empty changelog fixture
+Parent commit (@-)      : wtkrqnrz 2c9b604e main* | (empty) Reviewed notes
+Working copy  (@) now at: yqkkwwsy 61b80d25 (empty) (no description set)
+Parent commit (@-)      : rqsolmwy 697d9ddb empty changelog fixture
+Working copy  (@) now at: yqkkwwsy 4f4018d6 replacement control missing
+Parent commit (@-)      : rqsolmwy 697d9ddb empty changelog fixture
+Working copy  (@) now at: mqtqplzu 33686632 (empty) (no description set)
+Parent commit (@-)      : yqkkwwsy 4f4018d6 replacement control missing
+Working copy  (@) now at: mqtqplzu bb962636 replacement control duplicate
+Parent commit (@-)      : yqkkwwsy 4f4018d6 replacement control missing
+Working copy  (@) now at: rsxzkoqm 4fd8253f (empty) (no description set)
+Parent commit (@-)      : mqtqplzu bb962636 replacement control duplicate
+Working copy  (@) now at: rsxzkoqm 888133f8 replacement control unanchored
+Parent commit (@-)      : mqtqplzu bb962636 replacement control duplicate
+Working copy  (@) now at: zruqmqqy 87193e01 (empty) (no description set)
+Parent commit (@-)      : rsxzkoqm 888133f8 replacement control unanchored
+Working copy  (@) now at: zruqmqqy 4e906d27 Return to valid preparation
+Parent commit (@-)      : rsxzkoqm 888133f8 replacement control unanchored
+Moved 1 bookmarks to zruqmqqy 4e906d27 main* | Return to valid preparation
+Working copy  (@) now at: rmysxovt ba700abb (empty) (no description set)
+Parent commit (@-)      : zruqmqqy 4e906d27 main* | Return to valid preparation
+To /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/remote.git
+ * [new tag]         v0.0.0 -> v0.0.0
+Working copy  (@) now at: puwmltto b7d9aede (empty) (no description set)
+Parent commit (@-)      : zruqmqqy 4e906d27 main* | Return to valid preparation
+Working copy  (@) now at: puwmltto 1f19e063 chore: release v0.1.0
+Parent commit (@-)      : zruqmqqy 4e906d27 main* | Return to valid preparation
+Working copy  (@) now at: qmpkklqt 2113ef94 (empty) (no description set)
+Parent commit (@-)      : puwmltto 1f19e063 chore: release v0.1.0
+Abandoned 1 commits that are no longer reachable.
+Rebased 1 descendant commits off of commits rewritten from Git.
+Working copy  (@) now at: qmpkklqt e408e578 (no description set)
+Parent commit (@-)      : zruqmqqy 4e906d27 main* | Return to valid preparation
+Added 0 files, modified 0 files, removed 1 files
+Done importing changes from the underlying Git repo.
+Working copy  (@) now at: qmpkklqt 649d4c0f chore: release v0.1.0
+Parent commit (@-)      : zruqmqqy 4e906d27 main* | Return to valid preparation
+Moved 1 bookmarks to qmpkklqt 649d4c0f main* | chore: release v0.1.0
+Working copy  (@) now at: nrwvwrrr d63fec15 (empty) (no description set)
+Parent commit (@-)      : qmpkklqt 649d4c0f main* | chore: release v0.1.0
+To /private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/remote.git
+ * [new tag]         v0.1.0 -> v0.1.0
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.tAkPD2S6m4/tap"
+Working copy  (@) now at: pwuyrqkx 79ad0d8b ravel v0.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+Changes to push to origin:
+  bookmark: main [add to 79ad0d8be9fd]
+Warning: The working-copy commit became immutable; a new commit has been created on top of it.
+Working copy  (@) now at: lytnwoux f575ba37 (empty) (no description set)
+Parent commit (@-)      : pwuyrqkx 79ad0d8b main | ravel v0.1.0
+Working copy  (@) now at: lkkopvqq 984ad3ed (empty) (no description set)
+Parent commit (@-)      : pwuyrqkx 79ad0d8b main | ravel v0.1.0
+Working copy  (@) now at: ykqoyrrs fcf70eff Improve next session
+Parent commit (@-)      : qmpkklqt 649d4c0f main* | chore: release v0.1.0
+Moved 1 bookmarks to ykqoyrrs fcf70eff main* | Improve next session
+Working copy  (@) now at: qnuqzzrr 9d3f17b4 (empty) (no description set)
+Parent commit (@-)      : ykqoyrrs fcf70eff main* | Improve next session
+release preparation tests: all passed
+release preparation tests: all passed
+release build admission tests: all passed
+release doctor controls: all passed
+release book version: all passed
+Updated tag 'v1.2.3' (was 66a0d14)
+Updated tag 'v1.2.3' (was 736e8f1)
+Updated tag 'v1.2.3' (was 114a52c)
+Updated tag 'v1.2.3' (was 1ceabdf)
+release book: all passed
+release-channel-test: ok: channel mapping, admission, baseline and deprecation date rules
+release-channel-test: ok: both classes render from one release and only class and keg_only differ
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.HsLkfoYcme/task"
+release-channel-test: ok: the release tasks require CHANNEL and carry it to every step
+release-channel-test: ok: release:promote requires VERSION and runs only the promotion
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.HsLkfoYcme/prepare"
+Working copy  (@) now at: lowywvqk 075a1616 chore: release v1.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+Working copy  (@) now at: twvzxlyk c5cc383e (empty) (no description set)
+Parent commit (@-)      : lowywvqk 075a1616 main | chore: release v1.1.0
+Done importing changes from the underlying Git repo.
+Working copy  (@) now at: twvzxlyk e4d9f63f Next change
+Parent commit (@-)      : lowywvqk 075a1616 main | chore: release v1.1.0
+Moved 1 bookmarks to twvzxlyk e4d9f63f main* | Next change
+Working copy  (@) now at: wzmztnpv 441f29bd (empty) (no description set)
+Parent commit (@-)      : twvzxlyk e4d9f63f main* | Next change
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.HsLkfoYcme/prepare-tap"
+Working copy  (@) now at: rpzwxnzv 95cc24bb ravel v1.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: the first 2.0.0 cut checks 1.1.0 in ravel.rb and targets ravel@2
+Working copy  (@) now at: mnrzlokw a9749d03 chore: release v2.0.0
+Parent commit (@-)      : twvzxlyk e4d9f63f main | Next change
+Moved 1 bookmarks to mnrzlokw a9749d03 main* | chore: release v2.0.0
+Working copy  (@) now at: stwtopmp da5743bd (empty) (no description set)
+Parent commit (@-)      : mnrzlokw a9749d03 main* | chore: release v2.0.0
+Done importing changes from the underlying Git repo.
+Working copy  (@) now at: stwtopmp d9a4b214 Later change
+Parent commit (@-)      : mnrzlokw a9749d03 main* | chore: release v2.0.0
+Moved 1 bookmarks to stwtopmp d9a4b214 main* | Later change
+Working copy  (@) now at: tpzqxtln 77b2a163 (empty) (no description set)
+Parent commit (@-)      : stwtopmp d9a4b214 main* | Later change
+release-channel-test: ok: a later 2.x cut before promotion checks 2.0.0 in ravel@2
+release-channel-test: ok: after promotion versioned-2 refuses and unversioned checks ravel.rb
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.HsLkfoYcme/tap"
+Working copy  (@) now at: owpsmkqy ee8edd44 ravel v1.1.0
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: publication requires a known, admitted channel before any write
+release-channel-test: ok: a versioned release writes only ravel@2.rb to origin, and each resume keeps the channel
+release-channel-test: ok: versioned-2 refuses after promotion
+release-channel-test: ok: ravel@2 installs without a shared command on a prefix without ravel or ravel@2
+release-channel-test: ok: ravel@2 installs with cleanup suppressed and verifies through its own keg
+release-channel-test: ok: a linked, non-keg-only, misrecorded or misversioned keg, a changed unversioned ravel or a changed earlier keg refuses
+release-channel-test: ok: Homebrew's rewrite of an earlier keg's INSTALL_RECEIPT.json is accepted
+release-channel-test: ok: the evidence names the channel, tag commit, asset digests, book commit, tap commit and installed keg
+Initialized repo in "../../../../../private/var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.HsLkfoYcme/promote-tap"
+Working copy  (@) now at: wruytpxl 082c6724 state B
+Parent commit (@-)      : zzzzzzzz 00000000 (empty) (no description set)
+release-channel-test: ok: promotion refuses without evidence, a matching receipt, the compatible consumer, the cut identities or the published ravel@2
+release-channel-test: ok: one tap commit pushed to origin renders ravel.rb from the release assets and deprecates ravel@2 in favour of ravel
+release-channel-test: ok: promotion leaves the archives, the GitHub Release and the book unchanged and builds nothing
+release-channel-test: ok: installation upgrades ravel with cleanup suppressed, keeps the 1.1.0 and ravel@2 kegs and is recorded
+release-channel-test: ok: a retry keeps the published promotion and the matching installation
+release-channel-test: ok: a retry reports a mismatched formula or installation and overwrites neither, and a removed old keg or worker refuses
+release channel tests: all passed
+release-channel-test: ok: mutant versioned file is ravel.rb: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel.rb|RavelAT2|  keg_only :versioned_formula|2)
+release-channel-test: ok: mutant versioned class is Ravel: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel@2.rb|Ravel|  keg_only :versioned_formula|2)
+release-channel-test: ok: mutant versioned not keg-only: a control fails (release-channel-test: FAIL: versioned-2 maps to ravel@2|ravel@2.rb|RavelAT2||2)
+release-channel-test: ok: mutant omission is unversioned: a control fails (release-channel-test: FAIL: channel_select admitted '')
+release-channel-test: ok: mutant versioned any major: a control fails (release-channel-test: FAIL: channel_admits versioned-2 1.1.1 over unversioned '1.1.0' is admitted, not refused)
+release-channel-test: ok: mutant no promotion refusal: a control fails (release-channel-test: FAIL: channel_admits versioned-2 2.0.1 over unversioned '2.0.0' is admitted, not refused)
+release-channel-test: ok: mutant unversioned major 2 early: a control fails (release-channel-test: FAIL: channel_admits unversioned 2.0.0 over unversioned '1.1.0' is admitted, not refused)
+release-channel-test: ok: mutant baseline always ravel.rb: a control fails (release-channel-test: FAIL: the baseline formula does not follow the channel that published the baseline)
+release-channel-test: ok: mutant render ignores keg_only: a control fails (release-channel-test: FAIL: ravel@2.rb is not keg-only after its licence)
+release-channel-test: ok: mutant render keeps placeholder: a control fails (release-channel-test: FAIL: ravel.rb is keg-only)
+release-channel-test: ok: mutant task channel unchecked: a control fails (release-channel-test: FAIL: release:patch CHANNEL=stable: refused without /CHANNEL has an invalid value : 'sta)
+release-channel-test: ok: mutant task prepare unchannelled: a control fails (release-channel-test: FAIL: release:patch does not run 'bash scripts/release-prepare.sh --channel versioned-2 )
+release-channel-test: ok: mutant task install unchannelled: a control fails (release-channel-test: FAIL: release:patch does not run 'scripts/release-install.sh --channel versioned-2')
+release-channel-test: ok: mutant prepare skips admission: a control fails (release-channel-test: FAIL: unversioned major before promotion: accepted)
+release-channel-test: ok: mutant prepare fixed baseline: a control fails (release-channel-test: FAIL: a missing versioned baseline: refused without /Formula/ravel@2.rb missing/: Fetchi)
+release-channel-test: ok: mutant publish default channel: a control fails (release-channel-test: FAIL: publish  without a channel: refused without /release channel is required/: release)
+release-channel-test: ok: mutant publish skips admission: a control fails (release-channel-test: FAIL: unversioned 2.0.0 before promotion: accepted)
+release-channel-test: ok: mutant publish fixed file: a control fails (release-channel-test: FAIL: --tap-only refused: Working copy  (@) now at: pozuslvl 42ced9a9 (empty) (no descri)
+release-channel-test: ok: mutant publish skips the book: a control fails (release-channel-test: FAIL: --tap-only did not verify the book before the tap)
+release-channel-test: ok: mutant install keeps cleanup: a control fails (release-channel-test: FAIL: the versioned install ran update cleanup=unset;install --skip-link linkuistics/tap)
+release-channel-test: ok: mutant install reads PATH: a control fails (release-channel-test: FAIL: the verification ran the command on PATH)
+release-channel-test: ok: mutant install ignores keg-only: a control fails (release-channel-test: FAIL: install with fault FAKE_BREW_KEG_ONLY=false: accepted)
+release-channel-test: ok: mutant install ignores unversioned: a control fails (release-channel-test: FAIL: install with fault FAKE_BREW_UPGRADE_UNVERSIONED=1: accepted)
+release-channel-test: ok: mutant install skips record: a control fails (release-channel-test: FAIL: install with fault FAKE_BREW_RECORD=keg: accepted)
+release-channel-test: ok: mutant evidence any formula: a control fails (release-channel-test: FAIL: the evidence differs: 40c40 <     "commit": "5ae58f7de21449e09d3b465a17ec3dbb714fe)
+release-channel-test: ok: mutant evidence trusts assets: a control fails (release-channel-test: FAIL: evidence over a corrupt asset: accepted)
+release-channel-test: ok: mutant evidence any book commit: a control fails (release-channel-test: FAIL: the evidence differs: 18c18 <     "commit": "d3b65dfa274fec1bbd696b51f68f275a8ee56)
+release-channel-test: ok: mutant promotion deprecates nothing: a control fails (release-channel-test: FAIL: a rejected tap push: refused without /stays local/: release-promote: the public ta)
+release-channel-test: ok: mutant promote skips readiness: a control fails (release-channel-test: FAIL: promote without a readiness receipt: refused without /no consumer readiness receip)
+release-channel-test: ok: mutant promote skips tag: a control fails (release-channel-test: FAIL: evidence of another tag commit: refused without /public tag v2.0.0 is/: release-pr)
+release-channel-test: ok: mutant promote trusts assets: a control fails (release-channel-test: FAIL: a mismatched archive: refused without /has SHA-256/: tar: Error opening archive: L)
+release-channel-test: ok: mutant promote skips book: a control fails (release-channel-test: FAIL: evidence of another book: accepted)
+release-channel-test: ok: mutant promote skips consumer: a control fails (release-channel-test: FAIL: promotion before the compatible consumer: accepted)
+release-channel-test: ok: mutant promote skips formula test: a control fails (release-channel-test: FAIL: a failed formula test: accepted)
+release-channel-test: ok: mutant promote any ravel@2: a control fails (release-channel-test: FAIL: an unexpected ravel@2.rb: accepted)
+release-channel-test: ok: mutant promote overwrites ravel.rb: a control fails (release-channel-test: FAIL: a promotion over another ravel.rb: refused without /ravel.rb is not this promotion)
+release-channel-test: ok: mutant promote never keeps: a control fails (release-channel-test: FAIL: the repeated promotion refused: release-promote: the public tag, the three asset d)
+release-channel-test: ok: mutant promote recommits: a control fails (release-channel-test: FAIL: the promotion retry refused: Working copy  (@) now at: ovryykut 5d301bc5 (empty) ()
+release-channel-test: ok: mutant promote skips install: a control fails (release-channel-test: FAIL: the promotion retry refused: Changes to push to origin:)
+release-channel-test: ok: mutant install links ravel@2: a control fails (release-channel-test: FAIL: the versioned install on a prefix without ravel refused: release-install: ravel@2 )
+release-channel-test: ok: mutant install drops old kegs: a control fails (release-channel-test: FAIL: install with fault FAKE_BREW_OLD_FAULT=remove-worker: accepted)
+release-channel-test: ok: mutant install ignores contents: a control fails (release-channel-test: FAIL: install with fault FAKE_BREW_OLD_FAULT=change-sdk: accepted)
+release-channel-test: ok: mutant install compares receipts: a control fails (release-channel-test: FAIL: a rewritten Homebrew receipt in the 1.1.0 keg refused: release-install: the earlie)
+release-channel-test: ok: mutant tap push default remote: a control fails (release-channel-test: FAIL: --tap-only refused: Parent commit (@-)      : xkmnzxmq c0ba7ce0 main* | ravel@2 v2)
+release-channel-test: ok: mutant deprecation date by UTC: a control fails (release-channel-test: FAIL: a commit at 2026-11-12T00:15:00Z has the deprecation date 2026-11-12, not 2026-11-)
+release-channel-test: ok: mutant promote dates by UTC: a control fails (release-channel-test: FAIL: the promoted ravel@2.rb is not the published one with its deprecation)
+release-channel-test: ok: mutant promote admits empty JSON: a control fails (release-channel-test: FAIL: an empty readiness receipt: refused without /v2.0.0.readiness.json is not one JSON)
+release-channel-test: ok: mutant task promote unversioned: a control fails (release-channel-test: FAIL: release:promote does not run the promotion: task: [release:promote] mkdir .jj/rele)

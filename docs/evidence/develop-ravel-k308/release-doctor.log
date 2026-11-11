@@ -1,0 +1,30 @@
+task: [release:doctor] scripts/release-doctor.sh
+release-doctor: checking release prerequisites
+
+  ✓ bash: 5.3.20(1)-release
+  ✓ cargo: /Users/antony/.cargo/bin/cargo (cargo 1.99.1)
+  ✓ rustc: /Users/antony/.cargo/bin/rustc (rustc 1.99.1)
+  ✓ target std: aarch64-apple-darwin
+  ✓ target std: aarch64-unknown-linux-gnu
+  ✓ target std: x86_64-unknown-linux-gnu
+  ✓ zig: 0.17.1
+  ✓ cargo-zigbuild: 0.23.4
+  ✓ gh: authenticated
+  ✓ checkout-local book Bun: 1.4.2
+  ✓ host: Darwin arm64, where the macOS arm64 archive runs natively
+  ✓ docker: linux/arm64, kernel 7.0.14-linuxkit
+  ✓ book version line: docs/book/src/03-a-complete-session.md has the one line that the release replaces
+  ✓ checkout-local mdBook: 0.5.4
+  ✓ book on Pages: Pages serves branch gh-pages from /
+  ✓ jj: available
+  ✓ jq: available
+  ✓ brew: available
+  ✓ task: available
+  ✓ curl: available
+  ✓ tar: available
+  ✓ xz: available
+  ✓ shasum: available
+  ✓ shellcheck: available
+  ✓ cargo-release: verified 1.1.2
+
+release-doctor: all prerequisites met
