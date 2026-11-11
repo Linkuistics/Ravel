@@ -232,7 +232,7 @@ checkout.
 | Ravel CLI | `crates/ravel/src/main.rs`, `run.rs`, `choice.rs` and the other modules of the executable | The `ravel start-session` process | Checks the request, writes the routing notice and returns `finished` |
 | Rhai worker | `crates/ravel/src/rhai_worker/`, mainly `role.rs`, `engine.rs` and `bridge.rs` | A second `ravel` process, during evaluation only | Runs `select` and calls `ravel::run_harness` |
 | Host bridge, CLI side | `crates/ravel/src/rhai_worker/front.rs`, `serve.rs`, `host.rs`, `reader.rs` and `harness.rs` | Inside the Ravel CLI, during evaluation only | Receives the request for the `advisor` run and starts it |
-| Skill preparation | `crates/ravel/src/skills/` | Inside the Ravel CLI, before the worker starts | Does nothing, because no skill source is configured |
+| Skill preparation | `crates/ravel/src/skills/` | Inside the Ravel CLI, before the worker starts | The checkout build prepares no skills. A Homebrew installation can use its default skill directory. |
 | Runner | `crates/keyed-launch/src/` | Inside the Ravel CLI | Runs `fake-advisor`, then `fake-agent` |
 | Result channel | `crates/ravel/src/completion.rs`, exported by `crates/ravel/src/lib.rs` | Inside the Ravel CLI and inside each `ravel end-session` process | Carries `advice` to the script and `finished` to the caller |
 
@@ -273,7 +273,7 @@ before it. The last column gives the step in the example.
 |---|---|---|---|
 | 1 | Refuses when `RAVEL_CONFIG_RUN` is in its environment | `run::run` | The caller's environment has no marker |
 | 2 | Reads the settings and the caller inputs, then finds the configuration script | `choice::prepare` | Reads `home/.config/ravel/settings.json` and finds `config.rhai` |
-| 3 | Resolves the skill sources and prepares the prompt | `skills::launch::prepare` | Delivery is off, so the prompt stays unchanged |
+| 3 | Resolves the skill sources and prepares the prompt | `skills::launch::prepare` | With the checkout build, delivery is off and the prompt stays unchanged |
 | 4 | Starts the Rhai worker, answers its host calls, checks its reply and reaps it. Then it finds the selected program on `PATH`. | `choice::choose_prepared` | Starts `fake-advisor` for the script, receives the selection of `fake-agent` and finds `bin/fake-agent` |
 | 5 | Makes the result channel, writes the routing notice and launches the managed process | `run::run` | Launches `fake-agent` with its own `RAVEL_EXIT_FILE` |
 | 6 | Reads the result after cleanup, decides the outcome and writes the result | `run::run` | Writes `finished` and exits with status 0 |
@@ -346,7 +346,7 @@ The worker receives very little from the Ravel CLI:
 |---|---|
 | A private empty directory with mode 0700, as its working directory | The caller's environment. Its environment is empty. |
 | Standard input from `/dev/null` | `RAVEL_EXIT_FILE`, so it cannot end a session |
-| A private socket at file descriptor 3 | `RAVEL_SKILL_DIRECTORIES`, or any other inherited descriptor |
+| A private socket at file descriptor 3 | `RAVEL_SKILL_DIRECTORIES` in its environment, or other inherited file descriptors |
 | Standard output and standard error, which the Ravel CLI reads with a size limit | Access to files, processes or the network. The Rhai engine has no such functions. |
 
 The first message on the socket is the worker's `hello`. It holds the protocol
@@ -483,7 +483,7 @@ part of the host bridge:
 - the conversion and checks of its data in `rhai_worker/convert.rs`,
 - its limits and its section of the specification `configuration-evaluation.md`.
 
-## The skill directories reach the program before the worker starts
+## The Ravel CLI prepares skill directories before the worker starts
 
 Do you want each agent to find the owner's skills? A **skill** is a directory
 of guidance files for an agent, such as a `SKILL.md` and the files that it

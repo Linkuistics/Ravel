@@ -284,7 +284,9 @@ every new Grove installation and every upgrade to a Ravel that this Grove
 refuses. The cost is a transition formula and a second delivery step, the promotion.
 
 Each version-cut task, `release:patch`, `release:minor` or `release:major`, requires `CHANNEL`. It has no default, so an omission never changes unversioned `ravel`. `scripts/release-channel.sh` maps the channel
-to its formula name, file, class, keg-only line and prefix. Each script of the cut that writes or reads a formula takes `--channel` as an argument. `release:promote` takes no channel, because it always changes `ravel@2` into `ravel`. The table gives the rules that accept a channel for a version.
+to its formula name, file, class, keg-only line and prefix. Each script of the cut that writes or reads a formula takes `--channel` as an argument.
+
+`release:promote` takes no channel. It makes the versioned release available through unversioned `ravel`. The table gives the rules that accept a channel for a version.
 
 | Channel | Delivers | Refuses |
 |---|---|---|
@@ -292,7 +294,7 @@ to its formula name, file, class, keg-only line and prefix. Each script of the c
 | `unversioned` | Any version, except major 2 before promotion | A major-2 version while unversioned `ravel` has a major below 2, or is absent |
 
 Before the cut, preparation checks the baseline release in the formula that delivered it. The first 2.0.0 cut checks baseline 1.1.0 in `Formula/ravel.rb`,
-then delivers `ravel@2`. A later 2.x cut before promotion checks its baseline in `Formula/ravel@2.rb` and delivers `ravel@2` again. After promotion, a cut
+then delivers 2.0.0 through `ravel@2`. A later 2.x cut before promotion checks its baseline in `Formula/ravel@2.rb` and delivers through `ravel@2` again. After promotion, a cut
 selects `CHANNEL=unversioned` and checks its baseline in `Formula/ravel.rb`.
 `ravel@2` then stays at the promoted version and receives no later release.
 
@@ -603,7 +605,7 @@ upgrade or reinstall on the machine can run Homebrew's periodic cleanup.
 After the upgrade of unversioned `ravel` to 2.0.0, the 1.1.0 keg is such an
 old version.
 
- From that upgrade until its last reader ends, add `ravel` to `HOMEBREW_NO_CLEANUP_FORMULAE` and keep its current entries. Set it where
+From that upgrade until its last reader ends, add `ravel` to `HOMEBREW_NO_CLEANUP_FORMULAE` and keep its current entries. Set it where
 every Homebrew command on the machine reads it, such as Homebrew's user
 `brew.env` file. The [Homebrew manual](https://docs.brew.sh/Manpage#environment)
 describes both variables. Neither protects a keg from an explicit uninstall or
@@ -636,8 +638,9 @@ not replace Grove.
 
 ## Promote a versioned release
 
-You may want to move every default installation to a complete `ravel@2`
-release after its callers are ready. `task release:promote` does that. It delivers the same archives as unversioned `ravel`. It cuts no version,
+You may want new and upgraded default installations to use a complete
+`ravel@2` release after its callers are ready. `task release:promote` makes
+that release available as unversioned `ravel`. It cuts no version,
 builds no archive, creates no tag or GitHub release and changes no book.
 
 Fragment: promote 2.0.0 from Ravel's default colocated workspace. This recipe
@@ -707,7 +710,8 @@ later cut selects `CHANNEL=unversioned`.
 
 ### See what promotion changes for an owner
 
-Promotion moves every default installation to Rhai configuration scripts.
+After promotion, a new or upgraded default installation uses Rhai
+configuration scripts.
 Ravel 1.x read a TypeScript configuration script, `~/.config/ravel/policy.ts`.
 Ravel 2.0.0 reads only `config.rhai`. It refuses a `HOME` that holds only
 `policy.ts`, and it starts nothing. Thus, an owner who upgrades unversioned
@@ -1077,7 +1081,7 @@ scripts/release-book.sh verify vX.Y.Z
 scripts/release-book.sh check-pages
 scripts/release-book.sh live vX.Y.Z
 ```
- If Pages is disabled,
+If Pages is disabled,
 complete [the Pages setup](#set-up-pages-for-the-first-release). After the setting is correct, repeat only the `live` check.
 
 Promotion has its own boundary. Its steps 1 to 6 change nothing. If one of

@@ -117,10 +117,9 @@ exits. The later appearance check also finds the result when the child exits
 first. Terminal actions are conditional. The checked example has no terminal.
 
 <!-- tc: depart synonym-rotation because launch names the runner's managed launch, while start names other process creation -->
-Two other `ravel` processes appear in the session, and both are short. The
-first is the Rhai worker. The second is `ravel end-session`, which each fake
-starts to send its result. Neither returns a result to the caller. Only the
-original Ravel CLI does that.
+The session starts other short `ravel` processes. One is the Rhai worker.
+Each fake also starts `ravel end-session` to send its result. None of these
+processes returns a result to the caller. Only the original Ravel CLI does that.
 
 ## Prepare the request
 
@@ -195,20 +194,20 @@ Excerpt from `crates/ravel/src/choice.rs`: the call that follows the entry in
     )?;
 ```
 
-The example has no `skills` settings, and the checkout build has no
-installation record. Thus, this call returns `None`. `Prepared` holds the
+The example has no `skills` settings. This trace uses the checkout build
+of the book checker, which has no installation record. Thus, this call returns `None`. `Prepared` holds the
 checked inputs, the entry and that `None`. It holds no decision of the
 configuration script yet.
 
 Back in `run`, a `RunSetup` collects three values for each program that Ravel
 runs later. They are the entry signal state, the `--exit-dir` directory and
 the skill descriptor path. A harness run and the managed process both use
-them. In the example, the descriptor path is absent.
+them. In this trace, the descriptor path is absent.
 
 ## Start the Rhai worker
 
 `choice::choose_prepared` calls `evaluate_and_resolve_rhai`. That function
-builds the request for the script. In the example, the request holds these
+builds the request for the script. In this checkout-build trace, the request holds these
 fields:
 
 - `kind` is `demo`.

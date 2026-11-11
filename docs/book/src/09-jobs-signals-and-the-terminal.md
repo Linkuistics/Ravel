@@ -191,8 +191,8 @@ The session takes at least seven seconds. The note shows that TERM arrived
 after the result and that the agent stayed. KILL then ended it. The death of `fake-agent` from KILL does not
 invalidate its result. `finished` reaches the caller only after the job ends.
 
-The example claims the result bytes, the note and the exit status. It claims
-no duration and no standard error, because macOS can add `ravel: stop attempt`
+The example check compares the result bytes, the note and the exit status. It
+does not compare the duration or standard error. macOS can add `ravel: stop attempt`
 lines whose process-group IDs change from run to run. The automatic example check has no
 terminal and uses no real harness. The next section explains each stage of
 this stop.

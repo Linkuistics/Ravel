@@ -56,7 +56,7 @@ toolchain. `rustup toolchain install`, run in the checkout, installs that
 toolchain when rustup does not have it.
 
 1. Obtain a checkout of the Ravel repository.
-2. Run `cd` into its root directory, where `Taskfile.yml` is.
+2. Use `cd` to enter its root directory, where `Taskfile.yml` is.
 3. Run `rustup toolchain install`.
 4. Run `task setup`.
 5. Run `task build`.
