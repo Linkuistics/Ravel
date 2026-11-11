@@ -8,3 +8,5 @@ bash "$root/scripts/release-build.test.sh"
 bash "$root/scripts/release-doctor.test.sh"
 bash "$root/scripts/release-book-version.test.sh"
 bash "$root/scripts/release-book.test.sh"
+bash "$root/scripts/release-channel.test.sh"
+bash "$root/scripts/release-channel.test.sh" mutants

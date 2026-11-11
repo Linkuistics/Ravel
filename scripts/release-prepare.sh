@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # Prepare main and its changelog without incorporating unrelated working-copy work.
+# Usage: release-prepare.sh --channel CHANNEL --level patch|minor|major
+# The channel decides which tap formula must carry the baseline and whether the
+# planned version may publish there (scripts/release-channel.sh).
 set -euo pipefail
 IFS=$'\n\t'
 
@@ -14,6 +17,22 @@ die() {
 }
 
 main() {
+  local channel='' level='' reason usage='usage: release-prepare.sh --channel CHANNEL --level patch|minor|major'
+  while (($#)); do
+    (($# >= 2)) || die "$usage"
+    case "$1" in
+      --channel) channel="$2" ;;
+      --level) level="$2" ;;
+      *) die "$usage" ;;
+    esac
+    shift 2
+  done
+  # Both are refused before any fetch, working-copy change or note.
+  reason="$(channel_select "$channel")" || die "$reason"
+  case "$level" in
+    patch | minor | major) ;;
+    *) die "$usage" ;;
+  esac
   cd "$repo_root"
   [[ -d .jj && -d .git && "$(pwd -P)" == "$(jj workspace root --name default)" ]] ||
     die "run from the default colocated jj workspace"
@@ -46,8 +65,11 @@ main() {
   local_tag="$(git rev-parse --verify "refs/tags/$tag^{commit}" 2>/dev/null || true)"
   remote_tag="$(git ls-remote --tags origin "refs/tags/$tag" "refs/tags/$tag^{}")"
   version_tags="$(git ls-remote --tags origin 'refs/tags/v[0-9]*')"
+  local target unversioned='' baseline_file
+  target="$(next_version "$version" "$level")"
   if [[ "$version" == 0.0.0 && -z "$local_tag" && -z "$version_tags" && -z "$(git tag --list 'v[0-9]*')" ]]; then
     echo 'release-prepare: first release, no v0.0.0 baseline; planned minor is 0.1.0'
+    reason="$(channel_admits "$channel" "$target" '')" || die "$reason"
   else
     [[ -n "$local_tag" && -n "$remote_tag" ]] || die "partial cut or missing baseline $tag; resume using the chapter 11 section \"Recover a partial release without another bump\" (docs/book/src/11-deliver-ravel.md, #recover-a-partial-release-without-another-bump), never bump again"
     [[ "$(git ls-remote --tags origin "refs/tags/$tag^{}" | cut -f1)" == "$local_tag" || "$(git ls-remote --tags origin "refs/tags/$tag" | cut -f1)" == "$local_tag" ]] ||
@@ -56,14 +78,17 @@ main() {
     published_release_complete "$version" || die "GitHub $tag has draft/missing/incomplete assets; resume publication before another bump"
     local tap="${RAVEL_TAP_DIR:-$HOME/Development/homebrew-taps}"
     local tap_formula
-    if [[ -d "$tap/.jj" ]]; then
-      jj -R "$tap" git fetch --remote origin
-      tap_formula="$(jj -R "$tap" file show -r main@origin root:Formula/ravel.rb)" || die 'tap publication missing; resume before another bump'
-    else
-      git -C "$tap" fetch origin
-      tap_formula="$(git -C "$tap" show '@{upstream}:Formula/ravel.rb')" || die 'tap publication missing; resume before another bump'
-    fi
-    grep -Fxq "  version \"$version\"" <<<"$tap_formula" || die "tap $tag is unfinished; resume formula publication before another bump"
+    # The baseline is checked in the formula that published it: unversioned
+    # ravel for the first 2.0.0 cut, ravel@2 for a later 2.x cut before
+    # promotion, and unversioned ravel again after promotion.
+    baseline_file="$(channel_baseline_file "$channel" "$version")"
+    tap_fetch "$tap" || die "cannot fetch the tap at $tap"
+    tap_formula="$(tap_formula_text "$tap" "$baseline_file")" || die "tap publication of Formula/$baseline_file missing; resume before another bump"
+    grep -Fxq "  version \"$version\"" <<<"$tap_formula" || die "tap Formula/$baseline_file is not at $tag, which is unfinished; resume formula publication before another bump"
+    unversioned="$(tap_unversioned_version "$tap")"
+    reason="$(channel_admits "$channel" "$target" "$unversioned")" || die "$reason"
+    channel_select "$channel"
+    echo "release-prepare: baseline $tag in Formula/$baseline_file; planned v$target publishes Formula/$CHANNEL_FILE (CHANNEL=$channel)"
     changes="$(jj log --no-graph -r "$tag..main" -T commit_id)"
     [[ -n "$changes" ]] || die "No changes since $tag; resume any unfinished release using the chapter 11 section \"Recover a partial release without another bump\" (docs/book/src/11-deliver-ravel.md, #recover-a-partial-release-without-another-bump)"
   fi

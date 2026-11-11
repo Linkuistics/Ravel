@@ -16,7 +16,7 @@ fail() {
 git init -q --bare "$scratch/remote.git"
 jj git init --colocate "$scratch/repo" >/dev/null
 mkdir -p "$scratch/repo/scripts" "$scratch/repo/crates/ravel/src" "$scratch/repo/crates/keyed-launch/src" "$scratch/bin"
-cp "$root/scripts/release-prepare.sh" "$root/scripts/release-notes.sh" "$root/scripts/release-common.sh" "$scratch/repo/scripts/"
+cp "$root/scripts/release-prepare.sh" "$root/scripts/release-notes.sh" "$root/scripts/release-common.sh" "$root/scripts/release-channel.sh" "$scratch/repo/scripts/"
 cp "$root/Taskfile.yml" "$root/release.toml" "$scratch/repo/"
 printf '/target/\n' >"$scratch/repo/.gitignore"
 cat >"$scratch/repo/Cargo.toml" <<'TOML'
@@ -57,7 +57,7 @@ exit "${RELEASE_TEST_GH_STATUS:-1}"
 SH
 chmod +x "$scratch/bin/"*
 export PATH="$scratch/bin:$PATH"
-(cd "$scratch/repo" && bash scripts/release-prepare.sh)
+(cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor)
 grep -Fxq -- '- Introduce independent sessions' "$scratch/repo/CHANGELOG.md"
 grep -Fxq -- '- Improve session output' "$scratch/repo/CHANGELOG.md"
 [[ ! -e "$scratch/repo/owner-work.txt" ]]
@@ -65,7 +65,7 @@ grep -Fxq -- '- Improve session output' "$scratch/repo/CHANGELOG.md"
 [[ -z "$(git -C "$scratch/repo" status --porcelain)" ]]
 cp "$scratch/repo/CHANGELOG.md" "$scratch/notes"
 before="$(jj -R "$scratch/repo" log --no-graph -r main -T commit_id)"
-(cd "$scratch/repo" && bash scripts/release-prepare.sh)
+(cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor)
 cmp "$scratch/notes" "$scratch/repo/CHANGELOG.md"
 [[ "$(jj -R "$scratch/repo" log --no-graph -r main -T commit_id)" == "$before" ]]
 # Explicit input can refresh notes, but bad input never modifies the changelog.
@@ -113,6 +113,16 @@ for level in patch minor major; do
 done
 grep -Fq '0.1.0' "$scratch/dry-minor"
 grep -Fxq -- '+ravel 0.1.0' "$scratch/dry-minor"
+# The channel rules predict the cut's version; each level agrees with the
+# real cargo-release preview of the book's version line.
+# shellcheck source=scripts/release-channel.sh
+source "$root/scripts/release-channel.sh"
+for level in patch minor major; do
+  grep -Fxq -- "+ravel $(next_version 0.0.0 "$level")" "$scratch/dry-$level" ||
+    fail "next_version 0.0.0 $level disagrees with cargo-release: $(grep -m1 '^+ravel ' "$scratch/dry-$level")"
+done
+[[ "$(next_version 1.1.0 major)" == 2.0.0 && "$(next_version 2.0.0 patch)" == 2.0.1 && "$(next_version 2.0.1 minor)" == 2.1.0 ]] ||
+  fail 'next_version does not carry a nonzero version'
 # Empty standing notes still preview a correctly reseeded version heading.
 printf '# Changelog\n\n## Unreleased\n' >"$scratch/repo/CHANGELOG.md"
 jj -R "$scratch/repo" describe -m 'empty changelog fixture' >/dev/null
@@ -147,7 +157,7 @@ jj -R "$scratch/repo" describe -m 'Return to valid preparation' >/dev/null
 jj -R "$scratch/repo" bookmark set main -r @ >/dev/null
 jj -R "$scratch/repo" new main >/dev/null
 git -C "$scratch/repo" tag v0.0.0
-if (cd "$scratch/repo" && bash scripts/release-prepare.sh) >"$scratch/output" 2>&1; then fail 'accepted partial local cut'; fi
+if (cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor) >"$scratch/output" 2>&1; then fail 'accepted partial local cut'; fi
 grep -Fq 'resume' "$scratch/output"
 # Remote tag + a GitHub record alone are insufficient: draft/missing assets
 # remain partial publication, and a local-only tap version cannot clear it.
@@ -161,7 +171,7 @@ case "${RELEASE_TEST_GITHUB_MODE:-missing}" in
 esac
 SH
 for mode in missing draft; do
-  if (cd "$scratch/repo" && RELEASE_TEST_GITHUB_MODE="$mode" bash scripts/release-prepare.sh) >"$scratch/output" 2>&1; then fail "accepted $mode GitHub release"; fi
+  if (cd "$scratch/repo" && RELEASE_TEST_GITHUB_MODE="$mode" bash scripts/release-prepare.sh --channel unversioned --level minor) >"$scratch/output" 2>&1; then fail "accepted $mode GitHub release"; fi
   grep -Fq 'GitHub' "$scratch/output"
   grep -Fq 'resume' "$scratch/output"
 done
@@ -171,7 +181,7 @@ printf 'version cut work\n' >"$scratch/repo/cut.txt"
 jj -R "$scratch/repo" describe -m 'chore: release v0.1.0' >/dev/null
 jj -R "$scratch/repo" new >/dev/null
 git -C "$scratch/repo" tag v0.1.0
-if (cd "$scratch/repo" && bash scripts/release-prepare.sh) >"$scratch/output" 2>&1; then fail 'accepted unintegrated cut'; fi
+if (cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor) >"$scratch/output" 2>&1; then fail 'accepted unintegrated cut'; fi
 grep -Fq 'resume' "$scratch/output"
 # Complete prior release admits genuinely new work, while an already tagged
 # main refuses a repeated bump. Only fixture tags/remotes are changed.
@@ -197,13 +207,13 @@ cat >"$scratch/bin/gh" <<'SH'
 #!/bin/sh
 printf '%s\n' '{"isDraft":false,"assets":[{"name":"ravel-v0.1.0-aarch64-apple-darwin.tar.xz","size":1},{"name":"ravel-v0.1.0-aarch64-unknown-linux-gnu.tar.xz","size":1},{"name":"ravel-v0.1.0-x86_64-unknown-linux-gnu.tar.xz","size":1}]}'
 SH
-if (cd "$scratch/repo" && bash scripts/release-prepare.sh) >"$scratch/output" 2>&1; then fail 'accepted repeated tagged-main cut'; fi
+if (cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor) >"$scratch/output" 2>&1; then fail 'accepted repeated tagged-main cut'; fi
 grep -Fq 'No changes since v0.1.0' "$scratch/output"
 printf 'fn main() { println!("next"); }\n' >"$scratch/repo/crates/ravel/src/main.rs"
 jj -R "$scratch/repo" describe -m 'Improve next session' >/dev/null
 jj -R "$scratch/repo" bookmark set main -r @ >/dev/null
 jj -R "$scratch/repo" new main >/dev/null
-(cd "$scratch/repo" && bash scripts/release-prepare.sh) >"$scratch/output" 2>&1
+(cd "$scratch/repo" && bash scripts/release-prepare.sh --channel unversioned --level minor) >"$scratch/output" 2>&1
 cmp "$scratch/notes" "$scratch/repo/CHANGELOG.md"
 echo 'release preparation tests: all passed'
 echo 'release preparation tests: all passed'

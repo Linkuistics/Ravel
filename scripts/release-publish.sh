@@ -4,10 +4,16 @@
 #   1. Create a GitHub Release on Linkuistics/Ravel for v<ver> and
 #      upload all tarballs from target/dist/.
 #   2. Add the staged book to the Pages branch (release-book.sh publish).
-#   3. Copy ravel.rb into $RAVEL_TAP_DIR/Formula/, commit, push.
+#   3. Copy the channel's formula into $RAVEL_TAP_DIR/Formula/, commit, push.
 #
 # The book comes before the tap because the tap is what lets a reader install
 # the release, and the reader then looks for that release's book.
+#
+# Usage: release-publish.sh --check-tap
+#        release-publish.sh --channel CHANNEL [--book-only | --tap-only]
+# The channel (scripts/release-channel.sh) selects the one formula file that
+# step 3 writes; every other tap file stays unchanged. Every mode but
+# --check-tap names it, so no resume has a default channel.
 #
 # Prerequisite: ./scripts/release-build.sh and `release-book.sh build` have
 # just run successfully, and the smoke tests have passed.
@@ -58,9 +64,16 @@ preflight() {
   command -v gh >/dev/null || die "gh CLI not on PATH"
   gh auth status >/dev/null 2>&1 || die "gh not authenticated; run 'gh auth login'"
   [[ -d "$DIST_DIR" ]] || die "no $DIST_DIR; run scripts/release-build.sh first"
-  [[ -f "$DIST_DIR/ravel.rb" ]] || die "no rendered formula at $DIST_DIR/ravel.rb"
+  [[ -f "$DIST_DIR/$CHANNEL_FILE" ]] || die "no rendered formula at $DIST_DIR/$CHANNEL_FILE for CHANNEL=$CHANNEL_ID"
   compgen -G "$DIST_DIR/*.tar.xz" >/dev/null || die "no tarballs in $DIST_DIR"
   check_tap
+}
+
+# The selected channel may publish VERSION while the tap is as check_tap
+# fetched it. Runs before the GitHub Release and before any tap write.
+check_channel_admitted() {
+  local version="$1" reason
+  reason="$(channel_admits "$CHANNEL_ID" "$version" "$(tap_unversioned_version "$TAP_DIR")")" || die "$reason"
 }
 
 read_version() {
@@ -75,8 +88,8 @@ verify_tag_matches_artifacts() {
   count="$(find "$DIST_DIR" -maxdepth 1 -name '*.tar.xz' | wc -l | tr -d ' ')"
   [[ "$count" == 3 ]] || die 'expected exactly three archives; rebuild and smoke before publishing'
   scratch="$(mktemp -d)"
-  if ! render_archive_formula "$DIST_DIR" "$version" "$REPO_ROOT/scripts/templates/ravel.rb.tmpl" "$scratch/ravel.rb" ||
-    ! cmp -s "$scratch/ravel.rb" "$DIST_DIR/ravel.rb"; then
+  if ! render_archive_formula "$DIST_DIR" "$version" "$REPO_ROOT/scripts/templates/ravel.rb.tmpl" "$scratch/$CHANNEL_FILE" "$CHANNEL_ID" ||
+    ! cmp -s "$scratch/$CHANNEL_FILE" "$DIST_DIR/$CHANNEL_FILE"; then
     rm -rf "$scratch"
     die 'current-tag archives or formula mismatch; rebuild and smoke before publishing'
   fi
@@ -105,21 +118,26 @@ create_github_release() {
 }
 
 push_formula_to_tap() {
-  local version="$1"
-  echo "release-publish: pushing formula to $TAP_DIR"
+  local version="$1" changed
+  echo "release-publish: pushing Formula/$CHANNEL_FILE to $TAP_DIR"
   if [[ -d "$TAP_DIR/.jj" ]]; then
     jj -R "$TAP_DIR" new main
   fi
   mkdir -p "$TAP_DIR/Formula"
-  cp "$DIST_DIR/ravel.rb" "$TAP_DIR/Formula/ravel.rb"
+  cp "$DIST_DIR/$CHANNEL_FILE" "$TAP_DIR/Formula/$CHANNEL_FILE"
+  # The release writes one formula. Any other change in the tap, such as the
+  # other channel's formula, stops the publication before its commit.
+  changed="$(git -C "$TAP_DIR" status --porcelain --untracked-files=all | cut -c4-)"
+  [[ -z "$changed" || "$changed" == "Formula/$CHANNEL_FILE" ]] ||
+    die "the tap holds changes beyond Formula/$CHANNEL_FILE: $changed"
   if [[ -d "$TAP_DIR/.jj" ]]; then
-    jj -R "$TAP_DIR" describe -m "ravel v${version}"
+    jj -R "$TAP_DIR" describe -m "$CHANNEL_FORMULA v${version}"
     jj -R "$TAP_DIR" bookmark set main -r @
     jj -R "$TAP_DIR" new main
     jj -R "$TAP_DIR" git push -b main
   else
-    git -C "$TAP_DIR" add Formula/ravel.rb
-    git -C "$TAP_DIR" commit -m "ravel v${version}"
+    git -C "$TAP_DIR" add "Formula/$CHANNEL_FILE"
+    git -C "$TAP_DIR" commit -m "$CHANNEL_FORMULA v${version}"
     git -C "$TAP_DIR" push
   fi
 }
@@ -147,26 +165,47 @@ publish_book() {
   "$REPO_ROOT/scripts/release-book.sh" publish "v$1"
 }
 
+usage() {
+  die "usage: scripts/release-publish.sh --check-tap | --channel CHANNEL [--book-only | --tap-only]"
+}
+
 main() {
-  case "${1:-}" in
-    --check-tap)
-      check_tap
-      return
-      ;;
-    --book-only)
-      command -v gh >/dev/null || die "gh CLI not on PATH"
-      publish_book "$(read_version)"
-      return
-      ;;
-    '' | --tap-only) ;;
-    *) die "usage: scripts/release-publish.sh [--check-tap | --book-only | --tap-only]" ;;
-  esac
+  local mode='' channel='' channel_given=0 reason
+  while (($#)); do
+    case "$1" in
+      --check-tap | --book-only | --tap-only)
+        [[ -z "$mode" ]] || usage
+        mode="$1"
+        shift
+        ;;
+      --channel)
+        (($# >= 2)) || usage
+        channel="$2"
+        channel_given=1
+        shift 2
+        ;;
+      *) usage ;;
+    esac
+  done
+  if [[ "$mode" == --check-tap ]]; then
+    ((channel_given == 0)) || usage
+    check_tap
+    return
+  fi
+  reason="$(channel_select "$channel")" || die "$reason"
+  channel_select "$channel"
+  if [[ "$mode" == --book-only ]]; then
+    command -v gh >/dev/null || die "gh CLI not on PATH"
+    publish_book "$(read_version)"
+    return
+  fi
   preflight
   local version
   version="$(read_version)"
   verify_tag_matches_artifacts "$version"
+  check_channel_admitted "$version"
 
-  if [[ "${1:-}" == --tap-only ]]; then
+  if [[ "$mode" == --tap-only ]]; then
     verify_published_archives "$version"
     # The tap never gets ahead of the book, on a resume either.
     "$REPO_ROOT/scripts/release-book.sh" verify "v$version"
@@ -178,7 +217,7 @@ main() {
 
   echo
   echo "release-publish: done. Verify with:"
-  echo "  brew update && brew install linkuistics/taps/ravel"
+  echo "  scripts/release-install.sh --channel $CHANNEL_ID"
 }
 
 main "$@"

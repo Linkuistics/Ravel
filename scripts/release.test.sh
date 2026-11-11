@@ -54,7 +54,7 @@ fail() {
   echo "FAIL: $*" >&2
   exit 1
 }
-cp "$repo_root/scripts/release-publish.sh" "$repo_root/scripts/release-common.sh" "$scratch/source/scripts/"
+cp "$repo_root/scripts/release-publish.sh" "$repo_root/scripts/release-common.sh" "$repo_root/scripts/release-channel.sh" "$scratch/source/scripts/"
 mkdir -p "$scratch/source/scripts/templates"
 cp "$repo_root/scripts/templates/ravel.rb.tmpl" "$scratch/source/scripts/templates/"
 # The book step has its own suite (release-book.test.sh). Here the stub records
@@ -90,7 +90,7 @@ for target in "${TARGETS[@]}"; do
   while IFS= read -r entry; do chmod +x "$scratch/stage/$top/$entry"; done < <(archive_executables)
   pack_archive "$scratch/stage" "$top" "$scratch/source/target/dist/$top.tar.xz"
 done
-render_archive_formula "$scratch/source/target/dist" 1.2.3 "$repo_root/scripts/templates/ravel.rb.tmpl" "$scratch/source/target/dist/ravel.rb"
+render_archive_formula "$scratch/source/target/dist" 1.2.3 "$repo_root/scripts/templates/ravel.rb.tmpl" "$scratch/source/target/dist/ravel.rb" unversioned
 cp "$scratch/source/target/dist/ravel.rb" "$scratch/expected-formula"
 
 "$real_git" init -q --bare "$scratch/remote.git"
@@ -106,7 +106,7 @@ export RAVEL_TAP_DIR="$scratch/tap"
 
 # A dirty tap must be refused before creating a GitHub Release or copying files.
 printf 'unrelated work\n' >"$scratch/tap/notes.txt"
-if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then
+if bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then
   echo 'FAIL: publishing accepted a dirty tap' >&2
   exit 1
 fi
@@ -123,7 +123,7 @@ jj -R "$scratch/tap" describe -m 'local tap work' >/dev/null
 printf 'local commit\n' >"$scratch/tap/local.txt"
 jj -R "$scratch/tap" bookmark set main -r @ >/dev/null
 jj -R "$scratch/tap" new main >/dev/null
-if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'accepted diverged tap'; fi
+if bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then fail 'accepted diverged tap'; fi
 grep -Fq 'differs from origin' "$scratch/output"
 [[ ! -e "$RELEASE_TEST_LOG" ]]
 # Seal and push this fixture-only unrelated change; publishing must retain it.
@@ -131,35 +131,35 @@ jj -R "$scratch/tap" git push -b main >/dev/null
 # Missing target and stale formula must refuse before GitHub or tap writes.
 archive="$scratch/source/target/dist/ravel-v1.2.3-x86_64-unknown-linux-gnu.tar.xz"
 mv "$archive" "$scratch/hidden.tar.xz"
-if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'accepted missing target'; fi
+if bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then fail 'accepted missing target'; fi
 [[ ! -e "$RELEASE_TEST_LOG" ]]
 mv "$scratch/hidden.tar.xz" "$archive"
 printf 'stale formula\n' >"$scratch/source/target/dist/ravel.rb"
-if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'accepted stale formula'; fi
+if bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then fail 'accepted stale formula'; fi
 [[ ! -e "$RELEASE_TEST_LOG" ]]
 cp "$scratch/expected-formula" "$scratch/source/target/dist/ravel.rb"
 # A fourth archive is unsmoked input and must never reach GitHub.
 printf 'stale archive\n' >"$scratch/source/target/dist/stray.tar.xz"
-if bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'accepted extra archive'; fi
+if bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then fail 'accepted extra archive'; fi
 [[ ! -e "$RELEASE_TEST_LOG" ]]
 rm "$scratch/source/target/dist/stray.tar.xz"
 # A book that cannot be delivered stops the release before the tap changes. The
 # GitHub Release is public by then, and the tap still has the old formula.
 : >"$RELEASE_TEST_BOOK_CALLS"
-if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then fail 'continued after a failed book'; fi
+if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then fail 'continued after a failed book'; fi
 [[ "$(cat "$RELEASE_TEST_LOG")" == 'published' ]]
 [[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]] || fail 'the book did not run after the release and before the tap'
 "$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb | grep -Fxq 'old formula' || fail 'the tap changed after a failed book'
 # --book-only resumes the book alone: no second release, no tap write.
 : >"$RELEASE_TEST_BOOK_CALLS"
-bash "$scratch/source/scripts/release-publish.sh" --book-only
+bash "$scratch/source/scripts/release-publish.sh" --channel unversioned --book-only
 [[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]]
 [[ "$(cat "$RELEASE_TEST_LOG")" == 'published' ]]
 "$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb | grep -Fxq 'old formula' || fail '--book-only changed the tap'
 rm "$RELEASE_TEST_LOG"
 # A jj tap must publish through jj, update the intended bookmark, and end clean.
 : >"$RELEASE_TEST_BOOK_CALLS"
-bash "$scratch/source/scripts/release-publish.sh"
+bash "$scratch/source/scripts/release-publish.sh" --channel unversioned
 [[ "$(cat "$RELEASE_TEST_BOOK_CALLS")" == 'publish v1.2.3 release=yes tap=old formula' ]]
 "$real_git" --git-dir="$scratch/remote.git" show main:Formula/ravel.rb >"$scratch/remote-formula"
 cmp "$scratch/expected-formula" "$scratch/remote-formula"
@@ -169,14 +169,14 @@ grep -Fxq -- '- Meaningful release notes.' "$RELEASE_TEST_NOTES"
 
 # Recovery resumes only tap publication, retaining GitHub and unrelated formula.
 tap_before="$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)"
-if RELEASE_TEST_DOWNLOAD_CORRUPT=1 bash "$scratch/source/scripts/release-publish.sh" --tap-only >"$scratch/output" 2>&1; then fail 'accepted corrupt published archive'; fi
+if RELEASE_TEST_DOWNLOAD_CORRUPT=1 bash "$scratch/source/scripts/release-publish.sh" --channel unversioned --tap-only >"$scratch/output" 2>&1; then fail 'accepted corrupt published archive'; fi
 grep -Fq 'differs from validated local archive' "$scratch/output"
 [[ "$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)" == "$tap_before" ]]
 # The tap waits for the book on a resume as well.
-if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" --tap-only >"$scratch/output" 2>&1; then fail 'resumed the tap without the book'; fi
+if RELEASE_TEST_BOOK_FAIL=1 bash "$scratch/source/scripts/release-publish.sh" --channel unversioned --tap-only >"$scratch/output" 2>&1; then fail 'resumed the tap without the book'; fi
 [[ "$(jj -R "$scratch/tap" log --no-graph -r main -T commit_id)" == "$tap_before" ]]
 : >"$RELEASE_TEST_BOOK_CALLS"
-bash "$scratch/source/scripts/release-publish.sh" --tap-only
+bash "$scratch/source/scripts/release-publish.sh" --channel unversioned --tap-only
 [[ "$(sed 's/ release=.*//' "$RELEASE_TEST_BOOK_CALLS")" == 'verify v1.2.3' ]]
 [[ "$(cat "$RELEASE_TEST_LOG")" == published ]]
 [[ "$(cat "$scratch/tap/Formula/ravel-lite.rb")" == 'separate command' ]]
@@ -185,7 +185,7 @@ bash "$scratch/source/scripts/release-publish.sh" --tap-only
 "$real_git" clone -q --branch main "$scratch/remote.git" "$scratch/git-tap"
 "$real_git" -C "$scratch/git-tap" checkout -q --detach
 cp "$RELEASE_TEST_LOG" "$scratch/published-before"
-if RAVEL_TAP_DIR="$scratch/git-tap" bash "$scratch/source/scripts/release-publish.sh" >"$scratch/output" 2>&1; then
+if RAVEL_TAP_DIR="$scratch/git-tap" bash "$scratch/source/scripts/release-publish.sh" --channel unversioned >"$scratch/output" 2>&1; then
   echo 'FAIL: publishing accepted a detached Git-only tap' >&2
   exit 1
 fi
@@ -217,9 +217,9 @@ dry_line() {
   { grep -Fxn -- "task: [release] $1" "$scratch/dry" || true; } | head -n 1 | cut -d: -f1
 }
 for level in patch minor major; do
-  task --dir "$scratch/task" --dry "release:$level" >"$scratch/dry" 2>&1
+  task --dir "$scratch/task" --dry "release:$level" CHANNEL=versioned-2 >"$scratch/dry" 2>&1
   grep -Fq "cargo release $level --execute --no-confirm" "$scratch/dry"
-  build="$(dry_line scripts/release-build.sh)"
+  build="$(dry_line 'scripts/release-build.sh --channel versioned-2')"
   # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
   book="$(dry_line 'scripts/release-book-version.sh released "$(git describe --tags --exact-match HEAD)"')"
   cut="$(dry_line "cargo release $level --execute --no-confirm")"
@@ -238,13 +238,13 @@ for level in patch minor major; do
   # The Pages site is read last, after the publishing commands and the install checks.
   # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
   live="$(dry_line 'scripts/release-book.sh live "$(git describe --tags --exact-match HEAD)"')"
-  publish="$(dry_line scripts/release-publish.sh)"
+  publish="$(dry_line 'scripts/release-publish.sh --channel versioned-2')"
   if [[ -z "$live" || -z "$publish" ]] || ((live < publish)); then
     fail "release:$level does not read the Pages site after publication"
   fi
   # shellcheck disable=SC2016 # the Taskfile's own text, unexpanded
   for publishing in 'jj git push -b main' 'git push origin "$(git describe --tags --exact-match HEAD)"' \
-    scripts/release-publish.sh; do
+    'scripts/release-publish.sh --channel versioned-2'; do
     line="$(dry_line "$publishing")"
     if [[ -z "$line" ]] || ((line < smoke)); then
       fail "release:$level runs '$publishing' before the installed smoke test, or not at all"
@@ -253,7 +253,7 @@ for level in patch minor major; do
 done
 [[ "$(cat "$RELEASE_TEST_LOG")" == 'published' ]]
 
-if RELEASE_TEST_DOCTOR_FAIL=73 task --dir "$scratch/task" release:patch >"$scratch/output" 2>&1; then
+if RELEASE_TEST_DOCTOR_FAIL=73 task --dir "$scratch/task" release:patch CHANNEL=unversioned >"$scratch/output" 2>&1; then
   echo 'FAIL: release continued after failed prerequisites' >&2
   exit 1
 fi
@@ -264,7 +264,7 @@ grep -Fq 'exit status 73' "$scratch/output"
 
 # A second invocation must not enter an in-progress release.
 mkdir "$scratch/task/.jj/release-lock"
-if task --dir "$scratch/task" release:patch >"$scratch/output" 2>&1; then
+if task --dir "$scratch/task" release:patch CHANNEL=unversioned >"$scratch/output" 2>&1; then
   echo 'FAIL: a second release acquired the active release lock' >&2
   exit 1
 fi
@@ -320,7 +320,7 @@ SH
 chmod +x "$scratch/task/scripts/release-"*.sh
 for level in patch minor major; do
   : >"$RELEASE_TEST_ORDER"
-  if task --dir "$scratch/task" "release:$level" >"$scratch/output" 2>&1; then fail 'continued after failed smoke'; fi
+  if task --dir "$scratch/task" "release:$level" CHANNEL=unversioned >"$scratch/output" 2>&1; then fail 'continued after failed smoke'; fi
   grep -Fq 'exit status 74' "$scratch/output"
   grep -Fxq smoke "$RELEASE_TEST_ORDER"
   # The book's version line is checked after the cut, before the build.

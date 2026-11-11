@@ -310,25 +310,25 @@ tasks:
       - bash scripts/release-check.sh archives
 
   release:formula:
-    desc: Render and test an unpublished formula from the three unreleased archives
+    desc: Render both channels' unpublished formulae from the three unreleased archives and test each through Homebrew
     silent: true
     cmds:
       - bash scripts/release-check.sh formula
 
   release:patch:
-    desc: Publish and install the next patch release
+    desc: Publish and install the next patch release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)
     cmds:
       - task: release
         vars: {LEVEL: patch}
 
   release:minor:
-    desc: Publish and install the next minor release
+    desc: Publish and install the next minor release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)
     cmds:
       - task: release
         vars: {LEVEL: minor}
 
   release:major:
-    desc: Publish and install the next major release
+    desc: Publish and install the next major release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)
     cmds:
       - task: release
         vars: {LEVEL: major}
@@ -344,17 +344,21 @@ tasks:
       - bash scripts/release-notes.sh {{.CLI_ARGS}}
 
   release:lifecycle:test:
-    desc: Test independent release refusal, order, notes, dry cuts and the book's delivery in isolated fixtures (needs task setup)
+    desc: Test independent release refusal, order, notes, dry cuts, the release channels with their mutants and the book's delivery in isolated fixtures (needs task setup)
     silent: true
     cmds:
       - bash scripts/release-check.sh lifecycle
 
   release:
     internal: true
+    # The channel has no default for any version, so omission never publishes
+    # unversioned ravel. scripts/release-channel.sh owns what it selects.
     requires:
       vars:
         - name: LEVEL
           enum: [patch, minor, major]
+        - name: CHANNEL
+          enum: [versioned-2, unversioned]
     preconditions:
       - sh: test -d .jj && test -d .git && test "$(pwd -P)" = "$(jj workspace root --name default)"
         msg: Run releases from Ravel's default colocated jj workspace.
@@ -369,7 +373,7 @@ tasks:
       - scripts/release-doctor.sh
       - scripts/release-publish.sh --check-tap
       - scripts/release-book.sh check-remote
-      - bash scripts/release-prepare.sh
+      - bash scripts/release-prepare.sh --channel {{.CHANNEL}} --level {{.LEVEL}}
       - scripts/release-publish.sh --check-tap
       - task: check
       - cargo release {{.LEVEL}}
@@ -381,7 +385,7 @@ tasks:
       # Build the book from the tag's own source and stage it. A failed build
       # stops here, with the cut still local and nothing pushed.
       - scripts/release-book.sh build "$(git describe --tags --exact-match HEAD)"
-      - scripts/release-build.sh
+      - scripts/release-build.sh --channel {{.CHANNEL}}
       # Nothing is published before this passes: each archive in target/dist
       # matches the manifest and runs its installed layout on its target at
       # the floors. A failure leaves the cut local; chapter 11 of the book,
@@ -392,26 +396,11 @@ tasks:
       - git push origin "$(git describe --tags --exact-match HEAD)"
       # Publication order: GitHub Release, then the book on the Pages branch,
       # then the tap. The same chapter 11 section gives the recovery for each stop.
-      - scripts/release-publish.sh
-      - brew update
-      - |
-        if brew list --versions ravel >/dev/null 2>&1; then
-          brew upgrade ravel
-        else
-          brew install linkuistics/taps/ravel
-        fi
-      - brew test ravel
-      # The record names the shared skill directory, not the keg
-      # (docs/specs/skill-discovery.md, "The installation record").
-      - bash scripts/installed-record.sh "$(brew --prefix ravel)" "$(brew --prefix)/share/ravel/skills"
-      - |
-        tag="$(git describe --tags --exact-match HEAD)"
-        version="${tag#v}"
-        # The Homebrew prefix's commands, not whichever copy PATH finds first:
-        # `task install` puts one in ~/.local/bin by default.
-        brew_bin="$(brew --prefix)/bin"
-        test "$("$brew_bin/ravel" --version)" = "ravel $version"
-        gh release view "$tag" --repo Linkuistics/Ravel --json url,assets
-        test "$(gh release view "$tag" --repo Linkuistics/Ravel --json assets --jq '.assets | length')" = 3
+      - scripts/release-publish.sh --channel {{.CHANNEL}}
+      # The channel's own keg and prefix, never whichever command PATH finds
+      # first: `task install` puts one in ~/.local/bin by default.
+      - scripts/release-install.sh --channel {{.CHANNEL}}
+      # Writes target/release-evidence/vX.Y.Z.json.
+      - scripts/release-evidence.sh --channel {{.CHANNEL}}
       # Last, because Pages shows a pushed branch after a delay.
       - scripts/release-book.sh live "$(git describe --tags --exact-match HEAD)"

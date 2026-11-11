@@ -2,9 +2,8 @@
 
 Grove's coordinated-release specification names the one release owner for the
 2.0.0 transition and owns the order between products. The focused design review
-of this document and its integration are complete. Implementation remains ahead.
-Existing release tasks still publish unversioned `ravel` and must change before
-using this route.
+of this document and its integration are complete. The release tasks carry the
+channel as "Release interface" states. The promotion task remains ahead.
 
 ## One release, two formula channels
 
@@ -57,6 +56,27 @@ Resume modes retain the selection. `--tap-only` must not silently default to
 unversioned. Verify class, keg-only behaviour, destination and prefix together.
 Record channel, source/tag, asset digests, book commit, tap commit and installed
 result in the release task's evidence. No second release-state database is needed.
+
+The implementation keeps these rules in the following places:
+
+- `scripts/release-channel.sh` owns the mapping and the admission rules. Every
+  script that writes or reads a formula takes `--channel` as an argument and
+  reads no environment value for it. Only `release-publish.sh --check-tap`
+  takes no channel, because it reads the tap state alone.
+- The task requires `CHANNEL` for every version. Thus omission refuses at the
+  first cut of 2.0.0 and at every later cut.
+- `versioned-2` publishes only major 2. It refuses after `Formula/ravel.rb`
+  has major 2. `unversioned` refuses a major-2 target until
+  `Formula/ravel.rb` has major 2.
+- `scripts/release-formula.sh` renders both classes from one template and
+  tests each through Homebrew's install and test methods. The test fails when
+  the two texts differ beyond the class line and the `keg_only` line.
+- `scripts/release-install.sh` installs with cleanup suppressed. It verifies
+  the keg's `bin/ravel` and installation record, the keg-only state and the
+  opt prefix. For `versioned-2`, it also verifies that unversioned `ravel` is
+  unchanged.
+- `scripts/release-evidence.sh` writes `target/release-evidence/vX.Y.Z.json`
+  before the book's `live` step.
 
 Keep the existing order. Verify the tagged book and archives, and smoke all
 targets. Push source/tag, publish GitHub assets, and publish and verify the

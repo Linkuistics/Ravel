@@ -14,6 +14,10 @@ if [[ -n "${RAVEL_RELEASE_COMMON_SOURCED:-}" ]]; then
 fi
 RAVEL_RELEASE_COMMON_SOURCED=1
 
+# channel_select and the channel rules, which the formula rendering needs.
+# shellcheck source=scripts/release-channel.sh
+source "$(dirname "${BASH_SOURCE[0]}")/release-channel.sh"
+
 # The single source of truth for what a release builds. The native host target
 # is listed explicitly even though rustup usually auto-installs it — an explicit
 # check survives a partial rustup setup.
@@ -221,12 +225,24 @@ target_std_installed() {
   [[ -n "$libdir" && -d "$libdir" ]]
 }
 
-# Render exactly the current three archives. Callers supply a temporary output
-# and expose it only after validation; publication compares this to its formula.
+# Render exactly the current three archives as the formula of CHANNEL. Callers
+# supply a temporary output and expose it only after validation; publication
+# compares this to its formula. The channel has no default. Rendering maps the
+# channel only; channel_admits decides whether the channel may publish.
 render_archive_formula() {
-  local dir="$1" version="$2" template="$3" output="$4" target archive sha placeholder
+  local dir="$1" version="$2" template="$3" output="$4" channel="${5:-}" target archive sha placeholder reason
+  reason="$(channel_select "$channel")" || {
+    echo "$reason" >&2
+    return 1
+  }
+  channel_select "$channel"
   cp "$template" "$output" || return 1
-  sed -i.bak "s|@VERSION@|$version|g" "$output" || return 1
+  sed -i.bak "s|@VERSION@|$version|g; s|@CLASS@|$CHANNEL_CLASS|g" "$output" || return 1
+  if [[ -n "$CHANNEL_KEG_ONLY" ]]; then
+    sed -i.bak "s|^@KEG_ONLY@\$|$CHANNEL_KEG_ONLY|" "$output" || return 1
+  else
+    sed -i.bak '/^@KEG_ONLY@$/d' "$output" || return 1
+  fi
   for target in "${TARGETS[@]}"; do
     archive="$dir/ravel-v$version-$target.tar.xz"
     [[ -f "$archive" ]] || {

@@ -5,8 +5,10 @@ require "formula_assertions"
 require "json"
 require "tmpdir"
 
-formula_path, source, prefix_path, test_path, versioned_prefix, versioned_test = ARGV
-raise "expected FORMULA SOURCE PREFIX TESTPATH VERSIONED_PREFIX VERSIONED_TESTPATH" unless ARGV.length == 6
+source, *rest = ARGV
+raise "expected SOURCE then CHANNEL FORMULA PREFIX TESTPATH for each channel" unless !rest.empty? && (rest.length % 4).zero?
+groups = rest.each_slice(4).to_h { |channel, file, prefix, testpath| [channel, [file, prefix, testpath]] }
+raise "expected the channels versioned-2 and unversioned, got #{groups.keys.inspect}" unless groups.keys.sort == %w[unversioned versioned-2]
 RECORD = "share/ravel/installation.json".freeze
 # The archive holds no record; only the formula's installation writes one.
 expected = (["bin", "share", RECORD] + Dir.glob("{bin,share}/**/*", base: source)).sort
@@ -45,24 +47,35 @@ def install_and_test(klass, name, file, source, prefix, testpath, expected, expe
   File.binread(prefix/RECORD)
 end
 
-# Load this owned file directly; Formulary.factory only accepts installed taps.
-load formula_path
-record = install_and_test(Ravel, "ravel", formula_path, source, prefix_path, test_path, expected, expected_assets)
-raise "unexpected installation record #{record.inspect}" unless JSON.parse(record) == expected_record
-puts "release-formula: actual Homebrew install/test methods passed from a private prefix"
+# docs/specs/release-channels.md: each channel's name, class and keg-only state.
+# Versioned formulae: https://docs.brew.sh/Versions
+CHANNELS = {
+  "unversioned" => { name: "ravel", class_name: "Ravel", keg_only: false },
+  "versioned-2" => { name: "ravel@2", class_name: "RavelAT2", keg_only: true },
+}.freeze
 
-# The keg-only major channel, as docs/specs/release-channels.md names it.
-# This fixture derives it from the same rendered text until the channel
-# tooling renders ravel@2.rb itself. Versions: https://docs.brew.sh/Versions
-text = File.read(formula_path)
-versioned = text.sub(/^class Ravel < Formula$/, "class RavelAT2 < Formula")
-                .sub(/^(  license .*)$/, "\\1\n  keg_only :versioned_formula")
-raise "cannot derive the versioned class" if versioned == text || !versioned.include?("keg_only")
-versioned_path = Pathname(versioned_prefix).dirname/"ravel@2.rb"
-versioned_path.write(versioned)
-load versioned_path.to_s
-raise "the versioned class is not keg-only" unless RavelAT2.new("ravel@2", versioned_path, :stable).keg_only?
-versioned_record = install_and_test(RavelAT2, "ravel@2", versioned_path, source, versioned_prefix, versioned_test,
-                                    expected, expected_assets)
-raise "ravel@2 wrote another record: #{versioned_record.inspect}" unless versioned_record == record
-puts "release-formula: the keg-only ravel@2 wrote the same installation record"
+# One release, two channels: the rendered texts differ only in the class line
+# and the keg_only line.
+texts = groups.transform_values { |file, _prefix, _testpath| File.read(file) }
+normalise = lambda do |text|
+  text.sub(/^class \w+ < Formula$/, "class CHANNEL < Formula").sub(/^  keg_only :versioned_formula\n/, "")
+end
+raise "the channel formulae differ beyond class and keg_only" unless normalise.(texts["unversioned"]) == normalise.(texts["versioned-2"])
+raise "the unversioned formula is keg-only" if texts["unversioned"].match?(/^\s*keg_only\b/)
+raise "the versioned formula is not keg-only" unless texts["versioned-2"].include?("\n  keg_only :versioned_formula\n")
+
+records = groups.to_h do |channel, (file, prefix, testpath)|
+  identity = CHANNELS.fetch(channel)
+  raise "#{file} is not named #{identity[:name]}.rb" unless File.basename(file) == "#{identity[:name]}.rb"
+  raise "#{file} does not define class #{identity[:class_name]}" unless texts[channel].match?(/^class #{identity[:class_name]} < Formula$/)
+  # Load this owned file directly; Formulary.factory only accepts installed taps.
+  load file
+  klass = Object.const_get(identity[:class_name])
+  raise "#{identity[:name]} keg_only? is not #{identity[:keg_only]}" unless klass.new(identity[:name], Pathname(file), :stable).keg_only? == identity[:keg_only]
+  record = install_and_test(klass, identity[:name], file, source, prefix, testpath, expected, expected_assets)
+  raise "#{identity[:name]} wrote an unexpected installation record #{record.inspect}" unless JSON.parse(record) == expected_record
+  puts "release-formula: actual Homebrew install/test methods passed for #{identity[:name]} from a private prefix"
+  [channel, record]
+end
+raise "the channels wrote different installation records" unless records.values.uniq.length == 1
+puts "release-formula: both channels wrote the same installation record"

@@ -1,11 +1,14 @@
 require "json"
 require "shellwords"
 
-class Ravel < Formula
+# Rendered once for each channel in scripts/release-channel.sh, from the same
+# archives. Only the class and the keg_only line differ between channels.
+class @CLASS@ < Formula
   desc "Configuration router and session process manager"
   homepage "https://github.com/Linkuistics/Ravel"
   version "@VERSION@"
   license "Apache-2.0"
+@KEG_ONLY@
 
   on_macos do
     on_arm do
@@ -47,6 +50,12 @@ class Ravel < Formula
     assert_equal "ravel @VERSION@\n", shell_output([(bin/"ravel").to_s, "--version"].shelljoin)
     (testpath/"home").mkpath
     (testpath/"tmp").mkpath
+    # The default skill directory belongs to the installation, not to a HOME,
+    # and the machine's shared one can hold sources. This HOME turns it off,
+    # so these launches keep their prompts exact.
+    # docs/specs/skill-discovery.md, "Default skill directory".
+    (testpath/"home/.config/ravel").mkpath
+    (testpath/"home/.config/ravel/settings.json").write "{\"skills\":{\"schemaVersion\":1,\"sources\":[]}}\n"
     ln_s bin/"ravel", testpath/"ravel"
     (testpath/"fake-agent").write <<~SH
       #!/bin/sh
@@ -92,8 +101,10 @@ class Ravel < Formula
     write_installation_record(relocated/"share", skills)
     (skills/"fixture/skills/check").mkpath
     (skills/"fixture/skills/check/SKILL.md").write "---\nname: check\ndescription: fixture\n---\n"
+    # A HOME without settings, so the private record supplies the source set.
+    (testpath/"home-default").mkpath
     no_settings = ["/usr/bin/env", "-i", "PATH=/usr/bin:/bin",
-                   "HOME=#{testpath}/home", "TMPDIR=#{testpath}/tmp", (relocated/"bin/ravel").to_s]
+                   "HOME=#{testpath}/home-default", "TMPDIR=#{testpath}/tmp", (relocated/"bin/ravel").to_s]
     resolved = JSON.parse(shell_output((no_settings + ["skills", "resolve", "--json"]).shelljoin))
     assert_equal "resolved", resolved["status"]
     assert_equal ["fixture"], resolved["sources"].map { |source| source["id"] }
@@ -112,6 +123,6 @@ class Ravel < Formula
     assert_equal [skills.to_s], notice.map { |document| document["skills"]["defaultDirectory"] }
   ensure
     # Snapshots are read-only by design. Let Homebrew remove the test path.
-    chmod_R "u+w", testpath/"home" if (testpath/"home").exist?
+    %w[home home-default].each { |home| chmod_R "u+w", testpath/home if (testpath/home).exist? }
   end
 end

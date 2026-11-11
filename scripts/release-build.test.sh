@@ -9,7 +9,7 @@ trap 'rm -rf "$scratch"' EXIT
 export GIT_AUTHOR_NAME='Release Test' GIT_COMMITTER_NAME='Release Test'
 export GIT_AUTHOR_EMAIL='release@example.invalid' GIT_COMMITTER_EMAIL='release@example.invalid'
 mkdir -p "$scratch/repo/scripts" "$scratch/repo/target/dist" "$scratch/bin"
-cp "$root/scripts/release-build.sh" "$root/scripts/release-common.sh" "$scratch/repo/scripts/"
+cp "$root/scripts/release-build.sh" "$root/scripts/release-common.sh" "$root/scripts/release-channel.sh" "$scratch/repo/scripts/"
 printf '/target/\n' >"$scratch/repo/.gitignore"
 printf '#!/bin/sh\nexit 0\n' >"$scratch/repo/scripts/release-doctor.sh"
 chmod +x "$scratch/repo/scripts/release-doctor.sh"
@@ -42,7 +42,7 @@ for mode in untagged dirty wrong-version; do
     touch "$scratch/repo/unrelated"
   fi
   if [[ "$mode" == wrong-version ]]; then rm "$scratch/repo/unrelated"; fi
-  if (cd "$scratch/repo" && RELEASE_TEST_VERSION=0.0.0 bash scripts/release-build.sh) >"$scratch/output" 2>&1; then fail "build admitted $mode"; fi
+  if (cd "$scratch/repo" && RELEASE_TEST_VERSION=0.0.0 bash scripts/release-build.sh --channel unversioned) >"$scratch/output" 2>&1; then fail "build admitted $mode"; fi
   case "$mode" in
     untagged) grep -Fq 'not tagged' "$scratch/output" ;;
     dirty) grep -Fq 'dirty' "$scratch/output" ;;
@@ -50,7 +50,20 @@ for mode in untagged dirty wrong-version; do
   esac
   [[ "$(cat "$scratch/repo/target/dist/old")" == 'preserve dist' ]]
 done
-if (cd "$scratch/repo" && bash scripts/release-build.sh) >"$scratch/output" 2>&1; then fail 'build swallowed cargo failure'; fi
+# The release build names its channel. Omission and an unknown value refuse
+# before target/dist is cleared, and no channel has a default.
+for args in '' '--channel' '--channel stable' '--channel unversioned extra'; do
+  IFS=' ' read -ra words <<<"$args"
+  if (cd "$scratch/repo" && bash scripts/release-build.sh ${words[@]+"${words[@]}"}) >"$scratch/output" 2>&1; then fail "build admitted arguments '$args'"; fi
+  grep -Eq 'usage: release-build.sh --channel CHANNEL|unknown release channel' "$scratch/output" || fail "build refused '$args' without naming the channel"
+  [[ "$(cat "$scratch/repo/target/dist/old")" == 'preserve dist' ]]
+done
+# A channel that cannot carry the tag's major refuses before the build.
+if (cd "$scratch/repo" && bash scripts/release-build.sh --channel versioned-2) >"$scratch/output" 2>&1; then fail 'build admitted versioned-2 for v0.1.0'; fi
+grep -Fq 'publishes only major 2, not 0.1.0' "$scratch/output"
+! grep -Fq 'build-boundary' "$scratch/output" || fail 'the channel refusal came after the build'
+[[ "$(cat "$scratch/repo/target/dist/old")" == 'preserve dist' ]]
+if (cd "$scratch/repo" && bash scripts/release-build.sh --channel unversioned) >"$scratch/output" 2>&1; then fail 'build swallowed cargo failure'; fi
 grep -Fq 'building ravel v0.1.0' "$scratch/output"
 grep -Fq 'build-boundary' "$scratch/output"
 [[ ! -e "$scratch/repo/target/dist/old" ]]

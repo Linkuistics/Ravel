@@ -7,7 +7,7 @@ root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 scratch="$(mktemp -d)"
 trap 'rm -rf "$scratch"' EXIT
 mkdir -p "$scratch/repo/scripts" "$scratch/bin" "$scratch/repo/target/tools"
-cp "$root/scripts/release-doctor.sh" "$root/scripts/release-common.sh" "$scratch/repo/scripts/"
+cp "$root/scripts/release-doctor.sh" "$root/scripts/release-common.sh" "$root/scripts/release-channel.sh" "$scratch/repo/scripts/"
 cp "$root/scripts/book-bun.sh" "$scratch/repo/scripts/"
 cp "$root/scripts/release-book-version.sh" "$root/scripts/release-book.sh" "$root/scripts/book.sh" "$scratch/repo/scripts/"
 page=docs/book/src/03-a-complete-session.md

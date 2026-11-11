@@ -53,7 +53,7 @@ remote="$scratch/remote.git"
 page=docs/book/src/03-a-complete-session.md
 git init -q --bare "$remote"
 mkdir -p "$fixture/scripts" "$fixture/docs/book/src"
-for script in book.sh release-book.sh release-book-version.sh release-common.sh; do
+for script in book.sh release-book.sh release-book-version.sh release-common.sh release-channel.sh; do
   cp "$repo_root/scripts/$script" "$fixture/scripts/"
 done
 printf '[book]\ntitle = "Fixture book"\nsrc = "src"\n\n[build]\nbuild-dir = "../../target/book"\ncreate-missing = false\n' >"$fixture/docs/book/book.toml"

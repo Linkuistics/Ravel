@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 #
 # Build exact independent archives from a clean release tag or working copy.
-# Usage: scripts/release-build.sh [--unreleased [TARGET...]]
+# Usage: scripts/release-build.sh --channel CHANNEL | --unreleased [TARGET...]
+# The release path renders and keeps only CHANNEL's formula
+# (scripts/release-channel.sh); the unreleased path renders no formula.
 # A target override still clears target/archives, so stale archives cannot pass.
 # The working-copy workspace version determines the archive/executable version.
 # Rhai examples and generated Rust notices are staged by release-common.sh.
@@ -84,7 +86,7 @@ main() {
   # whatever CARGO_TARGET_DIR or a `build.target-dir` setting would say.
   export CARGO_TARGET_DIR="$REPO_ROOT/target"
 
-  local release=1 out_dir="$REPO_ROOT/target/dist" version targets=() target known tag
+  local release=1 out_dir="$REPO_ROOT/target/dist" version targets=() target known tag channel='' reason
   if [[ "${1:-}" == --unreleased ]]; then
     release=0
     out_dir="$ARCHIVES_DIR"
@@ -98,12 +100,17 @@ main() {
     version="$(workspace_version)"
     echo "release-build: unreleased archives of the working copy at v$version"
   else
-    (($# == 0)) || die 'usage: release-build.sh [--unreleased [TARGET...]]'
+    [[ $# == 2 && "$1" == --channel ]] || die 'usage: release-build.sh --channel CHANNEL | --unreleased [TARGET...]'
+    reason="$(channel_select "$2")" || die "$reason"
+    channel="$2"
     [[ -z "$(git status --porcelain)" ]] || die 'working tree is dirty; return to the exact release revision'
     tag="$(git describe --tags --exact-match HEAD)" || die 'HEAD is not tagged; resume the cut before building'
     version="${tag#v}"
     [[ "$tag" == "v$version" && "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ && "$version" != 0.0.0 ]] || die "not a release tag: $tag"
     [[ "$(workspace_version)" == "$version" ]] || die 'tag and workspace version differ'
+    channel_select "$channel"
+    [[ -z "$CHANNEL_MAJOR" || "$(version_major "$version")" == "$CHANNEL_MAJOR" ]] ||
+      die "CHANNEL=$channel publishes only major $CHANNEL_MAJOR, not $version"
     "$REPO_ROOT/scripts/release-doctor.sh"
     targets=("${TARGETS[@]}")
     echo "release-build: building ravel v$version"
@@ -130,7 +137,7 @@ main() {
   rm -rf "$out_dir/staging"
 
   if ((release)); then
-    bash "$REPO_ROOT/scripts/release-formula.sh" "$out_dir"
+    bash "$REPO_ROOT/scripts/release-formula.sh" "$out_dir" "$channel"
   fi
 
   echo
