@@ -23,8 +23,10 @@ channels, the version cut, the promotion and the recovery of a release that
 stopped part of the way.
 
 A release carries one executable, `bin/ravel`, which supplies the
-[Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) and its
-[Rhai worker](02-actors-and-words.md#evaluation-and-supervision).
+[Ravel CLI](02-actors-and-words.md#evaluation-and-supervision), the command-line
+program, and its [Rhai worker](02-actors-and-words.md#evaluation-and-supervision).
+The worker is a second process of that executable that evaluates the Rhai
+configuration script, the owner's file that selects a program.
 [Chapter 7](07-the-parts-of-ravel.md#the-installed-executable-supplies-both-roles)
 explains the shared executable. Ravel 1.x also installed a TypeScript worker,
 its SDK and its runtime under `libexec/ravel`. Ravel 2.0.0 removed them, with
@@ -1124,48 +1126,13 @@ cargo-release previews, book-version cuts, book delivery, channel checks and pro
 public recovery succeeded. The source, tags, assets and tap that you observe
 during that recovery decide its next step.
 
-## Checks made for this chapter
+## Understand what the release checks establish
 
-The checks for this chapter ran on 12 November 2026, on macOS 27.0.1 arm64,
-with Bash 5.3.20, Rust 1.99.1 through rustup and Homebrew 7.0.13-45. Zig
-0.17.1, cargo-zigbuild 0.23.4 and cargo-release 1.1.2 were available. Docker
-29.9.2 reported `linux/arm64` with kernel 7.0.14-linuxkit. No prerequisite
-was missing. The source was the content of the commit before this chapter's
-draft. A digest of the scripts, the crates, the manifests and chapter 3 was
-the same before and after the checks.
+The [release check record](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md)
+gives the commands, versions and results behind this chapter's procedures.
+Those checks cover archives, both formula channels and isolated release
+fixtures. They do not establish that a public cut or recovery succeeded.
+The public tag, assets, book and tap need their own verification.
 
-| Task | Elapsed time | Observed result |
-|---|---|---|
-| `release:doctor` | 3 seconds | All prerequisites passed, with the book version line and the Pages setting |
-| `release:test` | 5 seconds | The manifest and the deliberately incorrect archive controls passed |
-| `release:smoke` | 53 seconds | Fresh archives passed all four routes, direct and through a symlink |
-| `release:formula` | 8 seconds | Both channels' formulae passed Homebrew's install and test methods. Homebrew loaded the deprecated `ravel@2.rb` |
-| `release:lifecycle:test` | 8 minutes 5 seconds | Order, refusals, recovery, notes, book delivery, channels and promotion passed. Each of the 48 mutants failed a control |
-
-The smoke task ran `release:archives` as its build step. Both Linux CPU
-controls failed at their floor and passed with `-cpu max`. Every Linux route
-passed the glibc probe and refused the probe that needs glibc 2.25. No
-target was skipped.
-
-The first run of the lifecycle suite failed. Its shell had
-`HOMEBREW_NO_INSTALL_CLEANUP=1` exported, and the mutant that removes that
-setting from `scripts/release-install.sh` then passed every control. The
-second run, without the variable and with no other change, passed. The pair
-of runs is the reason for the note in
-[Prepare a version cut](#prepare-a-version-cut).
-
-The book's own check, `task docs:examples`, ran the complete example of
-[See what promotion changes for an owner](#see-what-promotion-changes-for-an-owner).
-A copy of that example that claimed exit status 0 failed.
-
-None of these checks changed the project's release notes or ran
-`release:patch`, `release:minor`, `release:major` or `release:promote`.
-Those tasks change public release state and the local installation. The
-lifecycle suite exercised notes, previews, cuts and promotions only in its
-fixtures. No project push, tag, tap change, permanent installation or GitHub
-Pages deployment ran. These observations show no new native x86-64,
-interactive-terminal, real-agent or reader-comprehension result.
-
-[Chapter 10's checkout trial](10-develop-ravel.md#run-the-checks-before-handoff)
-records `install` and `smoke`. The smoke task here ran the same installed
-test through fresh archives.
+These observations add no native x86-64, interactive-terminal, real-agent or
+reader-comprehension result. The platform limits above still apply.

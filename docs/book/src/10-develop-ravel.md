@@ -7,8 +7,10 @@ where a test observes the rule, add the test and run the checks before you
 hand the change over. The same steps apply to every change to Ravel.
 
 The tests run real processes. They use temporary
-[configuration scripts](04-write-a-configuration-script.md) and fake programs,
-which stand in for harnesses. They need no model account, no personal
+[configuration scripts](04-write-a-configuration-script.md), Rhai files that
+select programs, and fake programs that stand in for harnesses. A harness is
+an agent program, such as Claude Code or Codex, in which an LLM works.
+The tests need no model account, no personal
 configuration and no other project checkout.
 
 [Chapter 7](07-the-parts-of-ravel.md) explains the parts of Ravel and why each
@@ -289,24 +291,9 @@ This fragment omits the output and the log paths, which change between runs.
 task check
 ```
 
-The checkout trial for this chapter ran on 12 November 2026, on macOS 27.0.1
-arm64, with Rust 1.99.1, Task 3.54.0 and cargo-nextest 0.9.151. The tools of
-`task setup` and the host Cargo cache were already present. These elapsed
-times describe one machine. They are not a performance limit.
-
-| Task in the trial | Elapsed time | Result |
-|---|---|---|
-| `rustup toolchain install` | Under 1 second | Passed. Rust 1.99.1 was already installed |
-| `task setup` | 3 seconds | Passed. It checked the cached tools and downloaded nothing |
-| `task build` | Under 1 second | Passed. The build was current |
-| `task test:list` with the `book_` filter | 30.7 seconds | Listed the five added cases. It compiled the test targets first |
-| Focused `test:runner`, `test:cli` and the two `test:session` commands above | 3.6, 1.4, 1.6 and 0.4 seconds | All five added tests passed |
-| `task check` | 2 minutes 49 seconds | Every stage passed. nextest ran 713 tests, all passed, and skipped 48 |
-| `task install PREFIX=target/install-trial` | 12 seconds | Installed and passed the installed smoke test |
-| `task smoke` | 7 seconds | Passed, direct and through a symlink |
-
 The [checkout trial record](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md)
-gives the source revision, the commands and their results.
+gives the source revision, tool versions, commands and results. It describes
+one macOS machine with cached tools, not a clean-machine installation.
 
 ## Add a test
 

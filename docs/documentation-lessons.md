@@ -1200,7 +1200,13 @@ For each example, list the inputs that the product reads outside the command's o
 **Source:** Session evidence, `ravel-book-inside-k329`, 2026-11-11.
 **Ravel application:** A Homebrew installation writes `share/ravel/installation.json`. With no `skills.sources`, Ravel then reads the default skill directory, also under `env -i` with an empty `HOME`.
 If that directory holds a source, the prompt gains a preamble. The checkout build has no record, so the examples check cannot see this.
-Chapter 7's example prints neither the prompt nor `RAVEL_SKILL_DIRECTORIES`, and the page says why its output is the same. Chapter 3's first session prints the prompt, and the proof of chapters 7 to 11 received that case.
+Proof `ravel-book-inside-k311` tested all complete examples with a copied
+executable, a real installation record and a valid default source. Eight
+examples in chapters 4 and 5 failed while the checkout-build check passed.
+The session examples now explicitly disable sources in their private
+settings, and their setup and file inventories name that input. Chapter 7
+uses the same settings rule. The retired-format example refuses before skill
+resolution. The proof evidence records both builds' final results.
 
 **Check:** For each complete example, name each file that the product reads by the location of its executable, not by `HOME` or the working directory. Compare a claimed line that such a file can change.
 

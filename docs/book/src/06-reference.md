@@ -743,8 +743,9 @@ These skill refusals have stage `skills` and status 3:
 | `skill_cache_unavailable` | Ravel cannot use the cache. Examples are a permission and full storage. A directory on the path that another account can write, and a link on the path that changed during the run, also refuse. | Make the cache a private writable directory of your account, or free storage. |
 | `skill_cache_corrupt` | A stored object does not hold the content that its name identifies. | Stop its readers, then move it out of the cache or remove it, and resolve again. |
 
-A refusal never stores a descriptor. It can leave complete snapshots that a
-later resolution reuses. Ravel removes its own private temporary directories,
+A failed resolution leaves no partial descriptor. Complete snapshots and
+descriptors can remain, for example after cancellation just after storage.
+A later resolution can reuse them. Ravel removes its own private temporary directories,
 and no other temporary directories. A failure of that removal after a
 successful run is `skill_cleanup_failed`, status 5. After a refusal, the
 refusal keeps its code and also reports the failure.
@@ -980,14 +981,14 @@ reports stay as diagnostics. See
 | `0` | `start-session` wrote the sent result unchanged to standard output and flushed it. This occurs after the reap, the confirmed absence of the group and the required cleanup. An empty result is valid. A later nonzero exit of the managed process does not make the sent result invalid. Ravel does not interpret the result. Interpret it with the caller's convention. For `end-session`, status 0 confirms only that it sent the result, or that a valid first result was already present. An explicit help or version request also gives status 0. | [Accept a result](05-running-sessions.md#accept-a-result-only-after-success) |
 | `1` | `start-session` reports `session_result_missing`, even when the managed process exits 0. For `end-session`, status 1 means that it could not send the result. For example, the session-result context was missing, empty or stale, or the value was too large. Check that the call occurs inside a live session. A missing result is not an empty result. | [The sent result and its absence](05-running-sessions.md#accept-a-result-only-after-success) |
 | `2` | Malformed command-line input or settings, an unusable `--exit-dir`, or a withdrawn confinement flag. Without a verb, `ravel` prints help with this status. Correct the named input or setting before you try again. | [Caller inputs](05-running-sessions.md#supply-the-prompt-and-caller-data), [what the managed process receives](05-running-sessions.md#know-what-the-managed-process-receives) |
-| `3` | The configuration script refused, or Ravel could not accept its entry, behaviour, shape or selection result, or the selection context. Evaluation bounds and a `start-session` inside an evaluation harness run also use 3. No fallback route runs. Read the code, the stage and the remedy. For `config_refused`, also read `configCode`. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
+| `3` | The configuration script refused, or Ravel could not accept its entry, behaviour, shape or selection result, or the selection context. Evaluation bounds and a `start-session` inside an evaluation harness run also use 3. No fallback route runs. Read the code, the stage and the remedy. For `config_refused`, also read `configCode`. Skill-source, resource and cache refusals also use 3. Read their `skills` stage and remedy. | [Select or refuse](04-write-a-configuration-script.md#select-a-command-or-refuse) |
 | `5` | A worker or supervision failed, or the result was invalid. Required cleanup or terminal recovery failed, a group survived, or the result output failed. A failed worker re-execution, identity mismatch or evaluation harness cleanup also gives 5. Retain the diagnostics, repair the installation or the named resource, and discard any partial result bytes. | [Operational diagnostics](05-running-sessions.md#read-notices-separately-from-results) <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
-| `124` | The evaluation of the configuration script timed out, and Ravel launched no managed process. Examine the work of the script before you increase `timeoutMs` or `--timeout-ms`. Failed harness cleanup or cancellation can replace this outcome. The deadline does not limit the managed process. | [Bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
+| `124` | The evaluation of the configuration script timed out, and Ravel launched no managed process. Examine the work of the script before you increase `timeoutMs` or `--timeout-ms`. Failed harness cleanup or cancellation can replace this outcome. The deadline does not limit the managed process. Skill resolution has a separate deadline, `skills.resolutionTimeoutMs`, and reports `skill_resolution_timeout` with 124 before worker evaluation. | [Bounds](04-write-a-configuration-script.md#set-bounds-and-environment-grants-in-the-settings) |
 | `126` | The selected program is not executable, or the launch failed before the runner reported the start, for a reason other than ENOENT. Check the permissions, the format, the interpreter and the execution environment. Retain any recovery reports. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) <!-- tc: depart synonym-rotation because the start is the runner's named report, while launch names process creation --> |
 | `127` | Ravel did not find the selected program, or the launch failed with ENOENT before the start. A script that exists can have a missing interpreter. Check `PATH`, the selected path and the interpreter. | [Program resolution](05-running-sessions.md#supply-the-prompt-and-caller-data) <!-- tc: depart synonym-rotation because the start is the runner's named report, while launch names process creation --> |
-| `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `130` | Cancellation by INT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
-| `143` | Cancellation by TERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `129` | Cancellation by HUP (signal 1), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller still wants the work. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `130` | Cancellation by INT (signal 2), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. A keyboard Ctrl-C that goes only to the group of the managed process is not necessarily a cancellation of Ravel. | [Cancellation and terminal INT](05-running-sessions.md#cancel-during-selection-or-supervision) |
+| `143` | Cancellation by TERM (signal 15), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. Retain the cleanup reports, and try again only if the caller did not intend the termination. | [Cancellation](05-running-sessions.md#cancel-during-selection-or-supervision) |
 
 The three signal statuses in the table follow the shell convention: 128 plus
 the signal number. Ravel attempts the cleanup and then raises the same signal
@@ -1312,7 +1313,10 @@ It also sets or removes `RAVEL_SKILL_DIRECTORIES`.
 
 The managed process inherits the caller's environment, except for
 six exact names that Ravel removes. The list of these names is below. Ravel
-then supplies its new `RAVEL_EXIT_FILE`. Other names stay inherited, for
+then supplies its new `RAVEL_EXIT_FILE`. It also replaces or removes
+`RAVEL_SKILL_DIRECTORIES`, as the table below shows.
+
+Other names stay inherited, for
 example any application credentials and the names in the reserved classes
 above. An environment grant has no effect on that inheritance. See
 [caller environment](05-running-sessions.md#supply-the-prompt-and-caller-data).
@@ -1452,7 +1456,7 @@ can then replace some values for one session.
 `$HOME/.config/ravel/settings.json` supplies the owner's defaults for `start-session`.
 `--config` does not move it, and `XDG_CONFIG_HOME` does not select it.
 
-Fragment: a settings file with four of the five keys, which the checkout build
+Fragment: a settings file with four of the top-level keys, which the checkout build
 accepted on 2026-10-29. This block omits the configuration script and the
 program `fake-classifier`.
 
@@ -1822,6 +1826,7 @@ stream. See [interpret notices](05-running-sessions.md#read-notices-separately-f
 | Code | Stage | Status | Meaning and remedy | Taught in |
 |---|---|---|---|---|
 | `skill_source_missing` | `skills` | 3 | A local source directory or a configured search directory does not exist. Or a mandatory file names a source that the default skill directory does not hold. Restore or install the source, or change the settings deliberately. | [`skills resolve`](#skills-resolve) |
+| `skill_source_changed` | `skills` | 3 | A local source changed while Ravel copied it. Keep the source quiet, then try again. | [`skills resolve`](#skills-resolve) |
 | `skill_directory_invalid` | `skills` | 3 | The installation record is invalid, or an entry of the default skill directory is not a source. Remove or repair the entry, or reinstall the package that installed it. | [Default skill directory](#default-skill-directory) |
 | `skill_mandatory_invalid` | `skills` | 3 | A mandatory file is missing, unreadable, not a regular file or not UTF-8. Restore it, or change the reference. | [`skills resolve`](#skills-resolve) |
 | `skill_resource_invalid` | `skills` | 3 | A link, an entry or a path that the snapshot cannot keep exactly. Repair or remove the named entry. | [`skills resolve`](#skills-resolve) |
@@ -2346,7 +2351,11 @@ Where are the files of an installed Ravel? You may want the executable for a
 caller's configuration, or the example configuration scripts to copy.
 
 `PREFIX` is the installation root, independent of the owner's `HOME`.
-For Homebrew, `brew --prefix ravel` gives this path.
+For the versioned Homebrew formula, `brew --prefix ravel@2` gives this path.
+After promotion, `brew --prefix ravel` gives the unversioned installation's
+path. [Chapter 3](03-a-complete-session.md#install-ravel-and-check-its-version)
+selects the versioned executable for this book's examples.
+
 Ravel 2.0.0 installs one executable with the Rhai engine inside it.
 It needs no separate language runtime or source checkout.
 See [install Ravel](03-a-complete-session.md#install-ravel-and-check-its-version).

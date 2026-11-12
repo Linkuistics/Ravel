@@ -100,7 +100,7 @@ TERM. The caller still receives `finished`.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**
@@ -416,7 +416,7 @@ stays after TERM. Ravel stops the run, then the worker, and starts nothing.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**
@@ -553,7 +553,7 @@ handler then sends TERM to the Ravel CLI, and the signal wins.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**

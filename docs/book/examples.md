@@ -137,10 +137,11 @@ Examples supply their own `PATH="$PWD/bin:$PATH" ravel ...` commands.
 The reader sees the commands that run.
 A route to `claude` or `codex` reaches only the fake that the example supplies.
 No personal configuration script or settings enter the run, and no real model receives a call.
+The session examples explicitly disable skill sources in their private settings.
+Thus, an installed Ravel with a default skill directory receives the same inputs.
+The retired-format example refuses before source resolution and needs no such settings.
 Real Rhai configuration script evaluation runs in the built Ravel binary, re-executed as its internal worker.
 
-The checkout still builds the separate worker until the format-removal increment.
-That build dependency does not make the Rhai examples use the old worker.
 The checker needs only the Rust binary; it does not look for a separate worker or its source digest.
 Before extracting examples, it refuses a binary older than a production Rust source,
 a build script, a Cargo manifest or lockfile, `rust-toolchain.toml`, or `.cargo/config.toml` when present.

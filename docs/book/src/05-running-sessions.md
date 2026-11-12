@@ -70,6 +70,10 @@ for each.
 
 ## Run the examples of this chapter
 
+Each example also includes `settings.json`, in addition to the files in the
+inventory below. Its empty skill-source array disables discovery instructions.
+The setup copies that file into the private home before Ravel runs.
+
 Every complete example in this chapter uses fake programs. A **fake agent** is
 a small shell script that stands where a harness stands. Most fake agents run
 `ravel end-session` themselves, as an LLM in a harness does when the prompt
@@ -89,7 +93,7 @@ commands also write files, such as `result.txt` and `review-notes.md`. A file
 from one example must not change the result of another example.
 
 The chapter has seven examples. Each row names the example, its directory
-under `~/ravel-chapter-5` and the files that you save there:
+under `~/ravel-chapter-5` and its task files. Each also needs `settings.json`.
 
 | Example | Section | What the example shows | Files that you save |
 |---|---|---|---|
@@ -98,7 +102,7 @@ under `~/ravel-chapter-5` and the files that you save there:
 | `review-caller` | [Accept a result only after success](#accept-a-result-only-after-success) | An orchestrator script that acts on the result of the review | `config.rhai`, `bin/review-agent`, `bin/fix-agent`, `review-prompt.txt` and `orchestrator.sh` |
 | `nested` | [Keep nested sessions separate](#keep-nested-sessions-separate) | A session inside the managed process of another session | `config.rhai`, `bin/inner` and `bin/outer` |
 | `notices` | [Read notices separately from results](#read-notices-separately-from-results) | The text routing notice, the JSON routing notice and a refusal | `config.rhai`, `bin/review-agent` and `review-prompt.txt` |
-| `cancel-selection` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation while the configuration script waits for a harness run | `settings.json`, `config.rhai` and `bin/cancel-selection` |
+| `cancel-selection` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation while the configuration script waits for a harness run | `config.rhai` and `bin/cancel-selection` |
 | `cancel-session` | [Cancel during selection or supervision](#cancel-during-selection-or-supervision) | A cancellation after the managed process sent a result | `config.rhai` and `bin/cancel-after-result` |
 
 Do these steps for each example, in a shell where `ravel --version` succeeds:
@@ -175,8 +179,10 @@ The values and their meanings are your convention. Ravel gives them no
 meaning.
 
 Pass exactly one of `--prompt TEXT` and `--prompt-file PATH`. Ravel gives the
-text to the configuration script unchanged, also when it is an empty string
-or ends with newlines. It never reads a prompt from its standard input. A
+text to the configuration script unchanged in `request.originalPrompt`, also
+when it is empty or ends with newlines. With skill delivery enabled,
+`request.prompt` also holds discovery instructions before that text.
+It never reads a prompt from its standard input. A
 prompt is UTF-8, contains no NUL and has a maximum size of 1 MiB. Ravel does
 not truncate input that is not valid, but stops the invocation with status 2.
 
@@ -294,13 +300,16 @@ splitting or expansion.
 How does the managed process get its environment? A child process gets a copy
 of the environment of its parent. Thus, the managed process gets the
 environment of the Ravel CLI, which is the caller's environment. Ravel makes
-two changes to that copy before the launch:
+these changes to that copy before the launch:
 
 - It removes `RAVEL_RUN_ID`, `RAVEL_STATE_DIR`, `HARNESS_DISPATCH_EXIT_FILE`,
   `HARNESS_DISPATCH_RUN_ID` and `HARNESS_DISPATCH_STATE_DIR`. These variables
   are controls of an enclosing session or of another launcher.
 - It replaces `RAVEL_EXIT_FILE` with the path of the result file of the new
   session.
+- It replaces `RAVEL_SKILL_DIRECTORIES` with this session's descriptor path,
+  or removes it when skill delivery is disabled. The descriptor records the
+  retained skill directories. It grants no authority to end the session.
 
 Thus, `end-session` in the program and its children finds only the path of
 the session that Ravel made for them. Put the installed `ravel` on the `PATH` of the managed
@@ -317,6 +326,7 @@ the agent received. When you finish the steps, the directory holds these paths:
 ```text
 ~/ravel-chapter-5/
 └── prompt-and-data/
+    ├── settings.json      you save it
     ├── config.rhai           you save it
     ├── prompt.txt            you save it
     ├── caller-context.json   you save it
@@ -330,11 +340,12 @@ Each path has one purpose in the example:
 
 | Path in `prompt-and-data` | Who makes it | Purpose |
 |---|---|---|
+| `settings.json` | You | Disables skill delivery with an empty source array. The setup copies it into the private home. |
 | `config.rhai` | You | The configuration script. The option `--config config.rhai` selects it. It gives the prompt and the value of `profile` to `echo-prompt`. |
 | `prompt.txt` | You | The prompt, with a final newline. The option `--prompt-file prompt.txt` gives it to Ravel. |
 | `caller-context.json` | You | The selection context. The option `--context caller-context.json` gives it to the configuration script, which does not use it here. |
 | `bin/echo-prompt` | You | The fake agent that the configuration script selects. It writes `profile=careful`, then sends its first argument as the result. |
-| `home/` | The first command line | An empty home directory for Ravel. Ravel finds no settings file there, so the default settings apply. |
+| `home/` | The first command line | A private home directory. The setup copies the example's settings here and disables skill delivery. |
 | `tmp/` | The first command line | A private temporary directory. Ravel makes the result channel of the session here. |
 
 The command also names `tasks/check.md` with `--task-file`. You do not make
@@ -346,7 +357,7 @@ Do the four steps of
 is this fragment.
 
 Fragment: make the directory of `prompt-and-data` and `cd` into it. This
-block omits the four files, which you save next. The book checker makes its
+block omits the files, which you save next. The book checker makes its
 own directory for each example and does not run this block.
 
 ```sh
@@ -360,6 +371,12 @@ current directory.
 Complete example: pass a prompt from a file, with its final newline, and
 caller data. The configuration script uses `profile` as an argument. It does
 not use the task fields or the selection context.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -408,7 +425,8 @@ When you finish, send the agreed result.
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file prompt.txt --param profile=careful --task-file tasks/check.md --task-id example-17 --context caller-context.json
 ```
 
@@ -432,12 +450,13 @@ profile=careful
 0
 ```
 
-What did the two command lines do? The first line prepares the directory. The
-second line runs the session. These are their parts:
+The command block prepares the directories, copies the settings and runs
+the session. These are its parts:
 
 | Part of the command | What it does in `prompt-and-data` |
 |---|---|
-| `mkdir -p home tmp` | Makes `home` and `tmp`. With `-p`, `mkdir` gives no error when they exist already. |
+| `mkdir -p home/.config/ravel tmp` | Makes the private configuration directory and `tmp`. |
+| `cp settings.json home/.config/ravel/settings.json` | Puts the example's settings where Ravel reads them. |
 | `chmod +x bin/*` | Makes each file in `bin`, here only `echo-prompt`, executable |
 | `env -i` | Runs the rest of the line with an empty environment. Your own variables, such as a `RAVEL_EXIT_FILE` of an enclosing session, do not enter the example. |
 | `HOME="$PWD/home"` and `TMPDIR="$PWD/tmp"` | Give Ravel the private directories. Your shell expands `$PWD` before `env` runs, so each value is an absolute path. |
@@ -576,7 +595,7 @@ command succeeds.
 
 Run the next example in the directory `outcomes`. Step 1 is
 `mkdir -p ~/ravel-chapter-5/outcomes/bin`, then `cd ~/ravel-chapter-5/outcomes`.
-You save two files, `config.rhai` and `bin/outcome`. The fake agent
+You save `settings.json`, `config.rhai` and `bin/outcome`. The fake agent
 `outcome` examines the kind. For the kind `natural`, it exits without a
 result. For any other kind, it sends the prompt as the result.
 
@@ -590,6 +609,12 @@ result and then tries a second call before it exits with status 7. The
 shutdown can stop the program before that call or that exit. In the second,
 the program sends an empty result. In the third, it sends no result and exits
 naturally with status 0.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -626,7 +651,8 @@ exit 7
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind send --config config.rhai --prompt '--help'
 ```
 
@@ -724,7 +750,7 @@ the bytes on standard output. It decides its next action from both:
 
 Run the next example in the directory `review-caller`. Step 1 is
 `mkdir -p ~/ravel-chapter-5/review-caller/bin`, then
-`cd ~/ravel-chapter-5/review-caller`. You save five files:
+`cd ~/ravel-chapter-5/review-caller`. You save `settings.json` and these five files:
 
 | Path in `review-caller` | Purpose |
 |---|---|
@@ -746,6 +772,12 @@ and `fix-result.txt`. You do not make these files.
 
 Complete example: an orchestrator script runs the review and acts on each
 outcome.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -842,7 +874,8 @@ esac
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" sh orchestrator.sh
 ```
 
@@ -984,7 +1017,7 @@ Such an escape can leave a separate process group outside the outer cleanup.
 
 Run the next example in the directory `nested`. Step 1 is
 `mkdir -p ~/ravel-chapter-5/nested/bin`, then `cd ~/ravel-chapter-5/nested`.
-You save three files. `config.rhai` selects `outer` for the kind `outer` and
+You save `settings.json` and three other files. `config.rhai` selects `outer` for the kind `outer` and
 `inner` for every other kind. `bin/outer` is the outer fake agent, which runs
 the inner session. `bin/inner` is the inner fake agent.
 
@@ -997,6 +1030,12 @@ script serves both sessions. The script gives `outer` the absolute path of
 Complete example: the inner program sends `inner`, and the outer program
 uses that result in `inner|outer`. These values have no trailing newlines, so
 command substitution keeps them unchanged.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -1039,7 +1078,8 @@ ravel end-session -- "$result|outer"
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind outer --config config.rhai --prompt 'Run the inner session. Then add |outer to its result and send it.'
 ```
 
@@ -1080,9 +1120,7 @@ interactive job control for nested sessions.
 
 ## Know what the managed process receives
 
-Ravel launches the selected program as an ordinary child process. This
-section states what that process receives: filesystem access, an environment,
-a result channel, standard input and the terminal.
+Ravel launches the selected program as an ordinary child process.
 
 Ravel does not restrict the filesystem access of the managed process. The
 process can read and write each path that your account permits, within the
@@ -1118,7 +1156,10 @@ To [lend](03-a-complete-session.md#launch-the-managed-job) the terminal, Ravel
 makes the group of the managed process the foreground group of the terminal.
 Then that group receives the keyboard input. Ravel lends the terminal only if
 its own process group is the foreground group of the terminal. After the
-session, Ravel gives the terminal back to its own group. The managed process
+session, Ravel attempts recovery if it lent the terminal. Recovery also
+depends on which group holds it then, as chapter 9 explains.
+
+The managed process
 can also read the caller's standard input. [Chapter 9, “Jobs, signals and the
 terminal”](09-jobs-signals-and-the-terminal.md#lend-and-recover-the-terminal),
 teaches the mechanism.
@@ -1128,7 +1169,7 @@ Use this table to see what the managed process receives:
 | Property | Managed process |
 |---|---|
 | Filesystem access | Each path that your account and the harness sandbox permit. Ravel restricts no path. |
-| Caller environment | Inherited, except for the five controls that stay absent and the replaced `RAVEL_EXIT_FILE` |
+| Caller environment | Inherited, except for the five controls that stay absent, the new `RAVEL_EXIT_FILE` and the replaced or removed `RAVEL_SKILL_DIRECTORIES` |
 | Session-result context | New `RAVEL_EXIT_FILE`, beneath the temporary directory or `--exit-dir` |
 | Process group | New process group in the caller's POSIX session |
 | Caller terminal | Lent when Ravel's group is the foreground group of the terminal |
@@ -1185,7 +1226,7 @@ diagnostic with a JSON document, the failure document.
 
 Run the next example in the directory `notices`. Step 1 is
 `mkdir -p ~/ravel-chapter-5/notices/bin`, then `cd ~/ravel-chapter-5/notices`.
-You save three files. `config.rhai` selects `review-agent` for the kind
+You save `settings.json` and three other files. `config.rhai` selects `review-agent` for the kind
 `review` and refuses every other kind. `bin/review-agent` is a fake harness
 that writes one line, then sends `changes-needed`. `review-prompt.txt` is the
 prompt of chapter 1's review, the same file as in `review-caller`.
@@ -1197,6 +1238,12 @@ The third block uses the kind `deploy`, which the script refuses.
 Complete example: run the review in text form, the same review with
 `--json`, and a request that the configuration script refuses. The script
 and the prompt are those of chapter 1.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -1249,7 +1296,8 @@ When the review is complete, end this session with one command:
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind review --config config.rhai --prompt-file review-prompt.txt
 ```
 
@@ -1508,14 +1556,14 @@ These sections teach the subject of each row:
 | `0` | `start-session` wrote the sent result unchanged to standard output after Ravel confirmed the reap, the absence of the group and the required cleanup. An explicitly empty result is valid. A later nonzero exit of the child does not make it invalid. For `end-session`, status 0 means that it sent the result, or that a valid first result was already present. A help or version request also exits with 0. | Interpret the result of a successful session with the caller's own convention. Ravel does not interpret it. Wait for `start-session`. The success of `end-session` alone does not confirm cleanup. |
 | `1` | `start-session`: `session_result_missing`, even if the child exited with status 0. `end-session`: it could not send the result. For example, `RAVEL_EXIT_FILE` was missing, empty or stale, the result channel was not valid, or the value was larger than its limit. | Check that the managed process calls the installed `ravel end-session` with one result before it exits. Check also that it makes the call inside its live enclosing session. Keep any cleanup diagnostics too. Do not treat a missing result as an empty result. |
 | `2` | Malformed command-line input or settings, invalid prompt or data flags, an unusable `--exit-dir`, or a withdrawn confinement flag. A missing subcommand shows the help with status 2. An argument-count error of `end-session` also uses 2. | Correct the named input or setting. Run the command again only after you apply the remedy of the diagnostic. |
-| `3` | A refusal by the configuration script, or Ravel's refusal of the script. The script refused, or Ravel could not accept its entry, behaviour, shape, returned data or selection context. Script limits, the worker heap bound, exhausted evaluation budgets and a `start-session` from inside a harness run (`config_reentry_refused`) also use 3. Ravel tries no other route. | Read `code`, `stage`, the location and the remedy. For `config_refused`, examine the owner's `configCode` and explanation. Change the request or the configuration script deliberately. Do not silently substitute a program. |
+| `3` | A refusal by the configuration script, or Ravel's refusal of the script. The script refused, or Ravel could not accept its entry, behaviour, shape, returned data or selection context. Script limits, the worker heap bound, exhausted evaluation budgets and a `start-session` from inside a harness run (`config_reentry_refused`) also use 3. Ravel tries no other route. Skill-source, resource and cache refusals also use 3. Read their `skills` stage and remedy. | Read `code`, `stage`, the location and the remedy. For `config_refused`, examine the owner's `configCode` and explanation. Change the request or the configuration script deliberately. Do not silently substitute a program. |
 | `5` | A worker failed, or supervision failed after the runner reported the launch. The result data was not valid, or required cleanup or terminal recovery failed. A group survived, or the result output was unavailable or failed. A failed re-execution or worker identity mismatch also uses 5, as does `harness_cleanup_failed` during evaluation. | Keep the full diagnostics. Repair the installation, or the process or filesystem problem that the diagnostic names. Examine the unresolved processes or temporary directories that Ravel reports before you try again. Discard any partial result bytes. <!-- tc: depart synonym-rotation because repair restores a resource, while correct also describes a valid value --> |
-| `124` | The whole evaluation deadline expired. It covers worker startup, module loads, the context loader, selection and every host call. Ravel launched no managed process. A failed harness cleanup replaces this outcome with status 5. Cancellation also has priority. | Examine the work of the configuration script. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer evaluation. A single harness run's `timed_out` status is data for the script. This is not a time limit for the managed process. |
+| `124` | The whole evaluation deadline expired. It covers worker startup, module loads, the context loader, selection and every host call. Ravel launched no managed process. A failed harness cleanup replaces this outcome with status 5. Cancellation also has priority. Skill resolution has a separate deadline, `skills.resolutionTimeoutMs`, and reports `skill_resolution_timeout` with 124 before worker evaluation. | Examine the work of the configuration script. Change `--timeout-ms` or the owner's `timeoutMs` only if you want that longer evaluation. A single harness run's `timed_out` status is data for the script. This is not a time limit for the managed process. |
 | `126` | Ravel could not execute the selected program, or the launch failed, before the runner reported that the program started. The cause is not ENOENT (no such file). | Check the execute permissions, the format, the interpreter, the platform and the execution environment. A launch failure before the start can also need terminal recovery. Keep those diagnostics. Ravel runs no substitute. |
 | `127` | Program resolution found no executable, or a launch failed with ENOENT before the start. An executable script can exist while its interpreter is missing. | Check the caller's `PATH`, the selected path and its interpreter. Install or correct the program that you intended. |
-| `129` | Cancellation by HUP (signal 1), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work. |
-| `130` | Cancellation by INT (signal 2), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Distinguish a signal to Ravel from a terminal signal to only the group of the managed process. [Cancel during selection or supervision](#cancel-during-selection-or-supervision) explains the difference. |
-| `143` | Cancellation by TERM (signal 15), during selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the termination was not intended. |
+| `129` | Cancellation by HUP (signal 1), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the caller still wants the work. |
+| `130` | Cancellation by INT (signal 2), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Distinguish a signal to Ravel from a terminal signal to only the group of the managed process. [Cancel during selection or supervision](#cancel-during-selection-or-supervision) explains the difference. |
+| `143` | Cancellation by TERM (signal 15), during skill resolution, selection or supervision. Ravel returns no result to the caller, even if it already received one. | Treat the invocation as cancelled. Keep the cleanup reports. Try again only if the termination was not intended. |
 
 The last three numbers follow the shell convention: 128 plus the signal
 number. Ravel reports the cancellation, attempts the cleanup and then raises
@@ -1611,7 +1659,7 @@ starts.
 **`settings.json`**
 
 ```json
-{"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"cancel":{"program":"cancel-selection"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**
@@ -1712,17 +1760,23 @@ attempts, and Ravel keeps their failures as diagnostics.
 
 Run the next example in the directory `cancel-session`. Step 1 is
 `mkdir -p ~/ravel-chapter-5/cancel-session/bin`, then
-`cd ~/ravel-chapter-5/cancel-session`. You save two files. `config.rhai`
+`cd ~/ravel-chapter-5/cancel-session`. You save `settings.json` and two other files. `config.rhai`
 selects `cancel-after-result` for every request. `bin/cancel-after-result` is
 the fake agent.
 
-The command block has two lines. The first line is the same as in
-`prompt-and-data`. The second line gives the prompt with `--prompt` and gives
+The command block prepares the directories and copies the settings, as in
+`prompt-and-data`. Its final line gives the prompt with `--prompt` and gives
 no caller data.
 
 Complete example: the program sends a candidate result and sends INT
 directly to the Ravel CLI. Then it stays alive until the supervisor stops the
 job.
+
+**`settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -1756,7 +1810,8 @@ while :; do sleep 1; done
 **Command**
 
 ```console
-$ mkdir -p home tmp && chmod +x bin/*
+$ mkdir -p home/.config/ravel tmp && chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
 $ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind check --config config.rhai --prompt 'Show cancellation after a sent result.'
 ```
 
@@ -1799,7 +1854,7 @@ from the key that you pressed. [Chapter 9](09-jobs-signals-and-the-terminal.md#p
 
 Fragment: run an interactive route and press Ctrl-C at the terminal. This
 fragment omits the configuration script, the interactive program and the physical
-interaction with the terminal. It is not one of the eight examples of this
+interaction with the terminal. It is not one of the complete examples of this
 chapter and has no directory. The automated examples do not test keyboard
 delivery or foreground recovery.
 

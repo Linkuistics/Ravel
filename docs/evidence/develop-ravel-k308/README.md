@@ -75,3 +75,21 @@ failed with “exit status of command 1 is 3, the example claims 0”.
 These book logs come from the run after the last change to the chapters.
 That change followed the one in-session review of chapter 11, which found
 13 problems in its recovery, channel and formula statements.
+
+## Checkout timing detail retained by proof
+
+The draft also recorded these focused setup measurements. Proof moved them
+out of the teaching chapter on 12 November 2026. They describe the original
+trial above, not another run.
+
+| Task in the trial | Elapsed time | Result |
+|---|---|---|
+| `rustup toolchain install` | Under 1 second | Passed. Rust 1.99.1 was already installed |
+| `task setup` | 3 seconds | Passed. It checked the cached tools and downloaded nothing |
+| `task build` | Under 1 second | Passed. The build was current |
+| `task test:list` with the `book_` filter | 30.7 seconds | Listed the five added cases. It compiled the test targets first |
+| Focused `test:runner`, `test:cli` and the two `test:session` commands above | 3.6, 1.4, 1.6 and 0.4 seconds | All five added tests passed |
+| `task check` | 2 minutes 49 seconds | Every stage passed. nextest ran 713 tests, all passed, and skipped 48 |
+| `task install PREFIX=target/install-trial` | 12 seconds | Installed and passed the installed smoke test |
+| `task smoke` | 7 seconds | Passed, direct and through a symlink |
+

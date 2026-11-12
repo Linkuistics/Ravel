@@ -259,8 +259,9 @@ quotes source excerpts but does not cover the complete source.
 - **Validating with fake agents.** Every runnable example uses fake programs,
   and a configuration script author learns to check every route and refusal that way.
 - **The stated limits, said plainly:** same-user tampering, abrupt death of
-  the Ravel CLI, descendants that leave their process group, detached configuration script
-  children, and the support statement (aarch64 macOS and aarch64 Linux are
+  the Ravel CLI, descendants that leave the managed process's group,
+  descendants that leave an evaluation harness run's group, and the support
+  statement (aarch64 macOS and aarch64 Linux are
   measured; x86_64 Linux is built and run only under emulation).
 
 ### Exclusions
@@ -409,7 +410,8 @@ The book also states them wherever they matter:
   check on 2026-10-16 recorded Claude Code 2.1.301 and codex-cli 0.163.0.
   Drafting rechecks and records the versions it uses.
 - GitHub's rendering is unchecked until the branch is pushed.
-  The site is unchecked until the first release that carries the book.
+  Ravel 1.1.0 carried the first book on GitHub Pages. A later release's copy
+  stays unchecked there until that release carries it.
 - Inventory coverage shows what the book covers, not whether a reader understands it.
 
 <!-- tc: pending because this large contract is converted by the sections each edit touches -->
@@ -426,7 +428,7 @@ The book also states them wherever they matter:
   fake executable of the same name, and records the agent's version and the
   date its flags were checked against that agent's own help.
 - **The reader's Ravel**: chapter 3 tells the reader to install Ravel with
-  Homebrew (`linkuistics/taps/ravel`) and to check that `ravel --version`
+  Homebrew (`linkuistics/taps/ravel@2`, with its prefix on `PATH`) and to check that `ravel --version`
   prints the version that the book names. The book names that version in one
   place. The release writes its own version there and checks it. Until that
   release, the book shows a placeholder. The owner chose this on 2026-10-18

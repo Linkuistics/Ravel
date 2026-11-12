@@ -441,6 +441,6 @@ caller is correct.
 
 [Chapter 3, “A complete session, end to end”](03-a-complete-session.md), uses
 these roles in one session with a small configuration script and a fake agent.
-You make its directory, `~/ravel-first-session`, and save its two files in it.
+You make its directory, `~/ravel-first-session`, and save its three files in it.
 The fake agent makes the selected command, the sent result and the cleanup
 visible. It needs no agent account and no model service.

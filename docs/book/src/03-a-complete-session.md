@@ -31,14 +31,20 @@ with status 0 only if its final write to standard output also succeeds.
 ## Install Ravel and check its version
 
 Use a macOS or GNU/Linux host with Homebrew. The Homebrew formula
-`linkuistics/taps/ravel` installs release archives for aarch64 macOS,
+`linkuistics/taps/ravel@2` installs release archives for aarch64 macOS,
 aarch64 GNU/Linux and x86_64 GNU/Linux.
+
+Ravel 2.0 first uses a separate, keg-only formula while the unversioned
+formula stays at 1.1.0. Keg-only means that Homebrew keeps its executable
+outside the shared command directory. This shell uses the versioned prefix
+so that the examples run with Rhai.
 
 Fragment: installation and version check. This block omits Homebrew setup
 and the installation output.
 
 ```sh
-brew install linkuistics/taps/ravel
+HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --skip-link linkuistics/taps/ravel@2
+export PATH="$(brew --prefix ravel@2)/bin:$PATH"
 ravel --version
 ```
 
@@ -61,7 +67,7 @@ describe changes that no release has yet.
 [Chapter 11](11-deliver-ravel.md#keep-the-book-with-its-release) explains the
 version line and the address of each release's book.
 
-The directory that `brew --prefix ravel` prints contains the
+The directory that `brew --prefix ravel@2` prints contains the
 [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision), `bin/ravel`.
 That executable also contains the Rhai engine, which runs the configuration
 script. Ravel launches a second copy of its own binary as the separate
@@ -90,6 +96,7 @@ When you finish the steps, the directory holds these paths:
 ├── bin/               you make it
 │   └── fake-agent     you save it
 ├── home/              the command makes it
+│   └── .config/ravel/settings.json  you save it
 └── tmp/               the command makes it
 ```
 
@@ -99,14 +106,14 @@ Each path has one purpose in the session:
 |---|---|---|
 | `config.rhai` | You | The configuration script. The option `--config config.rhai` selects it. |
 | `bin/fake-agent` | You | The fake agent, a shell script that the configuration script selects. It stands where a harness stands. |
-| `home/` | The command | An empty home directory for Ravel. Ravel finds no settings file there, so the default settings apply. |
+| `home/.config/ravel/settings.json` | You | Settings for this example. An empty source array disables skill delivery, so the fake receives only your prompt. |
 | `tmp/` | The command | A private temporary directory. Ravel makes the result channel of the session here. |
 
 Do these steps in the shell where `ravel --version` succeeded:
 
 1. Make the example directory and its `bin` subdirectory, then `cd` into the
    example directory. The fragment after these steps gives the two commands.
-2. Save the two files of the complete example at their labelled paths. Each
+2. Save the three files of the complete example at their labelled paths. Each
    label is a path in `ravel-first-session`.
 3. Type the command of the complete example without its first `$ `, which
    stands for the prompt of your shell.
@@ -114,11 +121,11 @@ Do these steps in the shell where `ravel --version` succeeded:
    Compare the output and the status with the example.
 
 Fragment: make the example directory and `cd` into it. This block omits the
-two files, which you save next. The book checker makes its own directory for
+three files, which you save next. The book checker makes its own directory for
 each example and does not run this block.
 
 ```sh
-mkdir -p ~/ravel-first-session/bin
+mkdir -p ~/ravel-first-session/bin ~/ravel-first-session/home/.config/ravel
 cd ~/ravel-first-session
 ```
 
@@ -127,6 +134,12 @@ current directory.
 
 Complete example: pass a prompt through a small configuration script to a
 fake agent. The fake prints the prompt and sends `finished`.
+
+**`home/.config/ravel/settings.json`**
+
+```json
+{"skills":{"schemaVersion":1,"sources":[]}}
+```
 
 **`config.rhai`**
 
@@ -202,7 +215,13 @@ parts:
 | `--prompt '…'` | Gives the caller's prompt. The script passes it unchanged to the fake. |
 
 The private home and the explicit `--config` keep your usual settings and
-configuration script out of this session. Without `--config`, Ravel looks
+configuration script out of this session. The settings also disable the
+installation's default skill directory. An empty home alone does not do that.
+With skill delivery enabled, Ravel adds discovery instructions before the
+caller's prompt. [Chapter 6](06-reference.md#skill-delivery-at-launch)
+explains that prepared prompt.
+
+Without `--config`, Ravel looks
 for the default script `home/.config/ravel/config.rhai`. That file does not
 exist, so Ravel refuses with `config_missing` and exit status 3.
 
@@ -275,8 +294,10 @@ the configuration script. `--config config.rhai` names a file relative to the
 caller's working directory. Ravel resolves its real path and requires a
 readable regular file. It does not search the caller's repository for a
 different configuration script. Settings still come from `$HOME/.config/ravel/settings.json`, even
-when `--config` is present. The private `home` of the example is empty, so the
-defaults apply.
+when `--config` is present.
+
+The example's settings disable skill delivery.
+The other settings use their defaults.
 
 The Ravel CLI launches a second copy of its own binary, the Rhai worker, in
 the worker's empty private directory. At the deadline, the Ravel CLI ends
@@ -387,8 +408,11 @@ program can then read from the terminal as a foreground job. If a different
 job has the foreground, Ravel launches the program and does not lend the
 terminal.
 
-If Ravel lent the terminal, it makes its own group the foreground group again
-at completion and restores the saved modes. The modes include settings such
+If Ravel lent the terminal, it attempts recovery under the holder rules of
+chapter 9. It restores the saved modes only after its own group holds the
+foreground.
+
+The modes include settings such
 as whether the terminal shows typed characters. This recovery is important
 when a program changes the modes. The fake does not read input or change
 terminal modes. The automatic example check runs without a terminal. Thus,

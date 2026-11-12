@@ -194,8 +194,8 @@ Excerpt from `crates/ravel/src/choice.rs`: the call that follows the entry in
     )?;
 ```
 
-The example has no `skills` settings. This trace uses the checkout build
-of the book checker, which has no installation record. Thus, this call returns `None`. `Prepared` holds the
+The example's `skills` settings have an empty source array, so delivery is
+disabled, also in a Homebrew installation. Thus, this call returns `None`. `Prepared` holds the
 checked inputs, the entry and that `None`. It holds no decision of the
 configuration script yet.
 
@@ -700,7 +700,7 @@ then refuses. The managed process does not start.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**
@@ -967,7 +967,7 @@ Ravel CLI. The caller receives no result.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**

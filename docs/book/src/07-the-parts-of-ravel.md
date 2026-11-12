@@ -33,7 +33,7 @@ word has in the example of this chapter.
 
 The example of this chapter is `ravel-parts`. Its directory is
 `~/ravel-parts`. It has the same shape as the first session of chapter 3. It
-adds a settings file that names one harness, and the fake harness itself.
+uses settings that name one harness, and adds the fake harness itself.
 
 When you finish the steps, the directory holds these paths:
 
@@ -59,7 +59,7 @@ Each path has one purpose:
 
 | Path | Who makes it | Purpose |
 |---|---|---|
-| `settings.json` | You | Names the harness entry `advisor`, with the program `fake-advisor`, and permits one harness run. The first command copies it into the private home. |
+| `settings.json` | You | Names the harness entry `advisor`, permits one harness run and disables skill delivery. The first command copies it into the private home. |
 | `config.rhai` | You | Asks the harness run for advice. Then it selects `fake-agent` and gives it the advice as its argument. |
 | `bin/fake-advisor` | You | The fake harness. It writes `advisor.txt` and `advisor.path`, prints `short` and sends the result `advice`. |
 | `bin/fake-agent` | You | The fake agent. It writes `agent.txt` and `agent.path`, then sends the result `finished`. |
@@ -90,7 +90,7 @@ selects a fake agent. Both fakes write down who started them.
 **`settings.json`**
 
 ```json
-{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1}}
+{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
 ```
 
 **`config.rhai`**
@@ -192,9 +192,8 @@ The directory tmp is empty again.
 0
 ```
 
-The first command block differs from chapter 3's command in two parts. Its
-first line also copies `settings.json` into the private home, because Ravel
-reads settings only from `$HOME/.config/ravel/settings.json`. Its second line
+The first command block copies `settings.json` into the private home, because
+Ravel reads settings only from `$HOME/.config/ravel/settings.json`. Its second line
 sends the result to the file `result`, so that the next block can show it beside
 the other files. On macOS, standard error can also show `ravel: stop attempt`
 lines. [Chapter 3](03-a-complete-session.md#run-the-first-session) explains
@@ -238,7 +237,7 @@ checkout.
 | Ravel CLI | `crates/ravel/src/main.rs`, `run.rs`, `choice.rs` and the other modules of the executable | The `ravel start-session` process | Checks the request, writes the routing notice and returns `finished` |
 | Rhai worker | `crates/ravel/src/rhai_worker/`, mainly `role.rs`, `engine.rs` and `bridge.rs` | A second `ravel` process, during evaluation only | Runs `select` and calls `ravel::run_harness` |
 | Host bridge, CLI side | `crates/ravel/src/rhai_worker/front.rs`, `serve.rs`, `host.rs`, `reader.rs` and `harness.rs` | Inside the Ravel CLI, during evaluation only | Receives the request for the `advisor` run and starts it |
-| Skill preparation | `crates/ravel/src/skills/` | Inside the Ravel CLI, before the worker starts | The checkout build prepares no skills. A Homebrew installation can use its default skill directory. |
+| Skill preparation | `crates/ravel/src/skills/` | Inside the Ravel CLI, before the worker starts | The example's settings disable delivery and the default skill directory of a Homebrew installation. |
 | Runner | `crates/keyed-launch/src/` | Inside the Ravel CLI | Runs `fake-advisor`, then `fake-agent` |
 | Result channel | `crates/ravel/src/completion.rs`, exported by `crates/ravel/src/lib.rs` | Inside the Ravel CLI and inside each `ravel end-session` process | Carries `advice` to the script and `finished` to the caller |
 
@@ -279,7 +278,7 @@ before it. The last column gives the step in the example.
 |---|---|---|---|
 | 1 | Refuses when `RAVEL_CONFIG_RUN` is in its environment | `run::run` | The caller's environment has no marker |
 | 2 | Reads the settings and the caller inputs, then finds the configuration script | `choice::prepare` | Reads `home/.config/ravel/settings.json` and finds `config.rhai` |
-| 3 | Resolves the skill sources and prepares the prompt | `skills::launch::prepare` | With the checkout build, delivery is off and the prompt stays unchanged |
+| 3 | Resolves the skill sources and prepares the prompt | `skills::launch::prepare` | The example disables delivery, so the prompt stays unchanged |
 | 4 | Starts the Rhai worker, answers its host calls, checks its reply and reaps it. Then it finds the selected program on `PATH`. | `choice::choose_prepared` | Starts `fake-advisor` for the script, receives the selection of `fake-agent` and finds `bin/fake-agent` |
 | 5 | Makes the result channel, writes the routing notice and launches the managed process | `run::run` | Launches `fake-agent` with its own `RAVEL_EXIT_FILE` |
 | 6 | Reads the result after cleanup, decides the outcome and writes the result | `run::run` | Writes `finished` and exits with status 0 |
@@ -327,7 +326,7 @@ the reasons in your terms:
 
 | Problem that a thread inside the Ravel CLI would have | What the separate process gives |
 |---|---|
-| A thread cannot stop a Rhai function that does not yield. Rhai 1.27.0 has two: `sleep`, and `pad` when its fill string is empty. | The Ravel CLI kills the worker at the deadline, whatever the script runs |
+| A thread cannot stop a Rhai function that does not yield. Rhai 1.27.0 has two: `sleep`, and `pad` when its fill string is empty. | At the deadline, the Ravel CLI attempts worker teardown through signals. A kernel stall can delay exit. |
 | Rhai limits the size of each value, but not the heap. A memory exhaustion or a stack overflow on a thread stops the whole Ravel CLI without cleanup. | Such a failure stops only the worker. The Ravel CLI reports it and launches nothing. |
 | Host capabilities inside the worker would make the worker the parent of each harness run | The Ravel CLI does each host capability, so a kill of the worker leaves no harness run without a parent |
 
@@ -515,11 +514,10 @@ different way:
 | Each harness run | Only when the script passes it | In its environment |
 | The managed process | When the script passes it, as before, usually in an argument | In its environment |
 
-In the example, the settings have no `skills` key. The checkout build of the
-book's check has no installation record, so delivery is off. An installation
-from Homebrew has a record. If its default skill directory holds a source, the
-prompt of your run has a preamble. The output of the example is the same in
-both cases, because no fake prints the prompt.
+In the example, the settings name an empty skill-source array. Thus,
+delivery is off in both the checkout build and a Homebrew installation.
+Without that explicit array, a Homebrew installation reads its default
+skill directory and can add a preamble to the prompt.
 
 Why does the Ravel CLI prepare skills, and not the script? The decision record
 “Skill preparation precedes evaluation”, in

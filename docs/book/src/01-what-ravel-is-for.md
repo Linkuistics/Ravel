@@ -25,7 +25,7 @@ the review.
 
 Fragment: the whole prompt file `review-prompt.txt` of the review example.
 This block omits the code of the orchestrator that writes the file. Ravel
-gives the text to the configuration script unchanged and does not interpret
+keeps the text unchanged in `request.originalPrompt` and does not interpret
 it.
 
 ```text
@@ -193,8 +193,14 @@ The caller can also use the kind to extend or modify the prompt. For example,
 if the harness supports skills, the caller can add a line to the prompt for
 the kind `review`. That line tells the LLM which skill to load. A skill is a
 set of instructions for a particular task. This use of the kind is a caller
-convention. Ravel gives the prompt to the configuration script unchanged and
-adds no task instructions.
+convention.
+
+Ravel keeps the caller's prompt unchanged in
+`request.originalPrompt`. With skill delivery enabled, `request.prompt`
+holds discovery instructions followed by the caller's text in a separate
+block. The script passes that prepared prompt to the harness. Ravel adds no
+task meaning or instruction that ends the session.
+[Chapter 6](06-reference.md#skill-delivery-at-launch) explains skill delivery.
 
 ### The configuration script chooses a program
 
@@ -206,7 +212,7 @@ can run. The table gives the default path of each part:
 | Part of the configuration | Default path | What it holds |
 |---|---|---|
 | Configuration script | `$HOME/.config/ravel/config.rhai` | Rhai code that selects a program or refuses the request. `--config PATH` names another script for one session. |
-| Settings | `$HOME/.config/ravel/settings.json` | The deadline, limits, environment grants, harnesses and budgets. The script cannot change them. |
+| Settings | `$HOME/.config/ravel/settings.json` | The deadline, limits, environment grants, harnesses, budgets and skill sources. The script cannot change them. |
 
 Ravel gives the request to the configuration script. Then the script selects
 a program and its arguments, or it refuses to launch a program.
@@ -436,7 +442,7 @@ teaches. The runnable examples use ordinary programs as fake agents.
 | Part of a session | What Ravel needs | What this book expects from a harness |
 |---|---|---|
 | Selected command | The configuration script selects a program and its arguments | The program runs an LLM session |
-| Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel gives that text to the configuration script unchanged. The script decides whether the program receives it. | The script passes the prompt to the harness |
+| Prompt | The caller supplies `--prompt` or `--prompt-file`. Ravel keeps that text unchanged in `request.originalPrompt`. The script decides whether its program receives `request.prompt`, which also holds discovery instructions when skill delivery is enabled. | The script passes the prompt to the harness |
 | Result | A program in the session sends one value with `end-session` | The LLM follows the caller's instructions and tells the harness to run that command |
 
 The caller's prompt tells the LLM to run `ravel end-session RESULT` when the

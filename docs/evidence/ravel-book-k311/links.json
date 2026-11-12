@@ -1,0 +1,110 @@
+{
+  "local_references": 1173,
+  "repository_targets": [
+    "docs/archive-evidence.md",
+    "docs/book/examples.md",
+    "docs/book/excerpts.md",
+    "docs/book/figures.md",
+    "docs/caller-references.md",
+    "docs/completion-failure-design-evidence.md",
+    "docs/component-evidence.md",
+    "docs/evidence/develop-ravel-k308/README.md",
+    "docs/native-entry-development-evidence.md",
+    "docs/native-entry-transition-design.md",
+    "docs/publication-evidence.md",
+    "docs/release-lifecycle-evidence.md",
+    "docs/result-job-source-evidence.md",
+    "docs/retired-project.md",
+    "docs/runtime-evidence.md",
+    "docs/skill-discovery-design-evidence.md"
+  ],
+  "failures": [],
+  "controls": "valid chapter anchor accepted; planted missing page, anchor and figure rejected",
+  "external": [
+    {
+      "url": "https://code.claude.com/docs/en/authentication",
+      "status": 200,
+      "final": "https://code.claude.com/docs/en/authentication"
+    },
+    {
+      "url": "https://code.claude.com/docs/en/setup",
+      "status": 200,
+      "final": "https://code.claude.com/docs/en/setup"
+    },
+    {
+      "url": "https://docs.brew.sh/Manpage#environment",
+      "status": 200,
+      "final": "https://docs.brew.sh/Manpage#environment"
+    },
+    {
+      "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site",
+      "status": 200,
+      "final": "https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site"
+    },
+    {
+      "url": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits",
+      "status": 200,
+      "final": "https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits"
+    },
+    {
+      "url": "https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site",
+      "status": 200,
+      "final": "https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site"
+    },
+    {
+      "url": "https://github.com/Linkuistics/Ravel",
+      "status": 200,
+      "final": "https://github.com/Linkuistics/Ravel"
+    },
+    {
+      "url": "https://github.com/Linkuistics/Ravel/issues/1",
+      "status": 200,
+      "final": "https://github.com/Linkuistics/Ravel/issues/1"
+    },
+    {
+      "url": "https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/",
+      "status": 200,
+      "final": "https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/"
+    },
+    {
+      "url": "https://github.com/Linkuistics/grove",
+      "status": 200,
+      "final": "https://github.com/Linkuistics/grove"
+    },
+    {
+      "url": "https://learn.chatgpt.com/docs/auth",
+      "status": 200,
+      "final": "https://learn.chatgpt.com/docs/auth"
+    },
+    {
+      "url": "https://linkuistics.github.io/Ravel/",
+      "status": 200,
+      "final": "https://linkuistics.github.io/Ravel/"
+    },
+    {
+      "url": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html",
+      "status": 200,
+      "final": "https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html"
+    },
+    {
+      "url": "https://rhai.rs/book/",
+      "status": 200,
+      "final": "https://rhai.rs/book/"
+    },
+    {
+      "url": "https://rhai.rs/book/about/features.html",
+      "status": 200,
+      "final": "https://rhai.rs/book/about/features.html"
+    },
+    {
+      "url": "https://rhai.rs/book/ref/",
+      "status": 200,
+      "final": "https://rhai.rs/book/ref/"
+    },
+    {
+      "url": "https://rhai.rs/playground/stable/",
+      "status": 200,
+      "final": "https://rhai.rs/playground/stable/"
+    }
+  ]
+}
