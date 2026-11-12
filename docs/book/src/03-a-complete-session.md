@@ -48,6 +48,17 @@ export PATH="$(brew --prefix ravel@2)/bin:$PATH"
 ravel --version
 ```
 
+That installation needs no `brew trust` step. Homebrew does not trust a tap
+when `brew tap` adds it. A fully qualified name such as
+`linkuistics/taps/ravel@2` trusts the formula that it names. The Ravel
+formulae load no other formula from the tap.
+
+Grove's formula is different,
+because it loads its dependency `ravel` from the tap. Grove's README
+therefore gives `brew trust linkuistics/taps` before its first install.
+Homebrew's [Tap Trust](https://docs.brew.sh/Tap-Trust#installing-from-a-tap)
+page states the rules.
+
 Before you use the examples of this book, compare the version output with
 this version line:
 
