@@ -1,0 +1,671 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Who does what in a Ravel session - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="who-does-what-in-a-ravel-session"><a class="header" href="#who-does-what-in-a-ravel-session">Who does what in a Ravel session</a></h1>
+<p>Remember the code review of chapter 1. An orchestrator asked for a review of
+two files. Its prompt permitted two results, <code>approved</code> and <code>changes-needed</code>.
+The owner’s configuration chose Claude Code for the kind <code>review</code>. Ravel
+launched Claude Code, and the LLM sent <code>changes-needed</code> with
+<code>ravel end-session</code>.</p>
+<p>Ravel stopped Claude Code, completed cleanup and returned
+<code>changes-needed</code>. Then the orchestrator read the notes and requested a <code>fix</code>
+session.</p>
+<p>Three different participants made three different decisions in that review:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Decision in the review</th><th>Who made it</th><th>The general rule</th></tr>
+</thead>
+<tbody>
+<tr><td>Review two files, and permit <code>approved</code> or <code>changes-needed</code></td><td>The orchestrator, which is the caller</td><td>The <a href="#caller-and-owner">caller</a> chooses the work, the prompt and the permitted results</td></tr>
+<tr><td>Use Claude Code for the kind <code>review</code></td><td>The owner, through the configuration script</td><td>The <a href="#caller-and-owner">owner</a> chooses the program for each request</td></tr>
+<tr><td><code>changes-needed</code> is the result, after Claude Code stopped and cleanup completed</td><td>Ravel</td><td>Ravel decides whether the <a href="#caller-and-owner">session</a>, one run of <code>ravel start-session</code>, completed successfully</td></tr>
+</tbody>
+</table>
+</div>
+<p>If you know who makes each decision, you can change a rule in the
+configuration script, and the caller does not change. You can also interpret
+the outcome of a session. You do not confuse a response from the
+configuration script with a completed session. This chapter names each
+participant and each term that the book uses for it.</p>
+<p>You do not run anything in this chapter. Each code block is a fragment of the
+review, and its label says what it omits. Chapter 3 gives the first session
+that you run.</p>
+<h2 id="caller-and-owner"><a class="header" href="#caller-and-owner">Caller and owner</a></h2>
+<p>The <strong>caller</strong> is the person or program that invokes Ravel and interprets the
+result that Ravel returns. An orchestrator is one such caller. An orchestrator
+is a program that runs LLM sessions in
+<a href="#the-managed-process-and-its-result">harnesses</a> as steps of its own work. A
+harness is an agent program, such as Claude Code or Codex, in which an LLM
+works on a prompt. The caller supplies the prompt, with the instructions to
+end the session. The caller also decides the next step after the session.</p>
+<p>A <strong>session</strong> is one <code>ravel start-session</code> invocation. It lasts from the
+request until Ravel reports the result or another outcome. A Ravel session is not a POSIX session that <code>setsid</code> creates. It is
+also not a login session or the LLM session in a harness. Ravel supervises
+the harness process, not the conversation of the LLM.</p>
+<p>The caller supplies a <strong>kind</strong>. A kind is an open token that names the sort of
+session that the caller wants. Ravel checks that the token is not empty and
+gives it no meaning. The configuration script of the <a href="#caller-and-owner">owner</a>
+interprets it. For example, a caller can request <code>review</code>. But Ravel has no
+registry of task kinds and does not know what a review includes.</p>
+<p>The <strong>owner</strong> is the person who controls the <strong>configuration</strong> of Ravel for
+the account. The configuration has two parts:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Part</th><th>Default path</th><th>What it does</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Configuration script</strong></td><td><code>$HOME/.config/ravel/config.rhai</code></td><td>Rhai code that selects a program and its arguments, or refuses the request</td></tr>
+<tr><td><strong>Settings</strong></td><td><code>$HOME/.config/ravel/settings.json</code></td><td>Values that the script cannot change, such as the deadline, limits, environment grants, harnesses and budgets</td></tr>
+</tbody>
+</table>
+</div>
+<p>The caller and the owner can be the same person, but their roles stay
+different. The choice of the work does not set the rules that select a
+command. The table shows which decisions stay separate, even when one person
+has both roles.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Role</th><th>Decides</th><th>Leaves to the other role</th></tr>
+</thead>
+<tbody>
+<tr><td>Caller</td><td>The requested work and the meaning of the result</td><td>Which command the configuration script selects</td></tr>
+<tr><td>Owner</td><td>The configuration script that selects a command or refuses a request, and the settings</td><td>The caller’s task and next step</td></tr>
+</tbody>
+</table>
+</div>
+<p>What is Rhai? Rhai is a small computer language for programs that are written
+in Rust. Ravel contains the Rhai engine, so your configuration script runs in
+Ravel’s own binary, and you install no separate language runtime. Rhai looks
+like a mix of JavaScript and Rust, and you do not declare types. A Rhai script
+changes nothing outside itself, except through functions that Ravel gives it.
+Ravel also limits how long a script runs and how much data it makes.</p>
+<p><a href="01-what-ravel-is-for.html#the-configuration-script-chooses-a-program">Chapter 1</a>
+shows a short configuration script and links to
+<a href="https://rhai.rs/book/">the Rhai Book</a>, Rhai’s own manual.
+<a href="04-write-a-configuration-script.html">Chapter 4</a> teaches the Rhai that a
+configuration script needs.</p>
+<p>By default, Ravel uses the account’s configuration script,
+<code>$HOME/.config/ravel/config.rhai</code>. <code>--config PATH</code> names a different script.
+Ravel resolves that path relative to the caller’s working directory. Ravel
+does not search the caller’s repository for a configuration script.</p>
+<p>What does the configuration script give back? When it chooses a program, it
+returns a <strong>selection</strong>. A selection is the map that the script’s <code>select</code>
+function returns with <code>status: "selected"</code>. It names a program and its
+arguments. It also has the labels <code>provider</code>, <code>model</code>, <code>effort</code> and <code>reason</code>,
+which describe the choice.</p>
+<p>The <strong>provider</strong> is the owner’s label for the model’s origin. Ravel reports
+it unchanged and never connects to it. The labels do not configure the
+program. The configuration script puts the actual options, such as a model
+option, in the arguments. Ravel runs that command without shell expansion or
+word splitting. A shell runs only if the script selects one.</p>
+<p>Then why does a selection have labels? They tell the caller what the
+configuration script chose. After selection and before the launch, the Ravel
+CLI writes the text <strong>routing notice</strong> as one line on the caller’s standard
+error. The caller, or the person who watches the terminal, reads the choice
+there. Standard output stays free for the result. For example, a script that
+returns <code>provider: "local"</code>, <code>model: "fake"</code> and <code>effort: "low"</code> for the kind
+<code>review</code> gives the routing notice below.</p>
+<p>Fragment: the routing notice of that selection. This block omits the other
+lines on standard error.</p>
+<pre><code class="language-text">ravel: starting provider local, model fake, effort low for kind "review"
+</code></pre>
+<p>With <code>--json</code>, a JSON routing notice replaces that line, after the
+supervision attempt.
+<a href="05-running-sessions.html#read-notices-separately-from-results">Chapter 5</a>
+teaches both forms.</p>
+<p>The <a href="01-what-ravel-is-for.html#from-a-request-to-a-result">system-context figure in chapter 1</a>
+shows these roles around Ravel. An orchestrator can choose the work, and the
+owner chooses the harness. Ravel supervises that harness as the
+<a href="#the-managed-process-and-its-result">managed process</a>, the program that the
+configuration script selected for the session.</p>
+<h2 id="evaluation-and-supervision"><a class="header" href="#evaluation-and-supervision">Evaluation and supervision</a></h2>
+<!-- tc: depart synonym-rotation because launch names the managed launch, while start names other process creation -->
+<p>The <strong>Ravel CLI</strong> is the <code>ravel</code> command-line program, written in Rust. During
+<code>start-session</code>, it keeps the caller’s environment, terminal and standard
+output. It evaluates the request and supervises the selected
+program. Its <strong>runner</strong> is the Rust library code that launches and supervises
+the managed process. The runner runs in the process of the Ravel CLI. It is
+not a separate service.</p>
+<p>The <strong>Rhai worker</strong> is a separate process that evaluates the configuration
+script for the Ravel CLI. The Ravel CLI launches a second copy of its own
+executable, in an internal role, as a child process. Here, “worker” means a
+process, not a thread. You install no separate language runtime.</p>
+<p>Why does the Ravel CLI use a separate process? The parent stays in control
+while the script runs:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Reason</th><th>What the separate process permits</th></tr>
+</thead>
+<tbody>
+<tr><td>The deadline</td><td>When the deadline expires, the parent ends evaluation and can signal the worker process. Rhai cannot interrupt some of its own functions, such as <code>sleep</code>. A kernel stall can delay the worker’s exit.</td></tr>
+<tr><td>Host requests</td><td>The worker only computes. The parent performs each read or harness run that the script asks for and sends the data back.</td></tr>
+<tr><td>Isolation of a failure</td><td>If the script exhausts the memory of the worker or overflows its stack, only the worker stops. The parent reports the failure and launches nothing.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The worker does not run at the same time as the managed process. The Ravel
+CLI waits until the worker exits, reaps it and removes its private directory.
+Only then does it launch the selected program.</p>
+<p>The worker has an empty environment, and the configuration script has no
+direct filesystem, network or process access. A <strong>host capability</strong> is an
+operation that the script asks the Ravel CLI to perform. These operations
+include measured file reads and harness runs. The Ravel CLI controls each
+<strong>host call</strong>, the script’s request for an operation, and returns its data to
+the script.</p>
+<p>Ravel gives the worker a request with a size limit. The worker gets no
+<a href="#three-different-kinds-of-information">session-result context</a>, the
+<code>RAVEL_EXIT_FILE</code> path with which a program sends the result of a session.
+Thus, the configuration script cannot end a session. The Ravel CLI checks the
+worker’s response. Only the Ravel CLI supervises the
+<a href="#the-managed-process-and-its-result">managed process</a>. Evaluation and all
+its host calls end before Ravel launches that process.</p>
+<p>Do you want an LLM to help the configuration script choose the harness,
+model, effort or prompt additions? The script can ask one through a harness
+run.</p>
+<p>A <strong>harness run</strong> is one execution of a program from the <code>harnesses</code> entry of
+the settings. The configuration script requests it with <code>ravel::run_harness</code>
+during evaluation. An <strong>LLM call</strong> is a harness run that asks a model a
+question. The harness uses the owner’s sign-in, and Ravel holds no model
+credential. The script reads the answer as data and decides what it means.</p>
+<p>An <strong>evaluation budget</strong> limits work during one evaluation of the
+configuration script. For example, the owner sets the number of harness runs
+in the settings. The script cannot raise that number or catch its
+exhaustion. One deadline covers evaluation. Compare purposes and completion
+rules:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Execution</th><th>Purpose</th><th>How it ends</th></tr>
+</thead>
+<tbody>
+<tr><td>Rhai worker</td><td>Evaluate the configuration script</td><td>Return a selection or refusal, then exit</td></tr>
+<tr><td>Evaluation harness run</td><td>Return data to the configuration script, such as an LLM answer</td><td>Natural exit or its own <code>end-session</code> result, followed by cleanup</td></tr>
+<tr><td>Final managed process</td><td>Perform the work of the caller’s session</td><td>Send the session result with <code>end-session</code>, followed by cleanup</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each harness run has its own result channel. Its result reaches only the
+configuration script, and cannot complete the outer session. The final managed
+process receives a different channel after evaluation ends.</p>
+<p>A <strong>refusal</strong> is a decision not to launch the final managed process. The
+configuration script makes it, or Ravel makes it when it cannot accept the
+file, behaviour or data of the script. Ravel does not try a different route.
+A failure of the worker, a failure of supervision and a selection timeout are
+different outcomes. A caller needs to tell a refusal from a failure during
+evaluation or supervision. Evaluation harness runs can occur before the script
+refuses.</p>
+<!-- tc: depart synonym-rotation because confirmation establishes completed cleanup, while checks also cover input validation -->
+<p>A valid selection alone is not sufficient to start the launch. Ravel also
+confirms the cleanup conditions in this table before it launches the
+selected program.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Condition before launch</th><th>What the Ravel CLI confirms</th></tr>
+</thead>
+<tbody>
+<tr><td>Host-call completion</td><td>Every host call ended. Each harness run completed its required cleanup.</td></tr>
+<tr><td>Worker exit and reap</td><td>The worker ended, and the Ravel CLI collected its exit status</td></tr>
+<tr><td>Removal of the private directory</td><td>The Ravel CLI removed the worker’s private directory</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="the-managed-process-and-its-result"><a class="header" href="#the-managed-process-and-its-result">The managed process and its result</a></h2>
+<p>The <strong>managed process</strong> is the direct child that the configuration script
+selects and that the Ravel CLI supervises. A process group is a set of
+processes that can receive a signal as one unit. Cleanup applies to that
+group, with all descendants that stay in it.</p>
+<p>A <strong>harness</strong> is the agent program, such as Claude Code or Codex, in which an
+LLM session works on the prompt. The harness gives the prompt to the LLM and
+runs the commands that the LLM requests, for example shell commands. The
+configuration script selects the harness command. Here, “harness” means the
+agent program, not a test harness. Ravel supervises it as any other selected
+program.</p>
+<p>The configuration script decides whether to pass the prompt to that program.
+Ravel does not require an LLM or a program that understands prompts. An
+ordinary program can take the place of the harness and send a value with
+<code>end-session</code>, as the examples do.</p>
+<p>An interactive harness waits for more input when the LLM completes its task.
+Thus, the caller’s instructions to end the session tell the LLM to run
+<code>ravel end-session</code> with a result. Follow that command to its result. The
+program that Ravel launched, usually a harness that runs an LLM, runs
+<code>ravel end-session</code>. Ravel then stops that program and the rest of its
+process group. After cleanup, the sent value becomes the result of
+<code>ravel start-session</code>.</p>
+<p>The <strong>opaque result</strong> is text that a program in the session sends as one
+UTF-8 argument with <code>ravel end-session</code>. In the prompt’s instructions to end
+the session, the caller gives the permitted values and tells when to use each
+value. In the review, the orchestrator permitted <code>approved</code> and
+<code>changes-needed</code>, and it gave a next action for each value. Ravel gives this
+text no meaning. After successful supervision and cleanup, Ravel returns the
+text unchanged. Then the caller decides its next step.</p>
+<p>Fragment: the command that the review prompt asks the LLM to run when it finds
+a problem. This block omits the prompt and the harness.</p>
+<pre><code class="language-sh">ravel end-session changes-needed
+</code></pre>
+<p>The LLM runs this command in a shell that the harness starts. That shell
+inherits the path of the session’s result file. In your own shell outside a
+session, the same command fails with status 1, because it finds no such path.</p>
+<p>The result is separate from the exit status of the managed process. It is
+also separate from the files or other work that the program produced, such as
+<code>review-notes.md</code>. A program can send an empty result. If no program sends a
+result, the session has no result, even when the managed process exits with
+status zero.</p>
+<p>The <strong>result channel</strong> is the private temporary directory and completion file
+through which <code>end-session</code> sends that value. Ravel makes it before the
+launch and puts the path of the file in the <code>RAVEL_EXIT_FILE</code> environment
+variable of the managed process.</p>
+<p>Ravel keeps the first complete result that it receives. That first <code>end-session</code> requests shutdown. A
+second <code>end-session</code> can still run before the shutdown stops its process.
+For example, another process in the group can send a result before Ravel
+stops it. Ravel keeps the first result, even if the second command succeeds.</p>
+<p>This chapter writes INT, TERM, HUP and KILL without the SIG prefix.
+Other signal names keep that prefix. Code and diagnostic text keep their literal names.</p>
+<p>The table shows the short interval in which another process can still send
+a result. These waits end early if the managed process exits.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Point after Ravel detects the result</th><th>What Ravel does</th></tr>
+</thead>
+<tbody>
+<tr><td>First 2 seconds</td><td>Gives the managed process time to exit</td></tr>
+<tr><td>After 2 seconds, if the managed process still runs</td><td>Sends TERM</td></tr>
+<tr><td>Up to 5 seconds after TERM</td><td>Waits for the managed process to exit</td></tr>
+<tr><td>After that wait, if the managed process still runs</td><td>Sends KILL</td></tr>
+<tr><td>After the managed process exits</td><td>Stops any group members that remain, then reaps the managed process</td></tr>
+</tbody>
+</table>
+</div>
+<p>The result channel carries a request to end the session. That request does
+not prove that cleanup is complete.</p>
+<p>Before the Ravel CLI returns success, it confirms the reap, the absence of the
+process group and the removal of the session’s temporary files.
+Cancellation suppresses the result, even if Ravel received it before the
+cancellation.</p>
+<p>The result channel uses the completion channel of the runner. That completion
+channel only reports that a file appeared. Ravel’s code for the result
+channel checks and reads the contents. The appearance of the file is not a
+successful session. The selection from the Rhai worker is also not a
+successful session.</p>
+<p>The figure shows why a response from the configuration script cannot complete
+a session. The response reaches the Ravel CLI on a path that is separate from
+the opaque result of the managed process. A harness that runs an LLM session
+has the managed-process role. An ordinary program can take its place.</p>
+<p>This C4 container view shows the processes and the temporary store of Ravel.
+These are not operating-system containers. The result channel holds
+temporary files, not a database. The
+outline around them groups the software of Ravel, not a sandbox.</p>
+<p>Steps 1 and 2 show the order: Ravel completes every host call and worker cleanup
+before the final managed process starts. The participants do not all run at the same time.
+The figure omits evaluation harness runs and their result channels.
+Those runs return data to the configuration script through host replies, as the table above shows.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/process-authority.svg" alt="The Ravel CLI launches a second copy of its own executable as the Rhai worker, with an empty environment and no session-result context. The worker evaluates the Rhai configuration script and sends host calls and its selection or refusal through a private socket. The CLI controls host calls and returns their replies. Every host call and worker cleanup ends before the final managed launch. This view omits evaluation harness runs and their separate channels. The final managed process sends its result through its own channel, and the CLI returns it to the caller only after successful cleanup."><span class="img-wrapper"><img src="figures/process-authority.svg" alt="The Ravel CLI launches a second copy of its own executable as the Rhai worker, with an empty environment and no session-result context. The worker evaluates the Rhai configuration script and sends host calls and its selection or refusal through a private socket. The CLI controls host calls and returns their replies. Every host call and worker cleanup ends before the final managed launch. This view omits evaluation harness runs and their separate channels. The final managed process sends its result through its own channel, and the CLI returns it to the caller only after successful cleanup."></span></label></p>
+<p><a href="figures/process-authority.svg">Open the process-and-authority figure at full size.</a></p>
+<p>The table shows that the Ravel CLI supervises the session and decides its
+final outcome. The caller and the owner keep their separate decisions.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Participant</th><th>Decides or does</th><th>What Ravel lets it do</th></tr>
+</thead>
+<tbody>
+<tr><td>Caller, such as an orchestrator</td><td>Supplies the task and the instructions to end the session. Interprets the result.</td><td>Start the session and decide the next step</td></tr>
+<tr><td>Owner</td><td>Writes the configuration script and the settings</td><td>Configure which commands the requests select</td></tr>
+<tr><td>Rhai worker</td><td>Evaluates the configuration script and sends its response</td><td>Receive bounded request data and ask for host capabilities, with no environment or session-result context</td></tr>
+<tr><td>Ravel CLI, with its runner</td><td>Checks the request, launches and supervises the program, and decides the outcome</td><td>Supervise processes, control the terminal and write the final result</td></tr>
+<tr><td>Managed process, such as a harness</td><td>Runs the LLM session and the commands that it requests, which include <code>end-session</code>. Another selected program can take its place.</td><td>Use its own session-result context, which its children inherit</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="three-different-kinds-of-information"><a class="header" href="#three-different-kinds-of-information">Three different kinds of information</a></h2>
+<p>The word “context” can mean three different inputs. The book names each one.
+Thus, you do not confuse request data with permission to end a session.</p>
+<p>The <strong>session-result context</strong> is the inherited <code>RAVEL_EXIT_FILE</code> path. It
+identifies the result channel of the enclosing session. How does it reach
+<code>end-session</code>? Ravel puts the path in the environment of the program that it
+launches. A child process gets a copy of the environment of its parent,
+unless the parent changes it. If each parent leaves the variable unchanged,
+the shell and the <code>ravel end-session</code> that it starts have the same path.</p>
+<p><code>end-session</code> reads that path from its own environment. It reads no
+configuration and accepts no target argument. It fails with status 1 if the
+path is missing, empty or stale, that is, from a session that already ended.
+Ravel has no persistent session lookup that it can use in place of that path.</p>
+<p>In a nested launch, the outer managed process invokes a new <code>start-session</code>
+as a caller. Ravel gives a new path to the inner managed process. This path
+replaces the outer path only in the environment of that child. The outer
+managed process keeps its own session-result context. Thus, with normal
+inheritance, each <code>end-session</code> goes to its enclosing session, not to a
+session that an ID selects.
+<a href="01-what-ravel-is-for.html#how-end-session-finds-its-session">Chapter 1</a> shows
+both paths from a real nested run.</p>
+<p>The table shows why an <code>end-session</code> with the inner path ends the inner
+session. The outer process keeps its own path for the result.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Process that runs <code>end-session</code></th><th>Inherited session-result context</th><th>The result goes to</th></tr>
+</thead>
+<tbody>
+<tr><td>Outer managed process and its ordinary children</td><td>Path of the outer session</td><td>Result channel of the outer session</td></tr>
+<tr><td>Inner managed process and its ordinary children</td><td>New path of the inner session</td><td>Result channel of the inner session</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <strong>selection context</strong> is JSON data that the <code>select</code> function of the
+configuration script receives as <code>context</code>. It comes from the caller’s
+context document, which <code>--context PATH</code> names, or from the optional
+<code>load_context</code> function of the script. It can describe the work and the
+sources that inform a choice. The script reads files through <code>ravel::read_text</code>
+and <code>ravel::read_json</code>. For each successful read, Ravel records the canonical
+name, the byte count and the SHA-256 digest of the bytes that it read.</p>
+<p>The configuration script cannot read a file directly. A harness program can
+read files, but Ravel does not measure those reads for the script. Selection
+context is data for selection. It gives no permission to send a session
+result, and it does not prove that the data is trustworthy.</p>
+<p>The working directory of the caller is the <code>cwd</code> of the request. It tells the
+configuration script where the caller works. It is not one of the two forms of
+context above. The selected program starts in the working directory of the
+caller. An owner uses the <code>cwd</code> of the request when the location of the
+caller is important. The owner does not assume that the current directory of
+the worker is the same.</p>
+<p>The Ravel CLI starts the worker in an empty private directory.
+The configuration script cannot change that directory or use it to read files.
+Relative measured reads use <code>request.cwd</code>.
+Relative imports use the directory of the file that imports them.
+After the worker ends and Ravel reaps it, Ravel removes its private directory.</p>
+<p>The table identifies the directory for each path operation or program execution.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operation</th><th>Directory used</th></tr>
+</thead>
+<tbody>
+<tr><td>Relative <code>--config</code> path</td><td>Caller’s working directory</td></tr>
+<tr><td>Relative import in the configuration script</td><td>Directory of the real file that imports the module</td></tr>
+<tr><td>Relative measured read</td><td>Caller’s <code>request.cwd</code></td></tr>
+<tr><td>Evaluation harness run or final managed process</td><td>Caller’s working directory</td></tr>
+</tbody>
+</table>
+</div>
+<p>Use this table to keep selection data and the working directory separate from
+the inherited path for the result.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Information</th><th>Form</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>Session-result context</td><td>Inherited <code>RAVEL_EXIT_FILE</code> path</td><td>Directs <code>end-session</code> to the result channel of the enclosing session</td></tr>
+<tr><td>Selection context</td><td>JSON data</td><td>Informs the selection of the configuration script. Gives no permission to send a result.</td></tr>
+<tr><td>Caller’s working directory</td><td><code>cwd</code> of the request</td><td>Names where the caller works. The selected program starts there.</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="trust-limits"><a class="header" href="#trust-limits">Trust limits</a></h2>
+<p>The owner controls the configuration script and the settings. The separate
+worker computes with restricted inputs, while the Ravel CLI performs its host
+capabilities. A measured read can reach any regular file that the user can
+read. A configured harness can access files and the network within its
+permissions. These capabilities do not make arbitrary owner code safe.</p>
+<p>Ravel does not restrict the filesystem access of the managed process or of an
+evaluation harness run. Each receives the environment of the caller, less the
+launch controls of an enclosing session. The <strong>harness sandbox</strong> is the only
+boundary of either process. The configuration script selects that sandbox
+through the arguments of the harness, such as <code>codex --sandbox workspace-write</code>. A harness with its sandbox off has no boundary at all. Ravel
+2.0.0 refuses <code>--confine</code> and <code>--runtime-read</code>, which Ravel 1.1 accepts.</p>
+<p>The inherited session-result context keeps nested sessions separate while
+each process uses the path that it inherited. It is not a security check
+against code that runs as the same user. That code can tamper with files or
+launch unrelated processes. Also, descendants that leave the process group of
+the managed process are outside its cleanup. If KILL stops the Ravel CLI,
+the managed process can continue to run without a supervisor. The Ravel CLI
+cannot catch KILL.</p>
+<p>These limits are important when you decide what a caller can trust. A
+successful Ravel result confirms the supervision and cleanup that this
+chapter describes. It does not confirm that Ravel contained arbitrary
+same-user code. It also does not confirm that the work for the task of the
+caller is correct.</p>
+<p><a href="03-a-complete-session.html">Chapter 3, “A complete session, end to end”</a>, uses
+these roles in one session with a small configuration script and a fake agent.
+You make its directory, <code>~/ravel-first-session</code>, and save its three files in it.
+The fake agent makes the selected command, the sent result and the cleanup
+visible. It needs no agent account and no model service.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="01-what-ravel-is-for.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="03-a-complete-session.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="01-what-ravel-is-for.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="03-a-complete-session.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,2324 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Write a configuration script - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="write-a-configuration-script"><a class="header" href="#write-a-configuration-script">Write a configuration script</a></h1>
+<p>In chapter 1, an orchestrator asked Ravel for a code review with the kind
+<code>review</code>. A short Rhai script chose the program for that kind, and Ravel ran
+it. You write that script. This chapter teaches you to write and check a
+configuration script, and to let an LLM help it choose.</p>
+<p>First, the words that this chapter uses on every page:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Word</th><th>What it names</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Session</a></td><td>One run of <code>ravel start-session</code>, from the request to the result</td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Caller</a></td><td>The person or program that runs that command, for example an orchestrator. The caller gives a prompt and a kind.</td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Kind</a></td><td>A short token from the caller that names the sort of work, such as <code>review</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Owner</a></td><td>The person who controls the configuration of Ravel for the account. In this chapter, the owner is you.</td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Configuration script</a></td><td>A file of Rhai code that you write. Ravel gives the request to the script. The script then selects a program and its arguments, or it refuses the request.</td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Settings</a></td><td>Values in the JSON file <code>$HOME/.config/ravel/settings.json</code>, such as limits and the harnesses that the script can run. The script cannot change them.</td></tr>
+<tr><td><strong>Configuration</strong></td><td>The configuration script and the settings together</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel uses configuration names in its file paths, options and diagnostic codes,
+for example <code>config.rhai</code>, <code>--config-env</code> and <code>config_refused</code>.</p>
+<h2 id="know-the-rhai-language"><a class="header" href="#know-the-rhai-language">Know the Rhai language</a></h2>
+<p>What is Rhai? Rhai is a small computer language for programs in the Rust
+language. The Rhai engine is part of the <code>ravel</code> executable. Thus, you install
+no separate language runtime for your configuration script.
+<a href="01-what-ravel-is-for.html#the-configuration-script-chooses-a-program">Chapter 1</a>
+introduces Rhai with a short script. These characteristics of Rhai are
+important for a configuration script:</p>
+<ul>
+<li><strong>A familiar syntax.</strong> Rhai looks like a mix of JavaScript and Rust. It has
+variables, functions, <code>if</code>, loops, arrays and maps.</li>
+<li><strong>Dynamic types.</strong> You do not declare a type. Each value has its type while
+the script runs.</li>
+<li><strong>A sandbox.</strong> Rhai code changes things outside the script only through
+functions that the host program gives it. In Ravel, these are the <code>ravel::</code>
+functions.</li>
+<li><strong>Protection against runaway scripts.</strong> Ravel sets limits on the operations,
+the call depth and the data size of a script. One deadline covers each
+evaluation.</li>
+<li><strong>Modules.</strong> A configuration script can import other Rhai files.</li>
+</ul>
+<p>Each example explains the Rhai that it uses. Rhai also has its own
+documentation:</p>
+<ul>
+<li><a href="https://rhai.rs/book/">The Rhai Book</a> is the manual. On 27 October 2026, it
+documented Rhai 1.27.0, the version that Ravel contains.</li>
+<li><a href="https://rhai.rs/book/ref/">The language reference</a> gives the syntax in a
+short form.</li>
+<li><a href="https://rhai.rs/playground/stable/">The online playground</a> runs Rhai code in
+your web browser. It has no <code>ravel::</code> functions and none of Ravel’s limits.
+Thus, a script that calls a <code>ravel::</code> function does not run there.</li>
+</ul>
+<p>The sections of this chapter go from a fixed route to an LLM that helps the
+configuration script choose. Read them in order, or go to the task that you
+need:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Section</th><th>Why you may want it</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="#define-a-configuration-script-and-read-the-request">Define a configuration script and read the request</a></td><td>Make Ravel find your script, and read what the caller asked for</td></tr>
+<tr><td><a href="#select-a-command-or-refuse">Select a command or refuse</a></td><td>Choose the program and its arguments, or refuse with a message that the caller can act on</td></tr>
+<tr><td><a href="#validate-a-configuration-script-with-fake-agents">Validate a configuration script with fake agents</a> <!-- tc: depart synonym-rotation because validate names the end-to-end test of a script, while check names a single diagnostic inspection --></td><td>Test each route and each refusal before a real harness runs</td></tr>
+<tr><td><a href="#put-each-kind-and-its-route-in-one-table">Put each kind and its route in one table</a></td><td>See each kind and its route in one place</td></tr>
+<tr><td><a href="#import-other-rhai-files">Import other Rhai files</a></td><td>Keep routes or helper functions in separate files</td></tr>
+<tr><td><a href="#let-a-repository-choose-an-arrangement">Let a repository choose an arrangement</a></td><td>Let a repository ask for one of the arrangements that you offer</td></tr>
+<tr><td><a href="#supply-selection-context">Supply selection context</a></td><td>Let facts about the task change the choice</td></tr>
+<tr><td><a href="#check-json-with-the-data-helpers">Check JSON with the data helpers</a></td><td>Reject JSON from a file or a model when it has the wrong shape</td></tr>
+<tr><td><a href="#set-bounds-and-environment-grants-in-the-settings">Set bounds and environment grants in the settings</a></td><td>Give the script more time, or let it read an environment variable</td></tr>
+<tr><td><a href="#run-a-harness-during-evaluation">Run a harness during evaluation</a></td><td>Ask another program a question before you choose</td></tr>
+<tr><td><a href="#ask-a-model-through-claude-code">Ask a model through Claude Code</a></td><td>Let an LLM in Claude Code help with the choice</td></tr>
+<tr><td><a href="#ask-a-model-through-codex">Ask a model through Codex</a></td><td>Let an LLM in Codex help with the choice</td></tr>
+<tr><td><a href="#select-claude-code-or-codex-for-the-callers-work">Select Claude Code or Codex for the caller’s work</a></td><td>Run an interactive LLM session as the program of the session</td></tr>
+<tr><td><a href="#copy-a-configuration-script-and-its-files">Copy a configuration script and its files</a></td><td>Move a script and its files to another place</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="follow-the-evaluation-of-a-configuration-script"><a class="header" href="#follow-the-evaluation-of-a-configuration-script">Follow the evaluation of a configuration script</a></h2>
+<p>What happens between the caller’s command and the start of a program? Start
+with the review of chapter 1. The orchestrator ran the command below.</p>
+<p>Fragment: the request of the review example in chapter 1. This block omits
+the code of the orchestrator that runs the command and the prompt file.</p>
+<pre><code class="language-sh">ravel start-session --kind review --prompt-file review-prompt.txt
+</code></pre>
+<p>The configuration script of that chapter had one rule. For the kind <code>review</code>,
+it selected <code>fake-agent</code> and put <code>You are a careful code reviewer.</code> before the
+caller’s prompt. The table follows that request from the command to the start
+of <code>fake-agent</code>. In the table, the <strong>Rhai worker</strong> is a second copy of the
+<code>ravel</code> executable that evaluates the script. This section explains it after
+the table.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens in the review</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The orchestrator</td><td>Runs <code>ravel start-session</code> with the kind <code>review</code> and the prompt file</td></tr>
+<tr><td>2</td><td>The Ravel CLI</td><td>Reads the settings, finds the configuration script and starts the Rhai worker</td></tr>
+<tr><td>3</td><td>The Rhai worker</td><td>Runs the top-level statements of the script one time. Here, they are only the two <code>export const</code> lines.</td></tr>
+<tr><td>4</td><td>The Rhai worker</td><td>Calls <code>select(request, context)</code>. <code>request.kind</code> is <code>review</code>, so <code>select</code> returns a selection of <code>fake-agent</code>.</td></tr>
+<tr><td>5</td><td>The Ravel CLI</td><td>Checks the map that <code>select</code> returned, reaps the worker and checks the selection again before launch</td></tr>
+<tr><td>6</td><td>The Ravel CLI</td><td>Writes <code>ravel: starting provider local, model fake, effort low for kind "review"</code> on the orchestrator’s standard error, then starts <code>fake-agent</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>A successful selection follows this order. The values depend on the request
+and the script. A script can also define <code>load_context(request)</code>, which the
+worker calls between steps 3 and 4. The section
+<a href="#supply-selection-context">“Supply selection context”</a> teaches it. With
+<code>--json</code>, the routing notice is a JSON document, and it follows the
+supervision attempt.</p>
+<p>To reap a child process, its parent collects the exit status of that child.
+Ravel reaps the worker before it starts the selected program. Thus, the Rhai
+worker no longer runs when the selected program starts.</p>
+<p>A <strong>selection</strong> is the map that <code>select</code> returns when it chooses a program.
+In the review, it held <code>fake-agent</code>, one argument and the labels <code>local</code>,
+<code>fake</code> and <code>low</code> for the provider, model and effort. A
+<a href="02-actors-and-words.html#evaluation-and-supervision">refusal</a> is a map that
+says why Ravel starts no final managed process. The <strong>routing notice</strong> is the
+line in step 6. It tells the caller which provider, model and effort the
+configuration script chose.
+<a href="01-what-ravel-is-for.html#the-selection-and-the-routing-notice">Chapter 1, “The selection and the routing notice”</a>,
+shows both with real values.</p>
+<p>What is the Rhai worker? The
+<a href="02-actors-and-words.html#evaluation-and-supervision">Ravel CLI</a>, the <code>ravel</code>
+command-line program, does not run your script in its own process. It
+starts a second copy of its own executable as a child process. That child
+is the <a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a>. The
+worker evaluates the configuration script and sends the selection or the
+refusal to its parent.</p>
+<p>The worker has an empty environment. It has no direct access to files, the
+network or other programs.</p>
+<p>Why a separate process? The parent stays in control while the script runs:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Reason</th><th>What the separate process permits</th></tr>
+</thead>
+<tbody>
+<tr><td>The deadline</td><td>When the deadline expires, the parent ends evaluation and can signal the worker process. Rhai cannot interrupt some of its own functions, such as <code>sleep</code>. A kernel stall can delay the worker’s exit.</td></tr>
+<tr><td>Requests from the script</td><td>The worker only computes. When the script reads a file or runs a harness, the worker asks the parent. The parent does the work and sends the data back.</td></tr>
+<tr><td>Isolation of a failure</td><td>If the script exhausts the memory of the worker or overflows its stack, only the worker stops. The parent continues, reports the failure to the caller and starts no program.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The worker does not run at the same time as the selected program. Ravel waits
+until the worker exits and collects its exit status. Only then does Ravel
+start the program that the script selected.</p>
+<p>How does the script read a file or start a program, if the worker cannot? It
+asks the Ravel CLI. A
+<a href="02-actors-and-words.html#evaluation-and-supervision">host capability</a> is an
+operation that the configuration script asks Ravel to perform. Each host
+capability is a function in the <code>ravel</code> namespace, such as <code>ravel::read_text</code>.</p>
+<p>When the script calls a host capability, the worker sends the request to the
+Ravel CLI over a private socket and waits. The Ravel CLI does the work within
+the limits of your settings and sends the answer back. For the script, the
+call looks like an ordinary function call. The data helpers, such as
+<code>ravel::json_parse</code>, are different. They run inside the worker and send no
+request.</p>
+<p>The script can call host capabilities at the top level of the module, in
+<code>load_context</code> and in <code>select</code>. A <strong>measured read</strong> is a read of a file through
+<code>ravel::read_text</code> or <code>ravel::read_json</code>. Ravel reads the file for the script
+and records its canonical path, its byte count and its SHA-256 digest. The JSON
+routing notice lists each measured read and each harness run of the
+evaluation.</p>
+<p>A <a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a> is the
+program in which an LLM works on a prompt, such as Claude Code or Codex. Your
+configuration script can use a harness in two different ways:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Use of the harness</th><th>When it runs</th><th>Where its answer goes</th></tr>
+</thead>
+<tbody>
+<tr><td>A <a href="02-actors-and-words.html#evaluation-and-supervision">harness run</a></td><td>During evaluation, when the script calls <code>ravel::run_harness</code></td><td>Back to the script, as data for its choice</td></tr>
+<tr><td>The <a href="02-actors-and-words.html#the-managed-process-and-its-result">managed process</a></td><td>After evaluation, when the script selects the harness</td><td>To the caller, as the result of the session</td></tr>
+</tbody>
+</table>
+</div>
+<p>The managed process is the program that Ravel starts and supervises for the
+session. Ravel starts it only after the evaluation ends and Ravel reaps the
+worker.</p>
+<h2 id="run-the-examples-of-this-chapter"><a class="header" href="#run-the-examples-of-this-chapter">Run the examples of this chapter</a></h2>
+<p>Every example includes <code>settings.json</code>. Its <code>skills</code> entry has an empty
+source array, so the fake receives only the caller’s prompt. The command
+block copies this file into the example’s private home before Ravel runs.
+Other settings in an example serve that example’s task.</p>
+<p>Every complete example in this chapter uses fake programs. A <strong>fake agent</strong> is
+a small shell script that stands where a harness stands. Most fake agents here
+run <code>ravel end-session</code> with the arguments that the configuration script gave
+them. Thus, the result of an example shows you what the script chose. The fake
+harnesses for an LLM call print a fixed answer. No example needs a model
+account or a real harness.</p>
+<p>Each example has a name and a directory of its own. Put these directories in
+one workspace directory, <code>~/ravel-chapter-4</code>, in your home directory. Why a
+new directory for each example? Several examples use the same
+file names, such as <code>config.rhai</code> and <code>bin/fake-agent</code>, with different
+contents. Some commands also write files, such as <code>.ravel-choice</code>, that
+change the result of the next command.</p>
+<p>The first example is <code>fixed-route</code>. Its configuration script selects one fake
+agent for every request. The fake sends the caller’s prompt back as the
+result. When you finish the steps, the directory holds these paths:</p>
+<pre><code class="language-text">~/ravel-chapter-4/
+└── fixed-route/
+    ├── settings.json      you save it
+    ├── config.rhai        you save it
+    ├── bin/               you make it
+    │   └── fake-agent     you save it
+    ├── home/              the first command line makes it
+    └── tmp/               the first command line makes it
+</code></pre>
+<p>Each path has one purpose in the example:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path in <code>fixed-route</code></th><th>Who makes it</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>settings.json</code></td><td>You</td><td>Disables skill delivery with an empty source array. The setup copies it into the private home.</td></tr>
+<tr><td><code>config.rhai</code></td><td>You</td><td>The configuration script. The option <code>--config config.rhai</code> selects it.</td></tr>
+<tr><td><code>bin/fake-agent</code></td><td>You</td><td>The fake agent that the configuration script selects. It sends its first argument as the result.</td></tr>
+<tr><td><code>home/</code></td><td>The first command line</td><td>A private home directory. The setup copies the example’s settings here and disables skill delivery.</td></tr>
+<tr><td><code>tmp/</code></td><td>The first command line</td><td>A private temporary directory. Ravel makes the result channel of the session here.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Do these steps in a shell where <code>ravel --version</code> succeeds:</p>
+<ol>
+<li>Make the example directory and its <code>bin</code> subdirectory, then <code>cd</code> into the
+example directory. The fragment after these steps gives the two commands.</li>
+<li>Save the three files of the complete example at their labelled paths. Each
+label is a path in <code>fixed-route</code>.</li>
+<li>Type each command line of the example without its first <code>$ </code>, which
+stands for the prompt of your shell.</li>
+<li>Run <code>echo "$?"</code> immediately after the final line to see its exit status.
+Compare the output and the status with the example.</li>
+</ol>
+<p>Fragment: make the directory of <code>fixed-route</code> and <code>cd</code> into it. This block
+omits the three files, which you save next. The book checker makes its own
+directory for each example and does not run this block.</p>
+<pre><code class="language-sh">mkdir -p ~/ravel-chapter-4/fixed-route/bin
+cd ~/ravel-chapter-4/fixed-route
+</code></pre>
+<p>The <code>~</code> stands for your home directory, so these commands work from any
+current directory.</p>
+<p>Complete example: pass the caller’s prompt to a fake agent.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "fixed-route-1";
+
+fn select(request, context) {
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [request.prompt],
+        provider: "example",
+        model: "fake",
+        effort: "low",
+        reason: "one fixed route",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "Explain this change."
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">Explain this change.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>In your terminal, standard error also shows the routing notice and can show
+reports of cleanup operations. The book makes no claim about standard error
+in this example.</p>
+<p>The command block prepares the directories, copies the settings and runs
+the session. These are its parts:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Part of the command</th><th>What it does in <code>fixed-route</code></th></tr>
+</thead>
+<tbody>
+<tr><td><code>mkdir -p home/.config/ravel tmp</code></td><td>Makes the private configuration directory and <code>tmp</code>.</td></tr>
+<tr><td><code>cp settings.json home/.config/ravel/settings.json</code></td><td>Puts the example’s settings where Ravel reads them.</td></tr>
+<tr><td><code>chmod +x bin/*</code></td><td>Makes each file in <code>bin</code>, here only <code>fake-agent</code>, executable</td></tr>
+<tr><td><code>env -i</code></td><td>Runs the rest of the line with an empty environment. Your own variables, such as a <code>RAVEL_EXIT_FILE</code> of an enclosing session, do not enter the example.</td></tr>
+<tr><td><code>HOME="$PWD/home"</code> and <code>TMPDIR="$PWD/tmp"</code></td><td>Give Ravel the private directories. Your shell expands <code>$PWD</code> before <code>env</code> runs, so each value is an absolute path.</td></tr>
+<tr><td><code>PATH="$PWD/bin:$PATH"</code></td><td>Puts <code>bin</code> first on the search path. Your shell expands <code>$PATH</code> before <code>env -i</code> clears the environment, so your installed <code>ravel</code> stays on the path.</td></tr>
+<tr><td><code>ravel start-session</code></td><td>Asks Ravel for one session</td></tr>
+<tr><td><code>--config config.rhai</code></td><td>Selects the configuration script of the example, relative to the current directory</td></tr>
+<tr><td><code>--kind question</code></td><td>Gives the caller’s kind. This configuration script does not examine it.</td></tr>
+<tr><td><code>--prompt "Explain this change."</code></td><td>Gives the caller’s prompt. The script passes it to the fake as its first argument.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The private home and the explicit <code>--config</code> keep your own settings and
+configuration script out of the example.</p>
+<p>What happened in the session? Follow the request from the caller to the
+result:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens in this example</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The caller</td><td>Runs <code>ravel start-session</code> with the kind <code>question</code> and the prompt <code>Explain this change.</code></td></tr>
+<tr><td>2</td><td>The configuration script</td><td><code>select</code> returns a selection with the program <code>fake-agent</code> and one argument, the prompt</td></tr>
+<tr><td>3</td><td>The Ravel CLI</td><td>Writes the routing notice <code>ravel: starting provider example, model fake, effort low for kind "question"</code> on standard error, then starts <code>fake-agent</code></td></tr>
+<tr><td>4</td><td><code>fake-agent</code></td><td>Runs <code>ravel end-session -- "$1"</code>, which sends its first argument as the result</td></tr>
+<tr><td>5</td><td>The Ravel CLI</td><td>Stops <code>fake-agent</code> and the rest of its process group, then completes cleanup</td></tr>
+<tr><td>6</td><td>The Ravel CLI</td><td>Writes <code>Explain this change.</code> on standard output. This text is the result of <code>ravel start-session</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>A process group is the operating-system unit that holds the program and the
+descendants that remain in its group. Ravel stops each process in that group
+before it returns the result.</p>
+<p>The <code>--</code> in <code>ravel end-session -- "$1"</code> ends the options of <code>end-session</code>.
+Thus, a result that starts with <code>-</code> stays a result and does not become an
+option. Ravel writes the result unchanged and adds no newline. This is why the
+label says “without a final newline”, and why your next shell prompt can start
+on the same line as the result.</p>
+<p>Each later example of this chapter uses the same four steps in a new
+directory under <code>~/ravel-chapter-4</code>. For example, step 1 of the next example,
+<code>refusals</code>, is <code>mkdir -p ~/ravel-chapter-4/refusals/bin</code>, then
+<code>cd ~/ravel-chapter-4/refusals</code>. Before its complete example, a paragraph
+names the directory and says how the example is different from <code>fixed-route</code>.
+An example can have more files, more command lines or different options. The setup appears only in the first command block of each example. A later block uses the directories that the
+first block made.</p>
+<p>The book checker runs the same files and commands with the built Ravel CLI.
+For each example, it makes a new directory, saves the labelled files and makes
+the files in <code>bin</code> executable. Then it runs the command blocks in order and
+compares each output with the output that the book shows. You do the
+preparation by hand, in the steps above.</p>
+<h2 id="define-a-configuration-script-and-read-the-request"><a class="header" href="#define-a-configuration-script-and-read-the-request">Define a configuration script and read the request</a></h2>
+<p>The <code>config.rhai</code> of <code>fixed-route</code> has two <code>export const</code> lines and one
+function. What must a configuration script contain, and where does Ravel find
+it? Ravel looks in one place. The default script is
+<code>$HOME/.config/ravel/config.rhai</code>. <code>HOME</code> must be absolute for that default.</p>
+<p><code>--config PATH</code> selects another file, relative to the caller’s working directory.
+Ravel searches no parent directory and tries no fallback script.
+Thus, a missing script is an error.
+It is not a silent change of route.</p>
+<p>The file must be readable UTF-8, regular, and at most 1 MiB.
+A symlink identifies its canonical real file.</p>
+<p>A configuration script is a Rhai module. A module is one file of Rhai code,
+which can export constants for other code to read. Your script exports two
+constants and defines a function:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Declaration</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>export const SCHEMA_VERSION = 4;</code></td><td>Name the version of the interface between Ravel and the script that this file uses.</td></tr>
+<tr><td><code>export const VERSION = "fixed-route-1";</code></td><td>Name this revision of your script. The JSON routing notice shows it.</td></tr>
+<tr><td><code>fn select(request, context)</code></td><td>Return a selection or a <a href="02-actors-and-words.html#evaluation-and-supervision">refusal</a>.</td></tr>
+<tr><td><code>fn load_context(request)</code></td><td>Optionally assemble selection context before <code>select</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>SCHEMA_VERSION</code> is independent of the Ravel release and of the version of
+the context document. <code>VERSION</code> is a nonblank string that you change when your
+script changes. The functions need the parameter counts shown above.
+Top-level statements run once before the functions.</p>
+<p>The <code>select</code> function of <code>fixed-route</code> used this Rhai:</p>
+<ul>
+<li><code>#{ ... }</code> makes a map, which is a set of named fields.</li>
+<li><code>request.prompt</code> reads the field <code>prompt</code> of the map <code>request</code>.</li>
+<li><code>[request.prompt]</code> makes an array with one element.</li>
+<li>The last expression of a function, without a semicolon, is its return value.
+<code>return value;</code> returns earlier.</li>
+</ul>
+<p>What can the script read about the request? The request is a map with these
+fields. Optional inputs have the value <code>()</code> when they are absent. In Rhai, <code>()</code>
+means “no value”, and it becomes <code>null</code> in JSON.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>The integer <code>4</code>.</td></tr>
+<tr><td><code>kind</code></td><td>The caller’s <a href="02-actors-and-words.html#caller-and-owner">kind</a> token, from <code>--kind</code>.</td></tr>
+<tr><td><code>originalPrompt</code></td><td>The caller’s prompt, unchanged.</td></tr>
+<tr><td><code>prompt</code></td><td>The prompt to give to the harness. With skill delivery disabled, it holds the same bytes as <code>originalPrompt</code>. With delivery enabled, it holds the discovery instructions, then the caller’s prompt in one delimited block.</td></tr>
+<tr><td><code>cwd</code></td><td>The caller’s working directory.</td></tr>
+<tr><td><code>params</code></td><td>A map of strings from <code>--param NAME=VALUE</code>.</td></tr>
+<tr><td><code>taskFile</code></td><td>The absolute <code>--task-file</code> path, or <code>()</code>. Ravel does not read it.</td></tr>
+<tr><td><code>taskId</code></td><td>The <code>--task-id</code> string, or <code>()</code>.</td></tr>
+<tr><td><code>context</code></td><td>The caller’s checked context document, or <code>()</code>.</td></tr>
+<tr><td><code>skills</code></td><td><code>()</code> with skill delivery disabled. Otherwise a map with <code>descriptorPath</code>, <code>sources</code>, <code>directories</code> and <code>mandatory</code>.</td></tr>
+<tr><td><code>limits</code></td><td>The effective bounds that the script can read.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Put <code>request.prompt</code> into the arguments of the harness. Read
+<code>request.originalPrompt</code> when the script examines the task, for example when
+it asks a model to classify the task.</p>
+<p>The owner can enable skill delivery in the settings. Then <code>request.prompt</code>
+also holds the skill directories and the discovery instructions, and the
+script needs no change for them. A harness that reads only some directories
+needs a read grant for the skill snapshots. Make that grant from
+<code>request.skills</code>, for example one argument for each <code>snapshotRoot</code>. The
+shipped example <code>harness-table.rhai</code> does this for its lead harness.</p>
+<p>Excerpt from <code>crates/ravel/examples/harness-table.rhai</code>: the function that
+lists the snapshot roots. The function <code>harness_args</code> puts each root after
+<code>--add-dir</code>.</p>
+<pre><code class="language-rhai">fn skill_reads(skills) {
+    if skills == () { return []; }
+    let reads = [];
+    for source in skills.sources { reads.push(source.snapshotRoot); }
+    reads
+}
+</code></pre>
+<p><a href="06-reference.html#skill-delivery-at-launch">Skill delivery at launch</a> gives the
+parts of the prepared prompt and the members of <code>request.skills</code>.</p>
+<p>The second argument, <code>context</code>, is the delivered
+<a href="#supply-selection-context">selection context</a>: JSON data for the choice. A
+loader can make it different from <code>request.context</code>. Neither value gives the
+script authority to end the session.</p>
+<p>Ravel checks undefined variables when it compiles the script.
+It also refuses an absent map property when the script reads it.
+Check <code>request.params.contains("name")</code> before you read an optional parameter.
+The documented request fields themselves are always present.</p>
+<h2 id="select-a-command-or-refuse"><a class="header" href="#select-a-command-or-refuse">Select a command or refuse</a></h2>
+<p>Your configuration script gives one of two answers to each request. A selection tells Ravel
+which program to start. A refusal prevents the start of the final managed
+process. Why refuse?
+You may want a request that does not fit your routes to stop with a clear
+message, and not go to the wrong harness.</p>
+<p>A selection is the map that <code>select</code> returns when it chooses a program. Its
+<code>status</code> field is <code>"selected"</code>. A selected map holds seven fields, and Ravel
+needs each of them. Ravel refuses an unknown field.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>What the script supplies</th></tr>
+</thead>
+<tbody>
+<tr><td><code>status</code></td><td>The literal <code>"selected"</code>.</td></tr>
+<tr><td><code>program</code></td><td>A nonblank program name or path, without NUL.</td></tr>
+<tr><td><code>args</code></td><td>An array of strings after the program. Empty strings are valid, but NUL is not.</td></tr>
+<tr><td><code>provider</code></td><td>A nonblank owner label for the model origin.</td></tr>
+<tr><td><code>model</code></td><td>A nonblank owner label for the model.</td></tr>
+<tr><td><code>effort</code></td><td>A nonblank owner label for the effort.</td></tr>
+<tr><td><code>reason</code></td><td>A nonblank explanation of the choice.</td></tr>
+</tbody>
+</table>
+</div>
+<p>A bare program name resolves through the caller’s <code>PATH</code>.
+A relative path with <code>/</code> resolves from the caller’s working directory.
+Each member of <code>args</code> is one argument.
+Ravel performs no word splitting, shell expansion or template substitution.
+A prompt with spaces therefore stays one argument when the script puts it there.</p>
+<p><code>program</code> and <code>args</code> are the command that Ravel starts. <code>provider</code>, <code>model</code>,
+<code>effort</code> and <code>reason</code> are labels. A label describes the choice of the script,
+but it does not configure the program.
+For example, <code>model: "haiku"</code> records a label, whereas
+<code>args: ["--model", "haiku"]</code> gives a model option to a program.
+Your script sets both, and Ravel does not compare them.</p>
+<p>Why have labels, then? The caller usually wants to know what the script chose,
+but the caller does not read your script. Ravel tells the caller in the routing
+notice. Before it starts the program, the Ravel CLI writes one line on the
+caller’s standard error. For the first example of this chapter,
+<code>fixed-route</code>, that line was:</p>
+<p>Fragment: the routing notice of <code>fixed-route</code>, on standard error. This block
+omits the command, the reports of cleanup operations and the result on
+standard output.</p>
+<pre><code class="language-text">ravel: starting provider example, model fake, effort low for kind "question"
+</code></pre>
+<p>With <code>--json</code>, a JSON document replaces this line after the supervision
+attempt. That document also gives the <code>reason</code>.
+<a href="05-running-sessions.html#read-notices-separately-from-results">Chapter 5, “Read notices separately from results”</a>,
+teaches both forms.</p>
+<p>A refusal is a map with <code>status: "refused"</code> and three more strings. Each
+string is nonblank:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>What the script supplies</th><th>Who reads it</th></tr>
+</thead>
+<tbody>
+<tr><td><code>code</code></td><td>A short token that names the reason, such as <code>unknown_kind</code></td><td>A caller program that acts on the reason</td></tr>
+<tr><td><code>message</code></td><td>A sentence that says what is wrong</td><td>The person who reads standard error</td></tr>
+<tr><td><code>remedy</code></td><td>A sentence that says what to change</td><td>The person who reads standard error</td></tr>
+</tbody>
+</table>
+</div>
+<p>After a refusal, Ravel reports <code>config_refused</code> with exit status 3.
+Your <code>code</code> appears separately as <code>configCode</code> in the JSON failure document.
+No managed process starts, and Ravel tries no other route.
+The caller receives no result.</p>
+<p>The next example is <code>refusals</code>. Make its directory as for <code>fixed-route</code>:
+<code>~/ravel-chapter-4/refusals</code>, with a <code>bin</code> subdirectory. It has the same two
+file paths. <code>bin/fake-agent</code> has the same contents, but <code>config.rhai</code> is
+different. The example has three command blocks. Run them in order:</p>
+<ul>
+<li>The first block makes <code>home</code> and <code>tmp</code>, then asks with the kind <code>question</code>.</li>
+<li>The second block asks with the kind <code>unknown</code>.</li>
+<li>The third block asks with the kind <code>question</code> and adds <code>--param model=other</code>.</li>
+</ul>
+<p>Complete example: accept one kind and refuse an unknown kind or a forbidden
+parameter.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "checked-route-1";
+
+fn refuse(code, message, remedy) {
+    #{ status: "refused", code: code, message: message, remedy: remedy }
+}
+
+fn select(request, context) {
+    if request.kind != "question" {
+        return refuse("unknown_kind", "This configuration script accepts question only.",
+                      "Use --kind question.");
+    }
+    if request.params.contains("model") {
+        return refuse("owner_model", "The owner chooses the model.",
+                      "Remove the model parameter.");
+    }
+    #{ status: "selected", program: "fake-agent", args: [request.prompt],
+       provider: "example", model: "fake", effort: "low", reason: "question route" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">hello
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind unknown --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error</strong></p>
+<pre><code class="language-text">ravel: refused (config_refused, stage selection): the configuration script &lt;scratch&gt;/work/config.rhai refused the selection: This configuration script accepts question only.
+  input: --kind unknown
+  source: &lt;scratch&gt;/work/config.rhai
+  config code: unknown_kind
+  remedy: Use --kind question.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --param model=other --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error</strong></p>
+<pre><code class="language-text">ravel: refused (config_refused, stage selection): the configuration script &lt;scratch&gt;/work/config.rhai refused the selection: The owner chooses the model.
+  input: --kind question
+  source: &lt;scratch&gt;/work/config.rhai
+  config code: owner_model
+  remedy: Remove the model parameter.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>How do you read a refusal? The first command succeeded, and the two refused
+commands wrote nothing on standard output. Each refusal wrote these lines on
+standard error. The values come from the third command:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Line</th><th>What it tells you</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ravel: refused (config_refused, stage selection)</code></td><td>Ravel’s code for the outcome, and the stage in which it occurred. The script refused during selection.</td></tr>
+<tr><td><code>the configuration script … refused the selection: The owner chooses the model.</code></td><td>The file of the configuration script, then the script’s <code>message</code></td></tr>
+<tr><td><code>input: --kind question</code></td><td>The kind of the request</td></tr>
+<tr><td><code>source: &lt;scratch&gt;/work/config.rhai</code></td><td>The file of the configuration script. <code>&lt;scratch&gt;/work</code> stands for the example’s directory. In your shell, the line shows the absolute path of your <code>refusals</code> directory.</td></tr>
+<tr><td><code>config code: owner_model</code></td><td>The script’s own <code>code</code></td></tr>
+<tr><td><code>remedy: Remove the model parameter.</code></td><td>The script’s <code>remedy</code>, which tells the caller what to change</td></tr>
+</tbody>
+</table>
+</div>
+<p>The exit status 3 tells a caller program that a refusal occurred, without a
+read of the text. With <code>--json</code>, the same fields are in the JSON failure
+document, and the script’s code is in <code>configCode</code>.</p>
+<p><code>if</code> chooses a branch. <code>!=</code> compares values for inequality.
+<code>fn refuse(...)</code> is an ordinary helper function, with no special Ravel role.
+Rhai functions have no parameter type declarations here.
+Ravel checks the value when it crosses the boundary from the script.</p>
+<p>A return of <code>()</code> gives <code>selection_abstained</code>.
+An uncaught error in <code>select</code> gives <code>selection_threw</code> with a source location.
+A wrong field or type gives <code>selection_malformed</code>.
+After any of these outcomes, Ravel starts no managed process.</p>
+<!-- tc: depart synonym-rotation because validate names the end-to-end test of a script, while check names a single diagnostic inspection -->
+<h2 id="validate-a-configuration-script-with-fake-agents"><a class="header" href="#validate-a-configuration-script-with-fake-agents">Validate a configuration script with fake agents</a></h2>
+<p>How do you know that your configuration script does what you want before a
+real harness runs? You test it with fake agents. Ravel has no separate command
+that type-checks a script or evaluates it without the start of a program.
+<code>start-session</code>
+evaluates the script and then runs the selected program. Thus, each test of a
+script is a real session.
+A fake agent makes that session cheap and safe, because it only sends back its
+arguments.</p>
+<p>For each route, test the arguments and the result.
+For each refusal, test the diagnostic and absence of a managed process.
+Include absent optional inputs, unknown kinds and malformed local data.
+The examples in this chapter show success and failure at that same boundary.</p>
+<p>You may also want to see values while the script runs. <code>print(text)</code> writes to
+the script’s standard output, and <code>debug(text)</code> writes to the script’s standard
+error. Ravel captures both streams of the Rhai worker. Then it writes the
+captured text on its own standard error, before the routing notice.
+Each line starts with <code>config stdout:</code> or <code>config stderr:</code>.</p>
+<p>These lines are diagnostics for you. They are not the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a> on
+Ravel’s standard output, which Ravel does not interpret. The managed process
+sends that result with <code>end-session</code>. With <code>--json</code>, the JSON routing notice
+holds the captured text in its <code>diagnostics</code> member.</p>
+<p>The next example is <code>print-and-parse</code>, in <code>~/ravel-chapter-4/print-and-parse</code>
+with a <code>bin</code> subdirectory. It has a third file, <code>broken.rhai</code>, beside
+<code>config.rhai</code>. <code>broken.rhai</code> is a second configuration script with a syntax
+error. <code>bin/fake-agent</code> is the same as in <code>fixed-route</code>. The second command
+block selects <code>broken.rhai</code> with <code>--config broken.rhai</code>.</p>
+<p>Complete example: print a value from the script, then find a syntax error.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "print-1";
+
+fn select(request, context) {
+    print("kind is " + request.kind);
+    #{ status: "selected", program: "fake-agent", args: [request.prompt],
+       provider: "example", model: "fake", effort: "low", reason: "print demo" }
+}
+</code></pre>
+<p><strong><code>broken.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "broken-1";
+
+fn select(request, context) {
+    #{ status: "selected", program: "fake-agent" args: [] }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">hello
+</code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config stdout: kind is question
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config broken.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error</strong></p>
+<pre><code class="language-text">ravel: refused (config_parse_failed, stage load): Expecting ',' to separate the items of this object map literal
+  source: &lt;scratch&gt;/work/broken.rhai
+  location: 5:50
+  remedy: fix the syntax error in &lt;scratch&gt;/work/broken.rhai, at the line and column the location names
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><code>+</code> joins two strings. The first command wrote the line of <code>print</code> on standard
+error, and the result <code>hello</code> on standard output. The second script has no
+comma after <code>"fake-agent"</code>. Ravel found the error when it compiled the file, in
+the stage <code>load</code>. <code>location: 5:50</code> names line 5, column 50 of <code>broken.rhai</code>.
+Ravel started no program.</p>
+<p>The table says where to look for each outcome that a test can show:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Observation</th><th>What to examine</th></tr>
+</thead>
+<tbody>
+<tr><td>A parse failure</td><td>The source file, line and column in the diagnostic.</td></tr>
+<tr><td><code>config_invalid</code></td><td>The exports, their types and the function parameter counts.</td></tr>
+<tr><td><code>selection_threw</code></td><td>The property or expression at the reported location.</td></tr>
+<tr><td><code>selection_malformed</code></td><td>The shape and field types of the returned map.</td></tr>
+<tr><td><code>config_refused</code></td><td>The <code>configCode</code>, message and remedy of your script.</td></tr>
+<tr><td><code>selection_timeout</code></td><td>The work before the selection and its whole deadline.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>debug(text)</code> also names the file, the line and the position of the call.
+Use <code>--json</code> when a program, not a person, reads the routing notice and the
+diagnostics.</p>
+<h2 id="put-each-kind-and-its-route-in-one-table"><a class="header" href="#put-each-kind-and-its-route-in-one-table">Put each kind and its route in one table</a></h2>
+<p>As your configuration script gets more kinds, you may want to see each kind
+and its route in one place. A table in the script does this. It also makes a
+review of your choices easy, because each route is one line.
+Ravel ships an example configuration script, <code>static.rhai</code>, that has one such
+table. You can start from it.
+Its program, provider and model are placeholders that you replace.</p>
+<p>Excerpt from <code>crates/ravel/examples/static.rhai</code>: the example’s kinds and efforts.</p>
+<pre><code class="language-rhai">export const ROUTES = #{
+    question: agent("low"),
+    bugfix: agent("medium"),
+    feature: agent("high"),
+    migration: agent("xhigh"),
+    architecture: agent("xhigh"),
+};
+</code></pre>
+<p>These kinds and efforts belong to this example.
+Ravel defines neither list. A kind is the caller’s token, and only your script
+gives it a meaning.
+The helper <code>select_route</code> refuses an unknown kind with <code>incomplete_mapping</code>.
+When a route matches, it returns a command. The helper adds <code>status</code> and <code>reason</code>.</p>
+<p>A smaller table can store strings directly.
+<code>const</code> declares a value that the script does not reassign.
+A function reads a top-level constant through <code>global::</code>, as the next example
+shows. <code>let</code> declares a local variable that the script can change.</p>
+<p>The next example is <code>route-table</code>, in <code>~/ravel-chapter-4/route-table</code> with a
+<code>bin</code> subdirectory. It has the same two file paths as <code>fixed-route</code>, but both
+files are different. This <code>bin/fake-agent</code> sends its first two arguments,
+joined by <code>|</code>. The three command blocks ask with the kinds <code>question</code>,
+<code>feature</code> and <code>other</code>.</p>
+<p>Complete example: route two kinds through a local table.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "table-1";
+const EFFORTS = #{ question: "low", feature: "high" };
+
+fn select(request, context) {
+    if !global::EFFORTS.contains(request.kind) {
+        return #{ status: "refused", code: "unknown_kind",
+                  message: "The table has no route for this kind.",
+                  remedy: "Use question or feature." };
+    }
+    let effort = global::EFFORTS[request.kind];
+    #{ status: "selected", program: "fake-agent", args: [effort, request.prompt],
+       provider: "example", model: "fake", effort: effort, reason: "table lookup" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1|$2"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">low|hello
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind feature --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">high|hello
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind other --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config_refused
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>The <code>!</code> operator means logical negation.
+<code>table[key]</code> selects a property whose name comes from a variable.
+The earlier <code>contains</code> check prevents an absent property error.
+Rhai functions do not capture the variables around their definitions.
+Pass local values as parameters, or use a top-level constant through <code>global::</code>.</p>
+<h2 id="import-other-rhai-files"><a class="header" href="#import-other-rhai-files">Import other Rhai files</a></h2>
+<p>When a configuration script grows, you may want to keep the route table or
+some helper functions in a separate file. You may also want two scripts to
+share the same helpers. An import does this. It gives a name to another module, which is
+another Rhai file.</p>
+<p><code>import "routes" as routes;</code> reads <code>routes.rhai</code> beside the file that imports it.
+An absolute import uses that path.
+Ravel appends <code>.rhai</code> when the path has no extension.
+For a symlinked script, imports start from the real file’s directory.</p>
+<p>Imports and measured reads use different bases. An import starts from the
+directory of the file that imports it. A measured read starts from the caller’s
+directory. Thus, the same relative name can find two different files:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Operation</th><th>Base for a relative path</th></tr>
+</thead>
+<tbody>
+<tr><td><code>import "routes" as routes;</code></td><td>The directory of the file that imports it.</td></tr>
+<tr><td><code>ravel::read_text("choice.txt")</code></td><td>The caller’s <code>request.cwd</code>.</td></tr>
+<tr><td><code>ravel::read_json("choice.json")</code></td><td>The caller’s <code>request.cwd</code>.</td></tr>
+<tr><td><code>--config config.rhai</code></td><td>The caller’s working directory.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each distinct imported module loads once per evaluation.
+Ravel measures the entry and each module with its canonical path, byte count
+and SHA-256 digest. The JSON routing notice reports those measurements in
+<code>config.modules</code>. Thus, the notice shows exactly which bytes of which files
+made the choice.</p>
+<p>A missing module, import cycle or 65th distinct imported module gives
+<code>config_import_failed</code>.
+Ravel embeds no Rhai module of its own. Imports name files, which can be
+copies of the shipped examples.</p>
+<p>The next example is <code>imports</code>, in <code>~/ravel-chapter-4/imports</code> with a <code>bin</code>
+subdirectory. It has a third file, <code>routes.rhai</code>, beside <code>config.rhai</code>.
+<code>routes.rhai</code> is the module that <code>config.rhai</code> imports. <code>bin/fake-agent</code> is
+the same as in <code>route-table</code>. The command is the same as in <code>fixed-route</code>,
+with the prompt <code>hello</code>.</p>
+<p>Complete example: call an imported function and use its exported constant.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">import "routes" as routes;
+export const SCHEMA_VERSION = 4;
+export const VERSION = "import-1";
+
+fn select(request, context) {
+    routes::choose(request, routes::EFFORT)
+}
+</code></pre>
+<p><strong><code>routes.rhai</code></strong></p>
+<pre><code class="language-rhai">export const EFFORT = "medium";
+
+fn choose(request, effort) {
+    #{ status: "selected", program: "fake-agent", args: [effort, request.prompt],
+       provider: "example", model: "fake", effort: effort, reason: "local module" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1|$2"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">medium|hello
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<h2 id="let-a-repository-choose-an-arrangement"><a class="header" href="#let-a-repository-choose-an-arrangement">Let a repository choose an arrangement</a></h2>
+<p>You may want one repository to get more careful work than another. For
+example, a repository with a production service can ask for a higher effort.
+But you still want to decide which arrangements exist. A checkout choice does
+this. The repository names one arrangement in a file, and your configuration
+script accepts only the names that you offer.</p>
+<p>The shipped <code>sample.rhai</code> reads <code>.ravel-choice</code> from <code>request.cwd</code>, the
+caller’s working directory.
+That filename is a rule of the sample, not a Ravel configuration search rule.</p>
+<p>The sample imports an adjacent copy of <code>static.rhai</code>.
+An absent choice file uses <code>default</code>.
+A file with exactly <code>careful</code> changes the selected effort to <code>high</code> and rebuilds
+the arguments. It leaves an unknown kind as a refusal.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Choice file</th><th>Sample behaviour</th></tr>
+</thead>
+<tbody>
+<tr><td>Absent</td><td>Use <code>default</code>.</td></tr>
+<tr><td><code>default</code></td><td>Use the route table of <code>static.rhai</code> unchanged.</td></tr>
+<tr><td><code>careful</code></td><td>Use the route table of <code>static.rhai</code> with effort <code>high</code>.</td></tr>
+<tr><td>Empty or more than one offered name</td><td>Refuse with <code>one_choice</code>.</td></tr>
+<tr><td>An unoffered name</td><td>Refuse with <code>choice_unoffered</code>.</td></tr>
+<tr><td>An unreadable file or a directory</td><td>Refuse with <code>choice_unreadable</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The sample implements this behaviour with <code>ravel::read_text</code> and ordinary
+Rhai string operations. No special choice-file API is necessary.
+The next example uses a smaller choice rule so you can test every branch.</p>
+<p>The next example is <code>checkout-choice</code>, in <code>~/ravel-chapter-4/checkout-choice</code>
+with a <code>bin</code> subdirectory. It has the same two file paths as <code>fixed-route</code>.
+<code>bin/fake-agent</code> has the same contents, but <code>config.rhai</code> is different. The
+example directory stands for the caller’s repository. Do not save a
+<code>.ravel-choice</code> file:</p>
+<ul>
+<li>The first command block runs without <code>.ravel-choice</code>.</li>
+<li>The second block first writes <code>careful</code> to <code>.ravel-choice</code> with <code>printf</code>.</li>
+<li>The third block replaces that text with <code>other</code>.</li>
+</ul>
+<p>Run the three blocks in order, because each block uses the file that the
+block before it left.</p>
+<p>Complete example: accept <code>careful</code>, use a default when absent, and refuse any
+other text.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "choice-1";
+
+fn select(request, context) {
+    let choice = "default";
+    try {
+        choice = ravel::read_text(".ravel-choice", 4096).text;
+        choice.trim();
+    } catch (error) {
+        if error.code != "source_missing" { throw error; }
+    }
+    if choice != "default" &amp;&amp; choice != "careful" {
+        return #{ status: "refused", code: "choice_unoffered",
+                  message: "The choice is not offered.",
+                  remedy: "Write default or careful in .ravel-choice." };
+    }
+    let effort = if choice == "careful" { "high" } else { "low" };
+    #{ status: "selected", program: "fake-agent", args: [effort],
+       provider: "example", model: "fake", effort: effort, reason: "checkout choice" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">low
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf 'careful\n' &gt; .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">high
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ printf 'other\n' &gt; .ravel-choice
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config_refused
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>What happened in the three commands? Without <code>.ravel-choice</code>, the read threw
+<code>source_missing</code>. The script caught it and kept <code>default</code>, so the effort was
+<code>low</code>. With <code>careful</code> in the file, the effort was <code>high</code>. With <code>other</code> in the
+file, the script refused, and the caller received no result.</p>
+<p>The script used this Rhai:</p>
+<ul>
+<li><code>try</code> runs a block whose ordinary error can reach <code>catch (error)</code>.</li>
+<li><code>throw error</code> passes an error onwards.</li>
+<li>A measured read throws a map with <code>code</code> and <code>message</code>, and a <code>name</code> where
+applicable. The script catches only the absent file here.</li>
+<li><code>trim()</code> removes spaces and line ends at the start and the end of the string.
+It changes the string in place.</li>
+</ul>
+<p>A successful read returns <code>text</code> and <code>source</code>.
+<code>source</code> holds the canonical <code>name</code>, the byte count and <code>sha256</code>.
+The JSON routing notice records the read in <code>reads</code>, with the evaluation
+phase: <code>load</code> for the top level, <code>context</code> for <code>load_context</code> or <code>selection</code>
+for <code>select</code>.</p>
+<p>The context budget is your limit on the bytes of selection context, and
+<a href="#set-bounds-and-environment-grants-in-the-settings">“Set bounds and environment grants in the settings”</a>
+explains it. The default read bound is the smaller of 65,536 bytes and the
+context budget. The optional second argument changes it, up to the context
+budget. The example gives 4096 bytes. A choice is one short word, so a small
+bound is enough.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Read failure</th><th>Can the script catch it?</th></tr>
+</thead>
+<tbody>
+<tr><td><code>source_missing</code>, <code>source_not_regular</code>, <code>source_unreadable</code>, <code>source_not_utf8</code></td><td>Yes.</td></tr>
+<tr><td><code>source_invalid_json</code> from <code>read_json</code></td><td>Yes.</td></tr>
+<tr><td><code>source_too_large</code>, <code>too_many_sources</code></td><td>No. They end evaluation.</td></tr>
+<tr><td>A malformed host request</td><td>No. It ends evaluation as <code>host_request_invalid</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="supply-selection-context"><a class="header" href="#supply-selection-context">Supply selection context</a></h2>
+<p>You may want facts about the task to change the choice. For example, a large
+change can go to a higher effort, or a task with a security label can go to a
+particular model. Selection context carries such facts to <code>select</code>.</p>
+<p>The book uses the word “context” for three different things. This section is
+about the second:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Name</th><th>What it is</th><th>Who uses it</th></tr>
+</thead>
+<tbody>
+<tr><td>Session-result context</td><td>The path in <code>RAVEL_EXIT_FILE</code>, through which <code>end-session</code> sends the result</td><td>The managed process. The configuration script never receives it.</td></tr>
+<tr><td>Selection context</td><td>A JSON document of data for the choice</td><td><code>select</code>, as its second argument</td></tr>
+<tr><td>The caller’s working directory</td><td>The directory of the request, in <code>request.cwd</code></td><td>The script, for measured reads and relative program paths</td></tr>
+</tbody>
+</table>
+</div>
+<p>Selection context is data for the decision, not authority to execute a command.
+The caller can supply a JSON context document with <code>--context PATH</code>.
+Without a loader, <code>select</code> receives that document with its measured source,
+or <code>()</code> when no document exists.</p>
+<p>Why write a loader? You may want facts that the caller does not send, such as
+a file in the caller’s repository. A <code>load_context(request)</code> function can
+assemble a different document. Ravel calls it before <code>select</code>.</p>
+<p>The loader can read the caller’s input at <code>request.context</code> and read local sources.
+Ravel checks its return value before it calls <code>select</code>.
+A loader that returns <code>()</code> gives <code>context_invalid</code>.
+A loader can also return a refusal, in which case <code>select</code> never runs.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Document field</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>schemaVersion</code></td><td>Required integer <code>1</code>.</td></tr>
+<tr><td><code>summary</code></td><td>Optional text for the configuration script.</td></tr>
+<tr><td><code>facts</code></td><td>Optional map of JSON values.</td></tr>
+<tr><td><code>assessments</code></td><td>Optional map of judgements, each with <code>by</code> and <code>value</code>.</td></tr>
+<tr><td><code>sources</code></td><td>Optional attributed source records, each with <code>name</code> and a digest or version.</td></tr>
+<tr><td><code>acceptanceCriteria</code></td><td>Optional array of strings that state the caller’s criteria.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Ravel adds <code>measured</code> to the delivered document.
+The caller and loader do not supply that field themselves.
+It lists the caller’s context file first, then the reads made by the loader.
+A read in <code>select</code> appears in the routing notice but changes no delivered context.</p>
+<p>Attributed <code>sources</code> describe claims. <code>measured</code> records the bytes Ravel read.
+Neither measurement establishes that a claim is true.</p>
+<p>The next example is <code>selection-context</code>, in
+<code>~/ravel-chapter-4/selection-context</code> with a <code>bin</code> subdirectory. It has a third
+file, <code>task.json</code>, beside <code>config.rhai</code>. <code>task.json</code> holds the task data that
+the loader reads from the caller’s working directory. This <code>bin/fake-agent</code>
+sends its first three arguments, joined by <code>|</code>. The command uses the kind
+<code>review</code>.</p>
+<p>Complete example: read task data, build selection context, and use it in the
+selection.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "context-1";
+
+fn load_context(request) {
+    let task = ravel::read_json("task.json");
+    #{ schemaVersion: 1, summary: task.value.title,
+       facts: #{ effort: task.value.effort } }
+}
+
+fn select(request, context) {
+    #{ status: "selected", program: "fake-agent",
+       args: [context.summary, context.facts.effort,
+              context.measured.len().to_string()],
+       provider: "example", model: "fake", effort: context.facts.effort,
+       reason: "task facts" }
+}
+</code></pre>
+<p><strong><code>task.json</code></strong></p>
+<pre><code class="language-json">{"title":"Review the change","effort":"high"}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1|$2|$3"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind review --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">Review the change|high|1
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>Follow the data from the file to the result:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens in this example</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td><code>load_context</code></td><td>Reads <code>task.json</code> with <code>ravel::read_json</code> and builds a document with a <code>summary</code> and one fact</td></tr>
+<tr><td>2</td><td>The Ravel CLI</td><td>Checks the document and adds <code>measured</code>, with one record for <code>task.json</code></td></tr>
+<tr><td>3</td><td><code>select</code></td><td>Puts the summary, the effort and the count of measured records in <code>args</code></td></tr>
+<tr><td>4</td><td><code>fake-agent</code></td><td>Sends `Review the change</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>read_json</code> returns <code>value</code> and <code>source</code>.
+The loader chooses which values enter the document.
+<code>.len()</code> counts the measured records, and <code>.to_string()</code> makes a string for
+<code>args</code>. Ravel refuses an integer in that array, because each argument of a
+program is a string.</p>
+<p>The context budget applies to the caller’s file and to the delivered JSON,
+with <code>measured</code>. The default is 262,144 bytes.
+At most 256 measured sources can contribute to one evaluation.
+A file counts when its bytes arrive, even if the bytes are not valid JSON or UTF-8.
+An absent file does not consume a source.</p>
+<h2 id="check-json-with-the-data-helpers"><a class="header" href="#check-json-with-the-data-helpers">Check JSON with the data helpers</a></h2>
+<p>Your configuration script reads JSON from files, and later from models. You
+may want to be sure that this JSON has the shape that you expect before the
+script acts on it. A model can give an answer with a wrong field or a value
+that you did not offer. The data helpers let the script parse, check and
+write JSON strictly.</p>
+<p>Ravel supplies strict JSON operations in the <code>ravel</code> namespace.
+They run inside the Rhai worker and send no request to the Ravel CLI.
+Use them for data that crosses between the script and another program.
+The Rhai built-in <code>parse_json</code> accepts syntax that strict JSON rejects.
+Its <code>to_json</code> can produce string escapes that are not JSON.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Helper</th><th>Use</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ravel::json_parse(text)</code></td><td>Parse strict JSON into a Rhai value.</td></tr>
+<tr><td><code>ravel::json_encode(value)</code></td><td>Encode JSON with sorted object keys and no whitespace.</td></tr>
+<tr><td><code>ravel::json_check(value, schema)</code></td><td>Check a JSON Schema subset and return the value unchanged.</td></tr>
+<tr><td><code>ravel::uuid_v4()</code></td><td>Generate a random version-4 UUID string.</td></tr>
+<tr><td><code>ravel::path_resolve(base, path)</code></td><td>Join a path to an absolute base and normalise <code>.</code> and <code>..</code>.</td></tr>
+<tr><td><code>ravel::path_parent(path)</code></td><td>Return the parent of an absolute path.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The path helpers read no file and resolve no symlink.
+An absolute second path replaces the base in <code>path_resolve</code>.
+A relative base or relative <code>path_parent</code> input throws <code>path_not_absolute</code>.
+Use a measured read when you also need to establish what a file contains.</p>
+<p>Values at the boundary are JSON values: null, booleans, numbers, strings,
+arrays and maps. Rhai’s <code>()</code> represents null.
+Characters, function pointers, ranges and other non-JSON types do not cross.
+Ravel also refuses non-finite numbers. Arrays and maps nest at most 100 levels.
+A JSON integer outside the signed 64-bit range becomes a float.</p>
+<p>The next example is <code>data-helpers</code>, in <code>~/ravel-chapter-4/data-helpers</code> with a
+<code>bin</code> subdirectory. It has the same two file paths as <code>fixed-route</code>.
+<code>bin/fake-agent</code> has the same contents, but <code>config.rhai</code> is different. The
+command is the same as in <code>fixed-route</code>, with the prompt <code>hello</code>.</p>
+<p>Complete example: check data, handle a failed check, and encode the result.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "data-1";
+
+fn select(request, context) {
+    let schema = #{ type: "object",
+                    properties: #{ effort: #{ type: "string", enum: ["low", "high"] } },
+                    required: ["effort"], additionalProperties: false };
+    let good = ravel::json_check(ravel::json_parse("{\"effort\":\"high\"}"), schema);
+    let failure = "none";
+    try { ravel::json_check(#{ effort: "other" }, schema); }
+    catch (error) { failure = error.code; }
+    let values = [];
+    for value in [good.effort, failure] { values.push(value); }
+    #{ status: "selected", program: "fake-agent", args: [ravel::json_encode(values)],
+       provider: "example", model: "fake", effort: good.effort, reason: "checked data" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">["high","json_mismatch"]
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>What did the script do? It parsed <code>{"effort":"high"}</code> and checked it against
+the schema, which passed. Then it checked <code>#{ effort: "other" }</code>, which failed
+with the code <code>json_mismatch</code>. The script caught that code and sent both values
+to the fake agent as one JSON array.</p>
+<p><code>for value in array</code> visits each element.
+<code>push</code> adds an element to the array.
+The schema requires a string whose value is <code>low</code> or <code>high</code>.
+It also rejects properties other than <code>effort</code>.
+A schema checks shape and permitted values. The script still decides their meaning.</p>
+<p>The supported schema keywords are <code>type</code>, <code>properties</code>, <code>required</code>,
+<code>additionalProperties</code>, <code>items</code>, <code>enum</code>, <code>title</code> and <code>description</code>.
+The last two are descriptive only.
+<code>additionalProperties</code> is a boolean, and <code>enum</code> holds scalar JSON values.
+Unknown keywords and schema depth beyond 32 levels throw <code>schema_invalid</code>.
+A mismatch throws <code>json_mismatch</code>. Its message names the location and can include
+property names, but omits property values.</p>
+<p><code>json_parse</code> throws <code>json_invalid</code> for invalid JSON or excessive depth.
+<code>json_encode</code> and <code>json_check</code> throw <code>json_unencodable</code> for a non-JSON value.
+Ravel disables <code>eval</code>, so a model’s answer cannot become code through that function.
+Keep model answers as data that the script checks and interprets.</p>
+<h2 id="set-bounds-and-environment-grants-in-the-settings"><a class="header" href="#set-bounds-and-environment-grants-in-the-settings">Set bounds and environment grants in the settings</a></h2>
+<p>You may want to give a slow configuration script more time, or let the script
+read an environment variable of the caller. You may also want to name the
+harnesses that the script can run. Your settings do each of these things. They
+are the second part of your configuration, in a JSON file next to the default
+script.</p>
+<p>Ravel reads the settings from <code>$HOME/.config/ravel/settings.json</code>. It reads
+this file also when <code>--config</code> selects another script. Thus, a script that you
+copy to another place does not carry its own settings.
+An absent file sets nothing. Each key is optional, and Ravel refuses unknown keys.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Key</th><th>Meaning and range</th></tr>
+</thead>
+<tbody>
+<tr><td><code>timeoutMs</code></td><td>Whole evaluation deadline, 1,000–600,000 ms. Default: 30,000.</td></tr>
+<tr><td><code>contextBytes</code></td><td>Context budget, 1–8,388,608 bytes. Default: 262,144.</td></tr>
+<tr><td><code>configEnv</code></td><td>Additional caller environment names that <code>ravel::env</code> can read.</td></tr>
+<tr><td><code>harnesses</code></td><td>Named programs available to <code>ravel::run_harness</code>.</td></tr>
+<tr><td><code>budgets</code></td><td>An object whose optional <code>harnessRuns</code> is an integer from 0 to 16. Default: 0.</td></tr>
+<tr><td><code>skills</code></td><td>Local skill sources and mandatory guidance. An empty <code>sources</code> array disables delivery. See <a href="06-reference.html#settingsjson">skill settings</a>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The caller can also change two bounds for one session.
+<code>--timeout-ms</code> and <code>--context-bytes</code> replace the settings of those bounds.
+Ravel checks the settings first, so a flag cannot override an invalid file.
+<code>--config-env NAME</code> adds a grant to those in <code>configEnv</code>.
+Duplicate grants count once.</p>
+<p><code>request.limits</code> holds <code>selectionMs</code>, <code>contextBytes</code>, <code>sourceBytes</code>, <code>sources</code>,
+<code>messageBytes</code>, <code>diagnosticsBytes</code> and <code>harnessRuns</code>.
+These values describe the effective bounds. A change to the map cannot raise them.
+<code>ravel::remaining()</code> reports what remains of the evaluation: time in <code>ms</code>,
+<code>harnessRuns</code> and <code>sources</code>.</p>
+<p>The whole deadline covers module loads, the context loader, selection and all
+host calls. It does not bound the final managed process.
+At expiry, Ravel reports <code>selection_timeout</code>, exit status 124.
+Cancellation or failed harness cleanup can take precedence.
+Cleanup takes additional time.
+Other fixed bounds include 1 MiB worker messages and 262,144 bytes of
+diagnostics from the script.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Bound reached</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td>Whole deadline</td><td>End evaluation and start no managed process.</td></tr>
+<tr><td>Source, context, message or diagnostics bound</td><td>End evaluation and start no managed process.</td></tr>
+<tr><td>Engine operation, depth or data bound</td><td>End evaluation with <code>script_limit</code>.</td></tr>
+<tr><td>Worker heap bound of 1 GiB</td><td>End evaluation with <code>memory_limit</code>.</td></tr>
+<tr><td>Harness-run budget</td><td>End evaluation with <code>harness_budget_exhausted</code>.</td></tr>
+<tr><td>One harness run’s deadline or output bound</td><td>Return a status to the script if the whole evaluation can continue.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The script cannot catch an evaluation bound with <code>try</code>.
+This rule also applies inside a closure passed to an array or map helper.
+A deadline or output bound of one harness run is different: it returns data,
+as the next section explains.</p>
+<p>Why would a configuration script read an environment variable? The caller can
+set a variable, for example a name for the effort that it wants, and the
+script can use it in the choice.</p>
+<p>But the
+<a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a> has
+an empty environment. Thus, the script asks the Ravel CLI: <code>ravel::env</code> is a
+host capability that returns the caller’s value of one variable.
+It permits <code>HOME</code>, <code>PATH</code>, <code>TMPDIR</code>, <code>LANG</code>, <code>LC_*</code> and explicit grants.
+An unset permitted name returns <code>()</code>.
+An ungranted name throws <code>env_not_granted</code>, even if it is unset.
+A value outside UTF-8 throws <code>env_not_utf8</code>.</p>
+<p>The next example is <code>settings-grants</code>, in <code>~/ravel-chapter-4/settings-grants</code>
+with a <code>bin</code> subdirectory. It has a third file, <code>settings.json</code>, at the top
+of the example directory. This <code>bin/fake-agent</code> sends its first three
+arguments, joined by <code>|</code>. The command block has three lines:</p>
+<ul>
+<li>The first line prepares the directories and executable files.</li>
+<li>The second line copies <code>settings.json</code> into <code>home/.config/ravel/</code>. Ravel
+reads the settings only from that path in the private home.</li>
+<li>The third line sets <code>BOOK_EFFORT</code> and <code>BOOK_HIDDEN</code> after <code>env -i</code>, and
+adds <code>--timeout-ms 10000</code>.</li>
+</ul>
+<p>Complete example: grant one variable and observe a CLI bound replacement.
+The command installs settings only in the example’s private home.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"timeoutMs":5000,"contextBytes":4096,"configEnv":["BOOK_EFFORT"],"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "settings-1";
+
+fn select(request, context) {
+    let effort = ravel::env("BOOK_EFFORT");
+    let hidden = "none";
+    try { ravel::env("BOOK_HIDDEN"); }
+    catch (error) { hidden = error.code; }
+    #{ status: "selected", program: "fake-agent",
+       args: [effort, request.limits.selectionMs.to_string(), hidden],
+       provider: "example", model: "fake", effort: effort, reason: "settings" }
+}
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1|$2|$3"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/*
+$ mkdir -p home/.config/ravel &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" BOOK_EFFORT=high BOOK_HIDDEN=unused PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --timeout-ms 10000 --prompt "hello"
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">high|10000|env_not_granted
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>What happened in this example? The settings granted <code>BOOK_EFFORT</code>, so
+<code>ravel::env</code> returned <code>high</code>. The caller also set <code>BOOK_HIDDEN</code>, but the
+settings did not grant it. Thus, <code>ravel::env</code> threw <code>env_not_granted</code>, and the
+script caught the code. The caller’s <code>--timeout-ms 10000</code> replaced the
+<code>timeoutMs</code> of 5000 in the settings, so <code>request.limits.selectionMs</code> was
+<code>10000</code>.</p>
+<p>Environment grants control this helper, not the environment of a
+managed process or harness run. Those programs receive the caller’s environment,
+with the control variables of an enclosing session or driver removed or replaced.
+Ravel refuses grants for its reserved variables and dynamic-loader variables.
+The <a href="06-reference.html">reference</a> lists the reserved classes.</p>
+<p>A measured read can reach files that the user can read.
+These grants therefore do not create a filesystem sandbox for the script.
+You control the configuration script and choose which data it reads.</p>
+<h2 id="run-a-harness-during-evaluation"><a class="header" href="#run-a-harness-during-evaluation">Run a harness during evaluation</a></h2>
+<p>You may want an LLM to choose the best harness, model, effort and prompt
+additions for a kind and a prompt. You can do this with a harness run in your
+configuration script. A harness run is one run of a program from your
+<code>harnesses</code> settings, during evaluation. The script starts it with the host
+capability <code>ravel::run_harness</code>. Then the script reads the output of the run
+as data and makes its own choice.</p>
+<p>How does the answer get back to the script? Follow one harness run:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The configuration script</td><td>Calls <code>ravel::run_harness</code> with the name of a settings entry, the arguments and the text for standard input</td></tr>
+<tr><td>2</td><td>The Rhai worker</td><td>Sends the request to the Ravel CLI and waits</td></tr>
+<tr><td>3</td><td>The Ravel CLI</td><td>Finds the entry’s program, checks the run budget and starts the program in a new POSIX session with its own result channel</td></tr>
+<tr><td>4</td><td>The harness run</td><td>Reads its standard input, writes its answer on standard output and exits</td></tr>
+<tr><td>5</td><td>The Ravel CLI</td><td>Stops the processes that remain in the group of the run, completes cleanup and sends a map back to the worker</td></tr>
+<tr><td>6</td><td>The configuration script</td><td>Reads <code>status</code>, <code>exitCode</code> and <code>stdout</code> from the map, then continues</td></tr>
+</tbody>
+</table>
+</div>
+<p>The harness run returns its answer to the script before Ravel starts the final
+managed process.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/evaluation-harness.svg" alt="The Rhai worker requests a claude harness run from the Ravel CLI and waits. The CLI checks the budget and starts the run with its own result channel. The run reads standard input, writes its answer and exits. After cleanup the CLI returns a map to the worker. The configuration script selects, the CLI reaps the worker, writes the routing notice and starts the managed process."><span class="img-wrapper"><img src="figures/evaluation-harness.svg" alt="The Rhai worker requests a claude harness run from the Ravel CLI and waits. The CLI checks the budget and starts the run with its own result channel. The run reads standard input, writes its answer and exits. After cleanup the CLI returns a map to the worker. The configuration script selects, the CLI reaps the worker, writes the routing notice and starts the managed process."></span></label></p>
+<p><em>Figure: The evaluation harness run and the managed process are two separate programs that Ravel starts.</em></p>
+<p><a href="figures/evaluation-harness.svg">Open the evaluation harness sequence at full size</a>.</p>
+<p>A <a href="02-actors-and-words.html#the-managed-process-and-its-result">result channel</a>
+is a private temporary directory with a path for one result file. The path
+goes to the program in <code>RAVEL_EXIT_FILE</code>. A harness run gets a result channel
+of its own. Thus, a run that uses <code>end-session</code> sends its value to the script,
+not to the session.</p>
+<p>The answer goes back to the script, not to the caller. The caller sees the
+script’s selection in the routing notice and receives the final session’s
+result after cleanup. The JSON routing notice also records each harness run,
+but not its prompt or its answer.</p>
+<p>Fragment: the <code>harnessRuns</code> member of the JSON routing notice, from a real run
+of the next section’s Claude Code example with <code>--json</code>. This block omits the
+other members of the document. The value of <code>elapsedMs</code> changes in each run.</p>
+<pre><code class="language-json">{"harnessRuns":[{"elapsedMs":314,"exitCode":0,"harness":"claude","sentResult":false,"signal":null,"status":"exited"}]}
+</code></pre>
+<p>The record names the settings entry <code>claude</code>. The run exited with status 0
+after 314 milliseconds, and no signal stopped it. <code>sentResult: false</code> says that
+the run did not use <code>end-session</code>. It wrote its answer on standard output.</p>
+<p>A harness entry fixes the program that a host call can run.
+Its name has 1–64 lowercase letters, digits or dashes. Its first character is a letter
+or digit. The entry has a required <code>program</code> and optional <code>capabilities</code> labels.
+Ravel gives those labels no meaning.</p>
+<p>Fragment: settings for a harness run. This block omits the configuration
+script and the program.</p>
+<pre><code class="language-json">{
+  "harnesses": {
+    "classifier": {"program":"my-classifier","capabilities":["classify"]}
+  },
+  "budgets": {"harnessRuns":1}
+}
+</code></pre>
+<p><code>ravel::harnesses()</code> reports the entries in name order and runs no program.
+Each map has <code>name</code>, <code>program</code>, <code>available</code>, <code>resolved</code>, <code>reason</code> and
+<code>capabilities</code>. An available program has a resolved path and <code>reason: ()</code>.
+An unavailable one has <code>resolved: ()</code> and a reason of <code>not_found</code> or
+<code>not_executable</code>. Discovery reports availability, not a recommendation or live model list.</p>
+<p><code>ravel::run_harness</code> accepts this request:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td><code>harness</code></td><td>Required name of a settings entry.</td></tr>
+<tr><td><code>args</code></td><td>Required array of argument strings, without NUL.</td></tr>
+<tr><td><code>stdin</code></td><td>Optional text for standard input. Without it, input is at end of file.</td></tr>
+<tr><td><code>timeoutMs</code></td><td>Optional positive integer in milliseconds, capped by the time left for evaluation.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The call is synchronous: the script waits until the run ends. Only one host
+call runs at a time.</p>
+<p>The run starts in <code>request.cwd</code>, without a terminal, in a new POSIX session.
+A POSIX session is the operating system’s group of process groups, which
+<code>setsid</code> makes. It is not a Ravel session.
+It receives the environment of a managed process.
+Ravel does not restrict its filesystem access, as <a href="02-actors-and-words.html#trust-limits">chapter 2</a> states.
+The arguments that the script supplies select the sandbox of the harness, such as <code>codex exec --sandbox read-only</code>.</p>
+<p>The script supplies every argument and chooses where the prompt goes.
+Ravel builds no argument that is specific to a harness.</p>
+<p>The returned map describes the completed run:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Field</th><th>Value</th></tr>
+</thead>
+<tbody>
+<tr><td><code>status</code></td><td><code>exited</code>, <code>signalled</code>, <code>timed_out</code>, <code>output_limit</code> or <code>unavailable</code>.</td></tr>
+<tr><td><code>exitCode</code></td><td>An integer or <code>()</code>.</td></tr>
+<tr><td><code>signal</code></td><td>A signal name or <code>()</code>.</td></tr>
+<tr><td><code>stdout</code>, <code>stderr</code></td><td>Captured text. Invalid UTF-8 becomes the replacement character.</td></tr>
+<tr><td><code>result</code></td><td>The value sent by the run with <code>end-session</code>, or <code>()</code>.</td></tr>
+<tr><td><code>elapsedMs</code></td><td>Elapsed milliseconds.</td></tr>
+<tr><td><code>error</code></td><td><code>()</code>, or a map with <code>code</code> and <code>message</code> for an unavailable run.</td></tr>
+</tbody>
+</table>
+</div>
+<p>A run can finish by natural exit and return standard output to the script.
+It does not have to call <code>end-session</code>.
+If it does, that result belongs only to this run.
+It cannot complete the outer session.
+The final managed process later receives a different
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">result channel</a>.</p>
+<p>An unavailable run reports <code>unknown_harness</code>, <code>harness_not_found</code>,
+<code>harness_not_executable</code> or <code>harness_launch_failed</code> and consumes no run budget.
+Each run that starts consumes one.
+Each output stream has a 1 MiB bound.
+A per-run timeout or output overflow stops the run and returns its status.
+A cleanup failure ends evaluation as <code>harness_cleanup_failed</code>, exit status 5.</p>
+<p>Can a harness run start a Ravel session of its own? No. Ravel puts the
+marker <code>RAVEL_CONFIG_RUN</code> in the environment of each harness run, and each
+child of the run inherits it. <code>start-session</code> finds the marker and refuses as
+<code>config_reentry_refused</code>, before it reads the settings or a configuration
+script. Thus, a harness run cannot start a second evaluation inside the first.</p>
+<p>Do you need the route of another kind during evaluation? Call that route’s
+function in your script directly. The final managed process never receives the
+marker, so a session that the final harness nests stays allowed.</p>
+<p>The marker does not protect against code that removes it.
+A descendant that leaves the process group is outside group cleanup.</p>
+<h2 id="ask-a-model-through-claude-code"><a class="header" href="#ask-a-model-through-claude-code">Ask a model through Claude Code</a></h2>
+<p>Do you want an LLM in Claude Code to help your configuration script choose? This section
+gives the recipe. An
+<a href="02-actors-and-words.html#evaluation-and-supervision">LLM call</a> is a
+harness run that asks a model a question. Claude Code runs the call under your
+own sign-in, so the call can use your subscription. Ravel stores no model
+credential.</p>
+<p>The script reads the answer and decides what it means. A model can give an
+unexpected answer, so the script asks for structured output. Structured output
+is an answer in JSON, in a shape that a JSON Schema describes. The script then
+checks the answer against the same schema with <code>ravel::json_check</code>. The fake
+below uses the same arguments as a real call, but it returns a fixed answer.</p>
+<p>The recipe uses Claude Code 2.1.310.
+The author checked the installed help on 2026-10-26.
+The repository’s real smoke call also succeeded with that version.
+Its arguments and response field are the basis of this example.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>-p</code></td><td>Print an answer and exit.</td></tr>
+<tr><td><code>--model haiku</code></td><td>Select the model for this call.</td></tr>
+<tr><td><code>--tools ""</code></td><td>Give the call no tools.</td></tr>
+<tr><td><code>--no-session-persistence</code></td><td>Do not retain the session in local history.</td></tr>
+<tr><td><code>--output-format json</code></td><td>Return a JSON document.</td></tr>
+<tr><td><code>--json-schema TEXT</code></td><td>Request an answer of this shape, in <code>structured_output</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The prompt goes to <code>stdin</code>, not into <code>args</code>, as in the recorded real call.
+Thus, the arguments stay the same for each prompt.
+The script checks the run status and exit code before it parses standard output.
+It then checks <code>structured_output</code> against the same schema.
+The fixed answer permits only <code>yes</code> or <code>no</code>.
+It never supplies a program name or arbitrary command argument.</p>
+<p>The next example is <code>claude-question</code>, in <code>~/ravel-chapter-4/claude-question</code>
+with a <code>bin</code> subdirectory. It has four files:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path in <code>claude-question</code></th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>settings.json</code></td><td>Names the harness entry <code>claude</code> and permits one harness run. The first command block copies it into the private home.</td></tr>
+<tr><td><code>config.rhai</code></td><td>Asks the harness run a question, checks the answer and selects <code>fake-agent</code></td></tr>
+<tr><td><code>bin/claude</code></td><td>A fake Claude Code. <code>bin</code> comes first on the search path, so a real Claude Code does not run.</td></tr>
+<tr><td><code>bin/fake-agent</code></td><td>The same fake agent as in <code>fixed-route</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The fake <code>claude</code> writes two files when it runs: <code>call.args</code> and
+<code>call.prompt</code>. The first command block also writes the result to a file,
+<code>result</code>. Then it prints the three files. The second command block first makes
+an empty file, <code>invalid-answer</code>, with <code>touch</code>. That file makes the fake give
+an answer that the schema does not permit.</p>
+<p>Complete example: ask through a fake Claude Code and refuse an invalid answer.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"claude":{"program":"claude"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "claude-question-1";
+
+fn refuse() {
+    #{ status: "refused", code: "no_answer", message: "The call gave no valid answer.",
+       remedy: "Check the harness and its output." }
+}
+
+fn select(request, context) {
+    let schema = #{ type: "object",
+                    properties: #{ prime: #{ type: "string", enum: ["yes", "no"] } },
+                    required: ["prime"], additionalProperties: false };
+    let run = ravel::run_harness(#{
+        harness: "claude",
+        args: ["-p", "--model", "haiku", "--tools", "", "--no-session-persistence",
+               "--output-format", "json", "--json-schema", ravel::json_encode(schema)],
+        stdin: "Is 17 a prime number? Answer with the JSON object only.",
+        timeoutMs: 20000,
+    });
+    if run.status != "exited" || run.exitCode != 0 { return refuse(); }
+    let answer = ();
+    try {
+        let document = ravel::json_parse(run.stdout);
+        if type_of(document) != "map" || !document.contains("structured_output") {
+            return refuse();
+        }
+        answer = ravel::json_check(document.structured_output, schema);
+    } catch (error) { return refuse(); }
+    let result = if answer.prime == "yes" { "prime" } else { "not-prime" };
+    #{ status: "selected", program: "fake-agent", args: [result],
+       provider: "example", model: "fake", effort: "low", reason: "checked model answer" }
+}
+</code></pre>
+<p><strong><code>bin/claude</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+printf '%s\n' "$@" &gt; call.args
+cat &gt; call.prompt
+if test -f invalid-answer; then
+    printf '%s\n' '{"structured_output":{"prime":"perhaps"}}'
+else
+    printf '%s\n' '{"structured_output":{"prime":"yes"}}'
+fi
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/*
+$ mkdir -p home/.config/ravel &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" &gt; result &amp;&amp; cat call.args &amp;&amp; cat call.prompt &amp;&amp; printf '\n' &amp;&amp; cat result
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">-p
+--model
+haiku
+--tools
+
+--no-session-persistence
+--output-format
+json
+--json-schema
+{"additionalProperties":false,"properties":{"prime":{"enum":["yes","no"],"type":"string"}},"required":["prime"],"type":"object"}
+Is 17 a prime number? Answer with the JSON object only.
+prime
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ touch invalid-answer
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config_refused
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>Follow the first command block from the script to the result:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens in this example</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The configuration script</td><td>Calls <code>ravel::run_harness</code> for the entry <code>claude</code>, with the arguments in the table above and the question on <code>stdin</code></td></tr>
+<tr><td>2</td><td>The fake <code>claude</code></td><td>Writes its arguments to <code>call.args</code> and its standard input to <code>call.prompt</code>. Then it prints <code>{"structured_output":{"prime":"yes"}}</code>.</td></tr>
+<tr><td>3</td><td>The Ravel CLI</td><td>Gives the script a map with <code>status: "exited"</code>, <code>exitCode: 0</code> and that line in <code>stdout</code></td></tr>
+<tr><td>4</td><td>The configuration script</td><td>Parses <code>stdout</code>, checks <code>structured_output</code> against the schema and selects <code>fake-agent</code> with the argument <code>prime</code></td></tr>
+<tr><td>5</td><td><code>fake-agent</code></td><td>Sends <code>prime</code> with <code>end-session</code>, and <code>prime</code> becomes the result of <code>ravel start-session</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The first command block then prints <code>call.args</code>, <code>call.prompt</code> and the result. Thus, the
+output shows each argument that a real Claude Code would receive. In the
+second command, the fake answers <code>perhaps</code>. The schema permits only <code>yes</code> or
+<code>no</code>, so the script refuses.</p>
+<p><code>type_of</code> reports the Rhai type name.
+The map check and <code>contains</code> test protect the read of <code>structured_output</code>.
+The schema rejects <code>perhaps</code>, and the script returns its own refusal.
+A different script could choose a fixed fallback after an unusable answer.
+It still cannot catch an exhausted
+<a href="02-actors-and-words.html#evaluation-and-supervision">evaluation budget</a>.
+An evaluation budget is a limit that you set in the settings for one
+evaluation, such as the number of harness runs in <code>budgets.harnessRuns</code>.</p>
+<p>The shipped <code>llm.rhai</code> asks Claude Code to classify the caller’s prompt. It
+sends <code>request.originalPrompt</code> to the classifier.
+It limits the answer to keys from the route table of <code>static.rhai</code>.
+After an unusable answer, it uses the caller’s kind instead.
+It imports <code>static.rhai</code>, so both files must be present.</p>
+<h2 id="ask-a-model-through-codex"><a class="header" href="#ask-a-model-through-codex">Ask a model through Codex</a></h2>
+<p>Do you use Codex and not Claude Code? The recipe is almost the same. The
+script asks for structured output, reads the answer from standard output and
+checks it with the same schema.</p>
+<p>One difference matters.
+Codex accepts its structured-output schema as a file path, not as text.
+Keep that file where the run can read it.
+The script cannot write the schema file itself.
+The example places it in the caller’s working directory and reads the same
+file with <code>ravel::read_json</code>.</p>
+<p>The recipe uses Codex CLI 0.164.0.
+The author checked the installed help on 2026-10-26.
+The repository’s real smoke call succeeded with that version and these arguments.
+The final message on standard output is the JSON answer.
+This recipe does not use <code>--json</code>, which selects JSON Lines events instead.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Argument</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>exec</code></td><td>Run noninteractively.</td></tr>
+<tr><td><code>--ephemeral</code></td><td>Do not retain the session in local history.</td></tr>
+<tr><td><code>--skip-git-repo-check</code></td><td>Permit the call outside a Git repository.</td></tr>
+<tr><td><code>--sandbox read-only</code></td><td>Select the harness’s read-only sandbox.</td></tr>
+<tr><td><code>-c 'model_reasoning_effort="low"'</code></td><td>Set the effort for this call.</td></tr>
+<tr><td><code>--output-schema PATH</code></td><td>Read the answer schema from a file.</td></tr>
+<tr><td><code>-</code></td><td>Read the prompt from standard input.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The next example is <code>codex-question</code>, in <code>~/ravel-chapter-4/codex-question</code>
+with a <code>bin</code> subdirectory. It has the shape of <code>claude-question</code>, with two
+differences:</p>
+<ul>
+<li><code>settings.json</code> names the harness entry <code>codex</code>, and <code>bin/codex</code> is a fake
+Codex in place of <code>bin/claude</code>.</li>
+<li>A fifth file, <code>answer-schema.json</code>, holds the schema of the answer. The
+configuration script reads it, and the fake Codex receives its path.</li>
+</ul>
+<p>The second command block makes an empty file, <code>failed-call</code>, with <code>touch</code>.
+That file makes the fake Codex fail. In the output of the first block,
+<code>&lt;scratch&gt;/work</code> stands for the example’s directory. In your shell, the line
+shows the absolute path of your <code>codex-question</code> directory.</p>
+<p>Complete example: ask through a fake Codex, check the schema and inspect every
+argument.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"codex":{"program":"codex"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>answer-schema.json</code></strong></p>
+<pre><code class="language-json">{"type":"object","properties":{"prime":{"type":"string","enum":["yes","no"]}},"required":["prime"],"additionalProperties":false}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "codex-question-1";
+
+fn refuse() {
+    #{ status: "refused", code: "no_answer", message: "The call gave no valid answer.",
+       remedy: "Check the harness and its output." }
+}
+
+fn select(request, context) {
+    let schema = ravel::read_json("answer-schema.json").value;
+    let run = ravel::run_harness(#{
+        harness: "codex",
+        args: ["exec", "--ephemeral", "--skip-git-repo-check", "--sandbox", "read-only",
+               "-c", "model_reasoning_effort=\"low\"", "--output-schema",
+               ravel::path_resolve(request.cwd, "answer-schema.json"), "-"],
+        stdin: "Is 17 a prime number? Answer with the JSON object only.",
+        timeoutMs: 20000,
+    });
+    if run.status != "exited" || run.exitCode != 0 { return refuse(); }
+    let answer = ();
+    try { answer = ravel::json_check(ravel::json_parse(run.stdout), schema); }
+    catch (error) { return refuse(); }
+    let result = if answer.prime == "yes" { "prime" } else { "not-prime" };
+    #{ status: "selected", program: "fake-agent", args: [result],
+       provider: "example", model: "fake", effort: "low", reason: "checked model answer" }
+}
+</code></pre>
+<p><strong><code>bin/codex</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+printf '%s\n' "$@" &gt; call.args
+cat &gt; call.prompt
+if test -f failed-call; then
+    printf '%s\n' 'The fake call failed.' &gt;&amp;2
+    exit 1
+fi
+printf '%s\n' '{"prime":"yes"}'
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "$1"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home tmp &amp;&amp; chmod +x bin/*
+$ mkdir -p home/.config/ravel &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello" &gt; result &amp;&amp; cat call.args &amp;&amp; cat call.prompt &amp;&amp; printf '\n' &amp;&amp; cat result
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text">exec
+--ephemeral
+--skip-git-repo-check
+--sandbox
+read-only
+-c
+model_reasoning_effort="low"
+--output-schema
+&lt;scratch&gt;/work/answer-schema.json
+-
+Is 17 a prime number? Answer with the JSON object only.
+prime
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ touch failed-call
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind question --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config_refused
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>In the first command block, the fake <code>codex</code> printed <code>{"prime":"yes"}</code>. The script
+checked that answer against the schema from <code>answer-schema.json</code>, and
+<code>fake-agent</code> sent <code>prime</code> as the result. The output also shows the full path of
+the schema file. The script made that path from <code>request.cwd</code>, so Codex can
+find the file when the caller runs the example from its directory.</p>
+<p>In the second command block, the fake failed.
+The failed run returns <code>status: "exited"</code> and <code>exitCode: 1</code> to the script.
+The script then refuses. Ravel itself assigns no meaning to the harness’s text.
+A retry would need another run in the budget and time before the whole deadline.</p>
+<p>The fake examples prove the arguments, prompt placement and the checks of each answer.
+They do not prove that a real harness accepts the arguments. Two opt-in tasks
+in a Ravel checkout prove the recipes with real calls:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>What it proves</th><th>What it needs</th></tr>
+</thead>
+<tbody>
+<tr><td><code>task harness:smoke:claude</code></td><td>The Claude Code recipe, with a real call</td><td>An installed Claude Code with the owner’s sign-in. Task and the Rust toolchain, because the task builds Ravel from the checkout. The call spends subscription usage.</td></tr>
+<tr><td><code>task harness:smoke:codex</code></td><td>The Codex recipe, with a real call</td><td>An installed Codex with the owner’s sign-in. Task and the Rust toolchain, because the task builds Ravel from the checkout. The call spends subscription usage.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Run the appropriate task in the root directory of the checkout after a
+harness upgrade.
+<a href="10-develop-ravel.html#prepare-a-checkout">Chapter 10, “Prepare a checkout”</a>,
+gives the tools that a checkout needs.</p>
+<p>Those tasks use a temporary home with its own configuration. The home holds
+one link to your real home: the sign-in store of the harness.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Harness</th><th>The one link to your real home</th></tr>
+</thead>
+<tbody>
+<tr><td>Claude Code on macOS</td><td><code>Library/Keychains</code></td></tr>
+<tr><td>Claude Code on Linux</td><td><code>.claude/.credentials.json</code></td></tr>
+<tr><td>Codex</td><td><code>.codex/auth.json</code>. The task sets <code>CODEX_HOME</code> to the temporary <code>.codex</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The tasks do not need edits to your own settings.</p>
+<p>A Claude Code task stops before it runs Claude Code if your environment holds
+<code>CLAUDE_CONFIG_DIR</code>, <code>CLAUDE_SECURESTORAGE_CONFIG_DIR</code> or one of the three
+<code>CLAUDE_CODE_PLUGIN_*</code> location variables. A Codex task stops if <code>CODEX_HOME</code>
+names a directory in your real home. Run the task again without that variable.</p>
+<p>The harness owns its authentication.
+See the <a href="https://code.claude.com/docs/en/setup">Claude Code setup documentation</a>
+and <a href="https://learn.chatgpt.com/docs/auth">Codex authentication documentation</a>
+for account setup. This chapter assumes an installed, signed-in harness for real calls.
+Ravel reports no token usage. Its notice lists run metadata, not the prompt or answer.
+A script that copies an answer into diagnostics or delivered context exposes it there.</p>
+<h2 id="select-claude-code-or-codex-for-the-callers-work"><a class="header" href="#select-claude-code-or-codex-for-the-callers-work">Select Claude Code or Codex for the caller’s work</a></h2>
+<p>The harness runs above answer a question for the configuration script.
+Usually, you also want a harness to do the caller’s work, such as the review
+of chapter 1. Then the harness is the managed process: the program that Ravel
+starts and supervises for the session. An interactive harness waits for more
+input when its LLM completes the task. Thus, the caller’s prompt tells the LLM
+to run <code>ravel end-session RESULT</code>, and that command ends the session.</p>
+<p>A final interactive harness is the managed process, not a harness run.
+Select its <code>program</code> and <code>args</code> directly.
+This selection needs no <code>harnesses</code> entry or harness-run budget.</p>
+<p>The caller’s prompt gives the complete task. In the review of chapter 1, the
+prompt named the two files to review. It gave two permitted results,
+<code>approved</code> and <code>changes-needed</code>, and the condition for each result. It told
+the LLM to send the result with <code>ravel end-session</code>. The orchestrator then
+acted on each result.</p>
+<p>These values are the caller’s convention. Ravel assigns
+them no meaning, and it returns the value unchanged after cleanup.</p>
+<p>Your script passes <code>request.prompt</code> to the harness. With skill delivery
+enabled, that field also holds discovery instructions before the caller’s
+unchanged text. <code>request.originalPrompt</code> always holds only the caller’s text.
+Ravel does not add the instruction to end the session.</p>
+<p>How does <code>ravel end-session</code> find the session? Ravel puts the path of the
+session’s result file in the <code>RAVEL_EXIT_FILE</code> environment variable of the
+harness. The harness runs each command of the LLM in a child process, for
+example a shell. Each child inherits <code>RAVEL_EXIT_FILE</code> from its parent unless
+the parent changes it. Thus, <code>ravel end-session</code> finds the path in its own
+environment.
+<a href="01-what-ravel-is-for.html#how-end-session-finds-its-session">Chapter 1, “How <code>end-session</code> finds its session”</a>,
+shows the paths of a real nested run.</p>
+<p>Follow the review with a real Claude Code, from the selection to the result:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>What happens in the review</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The configuration script</td><td>Selects <code>claude</code> with the caller’s prompt as its last argument</td></tr>
+<tr><td>2</td><td>The Ravel CLI</td><td>Writes the routing notice, puts the path of the result file in <code>RAVEL_EXIT_FILE</code> and starts <code>claude</code></td></tr>
+<tr><td>3</td><td>The LLM in Claude Code</td><td>Reviews the two files, finds a problem and writes <code>review-notes.md</code>. Then it asks Claude Code to run <code>ravel end-session changes-needed</code>.</td></tr>
+<tr><td>4</td><td><code>ravel end-session</code></td><td>Finds the path in <code>RAVEL_EXIT_FILE</code>, writes <code>changes-needed</code> there and asks Ravel to end the session</td></tr>
+<tr><td>5</td><td>The Ravel CLI</td><td>Stops Claude Code and the rest of its process group, then completes cleanup</td></tr>
+<tr><td>6</td><td>The Ravel CLI</td><td>Writes <code>changes-needed</code> on standard output. It is the result of <code>ravel start-session</code>.</td></tr>
+<tr><td>7</td><td>The orchestrator</td><td>Reads <code>review-notes.md</code>, then requests a session of the kind <code>fix</code></td></tr>
+</tbody>
+</table>
+</div>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Intended use</th><th>Action of the configuration script</th><th>How it completes</th></tr>
+</thead>
+<tbody>
+<tr><td>Ask a question before selection</td><td>Call <code>ravel::run_harness</code> with noninteractive arguments.</td><td>Read its output, status or run result.</td></tr>
+<tr><td>Run an interactive LLM session</td><td>Return a selected map for the harness.</td><td>A program in the session calls <code>end-session</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>The noninteractive recipes above are for the first row.
+The next example uses interactive arguments from the same installed versions.
+The author checked those arguments against their help on 2026-10-26.
+Both routes use the harness’s configured model default.
+Only the Claude Code route sets an explicit effort.</p>
+<p><code>--</code> separates the prompt from options, even when its first character is <code>-</code>.
+Codex’s <code>--no-daemon</code> makes Codex run without its shared background server.
+Ravel supervises the selected process group. A process that leaves that group
+is outside its cleanup.</p>
+<p>The next example is <code>interactive-routes</code>, in
+<code>~/ravel-chapter-4/interactive-routes</code> with a <code>bin</code> subdirectory. It has three
+files: <code>config.rhai</code>, a fake Claude Code at <code>bin/claude</code> and a fake Codex at
+<code>bin/codex</code>. <code>bin</code> comes first on the search path, so neither real harness
+runs. Each fake sends all its arguments as the result, one per line, each in
+<code>&lt;</code> and <code>&gt;</code>.</p>
+<p>The first command block is a <code>for</code> loop over two kinds, <code>claude-demo</code> and
+<code>codex-demo</code>. Type it as one command over five lines. Your shell shows a
+continuation prompt for the second to fifth lines. The second block asks with
+the kind <code>other</code>.</p>
+<p>Complete example: pass an instruction to end the session to two fake interactive
+harnesses.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "interactive-1";
+
+fn select(request, context) {
+    let program = "";
+    let args = [];
+    let effort = "configured-default";
+    if request.kind == "claude-demo" {
+        program = "claude";
+        effort = "medium";
+        args = ["--effort", effort, "--", request.prompt];
+    } else if request.kind == "codex-demo" {
+        program = "codex";
+        args = ["--no-daemon", "--no-alt-screen", "--sandbox", "workspace-write",
+                "--ask-for-approval", "on-request", "--", request.prompt];
+    } else {
+        return #{ status: "refused", code: "unsupported_kind",
+                  message: "No interactive route matches this kind.",
+                  remedy: "Use claude-demo or codex-demo." };
+    }
+    #{ status: "selected", program: program, args: args,
+       provider: "agent-configured", model: "configured-default",
+       effort: effort, reason: "attended harness route" }
+}
+</code></pre>
+<p><strong><code>bin/claude</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+result=$(printf '&lt;%s&gt;\n' "$@")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong><code>bin/codex</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+set -eu
+result=$(printf '&lt;%s&gt;\n' "$@")
+ravel end-session -- "$result"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/*
+$ cp settings.json home/.config/ravel/settings.json
+$ for kind in claude-demo codex-demo; do
+    printf '%s\n' "$kind"
+    env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind "$kind" --prompt 'Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.' || break
+    printf '\n'
+  done
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">claude-demo
+&lt;--effort&gt;
+&lt;medium&gt;
+&lt;--&gt;
+&lt;Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.&gt;
+codex-demo
+&lt;--no-daemon&gt;
+&lt;--no-alt-screen&gt;
+&lt;--sandbox&gt;
+&lt;workspace-write&gt;
+&lt;--ask-for-approval&gt;
+&lt;on-request&gt;
+&lt;--&gt;
+&lt;Review the change. If it is correct, run ravel end-session approved. Otherwise, run ravel end-session changes-needed.&gt;
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --config config.rhai --kind other --prompt "hello"
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config_refused
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>The fakes return their arguments. They do not act on the prompt.
+This check establishes prompt delivery, not whether an LLM obeys the instruction.
+Real interactive harnesses need a foreground terminal.
+Ravel can lend that terminal to the managed process and recover it afterwards.</p>
+<p>The harness needs permission to run <code>ravel</code> and write its inherited result path.
+Keep <code>ravel</code> on its <code>PATH</code>, or name the installed absolute path in the prompt.
+The harness’s sandbox and approvals must permit these actions, and the
+operating system’s file permissions must allow the result write.
+A natural exit without <code>end-session</code>, even exit status 0, returns no result to the caller.</p>
+<h2 id="copy-a-configuration-script-and-its-files"><a class="header" href="#copy-a-configuration-script-and-its-files">Copy a configuration script and its files</a></h2>
+<p>You may want to move a configuration script to another account, or start from
+one of the example scripts that Ravel ships. A script can be more than one
+file. It can import modules, read data files and need settings entries.</p>
+<p>Copy a configuration script with its imported modules and data files.
+Preserve relative import paths, and check paths relative to <code>request.cwd</code> separately.
+Copy only the settings entries and environment grants that the new script needs.
+The script does not carry its own settings file through <code>--config</code>.</p>
+<p>The shipped examples are under <code>share/ravel/examples/</code> in a Ravel 2.0.0 installation.
+In a checkout, their source is <code>crates/ravel/examples/</code>.
+The examples are editable copies, not embedded imports.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Example</th><th>Files and purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>static.rhai</code></td><td>A fixed route table with placeholder commands and labels.</td></tr>
+<tr><td><code>sample.rhai</code></td><td>A checkout choice. It also needs <code>static.rhai</code>.</td></tr>
+<tr><td><code>llm.rhai</code></td><td>An LLM-assisted choice through Claude Code. It needs <code>static.rhai</code> and harness settings.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Before real use, replace placeholder commands and test every route with fake
+agents. Check that the script refuses unknown kinds as intended.
+Check that absent data and unsuccessful harness runs produce the outcome you chose.
+Then put the script at <code>$HOME/.config/ravel/config.rhai</code>, or select it with
+<code>--config</code>.</p>
+<h2 id="review-your-configuration-script-before-real-use"><a class="header" href="#review-your-configuration-script-before-real-use">Review your configuration script before real use</a></h2>
+<p>In short, the caller asks with a kind and a prompt. Ravel evaluates your Rhai
+configuration script in the Rhai worker, a second copy of the <code>ravel</code>
+executable. The script can read measured files, read granted environment
+variables and run harnesses through <code>ravel::</code> functions.
+Each of these host capabilities asks the Ravel CLI to do the work, within the
+limits of your settings. Then <code>select</code> returns a selection or a refusal.</p>
+<p>After a selection, Ravel reaps the worker and starts the selected program as
+the managed process. Ravel writes the routing notice on the caller’s standard
+error. The text notice comes before the start of the program, and the JSON
+notice follows the supervision attempt. The program sends a result with
+<code>ravel end-session</code>, as the caller’s prompt tells it. After cleanup, that
+result becomes the result of <code>ravel start-session</code>, unchanged. The caller
+gives the result its meaning.</p>
+<p>Before you use a configuration script with real harnesses, test each of these
+points with fake agents:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Point to test</th><th>What a good script does</th></tr>
+</thead>
+<tbody>
+<tr><td>Each route</td><td>Starts the program with the arguments that you expect, and the fake agent sends them back</td></tr>
+<tr><td>Each unknown kind</td><td>Refuses with a <code>code</code>, a <code>message</code> and a <code>remedy</code> that the caller can act on</td></tr>
+<tr><td>Absent optional inputs</td><td>Gives the outcome that you chose, without an error from an absent map property</td></tr>
+<tr><td>Absent or malformed data files</td><td>Refuses or uses a default, as you chose</td></tr>
+<tr><td>Each harness run</td><td>Checks the status, the exit code and the answer before the script uses the answer</td></tr>
+<tr><td>An unusable answer from a model</td><td>Refuses or uses a fixed fallback, as you chose</td></tr>
+<tr><td>The interactive routes</td><td>Pass the caller’s prompt, with its instruction to run <code>ravel end-session</code></td></tr>
+</tbody>
+</table>
+</div>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="03-a-complete-session.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="05-running-sessions.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="03-a-complete-session.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="05-running-sessions.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

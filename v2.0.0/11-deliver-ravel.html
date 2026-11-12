@@ -1,0 +1,1250 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Deliver Ravel - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="deliver-ravel"><a class="header" href="#deliver-ravel">Deliver Ravel</a></h1>
+<p>Ravel 2.0.0 has a delivery problem that a version number alone cannot solve.
+Grove, the task-tree driver and Ravel’s first caller, has a released version
+that accepts only Ravel 1.x. Grove’s formula depends on the unversioned
+Homebrew formula <code>ravel</code>. If <code>ravel</code> moved to 2.0.0 at once, every new
+installation and every upgrade of Grove would install a Ravel that this Grove refuses. <a href="https://github.com/Linkuistics/grove">Grove</a> is only an illustrative
+caller here. Any released caller that refuses a new major has the same
+problem.</p>
+<p>Thus, the 2.0.0 delivery has two steps. First, one version cut makes one tag,
+one book and three archives. It delivers them through the keg-only formula <code>ravel@2</code>, and unversioned <code>ravel</code> stays at 1.1.0. Later, when the caller has a
+compatible release, <code>task release:promote</code> delivers the same archives as unversioned <code>ravel</code>. Promotion cuts no version and builds nothing.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Task</th><th>What changes in the tap</th><th>Unversioned <code>ravel</code> afterwards</th></tr>
+</thead>
+<tbody>
+<tr><td>The cut of 2.0.0</td><td><code>task release:major CHANNEL=versioned-2</code></td><td><code>Formula/ravel@2.rb</code> holds 2.0.0</td><td>1.1.0</td></tr>
+<tr><td>The promotion, after the caller’s compatible release</td><td><code>task release:promote VERSION=2.0.0</code></td><td><code>Formula/ravel.rb</code> holds 2.0.0, and <code>ravel@2.rb</code> gains a deprecation</td><td>2.0.0</td></tr>
+</tbody>
+</table>
+</div>
+<p>This chapter follows that delivery. It starts with what a release holds and
+how the checks show that each archive works. Then it explains the two formula
+channels, the version cut, the promotion and the recovery of a release that
+stopped part of the way.</p>
+<p>A release carries one executable, <code>bin/ravel</code>, which supplies the
+<a href="02-actors-and-words.html#evaluation-and-supervision">Ravel CLI</a>, the command-line
+program, and its <a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a>.
+The worker is a second process of that executable that evaluates the Rhai
+configuration script, the owner’s file that selects a program.
+<a href="07-the-parts-of-ravel.html#the-installed-executable-supplies-both-roles">Chapter 7</a>
+explains the shared executable. Ravel 1.x also installed a TypeScript worker,
+its SDK and its runtime under <code>libexec/ravel</code>. Ravel 2.0.0 removed them, with
+their probe workers and their checks. No archive, formula or installation of
+2.0.0 holds them.</p>
+<p>The private runner serves the Ravel CLI, which supervises one session and
+exits. Ravel supports no separately installed worker or library. Another
+program invokes the Ravel CLI as a child process.</p>
+<p>Start with <a href="10-develop-ravel.html#install-and-test-the-installed-files">chapter 10’s install and smoke tasks</a>.
+Those tasks test a local installation. This chapter extends that check to
+archives, to the environments where their programs run and to Homebrew.</p>
+<h2 id="keep-the-version-and-executable-together"><a class="header" href="#keep-the-version-and-executable-together">Keep the version and executable together</a></h2>
+<p>The workspace has one Ravel version, independent of any caller. <code>Cargo.toml</code>
+supplies it to both Rust packages. Until the cut of 2.0.0, the checkout’s
+version is 1.1.0, the last release. An unreleased archive uses the checkout’s
+version even when its source differs from that version’s release tag. Thus,
+the archive name alone does not make it a released artifact.</p>
+<p>The executable holds a source identity, which its build script computes from
+the Rust sources, the manifest and <code>Cargo.lock</code>. The Rhai worker is a second
+invocation of the same executable. Its <code>hello</code> carries the identity, and the
+Ravel CLI compares it with its own before it sends the request. A mismatch
+causes <code>worker_identity_mismatch</code>, exit 5, before evaluation. A symlink to the
+CLI still uses the same resolved executable for the worker. Installed
+execution needs no Bun or Node runtime.</p>
+<h2 id="build-archives-before-a-release"><a class="header" href="#build-archives-before-a-release">Build archives before a release</a></h2>
+<p><code>task release:archives</code> builds local archives without a version cut. With no
+<code>TARGETS</code> argument, it builds these targets:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Target</th><th>Archive contents run on</th></tr>
+</thead>
+<tbody>
+<tr><td><code>aarch64-apple-darwin</code></td><td>Apple silicon macOS</td></tr>
+<tr><td><code>aarch64-unknown-linux-gnu</code></td><td>Arm64 GNU/Linux</td></tr>
+<tr><td><code>x86_64-unknown-linux-gnu</code></td><td>x86-64 GNU/Linux</td></tr>
+</tbody>
+</table>
+</div>
+<p>The target names spell arm64 as <code>aarch64</code> and x86-64 as <code>x86_64</code>. This
+chapter uses the target spelling only in target names and in the support
+statement.</p>
+<p>Run the release tasks from the checkout. The full workflow needs an Apple
+silicon Mac, Bash 4 or later, Task, rustup, curl, tar with xz and ShellCheck.
+The Linux builds also need Zig, cargo-zigbuild 0.23.3 or later and both Linux
+Rust target libraries. The Linux smoke tests need an available <code>linux/arm64</code>
+Docker daemon with kernel 6.7 or later.</p>
+<p>The kernel requirement comes from the emulated routes. They register QEMU in a
+private <code>binfmt_misc</code> instance, which Linux 6.7 and later gives each user
+namespace. Thus, the registration does not change the Docker host’s own. The
+requirement applies to the test environment. It is not Ravel’s minimum
+kernel.</p>
+<p><code>task setup</code> supplies the book tools of the checkout. The Rust build uses the
+pinned Rhai dependency in <code>crates/ravel/Cargo.toml</code> and <code>Cargo.lock</code>. Bun is a
+book tool only. It is not part of an installed Ravel.</p>
+<p>The release build puts rustup’s tools first on <code>PATH</code> when its shims exist.
+Those shims read <code>rust-toolchain.toml</code>, which selects Rust 1.99.1 with the
+three target libraries. An explicit <code>RUSTC</code> override can still select another
+compiler. <a href="#prepare-a-version-cut">The release doctor</a> checks the compiler
+that the build will use and its target libraries.</p>
+<p>Fragment: prepare the target libraries and build local archives. This recipe
+omits tool installation and the command output.</p>
+<pre><code class="language-sh">rustup toolchain install
+task setup
+task release:archives
+</code></pre>
+<p>The build writes <code>target/archives/ravel-v&lt;VERSION&gt;-&lt;TARGET&gt;.tar.xz</code>. It
+clears <code>target/archives</code> before each build, even for one target. Thus, an
+archive from an earlier build cannot stand in for a target that failed. Each
+archive first has a temporary filename. The build gives the archive its final
+filename only after the manifest check passes, then prints its SHA-256
+digest.</p>
+<p>For a local macOS check, select only the native target. This selection
+replaces the contents of the archive directory and does not check Linux.</p>
+<p>Fragment: build only the macOS archive. This recipe omits setup and output.</p>
+<pre><code class="language-sh">task release:archives TARGETS=aarch64-apple-darwin
+</code></pre>
+<p>If an unreleased build fails, correct the reported cause and run the task
+again. It creates no release tag or remote release. The later release
+procedure builds fresh artifacts from the release tag into <code>target/dist</code>.</p>
+<h2 id="check-the-archive-contents"><a class="header" href="#check-the-archive-contents">Check the archive contents</a></h2>
+<p>An archive has one top directory, <code>ravel-v&lt;VERSION&gt;-&lt;TARGET&gt;/</code>. That
+directory is an installation prefix. The manifest in
+<code>scripts/release-common.sh</code> permits exactly these files and their
+directories:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path below the prefix</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code>bin/ravel</code></td><td>Ravel CLI and its internal Rhai worker role</td></tr>
+<tr><td><code>share/ravel/examples/static.rhai</code></td><td>Starter configuration script</td></tr>
+<tr><td><code>share/ravel/examples/sample.rhai</code></td><td>Example that an owner can copy and edit</td></tr>
+<tr><td><code>share/ravel/examples/llm.rhai</code></td><td>Harness-assisted selection example</td></tr>
+<tr><td><code>share/ravel/notices/THIRD-PARTY-NOTICES.md</code></td><td>Rust dependency notices</td></tr>
+<tr><td><code>README.md</code>, <code>LICENSE</code></td><td>Project entry and licence</td></tr>
+</tbody>
+</table>
+</div>
+<p>The installed-file view separates Ravel’s Homebrew record from a skill source’s payload and links.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/installed-files.svg" alt="The Ravel prefix contains bin/ravel, examples, notices and the Homebrew installation record. A separate skill source keg contains the payload and alias. The shared prefix links to that alias."><span class="img-wrapper"><img src="figures/installed-files.svg" alt="The Ravel prefix contains bin/ravel, examples, notices and the Homebrew installation record. A separate skill source keg contains the payload and alias. The shared prefix links to that alias."></span></label></p>
+<p><a href="figures/installed-files.svg">Open the installed-file view at full size</a>.</p>
+<p><a href="06-reference.html#installed-layout">Chapter 6’s installed-layout view</a> shows
+the executable and the data files. <code>task notices</code> generates the notice file
+under <code>target/notices/</code>. The installation and the archive build copy those bytes unchanged.</p>
+<p>The manifest check refuses extra files and directories, missing files,
+symlinks in place of files, and executables without execute permission. Caller
+programs, caller adapters, owner configuration, choice files and development
+dependencies do not belong in an archive. The installation record does not
+belong there either, because only an installation knows its prefix. The pack
+step also excludes macOS extended attributes and their AppleDouble metadata
+files.</p>
+<p><code>task release:test</code> tests the manifest check. It compares the manifest with a
+fresh Ravel build, then uses deliberately incorrect archives. Each omitted
+file causes a failure. Other controls add unwanted files, change types or
+permissions, and add macOS metadata. The task needs no Docker, but its
+metadata controls use macOS tools.</p>
+<p>Fragment: test the manifest check. This recipe omits setup and output.</p>
+<pre><code class="language-sh">task release:test
+</code></pre>
+<p>The manifest check examines layout, types and execute permission. It does not
+show that the executable behaves correctly. The installed smoke test does
+that.</p>
+<h2 id="test-the-installed-archive"><a class="header" href="#test-the-installed-archive">Test the installed archive</a></h2>
+<p><code>task release:smoke</code> builds the selected archives again, then tests them. With
+no selection, every target runs. A missing tool, a failed target or a selected
+target that did not run fails the task. There is no successful skip path.</p>
+<p>Fragment: build and test all target archives. This recipe omits setup and the
+output of each target.</p>
+<pre><code class="language-sh">task release:smoke
+</code></pre>
+<p>Each environment extracts its archive with its own tar into a fresh prefix.
+It checks the CLI version and runs <code>scripts/installed-smoke.sh</code>, the same
+script that <a href="10-develop-ravel.html#install-and-test-the-installed-files">chapter 10’s <code>task install</code></a>
+runs. That script tests both the direct CLI path and a relative symlink from
+another prefix. Its private utility <code>PATH</code> has no Bun, Node or Grove. It
+supplies a fresh home and temporary directory through a cleared environment.</p>
+<p>The test uses a shell fake agent, a real Rhai worker and the installed files.
+Each <a href="02-actors-and-words.html#caller-and-owner">session</a> returns the
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+that the fake agent sends with <code>end-session</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Check</th><th>What the test compares</th></tr>
+</thead>
+<tbody>
+<tr><td>Installed files</td><td>The three examples and the notice file exist. No <code>libexec/ravel</code> and no installation record exist</td></tr>
+<tr><td>Copied sample</td><td>The sample, which imports <code>static.rhai</code>, uses the selected choice and starts the fake agent</td></tr>
+<tr><td>Result values</td><td>Ordinary, empty, multiline and option-like values return unchanged</td></tr>
+<tr><td>Child output</td><td>The child’s standard output goes to diagnostics, separate from the result</td></tr>
+<tr><td>Rhai imports and inputs</td><td>A relative module import, a measured read and <code>--param</code> values reach the configuration script</td></tr>
+<tr><td>Retired format</td><td>A <code>policy.ts</code> entry refuses as <code>config_format_retired</code>, with status 3 and no result</td></tr>
+<tr><td>Missing <a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a></td><td><code>end-session</code> fails and writes no result</td></tr>
+<tr><td>Temporary resources</td><td>The sessions leave no resources in their temporary directory</td></tr>
+</tbody>
+</table>
+</div>
+<p>No model or personal configuration script runs. The test does not exercise an
+interactive terminal or all lifecycle failures.
+<a href="09-jobs-signals-and-the-terminal.html">Chapter 9</a> explains those separate
+obligations.</p>
+<h2 id="read-the-platform-checks-correctly"><a class="header" href="#read-the-platform-checks-correctly">Read the platform checks correctly</a></h2>
+<p>A platform floor is the oldest library or CPU capability that a check
+exercises. The Linux executable builds against glibc 2.17 through Zig. The
+archive smoke test then runs it at each floor.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Route</th><th>Environment and check</th></tr>
+</thead>
+<tbody>
+<tr><td>macOS arm64</td><td>Native execution on the Mac that runs the task</td></tr>
+<tr><td>Linux arm64, native CPU</td><td>Pinned CentOS 7.9 userland in arm64 Docker, with glibc 2.17</td></tr>
+<tr><td>Linux arm64, CPU floor</td><td>The same userland under QEMU 10.2.2 with the Cortex-A53 model</td></tr>
+<tr><td>Linux x86-64, CPU floor</td><td>CentOS 7.9 under QEMU 10.2.3 with the Nehalem model</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each Linux route checks that the userland reports glibc 2.17. A probe built
+for that floor runs. A second probe needs <code>GLIBC_2.25</code>, and the userland
+refuses it. The two probes show that the environment both runs valid programs
+and refuses a newer library requirement.</p>
+<p>The CPU controls use an instruction above each floor: an Armv8.1 LSE atomic
+operation for arm64, and AVX2 for x86-64. At the floor, the instruction
+causes SIGILL. The same probe runs under the same emulator with <code>-cpu max</code>.
+Thus, the failure at the floor comes from the CPU model, not from a defective
+probe.</p>
+<p>Each emulated route checks that <code>bin/ravel</code>, the only ELF executable in the
+archive, matches its emulator registration. Thus, the executable runs through
+QEMU, not directly on the host CPU. The routes also check the guest address
+bounds and the presence of the vDSO, an interface that the kernel maps into a
+process. The test programs run without network access, as an unprivileged
+user, with read-only test inputs.</p>
+<p>These checks show different limits:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Observation</th><th>Limit</th></tr>
+</thead>
+<tbody>
+<tr><td>Native macOS smoke passed</td><td>It checks the host macOS version, not an older macOS floor</td></tr>
+<tr><td>glibc and CPU controls passed</td><td>They check these userlands and CPU models, not every distribution or processor</td></tr>
+<tr><td>Linux container or user-mode QEMU passed</td><td>It uses the host kernel and does not measure a minimum kernel version</td></tr>
+<tr><td>Archive smoke passed</td><td>It checks the installed workflow, not the full process and terminal campaign</td></tr>
+</tbody>
+</table>
+</div>
+<p>The native-entry campaign measured aarch64 macOS and aarch64 Linux. x86_64
+Linux is built and run only under emulation. Native x86-64 Linux remains
+unqualified, with qualification tracked in
+<a href="https://github.com/Linkuistics/Ravel/issues/1">Linkuistics/Ravel#1</a>. An
+archive smoke pass does not change that support statement.</p>
+<p><a href="10-develop-ravel.html#read-the-evidence-for-a-change">Chapter 10’s evidence map</a>
+names the separate archive and native-entry records. Those records name their
+source revisions and measured environments. After a source change, run
+<code>task release:smoke</code> again. It builds the archives again before it tests
+them.</p>
+<h2 id="choose-a-formula-channel"><a class="header" href="#choose-a-formula-channel">Choose a formula channel</a></h2>
+<p>A Homebrew formula tells Homebrew which archive to download, how to install it and how to test the installation. A <strong>formula channel</strong> selects how one
+release’s artifacts reach Homebrew. It selects no other build and no other
+archive layout. Ravel has two channels:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th><code>CHANNEL</code></th><th>Formula</th><th>Class</th><th>Installed command</th></tr>
+</thead>
+<tbody>
+<tr><td><code>versioned-2</code></td><td><code>ravel@2</code>, in <code>Formula/ravel@2.rb</code></td><td><code>RavelAT2</code>, with <code>keg_only :versioned_formula</code></td><td>Only <code>$(brew --prefix ravel@2)/bin/ravel</code>. Homebrew links no command into the shared prefix</td></tr>
+<tr><td><code>unversioned</code></td><td><code>ravel</code>, in <code>Formula/ravel.rb</code></td><td><code>Ravel</code></td><td><code>$(brew --prefix)/bin/ravel</code>, the command that <code>PATH</code> usually finds</td></tr>
+</tbody>
+</table>
+</div>
+<p>A keg is Homebrew’s directory for one installed version of a formula, such as
+<code>/opt/homebrew/Cellar/ravel/1.1.0</code>. A <strong>keg-only</strong> formula installs its keg
+but does not link its commands into the shared prefix. Thus, <code>ravel@2</code>
+installs beside unversioned <code>ravel</code> and does not change the <code>ravel</code> command that an active caller uses. A user who wants 2.0.0 before promotion names the
+prefix of <code>ravel@2</code>.</p>
+<p>Why does Ravel deliver 2.0.0 through <code>ravel@2</code> first? The decision record
+<code>docs/adr/a-caller-transition-publishes-a-versioned-formula-first.md</code> gives
+the reason. A released caller, Grove 22.8, accepts only stable Ravel 1.x from
+1.1.0. Its formula depends on unversioned <code>ravel</code>, and its formula test
+requires a 1.x version. Direct delivery of 2.0.0 as <code>ravel</code> would move
+every new Grove installation and every upgrade to a Ravel that this Grove
+refuses. The cost is a transition formula and a second delivery step, the promotion.</p>
+<p>Each version-cut task, <code>release:patch</code>, <code>release:minor</code> or <code>release:major</code>, requires <code>CHANNEL</code>. It has no default, so an omission never changes unversioned <code>ravel</code>. <code>scripts/release-channel.sh</code> maps the channel
+to its formula name, file, class, keg-only line and prefix. Each script of the cut that writes or reads a formula takes <code>--channel</code> as an argument.</p>
+<p><code>release:promote</code> takes no channel. It makes the versioned release available through unversioned <code>ravel</code>. The table gives the rules that accept a channel for a version.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Channel</th><th>Delivers</th><th>Refuses</th></tr>
+</thead>
+<tbody>
+<tr><td><code>versioned-2</code></td><td>Major 2 only</td><td>Any other major. Also any version after unversioned <code>ravel</code> has major 2, because promotion is then complete</td></tr>
+<tr><td><code>unversioned</code></td><td>Any version, except major 2 before promotion</td><td>A major-2 version while unversioned <code>ravel</code> has a major below 2, or is absent</td></tr>
+</tbody>
+</table>
+</div>
+<p>Before the cut, preparation checks the baseline release in the formula that delivered it. The first 2.0.0 cut checks baseline 1.1.0 in <code>Formula/ravel.rb</code>,
+then delivers 2.0.0 through <code>ravel@2</code>. A later 2.x cut before promotion checks its baseline in <code>Formula/ravel@2.rb</code> and delivers through <code>ravel@2</code> again. After promotion, a cut
+selects <code>CHANNEL=unversioned</code> and checks its baseline in <code>Formula/ravel.rb</code>.
+<code>ravel@2</code> then stays at the promoted version and receives no later release.</p>
+<p>Homebrew links a requested versioned keg-only formula into the shared prefix
+when neither that formula nor its unversioned formula is installed. Thus, the
+first installation of <code>ravel@2</code> uses <code>brew install --skip-link</code>. An upgrade
+keeps the link state of the installed keg.</p>
+<h2 id="package-a-skill-source-for-the-default-directory"><a class="header" href="#package-a-skill-source-for-the-default-directory">Package a skill source for the default directory</a></h2>
+<p>Both channels install the same files. Each formula also writes the
+<a href="06-reference.html#default-skill-directory">installation record</a>,
+<code>share/ravel/installation.json</code>, into its keg. The record names the default
+skill directory, <code>$(brew --prefix)/share/ravel/skills</code>. That is a path in the
+shared prefix, not in the keg. Thus, keg-only <code>ravel@2</code> and unversioned
+<code>ravel</code> name the same directory. With no <code>skills.sources</code> in the owner’s
+settings, Ravel reads that directory.</p>
+<p>Another formula can put a skill source into that directory. It does not
+install a real source directory there. Homebrew can replace a directory link
+of one keg with a real directory when a second keg links into the same
+directory. It then links each file of the first source separately. Each such
+file link leaves the source boundary, and Ravel refuses the whole resolution
+as <code>skill_resource_invalid</code>.</p>
+<p>Thus, a formula installs each source as a private payload and exposes it
+through a relative directory symlink, the <strong>source alias</strong>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path in the keg</th><th>Content</th></tr>
+</thead>
+<tbody>
+<tr><td><code>libexec/skill-sources/ID/</code></td><td>The payload: the source directory, with its executable bits and its links</td></tr>
+<tr><td><code>share/ravel/skills/ID</code></td><td>The source alias: the relative directory symlink <code>../../../libexec/skill-sources/ID</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>Homebrew links each source alias as one entry into
+<code>$(brew --prefix)/share/ravel/skills/ID</code>, and it never goes into a payload.
+Ravel’s own <code>examples</code>, <code>notices</code> and <code>installation.json</code> are in
+<code>share/ravel</code>, outside the skill directory. They are not sources and need no
+alias. The specification <code>docs/specs/skill-discovery.md</code> gives the rule in its section on a default source, and <code>docs/skill-discovery-design-evidence.md</code> gives
+its measurement against Homebrew’s own link code.</p>
+<h2 id="prepare-and-test-the-homebrew-formula"><a class="header" href="#prepare-and-test-the-homebrew-formula">Prepare and test the Homebrew formula</a></h2>
+<p>Ravel’s formula template is <code>scripts/templates/ravel.rb.tmpl</code>. One template
+renders both channels. The two texts differ only in the class line and the
+<code>keg_only</code> line. Each selects one of the three target archives, installs
+<code>bin/ravel</code> and the data under <code>share/ravel</code>, and writes the installation
+record. The template has no Grove dependency.</p>
+<p><code>task release:formula</code> requires all three current-version archives in
+<code>target/archives</code>. It checks each archive against the manifest. It renders
+both formulae with the version and the archive digests, and it fails on a
+placeholder that it did not replace. It also renders the deprecated <code>ravel@2.rb</code> that promotion puts in the tap.</p>
+<p>Fragment: after the full archive smoke task, test the formulae. This recipe
+omits setup, archive construction and output.</p>
+<pre><code class="language-sh">task release:formula
+</code></pre>
+<p>The task needs Homebrew on Apple silicon macOS. It loads each rendered
+formula through Homebrew’s Ruby library and calls its actual install and test
+methods. Only the installation prefix and the test directory change to
+private temporary directories. The task creates no Homebrew keg and edits no
+tap.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Formula check</th><th>What it shows</th></tr>
+</thead>
+<tbody>
+<tr><td>Two channels from one template</td><td><code>ravel.rb</code> and <code>ravel@2.rb</code> differ only in the class line and the <code>keg_only</code> line</td></tr>
+<tr><td>Installed paths</td><td>The temporary prefix has exactly the archive’s <code>bin</code> and <code>share</code> contents and the installation record</td></tr>
+<tr><td>Installation record</td><td>The record names <code>$(brew --prefix)/share/ravel/skills</code>. A copy of the installed executable, with a private record, resolves a fixture source with no settings and reports its directory</td></tr>
+<tr><td>Real configuration script and shell fake agent</td><td>The static example works through a symlink to the installed CLI</td></tr>
+<tr><td>Result comparisons</td><td>Ordinary, empty, multiline and option-like results return unchanged</td></tr>
+<tr><td>Cleared environment</td><td>The sessions use private home and temporary directories</td></tr>
+<tr><td>Temporary resources</td><td>The formula’s sessions leave their temporary directory empty</td></tr>
+<tr><td>Deprecated <code>ravel@2.rb</code></td><td>Homebrew’s own loader accepts the file that promotion renders</td></tr>
+</tbody>
+</table>
+</div>
+<p>The output in <code>target/archives</code> is preparation material. Its URLs use the
+checkout’s version, but its digests describe the local archives. Those bytes
+can differ from the assets at the release URLs, even when the version agrees.
+Do not copy these formulae into a tap or upload these archives as a release.
+The version-cut task builds fresh archives from the tag. It renders and tests both formulae, and it keeps only the formula of its channel.</p>
+<p>The final installation uses the tap <code>linkuistics/taps</code>. Its <code>brew test</code>
+checks the real installed keg. Then <code>scripts/installed-record.sh</code> compares the
+bytes of the installed record with the record that the formula writes. The
+temporary-prefix check above does not replace that final check.</p>
+<h2 id="prepare-a-version-cut"><a class="header" href="#prepare-a-version-cut">Prepare a version cut</a></h2>
+<p>A version cut selects the next version and creates its source commit and
+tag. Ravel’s stable CLI uses semantic versions: compatible changes use patch
+or minor releases, and incompatible changes need a major release.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr><td><code>release:doctor</code></td><td>Check tools, target libraries, the smoke hosts, GitHub authentication, the book tools, the book version line and the Pages setting</td></tr>
+<tr><td><code>release:notes</code></td><td>Fill empty Unreleased notes, or replace them with an explicit reviewed body</td></tr>
+<tr><td><code>release:lifecycle:test</code></td><td>Test release order, refusals, notes, book delivery, the channels, promotion and recovery in isolated repositories</td></tr>
+<tr><td><code>release:patch CHANNEL=…</code></td><td>Cut, deliver and install the next patch release through the channel</td></tr>
+<tr><td><code>release:minor CHANNEL=…</code></td><td>Cut, deliver and install the next minor release through the channel</td></tr>
+<tr><td><code>release:major CHANNEL=…</code></td><td>Cut, deliver and install the next major release through the channel</td></tr>
+<tr><td><code>release:promote VERSION=…</code></td><td>Deliver a complete <code>ravel@2</code> release as unversioned <code>ravel</code>. <a href="#promote-a-versioned-release">Promote a versioned release</a> explains it</td></tr>
+</tbody>
+</table>
+</div>
+<p>The three version-cut tasks have public effects. They push source and a tag,
+create a GitHub release, put the book on the Pages branch and update the tap.
+They also install or upgrade the channel’s formula on the local machine.
+Choose one task for the intended change. Do not run them as a sequence. Each
+refuses an unknown or absent <code>CHANNEL</code> before it changes anything.</p>
+<p>In addition to the archive tools, delivery needs jj, Git, jq, Homebrew and
+cargo-release 1.1.2. It also needs authenticated <code>gh</code> access to
+<code>Linkuistics/Ravel</code> and a clean, synchronised clone of <code>linkuistics/taps</code>.</p>
+<p><code>task setup</code> supplies the pinned mdBook 0.5.4 and the book Bun. The lifecycle
+suite needs that setup, because it builds books in its fixtures. The tap path
+defaults to <code>~/Development/homebrew-taps</code>. If the clone is elsewhere, set
+<code>RAVEL_TAP_DIR</code> to its path. Put Homebrew’s Bash before <code>/bin</code> on <code>PATH</code>, so
+the scripts use Bash 4 or later.</p>
+<p>The release procedure uses jj (Jujutsu), a version-control tool that can
+share a repository with Git. In jj, each change has a stable change ID and a
+description, which <code>jj describe</code> sets. A bookmark, such as <code>main</code>, is jj’s
+name for a branch. A colocated workspace has both <code>.jj</code> and <code>.git</code> in one
+directory.</p>
+<p>Run the cut from Ravel’s default colocated jj workspace. The release task
+refuses other directories. First, give each intended change a description and
+put it on local <code>main</code>. The preparation step of the release task saves the
+current change ID, then creates a clean child of <code>main</code>. Unrelated work stays
+at the saved ID. Later, <code>jj edit SAVED_CHANGE_ID</code> returns to that work.</p>
+<p>A run can stop before any version write, and you can start the task again.
+The second run then saves the empty child that the first run made. Your work is then at the ID that the
+first run printed.</p>
+<p>Fragment: check release prerequisites and remote tags. This recipe omits tool
+installation, notes review and the version cut. The tap check fetches its
+remote.</p>
+<pre><code class="language-sh">task release:doctor
+scripts/release-publish.sh --check-tap
+scripts/release-book.sh check-remote
+git ls-remote --tags origin
+task release:lifecycle:test
+</code></pre>
+<p>Run the lifecycle suite in a shell without <code>HOMEBREW_NO_INSTALL_CLEANUP</code>.
+The suite’s fake <code>brew</code> reads that variable from its environment. An exported
+value therefore hides the mutant that removes the setting from
+<code>scripts/release-install.sh</code>, and the suite fails at that mutant.</p>
+<p>The doctor reports missing prerequisites and their remedies. It checks the
+pinned mdBook and reads the repository’s Pages setting. Disabled Pages
+produces a note, because an administrator enables it after the first book
+reaches the branch. A different branch, folder or deployment mode fails the
+check.</p>
+<p>The separate <code>check-remote</code> command checks that Git can read <code>origin</code>, the
+remote that holds the Pages branch. Neither check changes the remote.
+<code>--check-tap</code> reads the tap state alone. Thus, it is the only mode of
+<code>scripts/release-publish.sh</code> without a channel.</p>
+<p>The doctor does not test tap synchronisation or the prior release.
+Preparation makes those separate checks. It fetches origin and
+refuses conflicts, divergence from origin, undescribed new changes on <code>main</code>,
+and version work outside <code>main</code>.</p>
+<p>For the current version, preparation requires local and remote tags that
+agree and a complete non-draft GitHub release. It also requires the version
+line of the baseline formula on the remote tap. It also requires new commits after the
+baseline tag.</p>
+<p>Thus, a prior release without its tags, its GitHub release or its formula
+leads to recovery, not another version cut. Preparation does not check the
+prior release’s installation, evidence or <code>live</code> check. Finish those steps
+before the next cut. The special absent-tag case applies only to version 0.0.0 with no
+local or remote version tags. The historical <code>structured-plan-migration</code> tag
+is not a release baseline.</p>
+<p>Write meaningful release notes under the single <code>## Unreleased</code> heading in
+<code>CHANGELOG.md</code>. The notes of 2.0.0 name the change of the configuration
+format, the <code>config_format_retired</code> refusal and chapter 4, because the
+refusal’s remedy names that chapter. Preparation keeps a nonempty body byte
+for byte. For an empty body, it uses the first lines of the nonempty,
+described commits since the current version tag. Then it commits those notes
+to <code>main</code> through jj. Review generated notes, because commit descriptions can
+contain internal details.</p>
+<p>Fragment: replace the notes with reviewed prose. This recipe omits the
+creation of the input file and the later jj commit. The changelog must match
+<code>main</code> first.</p>
+<pre><code class="language-sh">task release:notes -- --to main --from-file /absolute/path/reviewed-body.md
+</code></pre>
+<p>Without arguments, <code>release:notes</code> uses the current jj revision and fills
+only an empty body. <code>--from-file</code> deliberately replaces a nonempty body too.
+The input contains a section body, with no level-two heading. The script
+keeps the versioned sections and refuses missing, empty or invalid input.</p>
+<p>It also refuses missing or duplicate Unreleased headings, an ambiguous
+revision, or a changelog that differs from the selected revision. Commit
+reviewed notes through jj before the cut. This procedure runs no
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a> or
+model.</p>
+<h2 id="cut-and-deliver-a-release"><a class="header" href="#cut-and-deliver-a-release">Cut and deliver a release</a></h2>
+<p>Fragment: the first cut of 2.0.0, from Ravel’s default colocated workspace.
+This recipe omits the preparation above and the output. It shows the tap path
+of one machine.</p>
+<pre><code class="language-sh">RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:major CHANNEL=versioned-2
+</code></pre>
+<p>Each version-cut task calls the internal <code>release</code> task, which runs the steps
+below in order. The task first creates the <code>.jj/release-lock</code> directory.
+While it exists, a second release task or a promotion stops. A <code>defer</code>
+command in the task removes the lock when the task succeeds or fails.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>What it changes or checks</th></tr>
+</thead>
+<tbody>
+<tr><td>Check prerequisites</td><td>Run the doctor, the tap preflight and the Pages remote check</td></tr>
+<tr><td>Prepare <code>main</code></td><td>Keep unrelated work. Check the prior release in its channel’s formula and check that the channel accepts the new version. Prepare notes</td></tr>
+<tr><td>Check the tap and source again</td><td>Repeat the tap preflight, then run <code>task check</code></td></tr>
+<tr><td>Preview and cut</td><td>Run cargo-release first as a preview without <code>--execute</code>, then with <code>--execute --no-confirm</code></td></tr>
+<tr><td>Check the tagged book</td><td>Require the tag’s chapter 3 version line to match the cut</td></tr>
+<tr><td>Record and build the book</td><td>Move <code>main</code> to the release commit, then build the tag’s book into <code>target/book-release/vX.Y.Z/</code></td></tr>
+<tr><td>Build the archives</td><td>Build all archives and the channel’s formula into a fresh <code>target/dist</code></td></tr>
+<tr><td>Test the archives</td><td>Run the smoke test for every target at its floors</td></tr>
+<tr><td>Send the source</td><td>Push <code>main</code>, then push the tag</td></tr>
+<tr><td>Deliver</td><td>Create the GitHub release. Put the book on the Pages branch and check it with <code>verify</code>. Then update the channel’s formula in the tap</td></tr>
+<tr><td>Install</td><td>Install or upgrade the channel’s formula with cleanup suppressed, run its test, and check its keg and installation record</td></tr>
+<tr><td>Record the evidence</td><td>Write <code>target/release-evidence/vX.Y.Z.json</code></td></tr>
+<tr><td>Check the book on the site</td><td>Run <code>scripts/release-book.sh live vX.Y.Z</code> against the served pages</td></tr>
+</tbody>
+</table>
+</div>
+<p>The activity shows which checks come before the first public write and where
+each failure resumes. After a version write, recovery keeps the selected
+version.</p>
+<p>The grey exits refer to the
+<a href="#recover-a-partial-release-without-another-bump">recovery table</a>. Each
+decision summarises the checks since the previous decision. A failure stops
+at its own step, before the later actions in that group. The book build stays
+local. The Pages branch check comes before the tap update. The check of the
+served site comes last.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/release-delivery.svg" alt="The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update, installation and release evidence. Recovery branches cover failures through the final Pages check. The selected channel determines the formula. A separate promotion makes the same release available through ravel. After a version write, none starts another version cut."><span class="img-wrapper"><img src="figures/release-delivery.svg" alt="The local cut, tagged-book checks, book and archive builds, formula test and every-target smoke test precede the push of main. The GitHub release precedes the Pages branch push and check, then the tap update, installation and release evidence. Recovery branches cover failures through the final Pages check. The selected channel determines the formula. A separate promotion makes the same release available through ravel. After a version write, none starts another version cut."></span></label></p>
+<p><a href="figures/release-delivery.svg">Open the release activity at full size.</a></p>
+<p><code>release.toml</code> disables cargo-release pushes and crates.io uploads.
+Cargo-release creates the local version commit and tag through Git. The
+procedure otherwise uses jj. This commit and the tag operations are its Git
+exceptions. The <a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">runner</a>
+package, <code>keyed-launch</code>, sets <code>release = false</code>, so cargo-release does not
+release it separately. The changelog and book replacements are in the workspace’s <code>release.toml</code>.</p>
+<p>The changelog replacement requires exactly one whole-line Unreleased heading.
+It inserts the version heading below a fresh Unreleased heading. Thus, the
+notes become that version’s notes. The same release commit updates the
+manifests, the lockfile and the book version line.</p>
+<p>The archive build checks the clean source, the exact release tag and the
+workspace version before it clears <code>target/dist</code>. It builds all three targets. It renders and tests both formulae and the deprecated <code>ravel@2.rb</code>, and it keeps only the channel’s formula in <code>target/dist</code>. The next step runs the smoke test for
+every target from that directory. A failed build, formula test or smoke test
+stops before any push.</p>
+<p>Before it creates the GitHub release, <code>scripts/release-publish.sh</code> checks the
+tap, the archive manifests and the rendered formula again. It requires exactly three archives and a formula that matches their version
+and digests. It also checks again that the channel accepts the version. The GitHub release takes its notes from that version’s changelog section.</p>
+<p>The tap update copies only the channel’s formula file. It stops if the tap then holds any other change, such
+as the other channel’s formula. Every unrelated formula, such as
+<code>ravel-lite.rb</code>, stays unchanged.</p>
+<h3 id="keep-each-old-keg-for-its-active-readers"><a class="header" href="#keep-each-old-keg-for-its-active-readers">Keep each old keg for its active readers</a></h3>
+<p>A caller can still use an old keg while it runs. For example, a Grove session that
+started under Ravel 1.1.0 ends through
+<code>/opt/homebrew/Cellar/ravel/1.1.0/bin/ravel</code>. That executable runs
+<code>libexec/ravel/ravel-policy</code> and reads its SDK in the same keg. If the keg
+disappears, the session cannot end.</p>
+<p><code>brew install</code> and <code>brew upgrade</code> normally run Homebrew’s cleanup, which
+removes old versions. The environment variable <code>HOMEBREW_NO_INSTALL_CLEANUP=1</code>
+turns off that cleanup for one command. <code>scripts/release-install.sh</code> sets it
+on each Homebrew command that changes an installation. It never runs
+<code>brew cleanup</code>, an uninstall or a reinstall.</p>
+<p>Before its first change, the script records each <code>ravel</code> and <code>ravel@2</code> keg.
+The record holds each path, its type and the target of each link. It also
+holds the executable bit and the SHA-256 of each file. After the installation, it compares them again and refuses if
+any earlier keg changed. Homebrew’s own <code>INSTALL_RECEIPT.json</code> must stay, but
+Homebrew can change its content, and Ravel does not read it.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Variable</th><th>Effect</th><th>Where it is set</th></tr>
+</thead>
+<tbody>
+<tr><td><code>HOMEBREW_NO_INSTALL_CLEANUP=1</code></td><td>One install or upgrade removes no old version</td><td>On each command of <code>scripts/release-install.sh</code></td></tr>
+<tr><td><code>HOMEBREW_NO_CLEANUP_FORMULAE=ravel</code></td><td>No cleanup removes an old keg of <code>ravel</code></td><td>In Homebrew’s user <code>brew.env</code> file, by the operator, until the last reader of the old keg ends</td></tr>
+</tbody>
+</table>
+</div>
+<p>The variable protects only the commands that set it. Any other install,
+upgrade or reinstall on the machine can run Homebrew’s periodic cleanup.
+After the upgrade of unversioned <code>ravel</code> to 2.0.0, the 1.1.0 keg is such an
+old version.</p>
+<p>From that upgrade until its last reader ends, add <code>ravel</code> to <code>HOMEBREW_NO_CLEANUP_FORMULAE</code> and keep its current entries. Set it where
+every Homebrew command on the machine reads it, such as Homebrew’s user
+<code>brew.env</code> file. The <a href="https://docs.brew.sh/Manpage#environment">Homebrew manual</a>
+describes both variables. Neither protects a keg from an explicit uninstall or
+cleanup.</p>
+<h3 id="check-the-installation-and-record-the-evidence"><a class="header" href="#check-the-installation-and-record-the-evidence">Check the installation and record the evidence</a></h3>
+<p>The installation step checks class, keg-only state, destination and prefix
+together:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Check</th><th><code>versioned-2</code></th><th><code>unversioned</code></th></tr>
+</thead>
+<tbody>
+<tr><td>Install command</td><td><code>brew install --skip-link</code> the first time, then <code>brew upgrade</code></td><td><code>brew install</code>, or <code>brew upgrade</code></td></tr>
+<tr><td>Homebrew’s record of the formula</td><td>Keg-only for <code>:versioned_formula</code>, with no linked keg</td><td>Not keg-only, and the release version is the linked keg</td></tr>
+<tr><td>Shared command</td><td>Unversioned <code>ravel</code>, its keg and its links stay unchanged</td><td><code>$(brew --prefix)/bin/ravel</code> is the command of the new keg</td></tr>
+<tr><td>Both</td><td><code>brew test</code>, the installation record, the prefix that resolves to the keg, and <code>bin/ravel --version</code> of the keg</td><td>The same</td></tr>
+</tbody>
+</table>
+</div>
+<p>In both cases, the keg’s own <code>bin/ravel</code> must report the release version. The check uses that executable, not the first <code>ravel</code> on
+<code>PATH</code>, because a local <code>task install</code> can put another copy earlier on
+<code>PATH</code>.</p>
+<p><code>scripts/release-evidence.sh</code> then writes <code>target/release-evidence/vX.Y.Z.json</code>. It changes nothing outside that directory. It reads the public tag, assets, book and tap, the archives in <code>target/dist</code> and the installed keg. The record names the channel, its formula and
+its class. It names the tag’s commit, the SHA-256 of each asset and the book
+commit on the Pages branch. It also names the tap commit and the installed
+result.</p>
+<p>A promotion reads this record later. Keep it, with the logs of the build and the smoke test, as the delivery
+record of the release. This release procedure installs Ravel alone. It does
+not replace Grove.</p>
+<h2 id="promote-a-versioned-release"><a class="header" href="#promote-a-versioned-release">Promote a versioned release</a></h2>
+<p>You may want new and upgraded default installations to use a complete
+<code>ravel@2</code> release after its callers are ready. <code>task release:promote</code> makes
+that release available as unversioned <code>ravel</code>. It cuts no version,
+builds no archive, creates no tag or GitHub release and changes no book.</p>
+<p>Fragment: promote 2.0.0 from Ravel’s default colocated workspace. This recipe
+omits the readiness receipt and the output. It shows the tap path of one
+machine.</p>
+<pre><code class="language-sh">RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:promote VERSION=2.0.0
+</code></pre>
+<p>Promotion needs two local files. <code>EVIDENCE=FILE</code> names the cut’s release
+evidence, by default <code>target/release-evidence/v2.0.0.json</code>. <code>READINESS=FILE</code>
+names the <strong>consumer readiness receipt</strong>, by default
+<code>target/release-evidence/v2.0.0.readiness.json</code>. The release owner who coordinates the products writes the receipt after the
+caller’s compatible release and its installed check.</p>
+<p>The receipt names the Ravel version, its tag commit and asset
+digests, and the caller’s name, version and formula file in the same tap.
+Ravel reads no table of caller versions. The receipt and the caller’s formula
+in the tap are its only inputs about the caller.</p>
+<p>The task holds the release lock, and <code>scripts/release-promote.sh</code> works in
+this order:</p>
+<ol>
+<li>Check the evidence and the receipt. Each must be exactly one JSON object.</li>
+<li>Check that the public tag has the cut’s commit and that the GitHub release
+is complete.</li>
+<li>Download the three assets, and compare each SHA-256 with the evidence.</li>
+<li>Check that the cut’s book commit last changed <code>v2.0.0/</code> on the Pages branch.</li>
+<li>Fetch the tap, and check that the caller’s formula has the receipt’s
+version.</li>
+<li>Render both classes from the downloaded assets with the template at the
+tag’s commit. Add the deprecation to <code>ravel@2.rb</code>. Test the three files
+through Homebrew.</li>
+<li>Change the tap to the promotion, as the table below states.</li>
+<li>Install and check unversioned <code>ravel</code>, with cleanup suppressed and every
+earlier keg kept.</li>
+<li>Write <code>target/release-evidence/v2.0.0.promotion.json</code>.</li>
+</ol>
+<p>The two receipt files are local, so a missing receipt refuses before any
+network read. The deprecation is one line after the <code>keg_only</code> line of
+<code>ravel@2.rb</code>:</p>
+<pre><code class="language-ruby">  deprecate! date: "&lt;promotion date&gt;", because: :versioned_formula, replacement_formula: "ravel"
+</code></pre>
+<p>The date is the date of the tag’s commit at UTC−12. Homebrew marks the
+formula deprecated only when the date is not after its local date. No time
+zone is behind UTC−12, so that date is never in the future after the tag. The
+date depends only on the tag, so each retry renders the same bytes.
+<code>ravel@2</code> stays installable at the promoted version.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Tap state on the remote</th><th>Behaviour</th></tr>
+</thead>
+<tbody>
+<tr><td><code>ravel.rb</code> and <code>ravel@2.rb</code> hold the promotion, and local <code>main</code> of the tap agrees with the remote</td><td>Keep both</td></tr>
+<tr><td>Local <code>main</code> of the tap is one promotion commit ahead of the remote</td><td>Push that commit</td></tr>
+<tr><td><code>ravel@2.rb</code> is the versioned formula of the cut, and <code>ravel.rb</code> has a major below 2 or is absent</td><td>Make one commit with both files, and push it through jj</td></tr>
+<tr><td>Any other state</td><td>Report the difference, and change nothing</td></tr>
+</tbody>
+</table>
+</div>
+<p>The tap must be a jj repository without uncommitted changes. The task fetches
+and pushes the remote <code>origin</code> by name. A retry checks and keeps a formula, commit or installation that agrees. It reports a mismatch and does not overwrite
+it.</p>
+<p>After promotion, <code>CHANNEL=versioned-2</code> refuses every later version, and each
+later cut selects <code>CHANNEL=unversioned</code>.</p>
+<h3 id="see-what-promotion-changes-for-an-owner"><a class="header" href="#see-what-promotion-changes-for-an-owner">See what promotion changes for an owner</a></h3>
+<p>After promotion, a new or upgraded default installation uses Rhai
+configuration scripts.
+Ravel 1.x read a TypeScript configuration script, <code>~/.config/ravel/policy.ts</code>.
+Ravel 2.0.0 reads only <code>config.rhai</code>. It refuses a <code>HOME</code> that holds only
+<code>policy.ts</code>, and it starts nothing. Thus, an owner who upgrades unversioned
+<code>ravel</code> without a Rhai script receives a refusal, not a session.</p>
+<p>The example below shows that refusal. Its directory holds one file,
+<code>home/.config/ravel/policy.ts</code>. The command gives Ravel that <code>home</code> as its
+<code>HOME</code> and no <code>--config</code> option. Thus, Ravel looks for the default entry,
+finds no <code>config.rhai</code> and finds the old file. The content of the file does
+not matter, because Ravel does not read a retired format.</p>
+<p>Complete example: a <code>HOME</code> that holds only the retired TypeScript entry. Ravel
+refuses with <code>config_format_retired</code> and exit status 3.</p>
+<p><strong><code>home/.config/ravel/policy.ts</code></strong></p>
+<pre><code class="language-ts">export default {};
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p tmp
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PATH" ravel start-session --kind review --prompt "Review the change."
+</code></pre>
+<p><strong>Standard output, without a final newline</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error</strong></p>
+<pre><code class="language-text">ravel: refused (config_format_retired, stage authority): the selected configuration entry &lt;scratch&gt;/work/home/.config/ravel/policy.ts is TypeScript or JavaScript, which this release no longer evaluates
+  source: &lt;scratch&gt;/work/home/.config/ravel/policy.ts
+  remedy: write config.rhai using chapter 4 of the book, "Write a configuration script", and name a .rhai file with --config PATH if it is elsewhere
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p>Ravel checks the configuration entry before it prepares skills or starts the
+Rhai worker. Thus, the refusal is the same for an installation with a
+default skill directory. The remedy names
+<a href="04-write-a-configuration-script.html">chapter 4, “Write a configuration script”</a>.
+The decision record <code>docs/adr/configuration-script-uses-rhai.md</code> gives the
+reason for the change. The 2.0.0 release notes name this refusal and that
+chapter. The <a href="06-reference.html#diagnostic-codes">diagnostic codes in chapter 6</a>
+list <code>config_format_retired</code> with the other refusals of the authority stage.</p>
+<h2 id="keep-the-book-with-its-release"><a class="header" href="#keep-the-book-with-its-release">Keep the book with its release</a></h2>
+<p><a href="03-a-complete-session.html#install-ravel-and-check-its-version">Chapter 3’s version line</a>
+lets a reader compare the book with <code>ravel --version</code>. A checkout between
+releases shows the placeholder <code>@RAVEL_BOOK_VERSION@</code> or the version of the
+last release. Its other text can contain later changes.</p>
+<p>The second replacement in <code>release.toml</code> finds the whole version line in
+<code>docs/book/src/03-a-complete-session.md</code>. It accepts the placeholder or an
+<code>X.Y.Z</code> version and requires exactly one match. Cargo-release writes the new
+version into the same commit and tag as the product. Thus, the line at a
+release tag is <code>ravel X.Y.Z</code>. The line is ordinary Markdown text, so the raw
+file, GitHub and mdBook show the same value.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Guard</th><th>What it reads and refuses</th></tr>
+</thead>
+<tbody>
+<tr><td><code>scripts/release-book-version.sh ready</code></td><td>Read the checkout page. Refuse a missing page, or any count other than one line of the form <code>ravel &lt;version or placeholder&gt;</code></td></tr>
+<tr><td><code>scripts/release-book-version.sh released vX.Y.Z</code></td><td>Read the page at the tag. Refuse an unreadable tag or page, a different version, duplicate or absent lines, or a placeholder anywhere in the page</td></tr>
+</tbody>
+</table>
+</div>
+<p>The doctor runs <code>ready</code> before the cut. The task runs <code>released</code> after the
+cut and before the archive build. <code>ready</code> checks that the replacement is
+possible. It does not require the current line to agree with the workspace
+version. The second guard checks what the tag actually carries. If it
+refuses, the cut stays local, and the task pushes nothing.</p>
+<p>If <code>ready</code> refuses, edit chapter 3 until it has exactly one version line.
+Then run <code>task release:doctor</code> again. If <code>released</code> refuses, the local tag
+exists already. Use the local-cut rows of
+<a href="#recover-a-partial-release-without-another-bump">the recovery table</a>, and do
+not start another version cut.</p>
+<h3 id="build-and-deliver-the-tagged-book"><a class="header" href="#build-and-deliver-the-tagged-book">Build and deliver the tagged book</a></h3>
+<p>The release procedure puts each book at
+<code>https://linkuistics.github.io/Ravel/vX.Y.Z/</code>, where <code>X.Y.Z</code> is the release
+version. The root page lists releases, newest first. Ravel 1.1.0 was the
+first release that carried the book. Its tag holds <code>docs/book</code>, and the site
+serves its book at <code>https://linkuistics.github.io/Ravel/v1.1.0/</code>.</p>
+<p>The Pages branch, <code>gh-pages</code>, holds one <code>vX.Y.Z/</code> directory for each release,
+a root <code>index.html</code> and an empty <code>.nojekyll</code> file. A release directory is
+final. The script refuses different bytes in a release directory that already
+holds a book. A retry with the same bytes adds no commit to the branch.</p>
+<p>This branch keeps earlier books when a new release adds its directory. A
+custom workflow would need to keep them in its site artifact too. An artifact
+with only the newest book would lose those earlier books. Ravel needs no
+custom workflow file. GitHub uses its own deployment workflow for the branch
+and recognises <code>.nojekyll</code> for prebuilt content.
+<a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">GitHub’s source settings</a>
+explain this branch mode.</p>
+<p><code>scripts/release-book.sh</code> divides the work into four modes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Work and refusals</th></tr>
+</thead>
+<tbody>
+<tr><td><code>build vX.Y.Z</code></td><td>Export the tag’s book and build it into the stage with pinned mdBook. Refuse an absent tag, a wrong source version or export file count, and mdBook <code>ERROR</code> or <code>WARN</code> output. Refuse missing output pages, a wrong rendered version, a chapter 3 placeholder, or symlinks in the output</td></tr>
+<tr><td><code>publish vX.Y.Z</code></td><td>Put the staged book on <code>gh-pages</code>. Refuse an absent stage, a changed tag commit or changed staged files. Require the same tag commit on the remote and a complete non-draft GitHub release. Refuse a release directory that already holds different bytes, or a site at the script’s size threshold</td></tr>
+<tr><td><code>verify vX.Y.Z</code></td><td>Check the remote branch against the stage. Refuse an absent or changed stage, an absent branch, root <code>.nojekyll</code> or release directory, different book contents, or an index that omits the release</td></tr>
+<tr><td><code>live vX.Y.Z</code></td><td>Read the served chapter 3 and root page. Refuse a wrong version code block or an absent release link after the last attempt</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>build</code> uses <code>git archive</code> on the tag’s commit. Changes to the book text of
+the checkout cannot enter that export. After the tag and version checks pass,
+the build removes the old stage before it exports and builds the book again.
+The stage is <code>target/book-release/vX.Y.Z/</code>. Beside it, <code>vX.Y.Z.identity</code>
+records the commit, the mdBook version and a digest of the staged files. The
+identity file does not go to Pages.</p>
+<p><code>publish</code> uses a temporary clone and a push without force. It does not change
+the checkout or its jj state. Before the push, the script requires a GitHub
+release with exactly the three expected, nonempty archive assets. <code>verify</code>
+then checks the branch contents, not the pages that the site serves. <code>live</code>
+makes up to 30 attempts by default, with ten seconds between attempts.</p>
+<p><code>release-publish.sh</code> puts the book on the Pages branch after the GitHub
+release. It updates the tap only after the book’s <code>verify</code> step passes. Thus,
+the Pages branch holds a release’s book before the tap offers that release.
+Pages can still take time to serve the new files, so the task checks the
+served pages last.</p>
+<p>The <a href="https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits">Pages limits</a>
+include a 1 GB site maximum, with soft limits of 100 GB each month and ten
+builds each hour. The script refuses a total site size of 1,000,000 KB or
+more, as <code>du</code> reports it. A local build of the current book in <code>target/book</code>
+uses about 7 MB. Later releases add their own directories, so the site grows.</p>
+<p>The book stays outside the product archives and the source identity of the
+executable. The local <code>docs:book:build</code> task writes <code>target/book</code>, and
+<code>docs:book</code> serves it locally. Neither task sends files to Pages.</p>
+<h3 id="set-up-pages-for-the-first-release"><a class="header" href="#set-up-pages-for-the-first-release">Set up Pages for the first release</a></h3>
+<p>A repository administrator enables Pages one time. The release script creates
+the branch but does not change the Pages setting. For Ravel, the 1.1.0
+release did this. The steps apply again only if Pages is disabled later.</p>
+<ol>
+<li>Run a version cut. Its <code>publish</code> step creates <code>gh-pages</code> if it is absent.</li>
+<li>In the repository’s Settings → Pages, select “Deploy from a branch”.</li>
+<li>Select the <code>gh-pages</code> branch and the <code>/ (root)</code> folder.</li>
+<li>Save the setting.</li>
+<li>After Pages is enabled, run <code>scripts/release-book.sh live vX.Y.Z</code> for that release.</li>
+</ol>
+<p>The branch must exist before step 2. If Pages is disabled during a release,
+the release task stops at its final <code>live</code> check. Earlier successful release
+steps stay complete. After an administrator enables Pages, repeat only
+<code>live</code>.</p>
+<p>An administrator can use the
+<a href="https://docs.github.com/en/rest/pages/pages#create-a-github-pages-site">Pages REST endpoint</a>
+instead of the settings page. The endpoint needs suitable repository rights.</p>
+<p>Fragment: enable Pages after the branch exists. This recipe omits the release
+and the final <code>live</code> check.</p>
+<pre><code class="language-sh">gh api -X POST repos/Linkuistics/Ravel/pages \
+  -f build_type=legacy -f 'source[branch]=gh-pages' -f 'source[path]=/'
+</code></pre>
+<p>The lifecycle suite’s fixtures build books with pinned mdBook and use a local
+bare remote, replaced GitHub responses and a loopback web server. They cannot
+show the served public address, an administrator’s call to the create
+endpoint, the Pages delay or GitHub’s view of the book. An organisation domain
+setting can change the address.</p>
+<h2 id="recover-a-partial-release-without-another-bump"><a class="header" href="#recover-a-partial-release-without-another-bump">Recover a partial release without another bump</a></h2>
+<p>After any cut step partly succeeds, do not repeat <code>release:patch</code>,
+<code>release:minor</code> or <code>release:major</code>. Another version cut, a <strong>bump</strong>, selects a
+new version and leaves the unfinished release incomplete under the old one.
+First, inspect the source, the local and remote tags, the GitHub assets and
+the tap.</p>
+<p>Every recovery command below that writes or reads a formula takes the channel
+that the cut selected. For the first cut of 2.0.0, that is
+<code>--channel versioned-2</code>. No resume mode has a default channel. A resume with the other channel
+refuses at its channel check or writes the wrong formula. Thus, name the
+cut’s channel each time.</p>
+<p>Fragment: inspect a partial release. Replace <code>vX.Y.Z</code> with its selected tag.
+This recipe omits the tap inspection and every correction.</p>
+<pre><code class="language-sh">jj st
+jj log --no-pager
+git status --short
+git tag --list 'v*'
+git ls-remote --tags origin
+gh release view vX.Y.Z --repo Linkuistics/Ravel --json isDraft,assets
+</code></pre>
+<p>If Task stopped abruptly, its lock can remain. Before you remove
+<code>.jj/release-lock</code> with <code>rmdir</code>, check that no release or promotion process
+remains. Keep the saved jj change and each partial release write. The table
+has eleven recovery rows. Choose the row for the step that did not complete.
+Each command uses <code>CHANNEL</code> for the cut’s channel, such as <code>versioned-2</code>.</p>
+<p>The scripts of a resume run at the release commit. Each reads the tag from
+Git’s <code>HEAD</code> and refuses a dirty source tree. In the colocated workspace,
+<code>jj new RELEASE_COMMIT</code> sets Git’s <code>HEAD</code> to the release commit, with no
+change. <code>jj edit RELEASE_COMMIT</code> does not, because Git’s <code>HEAD</code> is then the
+parent and the release’s changes show as uncommitted. Run <code>jj new RELEASE_COMMIT</code> before each resume command.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Failure point</th><th>Next action</th></tr>
+</thead>
+<tbody>
+<tr><td>Before any version write</td><td>Correct prerequisites, notes, synchronisation or the channel. Check that manifests and tags have no new version. Then start the task again</td></tr>
+<tr><td>During the local cut</td><td>Complete the selected version as described below. Do not start another version cut</td></tr>
+<tr><td>Tagged cut, but the book build, archive build, formula or smoke test failed</td><td>Correct the environment. Then build the book again and run <code>scripts/release-build.sh --channel CHANNEL</code> and the smoke test for the same release source</td></tr>
+<tr><td>Push of <code>main</code> or of the tag failed</td><td>After the build and smoke checks pass, retry only the missing push</td></tr>
+<tr><td>GitHub release, asset upload or book step failed</td><td>Complete that release and its three assets. Then run <code>scripts/release-publish.sh --channel CHANNEL --book-only</code> and <code>--tap-only</code></td></tr>
+<tr><td>Tap copy, commit or push failed</td><td>Keep the local tap work and finish only the change to the channel’s formula</td></tr>
+<tr><td>Local installation or its check failed</td><td>Correct the cause. If the script reported a changed earlier keg, restore that keg first. Then finish from the installation step. Make no new version</td></tr>
+<tr><td>Release evidence failed</td><td>Correct the cause, then finish from the evidence step. The script compares the public assets with the archives in <code>target/dist</code></td></tr>
+<tr><td>Pages does not show the book</td><td>Check the branch and the Pages setting, then repeat only <code>live</code></td></tr>
+<tr><td>A promotion stopped before its tap write</td><td>Correct the reported cause, such as an incomplete cut. Then run <code>task release:promote VERSION=X.Y.Z</code> again. Nothing in the tap changed</td></tr>
+<tr><td>A promotion stopped after its tap write</td><td>Run <code>task release:promote VERSION=X.Y.Z</code> again. It keeps the formulae on the remote, pushes a local promotion commit and finishes the installation</td></tr>
+</tbody>
+</table>
+</div>
+<p>Each row ends a part of the task. After the row’s action, finish the later
+steps of the task in their order. After the tap update, those steps are the
+installation, the release evidence and the <code>live</code> check. A row that stops
+earlier leaves no release evidence, and a promotion refuses without it.</p>
+<p>Fragment: finish a release from the installation step. Replace <code>CHANNEL</code> with
+the cut’s channel and <code>vX.Y.Z</code> with its tag. This recipe omits the correction
+of the cause and the output.</p>
+<pre><code class="language-sh">jj new RELEASE_COMMIT
+scripts/release-install.sh --channel CHANNEL
+scripts/release-evidence.sh --channel CHANNEL
+scripts/release-book.sh live vX.Y.Z
+</code></pre>
+<p>To finish from the evidence step, omit the installation. The evidence script
+compares each public asset with the archive of the same name in <code>target/dist</code>.
+Perhaps <code>target/dist</code> no longer holds the archives that the smoke test
+checked. Then build them again from the tag with
+<code>scripts/release-build.sh --channel CHANNEL</code>.</p>
+<p>The build is reproducible only if the source and the tools are the
+same. Thus, if the evidence then reports a different asset, stop. Do not
+replace a public asset to make the comparison pass.</p>
+<p>For a partial local cut, inspect the cargo-release preview and log. Set the
+workspace manifests and <code>Cargo.lock</code> to the selected version. If its changelog
+heading is absent and Unreleased still holds its notes, run
+<code>cargo release replace --execute --no-confirm</code> one time. Do not repeat that
+replacement after the version heading exists. If only the book line needs a
+correction, correct that line without another changelog replacement.</p>
+<p>When the manifests and lockfile agree, check them. Then describe the release
+change in jj. Move <code>main</code> to that commit and create its empty successor.</p>
+<p>Create only a missing local tag at the intended commit. The release procedure
+uses an annotated Git tag for this operation. Inspect any tag that already
+exists. Never overwrite a tag to hide a source mismatch.</p>
+<p>For a failed build or smoke test, return to a clean child of the release
+commit with <code>jj new RELEASE_COMMIT</code>. If the cut did not move <code>main</code>, set it to
+that commit with <code>jj bookmark set main -r RELEASE_COMMIT</code>.</p>
+<p>Fragment: check the tag’s book line, build its book, then build and test the
+release archives again. Replace <code>vX.Y.Z</code> with the selected tag and <code>CHANNEL</code>
+with the cut’s channel. This recipe omits source corrections and pushes.</p>
+<pre><code class="language-sh">scripts/release-book-version.sh released vX.Y.Z
+scripts/release-book.sh build vX.Y.Z
+scripts/release-build.sh --channel CHANNEL
+scripts/release-smoke.sh --archives target/dist
+</code></pre>
+<p>If the release source itself needs a correction, give the correction its own
+described change. Then decide which version and tag carry it. Do not move a
+tag that is already public. A correction in the checkout alone cannot correct
+the book page that <code>released</code> reads at the tag. If the source and the tag
+disagree, stop until that decision is made.</p>
+<p>After all smoke routes pass, retry only a missing
+<code>jj git push --remote origin -b main</code> or <code>git push origin vX.Y.Z</code>. Before you
+continue, check that the remote tag resolves to the release commit. Do not
+force a public tag.</p>
+<p>If GitHub has no release for the tag, run
+<code>scripts/release-publish.sh --channel CHANNEL</code> after the smoke test passes.
+That command creates the release, then does the book and tap steps.</p>
+<p>If the release exists, upload only missing current archives with <code>gh release upload</code>.
+Inspect assets that already exist. Do not overwrite them. If the release is a
+draft, remove its draft status with <code>gh release edit</code> after all three assets
+are complete. Both <code>gh</code> commands take the selected tag and
+<code>--repo Linkuistics/Ravel</code>.</p>
+<p>Fragment: resume the book and tap steps after the GitHub assets are complete.
+Replace <code>CHANNEL</code> with the cut’s channel. This recipe omits asset inspection,
+the book build and the earlier smoke checks.</p>
+<pre><code class="language-sh">scripts/release-publish.sh --channel CHANNEL --book-only
+scripts/release-publish.sh --channel CHANNEL --tap-only
+</code></pre>
+<p><code>--book-only</code> resumes the book step without a second GitHub release or a tap
+change. If the stage is missing, first run
+<code>scripts/release-book.sh build vX.Y.Z</code>. If the push fails, the branch on the
+remote stays unchanged. A retry sends the same staged bytes and adds no commit
+if the branch already holds them. Different bytes in the same release
+directory fail. Never replace that directory by hand to hide a mismatch.</p>
+<p><code>--tap-only</code> requires a non-draft GitHub release with exactly the three
+nonempty assets. It downloads them and compares each with the local archive
+that the smoke test checked. A mismatch stops before a tap change.
+<code>--tap-only</code> also runs the book’s <code>verify</code> mode and the channel check before it changes the tap. It creates no second GitHub release.</p>
+<p>The script does not run the smoke test. Thus, use this mode only after the
+smoke test passes for the same archives.</p>
+<p>If the tap copy already occurred, keep that work. Do not run
+<code>scripts/release-publish.sh</code> against a tap with uncommitted changes. In a jj
+tap, finish the formula change with these steps:</p>
+<ol>
+<li>Describe the intended formula change, such as <code>ravel@2 v2.0.0</code>.</li>
+<li>Move <code>main</code> to that change.</li>
+<li>Create an empty successor.</li>
+<li>Push <code>main</code> to <code>origin</code>.</li>
+</ol>
+<p>If the commit already exists, retry only its push. A Git-only tap uses its
+normal commit and push procedure. Check the remote formula file of the channel,
+<code>Formula/ravel@2.rb</code> or <code>Formula/ravel.rb</code>. Keep every unrelated formula.</p>
+<p>If only the local installation failed, finish from the installation step,
+as the fragment above shows. The installation script runs <code>brew update</code>, then installs or upgrades the channel’s
+formula with cleanup suppressed. It installs <code>ravel@2</code> for the first time
+with <code>--skip-link</code>. Then it runs <code>brew test</code>, checks the installation record,
+the keg and the version, and checks that no earlier keg changed. A missing local installation needs
+no new cut.</p>
+<p>The script records the earlier kegs again at the start of each run. Thus, a
+rerun after its refusal “the earlier keg … changed” records the changed keg
+and passes. Restore that keg first, as the refusal says, before you run the
+script again.</p>
+<p>If only the <code>live</code> check failed, keep the release and tap unchanged. Check
+the branch, then the Pages setting.</p>
+<p>Fragment: check the book’s branch and the Pages setting, then repeat the
+check of the served site. Replace <code>vX.Y.Z</code> with the tag. This recipe omits
+the output.</p>
+<pre><code class="language-sh">scripts/release-book.sh verify vX.Y.Z
+scripts/release-book.sh check-pages
+scripts/release-book.sh live vX.Y.Z
+</code></pre>
+<p>If Pages is disabled,
+complete <a href="#set-up-pages-for-the-first-release">the Pages setup</a>. After the setting is correct, repeat only the <code>live</code> check.</p>
+<p>Promotion has its own boundary. Its steps 1 to 6 change nothing. If one of
+them refuses, correct the cause that it names and run the task again. A
+refusal of the cut, such as an incomplete GitHub release or a missing book,
+needs the cut’s own recovery rows first.</p>
+<p>A promotion in the tap with a failed
+installation needs only the installation. A local promotion commit that did
+not reach the tap’s remote needs only its push. Neither condition needs
+another Ravel release or a manual change to the tap. Run
+<code>task release:promote VERSION=X.Y.Z</code> again for both.</p>
+<p>Its tap table above keeps a promotion on the remote, pushes a local promotion
+commit, and reports any other state without a change. The installation step
+keeps an installation that agrees and every earlier keg.</p>
+<p>A retry runs steps 1 to 6 again, with the check of the caller’s formula. If
+the caller delivered another release after the first attempt, that check
+refuses. The release owner then writes a new receipt for the caller’s current
+version, and the retry uses it.</p>
+<p>Fragment: retry a promotion with a new receipt. The path is the default, and
+the tap path is that of one machine. This recipe omits the receipt’s content
+and the output.</p>
+<pre><code class="language-sh">RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:promote VERSION=2.0.0 READINESS=target/release-evidence/v2.0.0.readiness.json
+</code></pre>
+<p>The lifecycle suite tests these procedure boundaries in isolated repositories
+with local remotes and replaced service responses. It also runs real
+cargo-release previews, book-version cuts, book delivery, channel checks and promotion retries there. Those results do not show that a particular
+public recovery succeeded. The source, tags, assets and tap that you observe
+during that recovery decide its next step.</p>
+<h2 id="understand-what-the-release-checks-establish"><a class="header" href="#understand-what-the-release-checks-establish">Understand what the release checks establish</a></h2>
+<p>The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md">release check record</a>
+gives the commands, versions and results behind this chapter’s procedures.
+Those checks cover archives, both formula channels and isolated release
+fixtures. They do not establish that a public cut or recovery succeeded.
+The public tag, assets, book and tap need their own verification.</p>
+<p>These observations add no native x86-64, interactive-terminal, real-agent or
+reader-comprehension result. The platform limits above still apply.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="10-develop-ravel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="10-develop-ravel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

@@ -1,0 +1,1154 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Jobs, signals and the terminal - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="jobs-signals-and-the-terminal"><a class="header" href="#jobs-signals-and-the-terminal">Jobs, signals and the terminal</a></h1>
+<p>What does Ravel do when a program does not stop? Why can a result wait several
+seconds before it reaches you? And what happens to a slow LLM call when you
+press Ctrl-C? This chapter answers these questions. It explains how Ravel ends
+each program that it starts, how it lends the terminal and which signal state
+each program receives. It also states where these guarantees stop.</p>
+<p>In <a href="07-the-parts-of-ravel.html#watch-the-parts-in-one-session">chapter 7</a> you
+ran the example <code>ravel-parts</code>. In that session the Ravel CLI started two
+programs. <code>fake-advisor</code> was a harness run during selection, and <code>fake-agent</code>
+was the managed process. Both fakes ended by themselves, so the session showed
+no stop. This chapter changes one fake at a time to make each stop visible.</p>
+<p>These are the words that this chapter uses. Each row gives the value that the
+word has in <code>ravel-parts</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Word</th><th>What it names</th><th>In <code>ravel-parts</code></th></tr>
+</thead>
+<tbody>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Ravel CLI</a></td><td>The <code>ravel</code> command-line program. It checks the request, supervises the session and decides the outcome.</td><td>The process <code>ravel start-session --kind demo …</code></td></tr>
+<tr><td><a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">Runner</a></td><td>The Rust library code in the Ravel CLI that starts and supervises a job</td><td>It runs both fakes</td></tr>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Harness run</a></td><td>One run of a program from the <code>harnesses</code> settings, during evaluation. Its output returns to the configuration script.</td><td><code>fake-advisor</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#the-managed-process-and-its-result">Managed process</a></td><td>The program that the configuration script selects. It does the caller’s work.</td><td><code>fake-agent</code></td></tr>
+<tr><td>Job</td><td>A program that the runner starts, and the other processes in its process group</td><td>One job for each fake</td></tr>
+<tr><td><a href="07-the-parts-of-ravel.html#the-result-channel-carries-the-value">Result channel</a></td><td>A private temporary directory with one path for a result file. The path goes to a program in <code>RAVEL_EXIT_FILE</code>.</td><td>One for each fake</td></tr>
+<tr><td>Cancellation</td><td>An INT, TERM or HUP signal that reaches the Ravel CLI</td><td>None: nothing sent a signal</td></tr>
+</tbody>
+</table>
+</div>
+<p>A signal name such as SIGTERM has the prefix SIG. This chapter writes INT, TERM,
+HUP and KILL without that prefix, as the shell <code>trap</code> command does. Other signals
+keep their full names.</p>
+<p>A <a href="02-actors-and-words.html#the-managed-process-and-its-result">result</a> requests
+the end of a job. It does not prove that the job has ended. The Ravel CLI stays
+alive to supervise that end before it returns the result to the
+<a href="02-actors-and-words.html#caller-and-owner">caller</a>.
+<a href="03-a-complete-session.html#send-the-result-and-finish-the-job">Chapter 3</a>
+introduced a job and its reap through one session.
+<a href="08-follow-a-session-through-the-code.html#finish-the-managed-job">Chapter 8</a>
+shows where these operations occur in the code.</p>
+<h2 id="each-program-runs-as-a-job"><a class="header" href="#each-program-runs-as-a-job">Each program runs as a job</a></h2>
+<p>The runner starts each program as the leader of a new <strong>process group</strong>. The
+group’s ID is the program’s PID. Descendants inherit this group unless they
+explicitly change it. The program and the members of its group form the
+<strong>job</strong>. In <code>ravel-parts</code>, <code>fake-advisor</code> led one job and <code>fake-agent</code> led
+another.</p>
+<p>A signal to a process group can reach its members together. A signal to the
+program’s PID reaches only that program. If Ravel stopped only the program, a
+helper could keep a file lock or continue to change the caller’s files. The
+group gives Ravel a scope for shutdown that includes ordinary descendants.</p>
+<p>A <strong>POSIX session</strong> can contain several process groups and can have a
+controlling terminal. The two kinds of job differ here. The managed process
+can need the caller’s terminal, because an interactive harness talks to a
+human there. A harness run gives its output to the configuration script, so it
+needs no terminal.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Choice</th><th>Used for</th><th>Consequence</th></tr>
+</thead>
+<tbody>
+<tr><td>A new process group in the caller’s POSIX session</td><td>The managed process</td><td>Ravel can signal the job together and can lend the caller’s terminal</td></tr>
+<tr><td>A new POSIX session through <code>setsid</code></td><td>Each harness run</td><td>The run starts without a controlling terminal. The terminal’s keyboard signals do not reach it, and <code>/dev/tty</code> names no terminal for it.</td></tr>
+<tr><td>Only the program’s PID as the shutdown target</td><td>Nothing</td><td>Descendants can survive their parent. This does not meet Ravel’s cleanup contract.</td></tr>
+</tbody>
+</table>
+</div>
+<p>A descendant can leave the job’s group, for example through its own
+<code>setsid</code> call. Group cleanup does not cover that descendant. Ravel does not
+promise to track every process descended from the managed process or from a
+harness run. A new process group also creates no new Ravel
+<a href="02-actors-and-words.html#caller-and-owner">session</a>: that term means one
+<code>start-session</code> invocation. The Rhai worker is no job. It stays in the process
+group of the Ravel CLI, and the Ravel CLI stops it by its PID.</p>
+<h2 id="run-a-managed-process-that-stays-after-its-result"><a class="header" href="#run-a-managed-process-that-stays-after-its-result">Run a managed process that stays after its result</a></h2>
+<p>What does Ravel do with a program that sends its result and then does not
+exit? You can see it with one change to <code>ravel-parts</code>. The example
+directory is <code>~/ravel-parts-escalation</code>. Make it and copy the three files that
+stay the same:</p>
+<p>Fragment: make the example directory and copy three files of chapter 7. This
+block omits the new <code>bin/fake-agent</code>. The book checker makes its own
+directory and does not run this block.</p>
+<pre><code class="language-sh">mkdir -p ~/ravel-parts-escalation/bin
+cd ~/ravel-parts-escalation
+cp ~/ravel-parts/settings.json ~/ravel-parts/config.rhai .
+cp ~/ravel-parts/bin/fake-advisor bin/
+</code></pre>
+<p>The new <code>fake-agent</code> sends <code>finished</code> and then stays alive. Its <code>trap</code> line
+tells the shell to write a note when TERM arrives, and to continue. Thus,
+Ravel’s escalation must reach KILL to end it. The shell runs the note after
+the current <code>sleep</code> ends. The TERM to the group also ends that <code>sleep</code>.</p>
+<p>Complete example: the managed process sends <code>finished</code>, then stays alive after
+TERM. The caller still receives <code>finished</code>.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts";
+
+fn select(request, context) {
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [run.stdout],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show each part of Ravel.",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-advisor</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "advisor: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "advisor: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+} &gt; advisor.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; advisor.path
+printf 'short'
+ravel end-session -- "advice"
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+trap 'echo "agent: received TERM and stayed" &gt;&gt; agent.txt' TERM
+echo "agent: sent finished" &gt; agent.txt
+ravel end-session -- "finished"
+while :; do sleep 0.05; done
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/* &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --prompt 'Show the parts of Ravel.' &gt; result
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ cat agent.txt result &amp;&amp; printf '\n'
+$ rmdir tmp &amp;&amp; echo "The directory tmp is empty again."
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">agent: sent finished
+agent: received TERM and stayed
+finished
+The directory tmp is empty again.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>The session takes at least seven seconds. The note shows that TERM arrived
+after the result and that the agent stayed. KILL then ended it. The death of <code>fake-agent</code> from KILL does not
+invalidate its result. <code>finished</code> reaches the caller only after the job ends.</p>
+<p>The example check compares the result bytes, the note and the exit status. It
+does not compare the duration or standard error. macOS can add <code>ravel: stop attempt</code>
+lines whose process-group IDs change from run to run. The automatic example check has no
+terminal and uses no real harness. The next section explains each stage of
+this stop.</p>
+<h2 id="follow-the-escalation-after-a-result"><a class="header" href="#follow-the-escalation-after-a-result">Follow the escalation after a result</a></h2>
+<p>Why did <code>ravel-parts-escalation</code> take at least seven seconds? An interactive
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">harness</a>
+can finish its work and then wait for another prompt.
+The caller therefore tells it to send an
+<a href="02-actors-and-words.html#the-managed-process-and-its-result">opaque result</a>
+with <code>end-session</code>. The command creates the completion file in the result
+channel. The runner observes that file’s presence. Ravel checks its contents
+separately.</p>
+<p>Until it sends KILL, the runner checks the program and the channel at regular
+intervals. For the managed process, the interval is 500 milliseconds. For a
+harness run, it is 20 milliseconds, because a deadline and an output limit
+bound the run. The first observation of the file starts the grace period.
+Thus, the schedule starts at observation, not at the instant the sender calls
+<code>end-session</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Stage</th><th>Condition</th><th>Action and wait</th></tr>
+</thead>
+<tbody>
+<tr><td>Grace</td><td>The runner observes the completion file while the program still runs</td><td>Allow 2 seconds for the program to exit</td></tr>
+<tr><td>TERM</td><td>The program still runs after the grace</td><td>Send TERM to the group and the program. Allow up to 5 seconds, the <strong>kill grace</strong>, for the program to exit</td></tr>
+<tr><td>KILL</td><td>The program still runs after the kill grace</td><td>Send KILL to the group and the program. Check for exit at 10-millisecond intervals</td></tr>
+<tr><td>Final cleanup</td><td>The runner observes the program’s exit</td><td>Stop the other group members before the reap, then recover the terminal and confirm group absence <!-- tc: depart synonym-rotation because confirmation establishes group absence, while exit checks can find a live program --></td></tr>
+</tbody>
+</table>
+</div>
+<p>In <code>ravel-parts-escalation</code>, <code>fake-agent</code> passed through every stage. It sent
+<code>finished</code> and stayed through the grace. It wrote its note at TERM and stayed
+through the kill grace. KILL ended it, and final cleanup followed.</p>
+<p>The figure separates the grace periods from final cleanup. Both exit paths
+reach the group stops before reap, then the terminal recovery and group query.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/escalation-timing.svg" alt="A child that outlasts both grace periods receives TERM and KILL attempts. Early exit skips later escalation. Final group stops precede reap."><span class="img-wrapper"><img src="figures/escalation-timing.svg" alt="A child that outlasts both grace periods receives TERM and KILL attempts. Early exit skips later escalation. Final group stops precede reap."></span></label></p>
+<p><a href="figures/escalation-timing.svg">Open the escalation figure at full size.</a></p>
+<p>TERM lets the program handle its own shutdown. A program can ignore TERM.
+It cannot catch or ignore KILL. If the program exits during either grace
+period, Ravel proceeds to final cleanup without the later escalation stages.
+Descendants receive no separate grace period after the program exits.</p>
+<p>The 2-second and 5-second values belong to the Ravel CLI, as
+<code>run::ESCALATION</code>. It gives the same values to the managed process and to each
+harness run. The runner accepts its caller’s durations. These values are not a
+seven-second deadline for <code>start-session</code>: selection, observation delays and
+final cleanup also take time. Without a result, a stop request or
+cancellation, this escalation places no time limit on the managed process.</p>
+<p>After the escalation’s first KILL attempt, the runner uses a two-second bound
+for its exit checks and reap attempts. It does not restart that bound after
+an error. If the bound expires, the runner reports unresolved ownership, and
+Ravel returns no result to the caller.
+This bound limits retries. It cannot guarantee a wall-clock deadline when the
+scheduler or a kernel operation stalls.</p>
+<h2 id="stop-the-group-before-the-reap"><a class="header" href="#stop-the-group-before-the-reap">Stop the group before the reap</a></h2>
+<p>A process can exit before its parent collects its status. Until that
+collection, it remains a <strong>zombie</strong>: the system retains its identity and exit
+status, although it executes no more code. To <strong>reap</strong> the child, the parent
+collects that status and releases the retained process identity.</p>
+<p>Ravel first observes exit without a reap. Its <code>waitid</code> call uses <code>WNOWAIT</code>
+for that purpose. The unreaped child reserves its PID, which is also the
+job’s group ID. Ravel uses that reservation for the last group signals.</p>
+<p>If Ravel reaped first, the system could reuse the ID for an unrelated group.
+A later KILL to that number could then reach that unrelated group.
+The normal cleanup path therefore has this order, for the managed process and
+for each harness run:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Operation</th><th>What it establishes</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Observe the child’s exit with <code>waitid</code> and <code>WNOWAIT</code></td><td>The child has exited, but still reserves its identity. A stop is not an exit</td></tr>
+<tr><td>2</td><td>Send KILL to its group twice, with a 20-millisecond pause</td><td>Attempt to stop the other members while the identity remains reserved</td></tr>
+<tr><td>3</td><td>Reap the direct child with <code>waitpid</code></td><td>Confirm the child’s status and release its identity</td></tr>
+<tr><td>4</td><td>Recover the terminal if Ravel lent it</td><td>Check foreground recovery and restore the saved modes. A harness run never receives the terminal, so this step does nothing for it</td></tr>
+<tr><td>5</td><td>Query the group without a signal, for up to one second</td><td>Confirm absence only when the system returns <code>ESRCH</code>, meaning no such process group</td></tr>
+</tbody>
+</table>
+</div>
+<p>The second KILL addresses a macOS case where a fork overlaps the first group
+signal and leaves a new member. Both attempts precede the reap.
+They do not change the direct child’s status: it has already exited.
+Ravel reaps its direct child. Other descendants’ parents, or the system,
+reap those descendants.</p>
+<p>A successful signal operation does not prove that the group is gone.
+The final query uses <code>kill</code> with signal 0, which sends no signal.
+Success or <code>EPERM</code> means that absence remains unconfirmed. An unrelated group
+that reuses the ID also prevents confirmation. Ravel does not signal that
+number after the reap.</p>
+<p>On macOS, a group with only zombies can reject KILL with <code>EPERM</code>, or
+<code>Operation not permitted</code>. Ravel can retain this stop report without a
+session failure, but only after confirmed reap, successful terminal recovery
+and an <code>ESRCH</code> absence check. The report alone never confirms cleanup.
+Ravel writes retained reports as <code>ravel:</code> lines on standard error, or in
+<code>operationReports</code> with <code>--json</code>.</p>
+<p>The same refusal can occur before Ravel observes the exit. The result’s TERM
+can reach the group while its leader is inside its exit teardown. The leader’s
+own PID still accepts the signal, but <code>waitid</code> does not report the exit yet.
+Ravel therefore continues to watch after a group stop answers <code>EPERM</code>. The
+report then waits for the same three checks. A refused stop to the direct
+child, or another error, ends the watch at once.</p>
+<p>These failures prevent success. Their outcome depends on the kind of job:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Failure</th><th>For the managed process</th><th>For a harness run</th></tr>
+</thead>
+<tbody>
+<tr><td>The group still answers the query with success or <code>EPERM</code> after the confirmation wait, or the query fails</td><td>Ravel reports the problem and returns no result to the caller</td><td>The evaluation ends as <code>harness_cleanup_failed</code>, status 5. The configuration script receives no map.</td></tr>
+<tr><td>An observation or reap error</td><td>Ravel attempts bounded cleanup, reports what it cannot confirm and returns no result</td><td>The same refusal, <code>harness_cleanup_failed</code>, status 5</td></tr>
+<tr><td>Ravel cannot remove the result channel</td><td><code>session_cleanup_failed</code>, and no result</td><td>The same refusal, <code>harness_cleanup_failed</code>, status 5</td></tr>
+</tbody>
+</table>
+</div>
+<p>Once the runner loses or releases the child identity, it stops all numeric
+signal attempts. After a timeout, it never reports a reap that did not occur.</p>
+<h2 id="stop-a-harness-run"><a class="header" href="#stop-a-harness-run">Stop a harness run</a></h2>
+<p>In <code>ravel-parts</code>, <code>fake-advisor</code> printed <code>short</code>, sent <code>advice</code> and exited.
+What if it does not exit? A real LLM call can wait on a slow model service. You
+may want such a call to stop at a deadline, so that your configuration script
+can choose a fallback route.</p>
+<p>The Ravel CLI does not send a signal to a harness run itself. It asks the
+runner instead. Each run has a <code>StopRequest</code>, a flag that the runtime thread
+of the Ravel CLI sets. The runner also keeps a second flag of its own, for the
+output limit. It reads both flags at its 20-millisecond checks.</p>
+<p>When one flag is set, the runner sends TERM to the run’s group and to the run, without the 2-second
+grace. If the run still exists after the 5-second kill grace, the runner sends
+KILL. Then it stops the group before the reap, reaps the run and confirms
+that the group is gone.</p>
+<p>Three causes stop a run. Only the third ends the evaluation:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Cause</th><th>Who asks for the stop</th><th>What the configuration script sees</th></tr>
+</thead>
+<tbody>
+<tr><td>The deadline of the run: a <code>timeoutMs</code> in the <code>ravel::run_harness</code> call that is less than the time that remains</td><td>The Ravel CLI, at that deadline</td><td>The map with <code>status</code> <code>timed_out</code>. The script continues.</td></tr>
+<tr><td>More than 1 MiB on standard output or standard error</td><td>The runner’s own thread that reads the run’s pipes, through the runner’s second flag</td><td>The map with <code>status</code> <code>output_limit</code>. The script continues.</td></tr>
+<tr><td>A stop of the whole evaluation: its deadline, a cancellation, the output limit of the script, or a worker that dies or breaks the protocol</td><td>The Ravel CLI, in <code>Host::settle</code></td><td>Nothing. The worker receives no more replies, and Ravel refuses.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Without a <code>timeoutMs</code>, or with one that is not less than the time that
+remains, the run has no deadline of its own. The evaluation deadline then
+stops it as the third cause, and the script never sees <code>timed_out</code>.</p>
+<p><a href="04-write-a-configuration-script.html#run-a-harness-during-evaluation">Chapter 4</a>
+shows a configuration script that checks <code>run.status</code> before it uses the
+answer. The next two sections show the third cause, which also stops the
+worker.</p>
+<h2 id="stop-the-evaluation-at-its-deadline"><a class="header" href="#stop-the-evaluation-at-its-deadline">Stop the evaluation at its deadline</a></h2>
+<p>The evaluation has one deadline for all of its work: the worker start, the
+reads, each harness run and <code>select</code>. The owner sets it as <code>timeoutMs</code> in the
+settings, and <code>--timeout-ms</code> replaces it for one session. The smallest
+permitted value is 1,000 milliseconds.</p>
+<p>When that deadline expires during a harness run, the Ravel CLI stops the
+evaluation in this order:</p>
+<ol>
+<li>It records the first cause. A later cause does not repeat the stop.</li>
+<li>It abandons a file read in progress, and it does not wait for it.</li>
+<li>It asks the runner to stop a harness run in progress. The runner escalates
+from TERM to KILL, clears the group and reaps the run.</li>
+<li>It stops the worker with TERM, kills it if it is still there after one
+second, and reaps it.</li>
+<li>It removes the private directories and reports every cleanup failure.</li>
+<li>It reads the cancellation latch again, and then it refuses.</li>
+</ol>
+<p>The sequence shows why harness cleanup precedes worker teardown, and why a later signal changes the final refusal.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/selection-deadline.svg" alt="At the deadline Ravel stops the harness group and reaps the run before it stops and reaps the worker. After directory cleanup it reads the latch again. A later TERM changes the outcome from selection_timeout, status 124, to selection_cancelled, status 143."><span class="img-wrapper"><img src="figures/selection-deadline.svg" alt="At the deadline Ravel stops the harness group and reaps the run before it stops and reaps the worker. After directory cleanup it reads the latch again. A later TERM changes the outcome from selection_timeout, status 124, to selection_cancelled, status 143."></span></label></p>
+<p><a href="figures/selection-deadline.svg">Open the deadline sequence at full size</a>.</p>
+<p>The <strong>latch</strong> is a variable of the Ravel CLI. Its signal handlers keep the
+first INT, TERM or HUP there.</p>
+<p>Only one host call runs at a time, so only one of steps 2 and 3 applies. A
+stop drops the host call that waits, which abandons a read at once. A run
+continues after that drop, until <code>Host::settle</code> asks the runner to stop it.
+The worker only waits for its reply and holds nothing that needs a graceful
+stop.</p>
+<p><code>Host::settle</code> waits at most 8 seconds for the runner. That is the 5-second
+kill grace, plus the runner’s bounds for a failed reap and for the group
+query. A process that survives is a worse outcome than the deadline. Thus,
+each failure of the run below replaces the deadline with
+<code>harness_cleanup_failed</code>, status 5:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Failure of the run</th><th>How Ravel then stops the worker</th></tr>
+</thead>
+<tbody>
+<tr><td>The runner does not settle the run in 8 seconds</td><td>No TERM. Ravel waits up to one second for the worker to exit, then kills it. The reap of the run is unconfirmed.</td></tr>
+<tr><td>The run’s group stays after its reap</td><td>No TERM. Ravel waits up to one second for the worker to exit, then kills it.</td></tr>
+<tr><td>The reap of the run fails</td><td>No TERM. Ravel waits up to one second for the worker to exit, then kills it.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Run this order with one change to <code>ravel-parts</code>. The example directory is
+<code>~/ravel-parts-deadline</code>. Make it and copy the three files that stay the same:</p>
+<p>Fragment: make the example directory and copy three files of chapter 7. This
+block omits the new <code>bin/fake-advisor</code>. The book checker makes its own
+directory and does not run this block.</p>
+<pre><code class="language-sh">mkdir -p ~/ravel-parts-deadline/bin
+cd ~/ravel-parts-deadline
+cp ~/ravel-parts/settings.json ~/ravel-parts/config.rhai .
+cp ~/ravel-parts/bin/fake-agent bin/
+</code></pre>
+<p>The new <code>fake-advisor</code> writes its PID to <code>advisor.pid</code>. It never exits, and it
+writes a note when TERM arrives. The command adds <code>--timeout-ms 1000</code>.</p>
+<p>Complete example: the evaluation deadline expires during a harness run that
+stays after TERM. Ravel stops the run, then the worker, and starts nothing.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts";
+
+fn select(request, context) {
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [run.stdout],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show each part of Ravel.",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-advisor</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+trap 'echo "advisor: received TERM and stayed" &gt;&gt; advisor.txt' TERM
+echo "advisor: started" &gt; advisor.txt
+echo "$$" &gt; advisor.pid
+while :; do sleep 0.05; done
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "agent: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "agent: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+  echo "agent: argument is $1"
+} &gt; agent.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; agent.path
+ravel end-session -- "finished"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/* &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --timeout-ms 1000 --prompt 'Show the parts of Ravel.' &gt; result
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (selection_timeout, stage evaluation): the configuration entry &lt;scratch&gt;/work/config.rhai did not return a result within the selection bound of 1000 ms (--timeout-ms), so worker teardown was attempted and nothing was launched
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">124
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ cat advisor.txt
+$ kill -0 "$(cat advisor.pid)" 2&gt;/dev/null || echo "The advisor process is gone."
+$ test ! -e agent.txt &amp;&amp; echo "The agent never started."
+$ rmdir tmp &amp;&amp; echo "The directory tmp is empty again."
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">advisor: started
+advisor: received TERM and stayed
+The advisor process is gone.
+The agent never started.
+The directory tmp is empty again.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>The session takes a little more than six seconds: the 1-second deadline, then
+the 5-second kill grace of the run. Each line of the output shows one step of the stop:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Output</th><th>What it shows</th><th>Step</th></tr>
+</thead>
+<tbody>
+<tr><td><code>selection_timeout</code>, status 124</td><td>The deadline was the first cause. No signal reached the Ravel CLI before its final read.</td><td>1 and 6</td></tr>
+<tr><td><code>advisor: received TERM and stayed</code></td><td>The runner sent TERM to the run at the deadline. The run stayed, so the runner sent KILL after the kill grace.</td><td>3</td></tr>
+<tr><td><code>The advisor process is gone.</code></td><td><code>kill -0</code> sends no signal. It fails because the run’s PID no longer exists: Ravel reaped it.</td><td>3</td></tr>
+<tr><td><code>The agent never started.</code></td><td>Ravel started no managed process after the stop</td><td>6</td></tr>
+<tr><td><code>The directory tmp is empty again.</code></td><td>Ravel removed the run’s result channel and its other private directories</td><td>5</td></tr>
+</tbody>
+</table>
+</div>
+<p>The <code>print</code> line of the script never ran, because <code>ravel::run_harness</code> never
+returned. <code>fake-agent</code> is the file of chapter 7, and it never runs here.</p>
+<h2 id="let-a-signal-win-over-the-deadline"><a class="header" href="#let-a-signal-win-over-the-deadline">Let a signal win over the deadline</a></h2>
+<p>Step 6 above reads the cancellation latch again. Why? A signal can reach the
+Ravel CLI while it stops the evaluation for another cause. The
+<a href="08-follow-a-session-through-the-code.html#choose-the-final-outcome">completion contract</a>
+gives cancellation the first priority. Thus, a signal that the Ravel CLI
+consumed before its final read wins over the deadline.</p>
+<p>During evaluation, the runner holds no signal handler. The Ravel CLI installs
+its own handlers for INT, TERM and HUP at the start of <code>start-session</code>. They
+keep the first signal in its latch. A signal that was ignored when the Ravel
+CLI started keeps that state and never reaches the latch.</p>
+<p>The runtime thread reads that latch every 50 milliseconds. A harness run is in a POSIX session of its own, so a signal to the caller’s
+process group does not reach it. The Ravel CLI stops the run through its
+<code>StopRequest</code>.</p>
+<p>Change one line of <code>fake-advisor</code> in <code>~/ravel-parts-deadline</code> to see the rule.
+The new <code>trap</code> line also sends TERM to the fake’s parent, the Ravel CLI. That
+TERM arrives after the deadline and before the kill grace of the run ends.</p>
+<p>Complete example: the deadline expires during a harness run. The run’s TERM
+handler then sends TERM to the Ravel CLI, and the signal wins.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts";
+
+fn select(request, context) {
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [run.stdout],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show each part of Ravel.",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-advisor</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+trap 'echo "advisor: received TERM, sent TERM to the Ravel CLI" &gt;&gt; advisor.txt; kill -TERM "$PPID"' TERM
+echo "advisor: started" &gt; advisor.txt
+echo "$$" &gt; advisor.pid
+while :; do sleep 0.05; done
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "agent: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "agent: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+  echo "agent: argument is $1"
+} &gt; agent.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; agent.path
+ravel end-session -- "finished"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/* &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --timeout-ms 1000 --prompt 'Show the parts of Ravel.' &gt; result
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (selection_cancelled, stage evaluation): selection with the configuration script &lt;scratch&gt;/work/config.rhai was cancelled by SIGTERM: worker teardown was attempted and nothing was launched
+original failure:
+ravel: refused (selection_timeout, stage evaluation): the configuration entry &lt;scratch&gt;/work/config.rhai did not return a result within the selection bound of 1000 ms (--timeout-ms), so worker teardown was attempted and nothing was launched
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">143
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ cat advisor.txt
+$ kill -0 "$(cat advisor.pid)" 2&gt;/dev/null || echo "The advisor process is gone."
+$ test ! -e agent.txt &amp;&amp; echo "The agent never started."
+$ rmdir tmp &amp;&amp; echo "The directory tmp is empty again."
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">advisor: started
+advisor: received TERM, sent TERM to the Ravel CLI
+The advisor process is gone.
+The agent never started.
+The directory tmp is empty again.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>Compare the two runs. The stop was the same: the run received TERM at the
+deadline, stayed, and ended by KILL after the kill grace. Then the worker
+stopped, and nothing started. Only the final decision changed:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th></th><th>Deadline alone</th><th>Deadline, then TERM to the Ravel CLI</th></tr>
+</thead>
+<tbody>
+<tr><td>First cause</td><td>The deadline</td><td>The deadline</td></tr>
+<tr><td>Signal in the latch at the final read</td><td>None</td><td>TERM</td></tr>
+<tr><td>Refusal</td><td><code>selection_timeout</code></td><td><code>selection_cancelled</code>, with <code>selection_timeout</code> under “original failure:”</td></tr>
+<tr><td>Exit status</td><td>124</td><td>143, which is 128 plus 15, the number of TERM</td></tr>
+<tr><td>How the Ravel CLI ends</td><td>It exits with status 124</td><td>It reports, then raises TERM again</td></tr>
+</tbody>
+</table>
+</div>
+<p>The second TERM did not change the run’s stop, and the kill grace did not
+restart. The runner never reads the latch of the Ravel CLI for a harness run.
+<code>Host::settle</code> only waits for the stop that it already asked for. Standard error also shows a
+<code>session_cancelled</code> report after these lines, and <code>/bin/sh</code> reports that TERM
+ended the command. The example does not claim those lines.</p>
+<p>The same final read follows every other refusal of the evaluation. A signal
+therefore also wins over a breach of a limit and over <code>harness_cleanup_failed</code>.
+Among signals, the first that the Ravel CLI consumed stays the cause. A later
+signal does not replace it. The last section of this chapter states the limit
+for a signal that arrives after the final decision.</p>
+<h2 id="handle-cancellation"><a class="header" href="#handle-cancellation">Handle cancellation</a></h2>
+<p>Cancellation differs from a sent result. INT, TERM or HUP received by the
+Ravel CLI suppresses the result, even if the managed process already sent it.
+What Ravel stops depends on where the signal arrives:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Where cancellation occurs</th><th>Who holds the signal</th><th>Process action</th><th>Result</th></tr>
+</thead>
+<tbody>
+<tr><td>During selection, with a harness run in progress</td><td>The latch of the Ravel CLI</td><td>Stop the harness run through its <code>StopRequest</code>, then stop and reap the <a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a>. Do not start the managed process.</td><td><code>selection_cancelled</code>, then <code>session_cancelled</code>. Return no result to the caller.</td></tr>
+<tr><td>During selection, with no harness run</td><td>The latch of the Ravel CLI</td><td>Stop and reap the Rhai worker. Do not start the managed process.</td><td><code>selection_cancelled</code>, then <code>session_cancelled</code>. Return no result to the caller.</td></tr>
+<tr><td>During supervision</td><td>The runner’s handlers, which replace those of the Ravel CLI for the managed launch <!-- tc: depart synonym-rotation because launch is a noun that names the runner's launch modes, a technical name, while start is the verb for process creation --></td><td>Forward the signal to the group and the direct child. If the child still runs after the kill grace, send KILL.</td><td><code>session_cancelled</code>. Complete cleanup attempts and return no result.</td></tr>
+</tbody>
+</table>
+</div>
+<p>During supervision, the runner checks for cancellation before it accepts an
+observed child exit. The Ravel CLI also checks signals around supervision and
+final cleanup. Cancellation skips the result’s initial grace. If the kill grace
+has already begun, cancellation does not restart it.</p>
+<p>The sequence shows why a sent result cannot survive cancellation during supervision.
+Ravel attempts cleanup before it raises the signal again.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate, then sends INT to the Ravel CLI. Cleanup attempts precede cancellation, and the caller receives no result."><span class="img-wrapper"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate, then sends INT to the Ravel CLI. Cleanup attempts precede cancellation, and the caller receives no result."></span></label></p>
+<p><a href="figures/supervision-cancellation.svg">Open the supervision cancellation sequence at full size</a>.</p>
+<p>The managed process can itself supervise another process, for example a nested
+<code>ravel start-session</code>. The forwarded signal and the kill grace let that
+supervisor attempt its own cleanup.
+<a href="05-running-sessions.html#keep-nested-sessions-separate">Chapter 5</a> explains
+nested sessions.</p>
+<p>The two <a href="05-running-sessions.html#cancel-during-selection-or-supervision">cancellation sequences in chapter 5</a>
+show the selection and supervision cases, with complete fake-program examples.
+<a href="08-follow-a-session-through-the-code.html#cancel-during-selection">Chapter 8</a>
+follows the selection case through <code>Host::settle</code> and <code>worker::supervise</code>.
+<a href="08-follow-a-session-through-the-code.html#choose-the-final-outcome">Chapter 8</a>
+also explains which signal and diagnostic Ravel reports when failures overlap.
+A cleanup failure stays visible beside cancellation. It does not permit a
+previously sent result to reach standard output.</p>
+<h2 id="separate-the-three-launch-modes"><a class="header" href="#separate-the-three-launch-modes">Separate the three launch modes</a></h2>
+<p>The runner has three launch modes. The Ravel CLI uses two of them. The table
+compares the three modes:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Mode</th><th>Runner interface</th><th>POSIX session and input</th><th>Output, completion and signals</th></tr>
+</thead>
+<tbody>
+<tr><td>Ordinary launch, for the managed process</td><td><code>run_observed_with_start_check</code></td><td>A new process group in the caller’s POSIX session. Inherited input, with terminal access when available</td><td>Output goes to the caller’s standard error. A result can request shutdown. The runner installs cancellation handlers.</td></tr>
+<tr><td>Captured launch, for each harness run</td><td><code>run_captured</code>, with <code>CapturedLaunch</code></td><td>A new POSIX session, no controlling terminal, no inherited descriptors above 2 after exec. Standard input is the run’s <code>stdin</code> text, or end-of-file (EOF) without it</td><td>The runner’s thread reads both streams into buffers of 1 MiB each. A result requests shutdown, and so does a <code>StopRequest</code>. The runner installs no signal handler.</td></tr>
+<tr><td>Noninteractive launch</td><td><code>run_noninteractive</code></td><td>A new POSIX session, no controlling terminal, EOF input, no inherited descriptors above 2 after exec</td><td>Both streams go to a regular file that the caller supplies. No completion channel. The runner installs cancellation handlers.</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>run_noninteractive</code> has no production caller in Ravel. A test of
+<code>crates/ravel/src/cancellation.rs</code> calls it.</p>
+<p>Why does a captured launch install no signal handler? The Ravel CLI owns its
+signals during evaluation. Its runtime thread watches the latch, the deadline
+and the worker together, and it decides when to stop the run. If the runner
+replaced the handlers of the Ravel CLI, that thread could lose a signal.</p>
+<p>A new POSIX session removes the inherited controlling terminal relationship.
+It does not restrict file access, and a descendant can still move to another
+group. No mode of the runner restricts file access. These distinctions explain
+why the runner hides process mechanics behind separate launch interfaces,
+while the Ravel CLI owns the configuration script and result decisions.</p>
+<p>The runner tests check these process operations directly:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test source under <code>crates/keyed-launch/tests/</code></th><th>What it checks</th></tr>
+</thead>
+<tbody>
+<tr><td><code>launch.rs</code></td><td>Grace and KILL branches, ordinary descendants gone on return, and an unrelated process left untouched</td></tr>
+<tr><td><code>captured.rs</code></td><td>Separate streams, standard input and EOF, and the output bound. A stop request that ends descendants, KILL after the kill grace, a new group without a terminal, and the EPERM cases</td></tr>
+<tr><td><code>internal/wait_events.rs</code></td><td>Cleanup order, a reported survivor, and cancellation across wait failures through a private process substitute</td></tr>
+<tr><td><code>noninteractive.rs</code></td><td>EOF input, descriptor isolation, a new POSIX session, forwarded cancellation, and KILL after the kill grace</td></tr>
+<tr><td><code>job.rs</code></td><td>Terminal foreground and mode behaviour through pseudo-terminals</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>task test:runner</code> passed these tests on aarch64 macOS 27.0.1 on
+12 November 2026. The tests check named operations and process shapes. They do
+not establish containment against every same-user attack or cleanup of a
+descendant that leaves the job’s group. They also do not qualify a native
+x86-64 Linux host.</p>
+<h2 id="lend-and-recover-the-terminal"><a class="header" href="#lend-and-recover-the-terminal">Lend and recover the terminal</a></h2>
+<p>A <strong>controlling terminal</strong> belongs to a POSIX session. It has one
+<strong>foreground process group</strong> at a time. That group can read terminal input.
+With the default terminal modes, Ctrl-C sends INT to that group.
+A background group’s attempt to read can instead stop it with SIGTTIN.</p>
+<p>Start the Ravel CLI in the foreground of an interactive shell. During
+selection, its group is then the foreground group, and the Rhai worker is in
+that group too. A harness run is in another POSIX session, so Ctrl-C does not
+reach it. During supervision, the runner lends the foreground to the managed
+group, under the rules below.</p>
+<p>The runner opens <code>/dev/tty</code>, which names its controlling terminal.
+Redirected standard input does not remove that relationship. If the open
+fails, the runner proceeds without terminal job control. Detached modes, such
+as a harness run, do not open the terminal at all.</p>
+<p>An open terminal alone permits no handoff. The runner queries its foreground
+group with <code>tcgetpgrp</code> and lends it only when the runner’s own group holds it.
+A Ravel CLI that starts in the background takes no foreground for itself.
+A shell can later give the foreground to the Ravel CLI’s group, for example with
+<code>fg</code>. Then a later supervision poll can lend the terminal to the managed group.</p>
+<p>Before the first handoff, the runner saves the terminal attributes with
+<code>tcgetattr</code>. These <strong>terminal modes</strong> control such behaviour as character
+echo, line input and keyboard signals. An interactive program can change them
+to receive individual characters without echo. If KILL ends that program,
+the program cannot restore the modes itself.</p>
+<p>The ordinary foreground launch follows these steps:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>Owner and operation</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>Save</td><td>The runner retains a terminal descriptor, foreground ownership and the current modes in a terminal lease</td><td>Keep the recovery information alive through spawn and supervision</td></tr>
+<tr><td>Record</td><td>The child enters its new group and writes that group ID to a private pipe</td><td>Tell the parent which group can take the terminal, even if exec fails</td></tr>
+<tr><td>Lend</td><td>Before exec, the child calls <code>tcsetpgrp</code> to make its group foreground</td><td>Complete the handoff before the program’s first terminal read</td></tr>
+<tr><td>Supervise</td><td>The runner observes the child and performs any required group stops before reap</td><td>Retain the group identity for those signals</td></tr>
+<tr><td>Recover</td><td>After reap, the runner applies the holder rules below and checks the terminal again</td><td>Restore saved modes only when the runner’s group owns foreground</td></tr>
+</tbody>
+</table>
+</div>
+<p>The sequence shows why the terminal lease survives the exec attempt.
+Its recovery branches depend on the child outcome and the current foreground holder.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/terminal-lending-recovery.svg" alt="The child records its group before the terminal handoff. After normal supervision or a failed exec, Ravel applies the conditional recovery rules."><span class="img-wrapper"><img src="figures/terminal-lending-recovery.svg" alt="The child records its group before the terminal handoff. After normal supervision or a failed exec, Ravel applies the conditional recovery rules."></span></label></p>
+<p><a href="figures/terminal-lending-recovery.svg">Open the terminal sequence at full size.</a></p>
+<p>A background group can receive SIGTTOU when it changes terminal foreground.
+The runner therefore temporarily ignores SIGTTOU for the <strong>handback</strong> (the
+return of foreground to the runner’s group) and for mode restoration. Then it
+restores its previous disposition. It checks both the
+terminal operation and that restoration. The child also suppresses SIGTTOU
+for its handoff before it restores its entry signal state.</p>
+<p>The lease remembers whether this launch ever held foreground. If it never
+did, the runner takes no foreground and restores no modes.
+For a lease that did hold foreground, the child’s outcome changes the rule:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Outcome and current holder</th><th>Foreground and mode action</th></tr>
+</thead>
+<tbody>
+<tr><td>The runner’s group already holds foreground</td><td>Restore the saved modes</td></tr>
+<tr><td>Normal child exit, with the child’s group still foreground</td><td>Take foreground back, confirm it, then restore the modes</td></tr>
+<tr><td>Normal child exit, with another group foreground</td><td>Preserve that holder and its modes</td></tr>
+<tr><td>Known child death by signal</td><td>Reclaim from a positive foreground group other than the runner’s group or the POSIX session leader’s group. Restore modes only after confirmed ownership</td></tr>
+<tr><td>Failed spawn or unknown child status, with the recorded child’s group foreground</td><td>Attempt the conditional handback described below, then restore modes after confirmed ownership</td></tr>
+<tr><td>Failed spawn or unknown child status, with an unrelated group foreground</td><td>Preserve it and report unconfirmed foreground and mode recovery</td></tr>
+</tbody>
+</table>
+</div>
+<p>The wider signal-death rule covers a managed supervisor that gives foreground
+to another group, then dies without cleanup. Otherwise, that delegated group
+could retain a raw terminal and continue to read input. The accepted cost is
+that a nested job-control shell can lose its foreground after such a death.
+Unknown child status does not permit this wider takeover.
+The POSIX session leader is the process that created the terminal’s POSIX
+session.</p>
+<p>Exec can fail after the child takes foreground. The parent therefore retains
+the lease across a spawn error. The private pipe closes across exec and
+provides an attempted-group record, not proof of exec or a live group.
+If the record is missing or invalid, recovery is unconfirmed and Ravel reports it.
+The runner never signals that recorded number after failed spawn.</p>
+<p>Failed-spawn handback requires two conditions through recovery: no other
+process or thread changes foreground, and no unrelated group reuses the
+recorded ID. These conditions also apply to recovery from unknown status.
+The foreground query and handback are separate operations. A one-session
+lifetime of the Ravel CLI does not make them atomic or establish those conditions.</p>
+<p>Ravel reports failures of foreground queries, handback, mode restoration and
+temporary SIGTTOU restoration. After a recovery failure, Ravel returns no
+result to the caller.
+After failed spawn, the original spawn error stays primary unless cancellation
+overrides it. Recovery reports remain visible beside that outcome.</p>
+<p>The tests use a <strong>pseudo-terminal</strong>, or <strong>PTY</strong>, to observe these operations
+without a human terminal. A PTY has two ends. The fixture uses one as its
+controlling terminal, while the test controls input and reads output through
+the other. Separate fixture processes keep terminal and signal changes out of
+the test runner itself.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Test source</th><th>Observed distinction</th></tr>
+</thead>
+<tbody>
+<tr><td><code>crates/keyed-launch/tests/job.rs</code></td><td>A raw-mode child actually changes the modes before KILL. The runner then recovers foreground and saved modes</td></tr>
+<tr><td><code>crates/keyed-launch/tests/job.rs</code></td><td>The same other foreground holder remains after normal exit but loses foreground after signal death</td></tr>
+<tr><td><code>crates/keyed-launch/src/run/terminal_tests.rs</code></td><td>Failed exec retains the lease. Unknown status preserves an unrelated holder. Recovery failures remain in the error</td></tr>
+</tbody>
+</table>
+</div>
+<p>These tests check named process arrangements and failure reports. They do not
+prove exclusive terminal authority in every caller environment.
+The book’s complete examples have no terminal, so they do not check these
+handoff branches.</p>
+<h2 id="preserve-the-entry-signal-state"><a class="header" href="#preserve-the-entry-signal-state">Preserve the entry signal state</a></h2>
+<p>A signal’s <strong>disposition</strong> is the process-wide choice to use its default
+action, ignore it, or call a handler. A thread’s <strong>signal mask</strong> names signals
+whose delivery that thread blocks. A blocked signal can remain queued until
+the thread permits delivery. An ignored signal and a blocked signal are
+different states.</p>
+<p>Exec replaces the program but preserves the thread’s signal mask.
+It resets caught handlers to default actions. It preserves ignored
+dispositions with one exception: portable code cannot assume that an ignored
+SIGCHLD stays ignored after exec. The <a href="https://pubs.opengroup.org/onlinepubs/9799919799/functions/exec.html">POSIX exec specification</a>
+states that exception. Ravel explicitly restores its recorded
+ignore/default values before exec on its supported targets.</p>
+<p>On its supported targets, Ravel gives the managed process and each harness
+run the signal state that the Ravel CLI had at its executable entry. That is
+the state before Rust startup changes it. The table below gives the exclusions.
+For example, Rust startup ignores SIGPIPE. A capture in <code>main</code> would see that new ignore instead of the
+state that Ravel inherited.</p>
+<!-- tc: depart synonym-rotation because repair names a signal-state correction, while fixed describes a constant bound -->
+<p>The initialiser of the Ravel CLI in <code>signal_state.rs</code> records the ignored set and the
+initial thread’s mask before those runtime changes. It keeps that record
+separate from later repairs by the Ravel CLI and the runner. If a required query
+fails, the Ravel CLI refuses the launch. It does not accept a partial record. The runner receives the values through
+<code>EntrySignals</code>, in <code>Launch.transparent</code> for the managed process and in
+<code>CapturedLaunch.transparent</code> for each harness run. It does not capture them itself.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>State</th><th>Child behaviour in a transparent launch</th></tr>
+</thead>
+<tbody>
+<tr><td>Recorded ignore</td><td>Set the signal to ignored before exec</td></tr>
+<tr><td>Other recorded disposition</td><td>Set the signal to its default action. Do not copy a host handler</td></tr>
+<tr><td>Recorded mask</td><td>Apply the mask after the dispositions, so delivery uses the restored actions</td></tr>
+<tr><td>KILL and SIGSTOP</td><td>Leave these unchangeable dispositions alone</td></tr>
+<tr><td>Unsupported or runtime-reserved signal numbers</td><td>Exclude the platform’s specified numbers. A failure for another required number remains an error</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Ravel CLI and the runner also need signal state of their own. An ignored SIGCHLD or the
+<code>SA_NOCLDWAIT</code> flag can let the system discard child status without a parent
+reap. That would remove both the wait result and the identity reservation
+needed for group cleanup. The Ravel CLI checks and repairs this state before the
+Rhai worker starts. The runner checks it before each job starts: each harness
+run and the managed process.
+These repairs do not change the immutable child entry values.</p>
+<p>For the managed launch, the runner installs handlers for nonignored TERM and
+HUP. It also handles nonignored INT when no terminal exists or the launch is
+transparent. Ravel uses a transparent launch, so a nonignored INT sent
+directly to the Ravel CLI can cancel it even while the managed group owns
+foreground. The runner leaves ignored cancellation signals ignored. For a
+harness run, the runner installs nothing, and the handlers of the Ravel CLI stay.</p>
+<p>Terminal INT follows foreground ownership. Before handoff, it can reach the
+group of the Ravel CLI. After handoff, it reaches the managed group. The child’s death
+from that signal is not itself a cancellation observation by the Ravel CLI.
+Ravel can still return a result after child signal death if the Ravel CLI observes no
+cancellation and all required cleanup succeeds.</p>
+<p>The runner’s handlers and SIGCHLD repair persist after its call returns,
+on success or failure. A synchronous return does not restore a host’s prior
+state. The table gives the restoration responsibility at each boundary:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Boundary</th><th>Restoration responsibility</th></tr>
+</thead>
+<tbody>
+<tr><td><code>EntrySignals</code></td><td>Supply the child’s ignore/default state and mask. It restores no host state</td></tr>
+<tr><td>Runner return</td><td>Report the child outcome and recovery failures. Retain installed cancellation handlers and any SIGCHLD repair</td></tr>
+<tr><td>Final cleanup of the Ravel CLI</td><td>Check temporary masks and restore the saved INT/TERM/HUP dispositions under the conditions below</td></tr>
+<tr><td>A host that resumes other work</td><td>Needs its own signal lifetime, late-cancellation policy and restoration contract. The current runner supplies no such guarantee</td></tr>
+</tbody>
+</table>
+</div>
+<p>The Ravel CLI blocks its handled signals across the spawn transition of the
+managed process. After spawn reports success, its checked <code>Started</code> transition restores the
+parent’s entry mask. Failure enters bounded child teardown and terminal
+recovery. It does not return early with an abandoned child.</p>
+<p><code>Started</code> means spawn-reported success, not confirmed exec. A child can die
+before exec and still produce that event. Only an actual wait produces
+<code>Reaped</code>.</p>
+<p>Which thread receives a signal? The system can deliver a process signal to
+any thread that does not block it. Ravel therefore blocks INT, TERM and HUP in
+each helper thread for its whole life:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Thread</th><th>What it does</th><th>How it gets the block</th></tr>
+</thead>
+<tbody>
+<tr><td><code>config-stdout</code> and <code>config-stderr</code></td><td>Read the worker’s standard output and standard error</td><td>The Ravel CLI blocks the signals before it creates them, then restores its own mask</td></tr>
+<tr><td><code>ravel-reader</code></td><td>Does every file read and every harness run of the evaluation</td><td>The same, through <code>Shield::block</code> in <code>rhai_worker/reader.rs</code></td></tr>
+<tr><td><code>keyed-launch-pipes</code></td><td>Reads the pipes of a harness run</td><td>The reader thread creates it, and a new thread inherits the mask of its creator</td></tr>
+</tbody>
+</table>
+</div>
+<p>A block on only the main thread would leave another thread able to consume a
+signal during handoff. A stop can leave a reader thread alive until the Ravel
+CLI exits, for example after a bounded output drain or an abandoned file read.</p>
+<p>On both success and failure, final cleanup keeps handlers installed while
+the Ravel CLI restores its entry mask and collects cancellation observations.
+It then blocks the handled signals, reads queued signal state and consumes the
+runner’s late signal. Under that block, it restores its saved handled
+dispositions. A failed block keeps the handlers. Unknown queued signal state never
+means that cancellation is absent.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Final condition</th><th>Action of the Ravel CLI</th></tr>
+</thead>
+<tbody>
+<tr><td>Known state, successful disposition restoration, no cancellation</td><td>Restore the entry mask. Other cleanup checks still precede result output</td></tr>
+<tr><td>Cancellation selected</td><td>Report it and cleanup failures, then check the default action, unblock and raise the selected signal. Use a numeric fallback if propagation cannot succeed</td></tr>
+<tr><td>Queued signal query failed while signals remain blocked, with no selected cancellation</td><td>Keep them blocked through diagnostics. Return failure without a result</td></tr>
+<tr><td>Required mask or disposition operation failed</td><td>Retain the failure report and return no result</td></tr>
+</tbody>
+</table>
+</div>
+<p>An entry-blocked signal does not become cancellation merely because it is
+queued. The managed child receives that entry block too.
+The final signal decision of the Ravel CLI follows the priority in
+<a href="08-follow-a-session-through-the-code.html#choose-the-final-outcome">chapter 8</a>.
+Its cleanup restores the saved handled dispositions and temporary masks.
+It does not undo the SIGCHLD repair or restore every runtime signal change
+for a host that continues after the call.</p>
+<h2 id="know-the-guarantees-and-their-limits"><a class="header" href="#know-the-guarantees-and-their-limits">Know the guarantees and their limits</a></h2>
+<p>Each guarantee below includes the boundary within which it holds.
+The successful result is evidence of the required checks, not proof that
+every descendant or hostile same-user process is absent.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Guarantee</th><th>Limit</th></tr>
+</thead>
+<tbody>
+<tr><td>Ravel returns a result only after that launch’s child reap, confirmed group absence and successful required cleanup</td><td>Group membership defines the cleanup scope. A descendant that leaves the group lies outside it</td></tr>
+<tr><td>Ravel supervises shutdown while the Ravel CLI remains alive</td><td>Abrupt death of the Ravel CLI, for example from KILL, can orphan the managed job or a harness run. Such death is not successful completion</td></tr>
+<tr><td>Ravel keeps the first complete result through a private inherited channel and rejects invalid result files</td><td>The channel does not authenticate against hostile same-user code. Directory identity checks do not make concurrent pathname changes atomic</td></tr>
+<tr><td>Ravel asks the runner to stop each harness run before it stops the worker, and launches nothing after a stop</td><td>A process that leaves the run’s group lies outside this stop. A run that the runner does not settle in 8 seconds gives <code>harness_cleanup_failed</code>, without a confirmed reap. A stop of an LLM call ends only local work: the model service can still finish a request that it accepted</td></tr>
+<tr><td>Ravel verifies and reaps the Rhai worker before the managed launch</td><td>The configuration script remains trusted executable code. The worker starts no process. Its harness runs have the group limit above</td></tr>
+<tr><td>A signal that the Ravel CLI consumes before its final read wins over the deadline, a breached limit and a cleanup failure</td><td>The first consumed signal stays the cause. A later signal does not replace it</td></tr>
+<tr><td>Ravel checks terminal recovery under the holder rules above</td><td>Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated group-ID reuse. Terminal tests cannot establish these conditions for a caller</td></tr>
+<tr><td>Ravel retains failure reports and attempts required cleanup</td><td>A failed operation or expired retry bound can leave cleanup unconfirmed and processes alive. Ravel reports failure and returns no result</td></tr>
+<tr><td>Cancellation observed by the final decision suppresses the result</td><td>A new signal can arrive after that decision. There is no atomic operation across signal delivery and the final output write</td></tr>
+<tr><td>Successful cleanup permits the final result write</td><td>The write can still fail after a prefix reaches standard output. Ravel cannot retract that prefix. A failed write to standard error can also prevent the delivery of diagnostics</td></tr>
+<tr><td>The Ravel CLI owns one session and then exits</td><td>Process-wide handlers, signal latches and terminal authority do not support concurrent host calls or a fully restored host that continues work</td></tr>
+</tbody>
+</table>
+</div>
+<p>Native-entry behaviour has measured support on aarch64 macOS and aarch64
+GNU/Linux. Each measurement covers its named kernel, libc and compiler,
+not every combination. The GNU/Linux measurement used Rust 1.85.0.
+Native x86-64 Linux remains unqualified: builds, lint checks and QEMU
+user-mode execution do not qualify an x86-64 kernel.</p>
+<p>The current runner is a private package within Ravel. Neither that package
+boundary nor these checks deliver a
+<a href="01-what-ravel-is-for.html#decide-whether-ravel-fits">persistent runner</a> for an
+arbitrary host.</p>
+<p>Ravel supports no separate component. The runner serves the Ravel CLI, which
+supervises one session and then exits. The runner’s return does not
+restore process-wide signal state. Another program invokes the Ravel CLI as
+a child process. Thus, the signal state that the runner changes stays in that
+child process and ends when it exits.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="08-follow-a-session-through-the-code.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="10-develop-ravel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="08-follow-a-session-through-the-code.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="10-develop-ravel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

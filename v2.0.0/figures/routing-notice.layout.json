@@ -1,0 +1,493 @@
+{
+  "w": 671.77734375,
+  "h": 551.603125,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Selection and routing notice — UML sequence",
+      "x": 335.888671875,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 413.78125,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          41.99609375,
+          50.3125
+        ],
+        [
+          41.99609375,
+          478.29296875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          221.99609375,
+          50.3125
+        ],
+        [
+          221.99609375,
+          478.29296875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          467.0859375,
+          152.3375
+        ],
+        [
+          467.0859375,
+          286.9578125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-agent",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          605.9765625,
+          433.65625
+        ],
+        [
+          605.9765625,
+          478.29296875
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 77.9921875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 41.99609375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 169.32421875,
+      "y0": 26.15625,
+      "x1": 274.66796875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI",
+      "x": 221.99609375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          41.99609375,
+          95.2859375
+        ],
+        [
+          221.99609375,
+          95.2859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "start-session: kind review and prompt",
+      "x": 131.99609375,
+      "y": 91.2859375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 168.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          221.99609375,
+          140.259375
+        ],
+        [
+          401.99609375,
+          140.259375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Evaluate configuration script",
+      "x": 311.99609375,
+      "y": 136.259375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 168.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 401.99609375,
+      "y0": 128.18125,
+      "x1": 532.17578125,
+      "y1": 152.3375
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai worker",
+      "x": 467.0859375,
+      "y": 140.259375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 108.1796875,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          467.0859375,
+          229.984375
+        ],
+        [
+          221.99609375,
+          229.984375
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Selection: program fake-agent, args.\nprovider local, model fake, effort low",
+      "x": 344.541015625,
+      "y": 225.984375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 233.08984375,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          221.99609375,
+          249.47109375
+        ],
+        [
+          243.99609375,
+          249.47109375
+        ],
+        [
+          243.99609375,
+          267.47109375
+        ],
+        [
+          221.99609375,
+          267.47109375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Check selection and reap worker",
+      "x": 249.99609375,
+      "y": 258.47109375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 152.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-19-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          459.0859375,
+          278.9578125
+        ],
+        [
+          475.0859375,
+          294.9578125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-19-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          459.0859375,
+          294.9578125
+        ],
+        [
+          475.0859375,
+          278.9578125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          221.99609375,
+          394.94140625
+        ],
+        [
+          41.99609375,
+          394.94140625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Text routing notice on standard error: provider local,\nmodel fake, effort low for kind \"review\"",
+      "x": 131.99609375,
+      "y": 390.94140625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 168.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          221.99609375,
+          421.578125
+        ],
+        [
+          546.17578125,
+          421.578125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launch fake-agent with args",
+      "x": 384.0859375,
+      "y": 417.578125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 201.240234375,
+      "h": 10.63671875
+    },
+    {
+      "id": "head-agent",
+      "shape": "box",
+      "role": "external",
+      "x0": 546.17578125,
+      "y0": 409.5,
+      "x1": 665.77734375,
+      "y1": 433.65625
+    },
+    {
+      "id": "head-agent-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "fake-agent",
+      "x": 605.9765625,
+      "y": 421.578125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 97.6015625,
+      "h": 12.15625
+    },
+    {
+      "id": "note-27",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          169.32421875,
+          441.65625
+        ],
+        [
+          655.77734375,
+          441.65625
+        ],
+        [
+          665.77734375,
+          451.65625
+        ],
+        [
+          665.77734375,
+          466.29296875
+        ],
+        [
+          169.32421875,
+          466.29296875
+        ]
+      ]
+    },
+    {
+      "id": "note-27-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          655.77734375,
+          441.65625
+        ],
+        [
+          655.77734375,
+          451.65625
+        ],
+        [
+          665.77734375,
+          451.65625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-27-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Labels go to the notice, not to the program.",
+      "x": 417.55078125,
+      "y": 453.974609375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 476.453125,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 57.51904296875,
+      "y0": 484.29296875,
+      "x1": 614.25830078125,
+      "y1": 551.603125
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the worker lifetime after reap.\nWith --json, the JSON notice replaces the line after the supervision attempt.",
+      "x": 335.888671875,
+      "y": 517.948046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 528.7392578125,
+      "h": 47.31015625
+    }
+  ]
+}

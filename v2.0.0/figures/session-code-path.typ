@@ -1,0 +1,78 @@
+// The chapter 8 example through the code — one authoritative sequence source.
+// Runner actions stay on the original CLI lifeline. Conditional section labels
+// carry the optional escalation region without adding a new layout primitive.
+#import "_sequence.typ": *
+#import "_draw.typ": render
+
+#let parts = (
+  part("caller", [caller]),
+  part("cli", [Ravel CLI \ with runner], kind: "ravel"),
+  part("worker", [Rhai \ worker], kind: "ravel"),
+  part("advisor", [advisor \ harness run]),
+  part("managed", [managed \ process]),
+  part("end", [Ravel CLI \ end-session], kind: "ravel"),
+  part("channel", [result \ channel], kind: "temporary", db: true),
+)
+
+#let rows = (
+  msg("caller", "cli", [start-session \ kind and prompt]),
+  msg("cli", "cli", [main → run \ Check inputs and script path]),
+  div([Configuration evaluation]),
+  msg("cli", "worker", [Start in private directory], create: true),
+  msg("worker", "cli", [hello: worker identity], dashed: true),
+  msg("cli", "cli", [Check worker identity. Reader thread reads config.rhai]),
+  msg("cli", "worker", [evaluate: source and request]),
+  msg("worker", "worker", [Evaluate configuration script]),
+  msg("worker", "cli", [host: run_harness]),
+  msg("cli", "advisor", [Runner starts harness with its own result channel and RAVEL_CONFIG_RUN=1], create: true),
+  msg("advisor", "cli", [Result through harness channel. Cleanup and reap], dashed: true),
+  destroy("advisor"),
+  msg("cli", "worker", [reply: harness result], dashed: true),
+  msg("worker", "cli", [selection], dashed: true),
+  msg("cli", "cli", [reply_judge: check selection]),
+  msg("worker", "worker", [Exit after selection]),
+  msg("cli", "cli", [Reap worker]),
+  destroy("worker"),
+  msg("cli", "cli", [Collect diagnostics \ Remove worker directory \ Resolve fake-agent]),
+  div([Managed launch]),
+  msg("cli", "cli", [Reserve stdout \ Redirect stdout to stderr]),
+  msg("cli", "channel", [Allocate channel directory], create: true),
+  msg("cli", "cli", [Write routing notice \ try_block_and_check \ Prepare argv and environment]),
+  msg("cli", "managed", [Runner: spawn in own group \ Set new RAVEL_EXIT_FILE], create: true),
+  note("cli", "managed", [Before exec: child takes terminal if Ravel owns foreground.]),
+  msg("cli", "cli", [Started: start check \ restores mask \ Then watch]),
+  note("cli", "managed", [Inside watch: parent lends terminal if Ravel owns foreground.]),
+  div([Send the result]),
+  msg("managed", "end", [end-session finished], create: true),
+  msg("end", "end", [Read RAVEL_EXIT_FILE]),
+  msg("end", "channel", [Check directory \ Write and flush temporary file], role: "result"),
+  msg("end", "channel", [Hard link adds completion name]),
+  note("managed", "channel", [First result wins. No wait for job cleanup.]),
+  div([Optional: result observed before child exit]),
+  msg("cli", "channel", [Appearance starts grace]),
+  msg("cli", "managed", [If alive: TERM after 2 s \ If still alive: KILL 5 s later]),
+  div([After child exit]),
+  msg("cli", "cli", [watch: observe exit \ Retain identity until reap]),
+  msg("cli", "managed", [Stop the group before reap]),
+  msg("cli", "cli", [Reap direct child]),
+  destroy("managed"),
+  msg("cli", "cli", [Recover terminal if lent \ Confirm group absent]),
+  msg("cli", "channel", [supervise_reported: recheck appearance]),
+  msg("cli", "cli", [Return Ended to run \ result_after: check job facts]),
+  msg("cli", "channel", [Validate and read through held directory]),
+  msg("channel", "cli", [finished], dashed: true, role: "result"),
+  div([Cleanup and output]),
+  msg("cli", "cli", [Report operations \ Restore entry mask]),
+  msg("cli", "channel", [Close: remove channel directory]),
+  destroy("channel"),
+  msg("cli", "cli", [Restore stdout \ finalise: signal checks]),
+  msg("cli", "cli", [settle: require success]),
+  msg("cli", "caller", [Write and flush finished \ unchanged. Exit 0], role: "result"),
+)
+
+#render(sequence([The session code path — UML sequence], parts, rows, (
+  [Blue: Ravel. Grey: external processes. Gold: files. Green: result.],
+  [X: confirmed reap or removal. Second CLI exit/reap omitted.],
+  [The advisor is fake-advisor. Example without selection context or a terminal.],
+  [Early child exit skips the optional region. Later checks still find the result.],
+), max-label: 65))

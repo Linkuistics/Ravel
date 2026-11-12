@@ -1,0 +1,1330 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Follow a session through the code - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="follow-a-session-through-the-code"><a class="header" href="#follow-a-session-through-the-code">Follow a session through the code</a></h1>
+<p>Do you want to change what Ravel does, or find the code that made a session
+fail? Then you need to know which function does each step of a session, and
+in which order. This chapter follows one session through the code, from
+<code>main</code> to the last byte on standard output. Then it follows the same session
+when the configuration script refuses and when a signal cancels it. At the
+end, you can find where a change belongs.</p>
+<p>The session is the <code>ravel-parts</code> example from
+<a href="07-the-parts-of-ravel.html#watch-the-parts-in-one-session">chapter 7</a>. Its
+configuration script asks a fake harness, <code>fake-advisor</code>, for advice. The
+advisor prints <code>short</code> and sends the result <code>advice</code>. Then the script selects
+the fake agent <code>fake-agent</code> with the argument <code>short</code>. The agent sends
+<code>finished</code>, and the caller receives <code>finished</code> with status 0.</p>
+<p>These are the words of chapter 7, with the value that each word has in this
+chapter’s example:</p>
+<!-- tc: depart synonym-rotation because launch names the runner's launch of a job, while start names other process creation -->
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Word</th><th>What it names</th><th>In the example</th></tr>
+</thead>
+<tbody>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Ravel CLI</a></td><td>The <code>ravel</code> command-line program. It checks the request, runs the programs and decides the outcome.</td><td>The process <code>ravel start-session --kind demo …</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#caller-and-owner">Configuration script</a></td><td>The owner’s Rhai file that selects a program or refuses</td><td><code>config.rhai</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a></td><td>A second copy of the <code>ravel</code> executable that evaluates the configuration script</td><td>It runs <code>select</code> in <code>config.rhai</code></td></tr>
+<tr><td>Host bridge</td><td>The code on both sides of the worker’s private socket. It carries each request of the script to the Ravel CLI and returns the answer.</td><td>It carries the call <code>ravel::run_harness</code></td></tr>
+<tr><td>Reader thread</td><td>The thread of the Ravel CLI that does every file read and every harness run during evaluation</td><td>It reads <code>config.rhai</code> and runs <code>fake-advisor</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Harness run</a></td><td>One run of a program from the <code>harnesses</code> settings, during evaluation. Its output returns to the script.</td><td><code>fake-advisor</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#the-managed-process-and-its-result">Managed process</a></td><td>The program that the script selects. It does the caller’s work.</td><td><code>fake-agent</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#the-managed-process-and-its-result">Result channel</a></td><td>A private temporary directory with one path for a result file. The path goes to a program in <code>RAVEL_EXIT_FILE</code>.</td><td>One for <code>fake-advisor</code>, one for <code>fake-agent</code></td></tr>
+<tr><td><a href="02-actors-and-words.html#evaluation-and-supervision">Runner</a></td><td>The Rust library code in the Ravel CLI that launches and supervises a job</td><td>It runs both fakes</td></tr>
+</tbody>
+</table>
+</div>
+<p>This chapter is an orientation to one path. It does not cover the complete
+source. It omits the <code>load_context</code> exchange of the
+<a href="02-actors-and-words.html#three-different-kinds-of-information">selection context</a>,
+the other host calls, platform system calls, test instruments and delivery
+code. <a href="07-the-parts-of-ravel.html">Chapter 7</a> explains the parts and why each
+one is separate. <a href="09-jobs-signals-and-the-terminal.html">Chapter 9</a> explains
+the job-control details.</p>
+<p>This chapter writes INT, TERM, HUP and KILL without the SIG prefix. Other
+signal names keep that prefix. Code and diagnostic text keep their literal
+names. Paths are relative to the root of a checkout.</p>
+<h2 id="trace-the-example"><a class="header" href="#trace-the-example">Trace the example</a></h2>
+<p>You saved four files in <code>~/ravel-parts</code> in chapter 7. The configuration script
+is the file that decides the path. It is the same file as in chapter 7.</p>
+<p>Fragment: <code>config.rhai</code> of the <code>ravel-parts</code> example. This block omits
+<code>settings.json</code>, the two fakes and the command. Chapter 7 gives them.</p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts";
+
+fn select(request, context) {
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [run.stdout],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show each part of Ravel.",
+    }
+}
+</code></pre>
+<p>The command of chapter 7 gave the kind <code>demo</code>, the script <code>config.rhai</code> and
+the prompt <code>Show the parts of Ravel.</code>. It ran with a cleared environment and a
+private home. Standard error showed two lines in this order. The check of
+chapter 7 claims them as one block, so it also checks their order.</p>
+<pre><code class="language-text">config stdout: The advisor run ended: exited, result advice.
+ravel: starting provider local, model fake, effort none for kind "demo"
+</code></pre>
+<p>The first line is the script’s <code>print</code> output. The Ravel CLI wrote it after
+the worker ended. The second line is the routing notice. The Ravel CLI wrote
+it just before it launched <code>fake-agent</code>. The file <code>result</code> then held
+<code>finished</code>, without a newline.</p>
+<p>The table gives the whole path before the sections explain each step. Each
+step needs the step before it. The last column says what the next step
+receives.</p>
+<!-- tc: depart synonym-rotation because launch names the runner's launch of a job, while start names other process creation -->
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Step</th><th>What happens</th><th>Code location</th><th>What the next step receives</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Parse the command</td><td><code>crates/ravel/src/main.rs</code>, <code>main</code></td><td><code>RunArgs</code> for <code>run::run</code></td></tr>
+<tr><td>2</td><td>Refuse inside a harness run, check the entry signal state, install the cancellation handlers</td><td><code>crates/ravel/src/run.rs</code>, <code>run</code></td><td>Handlers that keep a signal for later</td></tr>
+<tr><td>3</td><td>Read the settings and inputs, find the script, prepare the skills</td><td><code>crates/ravel/src/choice.rs</code>, <code>prepare</code></td><td><code>Prepared</code></td></tr>
+<tr><td>4</td><td>Spawn the Rhai worker and check its identity</td><td><code>choice::choose_prepared</code>, <code>rhai_worker::front::evaluate</code>, <code>worker::supervise</code></td><td>A worker that is the same build</td></tr>
+<tr><td>5</td><td>Send the script to the worker and answer its host calls</td><td><code>crates/ravel/src/rhai_worker/serve.rs</code>, <code>serve</code>, with <code>host.rs</code> and <code>harness.rs</code></td><td>The run of <code>fake-advisor</code>, as a map for the script</td></tr>
+<tr><td>6</td><td>Check the reply, reap the worker, find the program</td><td><code>worker::supervise</code>, <code>config::judge_result</code>, <code>program::resolve</code></td><td>A <code>Choice</code> with the checked command and the executable path</td></tr>
+<tr><td>7</td><td>Reserve standard output, make the result channel, write the routing notice</td><td><code>run</code></td><td>A <code>Launch</code></td></tr>
+<tr><td>8</td><td>Launch and supervise the managed process</td><td><code>crates/keyed-launch/src/run.rs</code></td><td><code>Ended</code>, after reap and terminal recovery</td></tr>
+<tr><td>9</td><td>Read the result</td><td><code>crates/ravel/src/completion.rs</code>, <code>result_after</code></td><td><code>Some("finished")</code></td></tr>
+<tr><td>10</td><td>Complete cleanup and decide the outcome</td><td><code>run</code>, <code>Handlers::finalise</code>, <code>settle</code></td><td><code>finished</code>, or a failure</td></tr>
+<tr><td>11</td><td>Write the result</td><td><code>run</code>, then <code>main</code></td><td>Unchanged output, then status 0</td></tr>
+</tbody>
+</table>
+</div>
+<p>The sequence shows the same order. It shows why the sent result reaches the
+caller only after worker cleanup, managed-job cleanup and the final outcome
+decision.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/session-code-path.svg" alt="The CLI checks and reaps the Rhai worker before it launches the managed process. A second CLI sends finished through the result channel. The runner stops the group before reap and checks the channel again after cleanup. Only successful cleanup and the final decision permit unchanged output."><span class="img-wrapper"><img src="figures/session-code-path.svg" alt="The CLI checks and reaps the Rhai worker before it launches the managed process. A second CLI sends finished through the result channel. The runner stops the group before reap and checks the channel again after cleanup. Only successful cleanup and the final decision permit unchanged output."></span></label></p>
+<p><a href="figures/session-code-path.svg">Open the full session sequence at full size</a>.
+The optional region applies when <code>watch</code> sees the result before the child
+exits. The later appearance check also finds the result when the child exits
+first. Terminal actions are conditional. The checked example has no terminal.</p>
+<!-- tc: depart synonym-rotation because launch names the runner's managed launch, while start names other process creation -->
+<p>The session starts other short <code>ravel</code> processes. One is the Rhai worker.
+Each fake also starts <code>ravel end-session</code> to send its result. None of these
+processes returns a result to the caller. Only the original Ravel CLI does that.</p>
+<h2 id="prepare-the-request"><a class="header" href="#prepare-the-request">Prepare the request</a></h2>
+<p><code>main</code> in <code>crates/ravel/src/main.rs</code> first decides which role this process
+has. The Ravel CLI starts the worker with <code>argv[0]</code> set to
+<code>ravel-rhai-config-worker</code>. Thus, <code>main</code> compares <code>argv[0]</code> with that name
+before it reads any argument.</p>
+<p>Excerpt from <code>crates/ravel/src/main.rs</code>: the role check comes first in <code>main</code>,
+after a test-only branch.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    if std::env::args_os()
+        .next()
+        .is_some_and(|arg0| arg0 == rhai_worker::ARG0)
+    {
+        return rhai_worker::role::run();
+<span class="boring">}</span></code></pre>
+<p>In the example, the name is <code>ravel</code>, so <code>main</code> reads the command line. It
+uses the clap definitions in <code>crates/ravel/src/cli.rs</code>. For <code>end-session</code>,
+<code>main</code> calls <code>end_session</code> directly, without a configuration script. For
+<code>start-session</code>, it first refuses the withdrawn confinement flags with
+<code>cli::withdrawn</code>. Then it calls <code>run::run</code>.</p>
+<p><code>run</code> in <code>crates/ravel/src/run.rs</code> refuses first when <code>RAVEL_CONFIG_RUN</code> is in
+its environment. A harness run has that variable, and a <code>start-session</code> inside
+it cannot select. The example’s caller has no such variable.</p>
+<p>Next, <code>signal_state::recorded</code> checks that Ravel saved its entry signal state.
+An initialiser function saves that state before <code>main</code> runs. Then
+<code>handlers.begin()</code> installs the cancellation handlers. From here, a signal
+does not stop the process at once. A handler keeps it, and the code checks it
+at fixed points.</p>
+<p><code>choice::prepare</code> then reads the settings, reads the inputs and resolves the
+configuration script path. The order matters: the settings supply defaults
+that the input checks need, and both come before the worker exists.</p>
+<p>Excerpt from <code>crates/ravel/src/choice.rs</code>: these first statements of
+<code>prepare</code> establish the inputs and the configuration script entry.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let home = std::env::var_os("HOME");
+    let settings = Settings::read(home.as_deref())?;
+    let inputs = Inputs::read(args, &amp;settings)?;
+    let entry = authority::resolve(args.config.as_deref(), &amp;inputs.cwd, home.as_deref())?;
+<span class="boring">}</span></code></pre>
+<p>In the example, <code>Settings::read</code> reads <code>home/.config/ravel/settings.json</code>. It
+finds the harness entry <code>advisor</code> and the budget of one harness run.</p>
+<p><code>authority::resolve</code> resolves <code>config.rhai</code> relative to the caller’s working
+directory. It requires a regular file and gives the canonical path. It does
+not open the file. The reader thread reads it later, inside the selection
+deadline. <code>authority::resolve</code> does not search for another configuration
+script when this path fails.</p>
+<p>Then <code>prepare</code> resolves the skill sources and prepares the prompt. This step
+comes before the worker. Thus, a skill refusal starts no worker and makes no
+result channel.</p>
+<p>Excerpt from <code>crates/ravel/src/choice.rs</code>: the call that follows the entry in
+<code>prepare</code>. <code>config_dir</code> is the directory of the canonical entry.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let skills = crate::skills::launch::prepare(
+        home.as_deref().map(Path::new),
+        &amp;settings,
+        config_dir,
+        &amp;inputs.prompt.text,
+    )?;
+<span class="boring">}</span></code></pre>
+<p>The example’s <code>skills</code> settings have an empty source array, so delivery is
+disabled, also in a Homebrew installation. Thus, this call returns <code>None</code>. <code>Prepared</code> holds the
+checked inputs, the entry and that <code>None</code>. It holds no decision of the
+configuration script yet.</p>
+<p>Back in <code>run</code>, a <code>RunSetup</code> collects three values for each program that Ravel
+runs later. They are the entry signal state, the <code>--exit-dir</code> directory and
+the skill descriptor path. A harness run and the managed process both use
+them. In this trace, the descriptor path is absent.</p>
+<h2 id="start-the-rhai-worker"><a class="header" href="#start-the-rhai-worker">Start the Rhai worker</a></h2>
+<p><code>choice::choose_prepared</code> calls <code>evaluate_and_resolve_rhai</code>. That function
+builds the request for the script. In this checkout-build trace, the request holds these
+fields:</p>
+<ul>
+<li><code>kind</code> is <code>demo</code>.</li>
+<li><code>originalPrompt</code> and <code>prompt</code> both hold <code>Show the parts of Ravel.</code>.</li>
+<li><code>cwd</code> is the caller’s working directory.</li>
+<li><code>params</code> is empty, and <code>skills</code> is null.</li>
+</ul>
+<p>It also makes two checks for later, as closures. The <code>judge</code> closure checks a
+context that <code>load_context</code> returns. The example has no <code>load_context</code>, so
+<code>judge</code> never runs. The <code>reply_judge</code> closure calls <code>config::judge_result</code> on
+the final reply of the worker. Then <code>evaluate_and_resolve_rhai</code> calls
+<code>rhai_worker::front::evaluate</code>.</p>
+<p><code>evaluate</code> gives the worker to <code>worker::supervise</code> in <code>crates/ravel/src/worker.rs</code>.
+That function owns the worker process from its start to its reap. It
+prepares the worker in this way:</p>
+<ul>
+<li>It makes a private empty directory with mode 0700. The worker starts there.</li>
+<li>It makes a socket pair. In the child, between fork and exec, the worker’s
+end moves to file descriptor 3.</li>
+<li>It clears the environment, so the worker inherits no variable.</li>
+<li>It sets standard input to <code>/dev/null</code> and pipes standard output and standard
+error back to the Ravel CLI.</li>
+<li>In the child, between fork and exec, it marks every descriptor above 3
+close-on-exec. Thus, the worker holds only descriptors 0 to 3.</li>
+</ul>
+<p>A failure of any of these steps, or of the spawn, refuses as <code>worker_missing</code>
+or <code>worker_failed</code>, status 5.</p>
+<p>The worker therefore has no <code>RAVEL_EXIT_FILE</code>. It cannot send a result for
+any session. The selection deadline starts at the spawn, so a slow start uses
+the same time as a slow script. Two threads then read the worker’s standard
+output and standard error within one size limit.</p>
+<p>The worker side is <code>rhai_worker::role::run</code> in
+<code>crates/ravel/src/rhai_worker/role.rs</code>. It sets its heap limit of 1 GiB before
+the first byte of script arrives. Then it sends <code>hello</code> with its protocol,
+package version, build identity and Rhai version.</p>
+<p>On the CLI side, <code>converse</code> in <code>rhai_worker/front.rs</code> receives that frame.
+<code>verify_hello</code> compares each value with the values of the Ravel CLI itself.</p>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/front.rs</code>: <code>verify_hello</code> refuses a
+worker when one of these four values differs.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    if protocol != Some(PROTOCOL)
+        || text("packageVersion") != PACKAGE_VERSION
+        || text("buildId") != BUILD_ID
+        || text("rhaiVersion") != RHAI_VERSION
+<span class="boring">}</span></code></pre>
+<p>A difference gives <code>worker_identity_mismatch</code>, status 5. In the example, the
+worker is the same file as the Ravel CLI, so each value is equal.</p>
+<p>Next, <code>converse</code> starts the reader thread with <code>Reader::start</code>. The thread
+blocks INT, TERM and HUP for its whole life, so a signal never runs a handler
+on it. Then <code>converse</code> builds a Tokio runtime on the current thread and runs
+<code>serve</code> on it. Tokio is the Rust library for asynchronous input and output.
+The runtime thread itself makes no file call.</p>
+<h2 id="answer-the-scripts-requests"><a class="header" href="#answer-the-scripts-requests">Answer the script’s requests</a></h2>
+<p><code>serve</code> in <code>crates/ravel/src/rhai_worker/serve.rs</code> first gives the entry to
+the reader thread. The worker reads no file, also for its own script. The
+reader thread reads <code>config.rhai</code>, measures it and returns its source.</p>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/serve.rs</code>: the deadline covers
+the read of the entry, because the read waits inside <code>watch.until</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    // The deadline began when the worker started, so it covers this read.
+    let source = match watch.until(host.read_entry(entry)).await? {
+        Ok(source) =&gt; source,
+        Err(what) =&gt; return Err(Conversation::Refused(unreadable(&amp;what))),
+<span class="boring">}</span></code></pre>
+<p><code>watch.until</code> is the pattern of the conversation after the handshake. It
+waits for one piece of work, and it also watches three conditions: the
+deadline, the cancellation latch and the output limit. A <strong>latch</strong> is the
+saved signal number that a handler stores. The first condition that occurs
+stops the wait. While a host call is in progress, <code>during_call</code> also watches
+the socket. A worker that sends a frame or closes its end then breaks the
+protocol.</p>
+<p>Then <code>serve</code> sends the <code>evaluate</code> frame. It holds the entry path, the source
+exactly as the reader thread read it, the request and the limits.</p>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/serve.rs</code>: the <code>evaluate</code> frame.
+A <code>selectContext</code> member follows only when the caller supplied a context.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut evaluate = json!({
+        "type": "evaluate",
+        "protocol": super::PROTOCOL,
+        // Exactly the admitted file.
+        "entry": entry,
+        "source": source,
+        "request": request,
+        "bounds": bounds.to_json(),
+    });
+<span class="boring">}</span></code></pre>
+<p>The worker evaluates the source on its own thread with <code>engine::evaluate_with</code>
+in <code>rhai_worker/engine.rs</code>. It compiles the script and runs its top level.
+Then it checks the exports <code>SCHEMA_VERSION</code>, <code>VERSION</code> and <code>select</code>. Last, it
+calls <code>select(request, context)</code>.</p>
+<p>What does <code>select</code> receive as <code>context</code> in the example? The caller gave no
+context document, and the script has no <code>load_context</code>. Then <code>select</code>
+receives <code>request.context</code>, which is null in the request. Rhai shows null as
+the unit value <code>()</code>.</p>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/engine.rs</code>: the second argument of
+<code>select</code>, in <code>evaluate_with</code>.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let context = match select_context {
+        Some(context) if context.is_object() =&gt; from_json(context),
+        Some(_) =&gt; return Err("the selectContext is not an object".to_owned()),
+        None =&gt; request.get("context").cloned().unwrap_or(Dynamic::UNIT),
+    };
+<span class="boring">}</span></code></pre>
+<p>The refusal example below prints <code>type_of(context)</code>, and the output is <code>()</code>.</p>
+<h2 id="follow-the-harness-run-through-the-host-bridge"><a class="header" href="#follow-the-harness-run-through-the-host-bridge">Follow the harness run through the host bridge</a></h2>
+<p><a href="07-the-parts-of-ravel.html#the-host-bridge-carries-each-request-to-the-ravel-cli">Chapter 7’s host bridge sequence</a> shows how the runtime and reader threads divide this call.</p>
+<p>The first statement of <code>select</code> calls <code>ravel::run_harness</code>. The table follows
+that call. Each row names the thread or process that acts.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Who acts</th><th>Code location</th><th>What happens in the example</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>The worker</td><td><code>rhai_worker/bridge.rs</code></td><td>Sends a <code>host</code> frame with the call <code>run_harness</code> and the harness <code>advisor</code>, then waits for the answer</td></tr>
+<tr><td>2</td><td>The runtime thread</td><td><code>serve</code></td><td>Receives the frame and passes it to <code>Host::call</code> in <code>rhai_worker/host.rs</code></td></tr>
+<tr><td>3</td><td>The runtime thread</td><td><code>Host::run_harness</code></td><td>Finds the entry <code>advisor</code> in the settings. The reader thread finds <code>fake-advisor</code> on the caller’s <code>PATH</code>. It checks that the budget allows one more run.</td></tr>
+<tr><td>4</td><td>The reader thread</td><td><code>harness::execute</code> in <code>rhai_worker/harness.rs</code></td><td>Makes a result channel for the run. Adds <code>RAVEL_CONFIG_RUN=1</code> to the run’s environment. Calls the runner.</td></tr>
+<tr><td>5</td><td>The reader thread, in the runner</td><td><code>keyed_launch::run_captured</code></td><td>Runs <code>fake-advisor</code> in a new POSIX session. Captures <code>short</code> from its standard output. Stops its process group after it exits.</td></tr>
+<tr><td>6</td><td>The reader thread</td><td><code>harness::execute</code></td><td>Reads <code>advice</code> from the run’s channel, then removes the channel</td></tr>
+<tr><td>7</td><td>The runtime thread</td><td><code>Host::run_harness</code>, then <code>serve</code></td><td>Sends a <code>reply</code> frame with the run’s map</td></tr>
+<tr><td>8</td><td>The worker</td><td><code>rhai_worker/bridge.rs</code></td><td>Gives the map to the script. <code>run.stdout</code> is <code>short</code>, and <code>run.result</code> is <code>advice</code>.</td></tr>
+</tbody>
+</table>
+</div>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/harness.rs</code>: the marker that each
+harness run receives. The skill descriptor path joins it when delivery is on.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut granted: Vec&lt;(OsString, OsString)&gt; =
+        vec![(OsString::from(CONFIG_RUN), OsString::from("1"))];
+<span class="boring">}</span></code></pre>
+<p>That marker is why chapter 7’s advisor printed <code>RAVEL_CONFIG_RUN is 1</code>. The
+managed process does not receive it, so it can start a nested session.</p>
+<p>While the reader thread runs the harness, the runtime thread still watches
+the deadline and the cancellation latch. <code>Host::run_harness</code> also limits the
+run to the time that remains, or to the script’s <code>timeoutMs</code> when that is
+shorter. At that limit, it sets a <code>StopRequest</code>, and the runner stops the run.</p>
+<p>After the reply, <code>select</code> returns its map, and the worker sends a <code>selection</code>
+frame with <code>VERSION</code> and that map. <code>serve</code> returns. <code>converse</code> then shuts down
+the runtime with <code>retire</code> and calls <code>reply_judge</code>.</p>
+<p>Excerpt from <code>crates/ravel/src/rhai_worker/front.rs</code>: the end of <code>converse</code>.
+No runtime task remains when <code>reply_judge</code> checks the reply.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    // Every task is finished here, and the copy of the channel is closed.
+    retire(runtime);
+    let served = served?;
+    reply_judge(&amp;served.reply).map_err(Conversation::Refused)?;
+    Ok((identity, served, started.elapsed()))
+<span class="boring">}</span></code></pre>
+<p>Why does <code>reply_judge</code> check the reply here, before the worker ends? A
+refusal is part of the conversation. If the later worker teardown fails, the
+script’s refusal stays the primary failure, and the teardown reports join it.</p>
+<h2 id="check-the-selection-and-find-the-program"><a class="header" href="#check-the-selection-and-find-the-program">Check the selection and find the program</a></h2>
+<p><code>converse</code> returns to <code>worker::supervise</code>. The worker sent its last frame, so
+it exits by itself. <code>supervise</code> waits up to 1 second for the exit, then kills
+the worker if it still runs. It collects the script’s output and removes the
+private directory.</p>
+<p>Excerpt from <code>crates/ravel/src/worker.rs</code>: <code>supervise</code> accepts a teardown only
+when the reap, the removal and the stop each succeeded.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let admitted = teardown.status.is_ok() &amp;&amp; teardown.removed.is_ok() &amp;&amp; !teardown.stop_failed;
+<span class="boring">}</span></code></pre>
+<!-- tc: depart synonym-rotation because confirmation establishes a completed reap, while checks also cover input validation -->
+<p><code>supervise</code> returns success only after confirmed worker reap and successful
+removal of the directory. A valid command alone does not permit a launch. The
+runner cannot enforce this order, because it has no worker to inspect. The
+Ravel CLI enforces it before the runner call.</p>
+<p>Back in <code>evaluate_and_resolve_rhai</code>, the reply is a <code>Selection</code>. The function
+checks the result again with <code>config::judge_result</code>. This check gives the
+<code>Command</code> with the program, the arguments and the three labels.</p>
+<p>Excerpt from <code>crates/ravel/src/choice.rs</code>: the selected command, then a
+cancellation check before the program lookup.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let command = config::judge_result(result, &amp;inputs.kind, &amp;source).map_err(refuse)?;
+    cancellation::check(&amp;source).map_err(refuse)?;
+<span class="boring">}</span></code></pre>
+<p>Then <code>program::resolve</code> searches the caller’s <code>PATH</code> for <code>fake-agent</code>. The
+example’s <code>bin</code> directory supplies that executable. The <code>Choice</code> keeps both
+the selected command and the executable path. The labels <code>local</code>, <code>fake</code> and
+<code>none</code> supply text for the routing notice. Ravel does not use them to talk to
+a model.</p>
+<p><code>choose_prepared</code> checks the latch one more time. Then it returns the
+<code>Choice</code> to <code>run</code>, and <code>run</code> writes the worker’s operation reports, if any,
+on standard error.</p>
+<h2 id="prepare-the-managed-launch"><a class="header" href="#prepare-the-managed-launch">Prepare the managed launch</a></h2>
+<p><code>run</code> first calls <code>ResultOutput::reserve</code>. This function checks that standard
+output is writable, saves its descriptor, then points standard output at
+standard error. The saved descriptor does not pass through exec to the managed
+process. Thus, a program that prints cannot write the result of the session.</p>
+<p>Next, <code>SessionChannel::allocate</code> makes a fresh temporary directory and channel
+path under <code>TMPDIR</code>. It keeps an open directory descriptor for the later read.
+Allocation makes no result file. The channel belongs to this launch alone.</p>
+<p>Only now does <code>run</code> write the script’s output and the routing notice.</p>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: the routing notice. A <code>--json</code>
+session keeps a notice document instead and writes it after supervision.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>            eprintln!(
+                "ravel: starting provider {}, model {}, effort {} for kind {:?}",
+                choice.command.provider,
+                choice.command.model,
+                choice.command.effort,
+                choice.inputs.kind
+            );
+<span class="boring">}</span></code></pre>
+<p>Then <code>handlers.try_block_and_check()</code> looks for a signal one last time before
+the launch. A signal here prevents the runner call.</p>
+<p><code>run</code> builds the argument vector from the checked command. The excerpt shows
+the difference between the executable path and the original program name,
+which becomes argument zero.</p>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: the argument vector uses the
+resolved path and each argument that the configuration script supplied.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        let argv = Argv::new(
+            OsString::from(&amp;choice.executable.path),
+            choice.command.args.iter().map(OsString::from).collect(),
+        )
+        .with_arg0(OsString::from(&amp;choice.executable.program));
+<span class="boring">}</span></code></pre>
+<p>In the example, the vector is <code>fake-agent</code> and <code>short</code>. Ravel does no shell
+expansion or word splitting. The fake’s shebang selects its shell interpreter,
+as chapter 3 explains.</p>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: the environment of the managed
+process. The descriptor path replaces an inherited <code>RAVEL_SKILL_DIRECTORIES</code>,
+and <code>scrubbed</code> removes that name when delivery is off.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        let directories = setup.skill_directories.as_ref();
+        let environment = skill_environment(directories);
+<span class="boring">}</span></code></pre>
+<p>The <code>Launch</code> holds the argument vector, the channel, these environment
+changes, the entry signal state and the escalation times. <code>run</code> calls
+<code>keyed_launch::run_observed_with_start_check</code>. The runner removes the
+inherited variables that name a result destination. It applies the
+environment grants, then sets the new <code>RAVEL_EXIT_FILE</code> last. Thus, a nested
+session gives its own child a fresh destination. The child otherwise inherits
+the caller’s environment and working directory.</p>
+<p>In <code>crates/keyed-launch/src/run.rs</code>, <code>run_with_output</code> makes the process
+group and spawns the command. If Ravel owns the foreground of a terminal, the
+child takes the terminal during spawn, before exec. After spawn,
+<code>run_with_output</code> calls <code>supervise_started</code>. The <code>Started</code> event records that
+the spawn succeeded. It does not prove that exec succeeded. The start check of
+the Ravel CLI restores its entry signal mask before supervision continues.</p>
+<h2 id="send-the-result"><a class="header" href="#send-the-result">Send the result</a></h2>
+<p><code>fake-agent</code> calls <code>ravel end-session -- "finished"</code>. In this second Ravel
+process, <code>main</code> calls <code>end_session</code> in <code>crates/ravel/src/completion.rs</code>. That
+function reads <code>RAVEL_EXIT_FILE</code> and passes the path and the result to
+<code>publish_result</code>. The function name keeps the source’s own word. Its action
+is to send one value to the enclosing session.</p>
+<p><code>publish_result</code> checks the byte limit and the parent directory. Then it
+writes the value into a temporary file in that directory. It adds the
+completion name only after the write and flush succeed.</p>
+<p>Excerpt from <code>crates/ravel/src/completion.rs</code>: the temporary file receives
+the complete value before the completion name exists.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let mut temporary = NamedTempFile::new_in(parent)?;
+    temporary.write_all(result.as_bytes())?;
+    temporary.flush()?;
+<span class="boring">}</span></code></pre>
+<p>The next operation, <code>fs::hard_link</code>, adds a name for that file. It does not
+replace a name that already exists. This behaviour is the first-result rule.
+Thus, the runner can observe only a complete file, never a partly written
+value.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Channel state</th><th>Effect of <code>end-session</code></th></tr>
+</thead>
+<tbody>
+<tr><td>No completion name</td><td>Adds the name for the complete temporary file</td></tr>
+<tr><td>A valid result already exists</td><td>Checks the earlier result and leaves it unchanged</td></tr>
+<tr><td>Missing or empty inherited path, stale directory, or invalid earlier result</td><td>Reports failure</td></tr>
+</tbody>
+</table>
+</div>
+<p>The same code ran earlier in the session, when <code>fake-advisor</code> sent <code>advice</code>
+to its own channel. Only the destination differed.</p>
+<p>An empty string is still a sent result. Newlines and Unicode stay in the
+value. A second call cannot replace the first value, but it races with the
+shutdown and removal of the channel. It can therefore fail or never run.</p>
+<p>The file operation asks for completion. It does not signal the managed group
+or do the cleanup of the enclosing session. The original Ravel CLI owns those
+actions.</p>
+<h2 id="finish-the-managed-job"><a class="header" href="#finish-the-managed-job">Finish the managed job</a></h2>
+<p><code>supervise_started</code> calls <code>supervise_reported</code>, which calls <code>watch</code>. These
+functions are in <code>crates/keyed-launch/src/run.rs</code>.</p>
+<p>The runner calls its observer synchronously at successful spawn and at
+confirmed reap. The observer must return promptly and without a panic. The
+start-check callback has the same requirement, but it can return an error.</p>
+<p><code>watch</code> checks cancellation, the child’s state and channel appearance. If the
+child continues after the result appears, <code>watch</code> applies the grace, TERM and
+KILL stages from <a href="03-a-complete-session.html#send-the-result-and-finish-the-job">chapter 3</a>.</p>
+<p><code>fake-agent</code> can exit before <code>watch</code> observes the file. That path needs no
+escalation. <code>supervise_reported</code> checks channel appearance again when it
+makes <code>Ended</code>, after the job cleanup steps. Thus, Ravel does not lose the
+result when the child exits quickly.</p>
+<p>The final group stop comes before the reap on the normal path through <code>watch</code>.</p>
+<p>Excerpt from <code>crates/keyed-launch/src/run.rs</code>: after it observes the child’s
+exit, <code>watch</code> stops the group before it collects the child’s exit status.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    child.bound(Instant::now() + ERROR_SETTLEMENT);
+    child.kill_group();
+    let reaped = child.reap();
+<span class="boring">}</span></code></pre>
+<p>The direct child’s PID keeps the group’s identity until the reap. The runner
+uses that interval to stop descendants that stay in the group. After <code>watch</code>
+returns, <code>supervise_reported</code> recovers a lent terminal and confirms whether
+the group is gone. It returns an <code>Ended</code> with separate fields for the child
+status, cancellation, channel appearance and group state.</p>
+<p>The Ravel CLI needs those separate facts. A later nonzero child status does
+not invalidate a sent result. A group that stays, or a failed terminal
+recovery, prevents success. Descendants that leave the group stay outside
+this cleanup guarantee.</p>
+<p>On macOS, standard error can show <code>ravel: stop attempt</code> lines here. The group
+stop can find only zombie members, and the system then refuses the signal.
+<a href="03-a-complete-session.html#run-the-first-session">Chapter 3</a> explains why these
+operation reports alone do not decide success.</p>
+<h2 id="read-the-result"><a class="header" href="#read-the-result">Read the result</a></h2>
+<p>Back in <code>run</code>, <code>allocated.result_after(ending)</code> receives the <code>Ended</code> from
+this channel’s runner call. The association belongs to <code>run</code>: the Rust type
+alone does not prove that an arbitrary <code>Ended</code> belongs to this channel.</p>
+<p><code>result_after</code> first checks the group and cancellation, then channel
+appearance. It reads the contents only after those checks.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Observation</th><th>Result of <code>result_after</code></th></tr>
+</thead>
+<tbody>
+<tr><td>The group is still present</td><td>Error</td></tr>
+<tr><td>The runner reports cancellation</td><td>Error</td></tr>
+<tr><td>The runner observed no completion file</td><td><code>None</code></td></tr>
+<tr><td>A valid empty completion file</td><td><code>Some(String::new())</code></td></tr>
+<tr><td>A valid completion file that is not empty</td><td><code>Some(result)</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>read_result</code> opens the file relative to the held directory descriptor with
+<code>openat</code>. A replacement of the directory pathname cannot redirect this read.
+The open refuses a final symlink and cannot block on a FIFO. <code>read_regular</code>
+requires a regular file, enforces the byte limit and checks UTF-8. These checks
+matter because the managed process can change files.</p>
+<p>In the example, the value is <code>Some("finished")</code>. <code>run</code> changes <code>None</code> to
+<code>session_result_missing</code>, even if the child’s exit status is zero.
+<code>result_after</code> returns candidate text to <code>run</code>, not to the caller. Resource
+cleanup and the final cancellation decision still follow.</p>
+<h2 id="complete-cleanup-and-write-the-result"><a class="header" href="#complete-cleanup-and-write-the-result">Complete cleanup and write the result</a></h2>
+<p>After the runner returns, <code>run</code> writes the runner’s operation reports.
+Without <code>--json</code>, each report has the form <code>ravel: &lt;report&gt;</code> on standard
+error. With <code>--json</code>, <code>operationReports</code> belongs to the selection notice,
+which <code>run</code> writes now.</p>
+<p><code>run</code> then attempts these operations in order:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Order</th><th>Operation</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td><code>handlers.restore_entry_mask()</code></td><td>Restores the entry mask while the handlers still protect the transition</td></tr>
+<tr><td>2</td><td><code>channel.close()</code></td><td>Removes the result channel’s temporary files</td></tr>
+<tr><td>3</td><td><code>output.restore()</code></td><td>Restores the caller’s standard output</td></tr>
+<tr><td>4</td><td><code>handlers.finalise(runner_signal)</code></td><td>Joins the cancellation observations and completes the signal transitions</td></tr>
+<tr><td>5</td><td><code>settle(...)</code></td><td>Reports failures and decides whether the result can go to the caller</td></tr>
+</tbody>
+</table>
+</div>
+<p>Channel cleanup checks the directory’s recorded identity before removal. It
+does not remove a replacement directory. This pathname check is not an atomic
+defence against concurrent changes by code of the same user. An unknown
+directory identity also prevents removal. An explicit cleanup attempt disables
+the destructor’s later retry, even on failure. A moved directory can need
+manual cleanup.</p>
+<p><code>settle</code> decides the end of supervision from the collected result, the
+cleanup outcomes, the group state and cancellation. It reports failures,
+gives cancellation priority and rejects unsuccessful cleanup. It does not do
+those cleanup operations itself. On this successful path it returns
+<code>finished</code> to <code>run</code>.</p>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: only a successful <code>settle</code> reaches
+this final write and flush.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    io::stdout()
+        .write_all(result.as_bytes())
+        .and_then(|()| io::stdout().flush())
+        .map_err(|error| failed("result_write_failed", error))?;
+    Ok(())
+<span class="boring">}</span></code></pre>
+<p><code>main</code> changes this success to status 0. Ravel writes the result unchanged
+and adds no newline. A failed final write can leave only the start of the
+value on standard output. The invocation then fails, so output bytes alone do
+not prove success. A signal that arrives after the final cancellation decision
+can still stop the Ravel CLI during output. The write is not atomic with that
+decision.</p>
+<p>To summarise the successful path: the Ravel CLI starts the worker, answers
+its one harness call, checks its reply and reaps it. Only then does it make
+the result channel, write the routing notice and launch <code>fake-agent</code>. After
+the reap of <code>fake-agent</code> and the cleanup, <code>settle</code> permits the write of
+<code>finished</code>.</p>
+<h2 id="follow-a-refusal-or-launch-failure"><a class="header" href="#follow-a-refusal-or-launch-failure">Follow a refusal or launch failure</a></h2>
+<p>What changes when the configuration script refuses? Run the same example
+with one changed file, and see where the path stops. The example directory
+is <code>~/ravel-parts-refusal</code>. Make it and copy the three files that stay the
+same:</p>
+<p>Fragment: make the example directory and copy three files of chapter 7. This
+block omits the new <code>config.rhai</code>. The book checker makes its own directory
+and does not run this block.</p>
+<pre><code class="language-sh">mkdir -p ~/ravel-parts-refusal/bin
+cd ~/ravel-parts-refusal
+cp ~/ravel-parts/settings.json .
+cp ~/ravel-parts/bin/fake-advisor ~/ravel-parts/bin/fake-agent bin/
+</code></pre>
+<p>Then save the new <code>config.rhai</code>. It prints what <code>select</code> received as its
+context. It runs the advisor as before. Then it refuses with the advisor’s
+answer in its message. Type the commands of the complete example without
+their first <code>$ </code>.</p>
+<p>Complete example: the configuration script asks the fake harness for advice,
+then refuses. The managed process does not start.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts-refusal";
+
+fn select(request, context) {
+    print(`The context is ${type_of(context)}.`);
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "refused",
+        code: "advice_too_short",
+        message: `The advisor said only "${run.stdout}".`,
+        remedy: "Ask the advisor for a longer answer.",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-advisor</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "advisor: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "advisor: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+} &gt; advisor.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; advisor.path
+printf 'short'
+ravel end-session -- "advice"
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "agent: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "agent: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+  echo "agent: argument is $1"
+} &gt; agent.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; agent.path
+ravel end-session -- "finished"
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/* &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --prompt 'Show the parts of Ravel.' &gt; result
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">config stdout: The context is ().
+config stdout: The advisor run ended: exited, result advice.
+ravel: refused (config_refused, stage selection): the configuration script &lt;scratch&gt;/work/config.rhai refused the selection: The advisor said only "short".
+  input: --kind demo
+  source: &lt;scratch&gt;/work/config.rhai
+  config code: advice_too_short
+  remedy: Ask the advisor for a longer answer.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">3
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ cat advisor.txt &amp;&amp; test ! -e agent.txt &amp;&amp; echo "fake-agent did not run."
+$ test ! -s result &amp;&amp; echo "The file result is empty."
+$ rmdir tmp &amp;&amp; echo "The directory tmp is empty again."
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">advisor: parent is ravel start-session
+advisor: RAVEL_CONFIG_RUN is 1
+fake-agent did not run.
+The file result is empty.
+The directory tmp is empty again.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>Here <code>&lt;scratch&gt;/work</code> stands for the example’s directory. In your shell, the
+line shows the absolute path of your <code>ravel-parts-refusal</code> directory. The
+first line answers the question of the last section: without a context,
+<code>select</code> received <code>()</code>.</p>
+<p>Follow the refusal through the code. The steps up to the reply are the steps
+of the successful path. The harness run happened, and its channel was
+removed. Then the path changes:</p>
+<ol>
+<li>The worker sends the refusal map in its <code>selection</code> frame.</li>
+<li><code>reply_judge</code> calls <code>config::judge_result</code>. That function finds
+<code>status: "refused"</code>, checks the three fields and returns <code>config_refused</code>
+with the script’s own code <code>advice_too_short</code>.</li>
+<li><code>converse</code> returns that refusal as <code>Conversation::Refused</code>.
+<code>worker::supervise</code> still waits for the worker, reaps it and removes its
+directory. It returns the refusal together with the script’s output.</li>
+<li><code>choose_prepared</code> returns the failure to <code>run</code>. <code>run</code> never reserves
+standard output, makes no result channel and writes no routing notice.</li>
+<li>The common cleanup and <code>settle</code> run as before. With no cancellation and no
+cleanup failure, <code>settle</code> keeps the refusal, and <code>main</code> exits with status 3.</li>
+</ol>
+<p>Ravel does not try another configuration script or command when selection
+fails. The Rust type <code>Refusal</code> also carries worker failures and timeouts. Its
+name alone does not tell you that the script
+<a href="02-actors-and-words.html#evaluation-and-supervision">refused</a>. The <code>code</code> does.</p>
+<p>The table locates the other forks. Its statuses describe each failure alone,
+without cancellation. The <a href="06-reference.html#exit-statuses">exit-status table</a>
+gives their meaning to the caller.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Problem</th><th>Code that decides</th><th>Status and point of failure</th></tr>
+</thead>
+<tbody>
+<tr><td>The configuration script file is missing, is not a regular file, or is the retired <code>policy.ts</code></td><td><code>authority::resolve</code></td><td>3, before the worker starts</td></tr>
+<tr><td>The entry cannot be read, is not UTF-8 or passes the entry limit</td><td><code>Host::read_entry</code> on the reader thread, then <code>serve</code></td><td>3, after the worker starts</td></tr>
+<tr><td>A skill source, the skill cache or a skill limit refuses</td><td><code>skills::launch::prepare</code></td><td>3, or 124 at the skill deadline, or 5 when the random source or a cache cleanup fails. All before the worker starts.</td></tr>
+<tr><td>The script does not parse, an import fails, or an export is wrong</td><td>The worker’s engine reports it. <code>choice::script_refusal</code> gives the code.</td><td>3, before the program lookup</td></tr>
+<tr><td><code>load_context</code> refuses, throws, or returns an invalid or oversized context</td><td>The <code>judge</code> closure, with <code>config::loader_refused</code> and <code>context::deliver</code>. Or the worker and <code>serve</code> report it, and <code>choice::script_refusal</code> gives the code.</td><td>3, before the program lookup</td></tr>
+<tr><td><code>select</code> refuses, abstains or returns a malformed result</td><td><code>config::judge_result</code></td><td>3, before the program lookup</td></tr>
+<tr><td><code>select</code> throws, or the script passes an engine limit, the heap limit or the harness budget</td><td>The worker reports it. <code>choice::script_refusal</code> gives the code.</td><td>3, before the program lookup</td></tr>
+<tr><td>The script’s output passes its limit</td><td><code>worker::supervise</code>, with <code>output_limit</code></td><td>3, before the program lookup</td></tr>
+<tr><td>The selection deadline passes</td><td>Before the <code>hello</code>, <code>receive_for</code> in <code>converse</code> times out. After it, <code>watch.until</code> in <code>serve</code> stops the wait. <code>worker::supervise</code> then uses <code>expired</code> in <code>worker.rs</code>.</td><td>124, before the program lookup</td></tr>
+<tr><td>The worker cannot start, has another identity or breaks the protocol</td><td><code>worker::supervise</code>, as <code>worker_missing</code> or <code>worker_failed</code>, then <code>verify_hello</code> and <code>worker::broken_for</code></td><td>5, before the managed launch</td></tr>
+<tr><td>A harness run cannot be cleaned up</td><td><code>harness::execute</code> reports the problem. <code>Host::run_harness</code> or <code>Host::settle</code> makes <code>harness_cleanup_failed</code>.</td><td>5, before the managed launch</td></tr>
+<tr><td>The conversation succeeds, but worker teardown fails</td><td><code>worker::supervise</code></td><td>5, before the managed launch</td></tr>
+<tr><td>The selected program is absent</td><td><code>program::resolve</code></td><td>127, before the runner call</td></tr>
+<tr><td>The selected file cannot execute, and no other <code>PATH</code> entry can</td><td><code>program::resolve</code></td><td>126, before the runner call</td></tr>
+</tbody>
+</table>
+</div>
+<p>The deadline covers the worker start, the read of the entry and the whole
+conversation, harness runs included. A timeout can therefore occur before the
+worker receives the script. It is not a decision of the script. A valid answer
+of the script also cannot override an unconfirmed worker reap or a failed
+directory removal.</p>
+<p>When failures combine without cancellation, <code>worker::supervise</code> uses this
+priority. The table separates the primary failure from the reports that stay
+in the diagnostic.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>First condition that applies</th><th>Primary failure</th><th>Other reports</th></tr>
+</thead>
+<tbody>
+<tr><td>The script’s output passes its limit</td><td><code>output_limit</code>, status 3</td><td>The conversation failure and the teardown problems stay</td></tr>
+<tr><td>The conversation fails</td><td>That failure keeps its code, such as 3 for <code>config_refused</code> or 124 for <code>selection_timeout</code></td><td>The teardown problems stay</td></tr>
+<tr><td>The conversation succeeds, but teardown fails</td><td><code>worker_failed</code>, status 5</td><td>The teardown problems stay</td></tr>
+</tbody>
+</table>
+</div>
+<p>The program check does not guarantee that a later spawn succeeds. For
+example, a script can pass the file checks but name a missing interpreter.
+<code>run::supervision_failure</code> classifies such a runner error from <code>started</code> and
+the OS error number. The <code>Started</code> event sets <code>started</code>.</p>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: <code>supervision_failure</code> chooses a
+status before it makes the diagnostic.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let exit = if started {
+        EXIT_WORKER
+    } else if errno == Some(libc::ENOENT) {
+        127
+    } else {
+        126
+    };
+<span class="boring">}</span></code></pre>
+<p><code>EXIT_WORKER</code> is 5. After <code>Started</code>, a supervision error keeps that status.
+Before <code>Started</code>, <code>ENOENT</code> gives 127 and another launch error gives 126. The
+conversion also keeps a signal that the runner consumed, for the final
+cancellation decision.</p>
+<p>Each of these failures leaves the main closure in <code>run</code>, then reaches its
+common cleanup and final decision. An allocator that fails partway through
+its directory setup attempts its own cleanup before it returns the error.
+<code>run</code> handles the resources that the allocator returned. Thus, even a failure
+without an <code>Ended</code> value has cleanup work to complete.</p>
+<h2 id="follow-cancellation"><a class="header" href="#follow-cancellation">Follow cancellation</a></h2>
+<p>A cancellation is an INT, TERM or HUP signal that reaches the Ravel CLI. It
+can arrive during selection, during supervision or during the final cleanup.
+The handlers that <code>handlers.begin()</code> installed keep the signal in the latch.
+Ordinary code then attempts cleanup before the Ravel CLI propagates the
+signal.</p>
+<h3 id="cancel-during-selection"><a class="header" href="#cancel-during-selection">Cancel during selection</a></h3>
+<p>During selection, nothing waits on a signal directly. <code>Watch::stopped</code> in
+<code>serve</code> looks at the latch every 50 milliseconds. When it finds a signal, it
+stops the current wait with <code>Stop::Signal</code>.</p>
+<p>If a harness run is in progress, <code>Host::settle</code> stops it first. It sets the
+run’s <code>StopRequest</code> and waits up to 8 seconds for the runner to stop the
+run’s group and reap it. Then <code>serve</code> returns, and <code>converse</code> retires the
+runtime. <code>worker::supervise</code> sends TERM to the worker, reaps it, collects its
+output and removes its directory.</p>
+<p>The conversation ended without a reply, so <code>supervise</code> first makes a
+<code>worker_failed</code> refusal. Then it sees the latch, and <code>cancelled_by</code> replaces
+the primary failure with <code>selection_cancelled</code>. The <code>worker_failed</code> text stays
+under “original failure:”. <code>run</code> launches nothing. In its final decision,
+<code>settle</code> writes that report, then returns <code>session_cancelled</code>.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/selection-cancellation.svg" alt="During selection, the Rhai worker requests a harness run and waits for data. The Ravel CLI starts the fake evaluation harness with its own result channel. The harness sends INT to the Ravel CLI. Ravel attempts harness group shutdown, reap and directory cleanup within the stop bound, then worker teardown and private-directory cleanup. It retains cleanup problems and reports cancellation. It launches no final managed process and returns no result to the caller."><span class="img-wrapper"><img src="figures/selection-cancellation.svg" alt="During selection, the Rhai worker requests a harness run and waits for data. The Ravel CLI starts the fake evaluation harness with its own result channel. The harness sends INT to the Ravel CLI. Ravel attempts harness group shutdown, reap and directory cleanup within the stop bound, then worker teardown and private-directory cleanup. It retains cleanup problems and reports cancellation. It launches no final managed process and returns no result to the caller."></span></label></p>
+<p><a href="figures/selection-cancellation.svg">Open the selection cancellation sequence at full size</a>.
+The figure is the direct-signal example of
+<a href="05-running-sessions.html#cancel-during-selection-or-supervision">chapter 5</a>,
+<code>cancel-selection</code>. In that example, a fake harness sends INT to its parent,
+the Ravel CLI. The configuration script itself cannot send a signal. The
+figure does not show keyboard delivery from a terminal.</p>
+<p>The next check sits just before the managed launch. <code>run</code> calls
+<code>handlers.try_block_and_check()</code> after it reserves output and makes the
+channel. A signal found here prevents the runner call. The common cleanup
+still closes the channel and restores output.</p>
+<h3 id="cancel-during-supervision"><a class="header" href="#cancel-during-supervision">Cancel during supervision</a></h3>
+<p>During supervision, the runner’s own handlers catch INT, TERM and HUP. They
+write the runner’s latch. <code>watch</code> checks that latch before it accepts even a child
+that has already exited. It forwards the signal to the managed group, then
+escalates if needed. It keeps the first signal that it consumes through the
+wait, the reap and the recovery that follow.</p>
+<p>What happens to a result that the program already sent? Run the
+<code>ravel-parts</code> example with a changed <code>fake-agent</code> to see. The example
+directory is <code>~/ravel-parts-cancel</code>. Make it and copy the three files that
+stay the same:</p>
+<p>Fragment: make the example directory and copy three files of chapter 7. This
+block omits the new <code>bin/fake-agent</code>. The book checker makes its own
+directory and does not run this block.</p>
+<pre><code class="language-sh">mkdir -p ~/ravel-parts-cancel/bin
+cd ~/ravel-parts-cancel
+cp ~/ravel-parts/settings.json ~/ravel-parts/config.rhai .
+cp ~/ravel-parts/bin/fake-advisor bin/
+</code></pre>
+<p>The new <code>fake-agent</code> sends <code>finished</code>, writes a note and sends INT to its
+parent, the Ravel CLI. Then it waits until Ravel stops it.</p>
+<p>Complete example: the managed process sends <code>finished</code>, then sends INT to the
+Ravel CLI. The caller receives no result.</p>
+<p><strong><code>settings.json</code></strong></p>
+<pre><code class="language-json">{"harnesses":{"advisor":{"program":"fake-advisor"}},"budgets":{"harnessRuns":1},"skills":{"schemaVersion":1,"sources":[]}}
+</code></pre>
+<p><strong><code>config.rhai</code></strong></p>
+<pre><code class="language-rhai">export const SCHEMA_VERSION = 4;
+export const VERSION = "parts";
+
+fn select(request, context) {
+    let run = ravel::run_harness(#{ harness: "advisor", args: [] });
+    print(`The advisor run ended: ${run.status}, result ${run.result}.`);
+    #{
+        status: "selected",
+        program: "fake-agent",
+        args: [run.stdout],
+        provider: "local",
+        model: "fake",
+        effort: "none",
+        reason: "Show each part of Ravel.",
+    }
+}
+</code></pre>
+<p><strong><code>bin/fake-advisor</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+{
+  echo "advisor: parent is $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)"
+  echo "advisor: RAVEL_CONFIG_RUN is ${RAVEL_CONFIG_RUN-absent}"
+} &gt; advisor.txt
+printf '%s\n' "$RAVEL_EXIT_FILE" &gt; advisor.path
+printf 'short'
+ravel end-session -- "advice"
+</code></pre>
+<p><strong><code>bin/fake-agent</code></strong></p>
+<pre><code class="language-sh">#!/bin/sh
+ravel end-session -- "finished"
+echo "agent: sent finished, then INT to $(ps -o args= -p "$PPID" | cut -d ' ' -f 1-2)" &gt; agent.txt
+kill -INT "$PPID"
+while :; do sleep 1; done
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ mkdir -p home/.config/ravel tmp &amp;&amp; chmod +x bin/* &amp;&amp; cp settings.json home/.config/ravel/settings.json
+$ env -i HOME="$PWD/home" TMPDIR="$PWD/tmp" PATH="$PWD/bin:$PATH" ravel start-session --kind demo --config config.rhai --prompt 'Show the parts of Ravel.' &gt; result
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text"></code></pre>
+<p><strong>Standard error includes</strong></p>
+<pre><code class="language-text">ravel: refused (session_result_invalid, stage exec): session was cancelled; no result is returned
+  remedy: correct the named process or temporary-directory error and retry start-session
+ravel: refused (session_cancelled, stage exec): session selected by &lt;scratch&gt;/work/config.rhai was cancelled by SIGINT
+  signal: SIGINT, re-raised once this is reported
+  remedy: retry the same command if cancellation was unintended
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">130
+</code></pre>
+<p><strong>Command</strong></p>
+<pre><code class="language-console">$ cat agent.txt &amp;&amp; test ! -s result &amp;&amp; echo "The file result is empty."
+$ rmdir tmp &amp;&amp; echo "The directory tmp is empty again."
+</code></pre>
+<p><strong>Standard output</strong></p>
+<pre><code class="language-text">agent: sent finished, then INT to ravel start-session
+The file result is empty.
+The directory tmp is empty again.
+</code></pre>
+<p><strong>Exit status</strong></p>
+<pre><code class="language-text">0
+</code></pre>
+<p>The note shows that <code>fake-agent</code> sent <code>finished</code> before the signal. Earlier
+lines of standard error show the routing notice and, on macOS, can show
+<code>ravel: stop attempt</code> lines. Their process-group IDs change from run to run,
+so the example does not claim them.</p>
+<p>The status is 130, the shell status of INT. Ravel raised INT again, so the
+shell reports 128 plus the signal number 2.</p>
+<p>Follow the two refusals through the code:</p>
+<ol>
+<li><code>watch</code> consumed INT from the runner’s latch, sent INT to the group and
+stopped the group. <code>Ended</code> carries <code>End::Interrupted</code>, and <code>run</code> keeps the
+signal as <code>runner_signal</code>.</li>
+<li><code>result_after</code> found the cancellation in <code>Ended</code> and returned an error
+before it read the file. <code>run</code> made that error <code>session_result_invalid</code>.
+That is the first refusal.</li>
+<li><code>Handlers::finalise</code> chose INT as the cancellation observation.</li>
+<li><code>settle</code> saw a signal and an original failure. It wrote the original
+failure, then returned <code>session_cancelled</code>. That is the second refusal.</li>
+<li><code>main</code> wrote the second refusal and called <code>cancellation::reraise</code>.</li>
+</ol>
+<p>Two runner outcomes carry cancellation to <code>run</code>:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Runner returns</th><th>Where <code>run</code> gets the signal</th><th>What the value does not establish</th></tr>
+</thead>
+<tbody>
+<tr><td><code>Ended</code> with <code>End::Interrupted</code></td><td>The <code>signal</code> field of that end</td><td>Permission to return a result</td></tr>
+<tr><td><code>LaunchError</code></td><td><code>consumed_signal()</code>, through <code>supervision_failure</code></td><td>Confirmed reap, group absence or an <code>Ended</code> value</td></tr>
+</tbody>
+</table>
+</div>
+<p>A result sent before cancellation stays only a candidate.
+<code>SessionChannel::result_after</code> rejects an interrupted end, even when the file
+exists. A later signal can also reach the Ravel CLI after that check.
+<code>Handlers::finalise</code> collects that observation before <code>settle</code> decides the
+outcome.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation returns no result to the caller, even when cleanup fails."><span class="img-wrapper"><img src="figures/supervision-cancellation.svg" alt="The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation returns no result to the caller, even when cleanup fails."></span></label></p>
+<p><a href="figures/supervision-cancellation.svg">Open the supervision cancellation sequence at full size</a>.
+The figure shows chapter 5’s <code>cancel-session</code> example, whose program sends
+<code>candidate</code>. The path is the same as for <code>finished</code> in this chapter. Its
+cleanup arrows are attempts, not confirmation that every operation succeeds.</p>
+<p>After the final decision, <code>report_failure</code> in <code>main.rs</code> writes the refusal and
+calls <code>cancellation::reraise</code>. That function restores the default action of
+the selected signal, unblocks it and raises it. If propagation fails, it
+reports the problem and exits with the numeric signal status. The shell
+statuses are 130 for INT, 143 for TERM and 129 for HUP. Chapter 9 explains
+entry masks, terminal delivery and the limits of cleanup.</p>
+<h2 id="choose-the-final-outcome"><a class="header" href="#choose-the-final-outcome">Choose the final outcome</a></h2>
+<p><code>Handlers::finalise</code> and <code>run::settle</code> make different decisions. The first
+selects the cancellation observation and completes the signal transitions.
+The second chooses whether cancellation, a failure or a result reaches the
+caller.</p>
+<p><code>finalise</code> restores the entry mask while the handlers still protect the
+transition. It then attempts to block the handled signals and to inspect the
+signals that wait in the queue. Only after that block attempt does it consume
+the late runner latch. Otherwise a signal could reach that latch between a
+read and the block, and neither read would find it.</p>
+<p>Excerpt from <code>crates/ravel/src/cancellation.rs</code>: <code>Handlers::finalise</code>
+chooses the first available observation in this expression.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>        let signal = front.or(outcome).or(late).or(received()).or(pending);
+<span class="boring">}</span></code></pre>
+<p>This expression gives an order of sources. It does not compare the times
+when the signals arrived. The variables have these meanings:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Expression</th><th>Observation</th></tr>
+</thead>
+<tbody>
+<tr><td><code>front</code></td><td>The latch of the Ravel CLI, before and just after the entry mask returns</td></tr>
+<tr><td><code>outcome</code></td><td>The signal that the runner’s end or error kept</td></tr>
+<tr><td><code>late</code></td><td>The runner’s latch, consumed after the final block attempt</td></tr>
+<tr><td><code>received()</code></td><td>Another read of the latch of the Ravel CLI</td></tr>
+<tr><td><code>pending</code></td><td>The result of <code>look(true)</code>: the latch of the Ravel CLI first, then an eligible signal in the queue</td></tr>
+</tbody>
+</table>
+</div>
+<p>For signals in the queue, <code>look</code> excludes the signals that the process
+blocked or ignored at entry. It checks INT, TERM, then HUP. Failures of signal
+operations become reports. They are not an invented cancellation, and they
+do not prove that no signal exists. <code>finalise</code> returns the selected signal
+and those reports to <code>run</code>.</p>
+<p>The helper named <code>join_cancellation</code> in <code>run.rs</code> is test-only. It is not the
+production decision shown above.</p>
+<p>In the cancellation example, <code>outcome</code> held INT from <code>End::Interrupted</code>.
+That observation alone is enough to select INT.</p>
+<p><code>run</code> gives <code>settle</code> the candidate result or the original failure, the
+optional <code>Ended</code>, all cleanup outcomes and the selected signal. It orders the
+cleanup outcomes as mask restoration, channel removal, output restoration,
+then the final signal-operation reports. <code>settle</code> reports every cleanup error
+and any group that stays. When cancellation overrides an original failure,
+it reports that failure too.</p>
+<p><label class="checkbox-label"><input class="checkbox-img" type="checkbox"><img src="figures/outcome-precedence.svg" alt="After cleanup attempts, Ravel combines signal observations and reports failures. Cancellation wins, then an original failure, then a cleanup error, then a group that survives. Only success permits the result write and flush."><span class="img-wrapper"><img src="figures/outcome-precedence.svg" alt="After cleanup attempts, Ravel combines signal observations and reports failures. Cancellation wins, then an original failure, then a cleanup error, then a group that survives. Only success permits the result write and flush."></span></label></p>
+<p><a href="figures/outcome-precedence.svg">Open the outcome-precedence activity at full size</a>.
+The figure separates report order from outcome priority after the required
+cleanup attempts. Under cancellation, <code>settle</code> reports an original failure
+first, then cleanup errors, then a group that stays. Its signal step gives the
+priority of sources, not the order of arrival.</p>
+<p>The primary outcome follows this order:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>First condition that applies</th><th>Decision</th></tr>
+</thead>
+<tbody>
+<tr><td>A cancellation observation exists</td><td><code>session_cancelled</code>, no result, the selected signal. A cancelled skill resolution keeps its own refusal, <code>skill_resolution_cancelled</code>.</td></tr>
+<tr><td>The original operation failed</td><td>Keep that failure and its status</td></tr>
+<tr><td>Otherwise, a cleanup failed</td><td>The first cleanup error, status 5</td></tr>
+<tr><td>Otherwise, an <code>Ended</code> reports a group that stays</td><td><code>process_group_survived</code>, status 5</td></tr>
+<tr><td>None of these conditions applies</td><td>Return the candidate result to <code>run</code> for output</td></tr>
+</tbody>
+</table>
+</div>
+<p>Excerpt from <code>crates/ravel/src/run.rs</code>: after its cancellation branch,
+<code>settle</code> keeps an original error before it selects a cleanup error.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>    let result = result?;
+    if let Some(error) = cleanups.into_iter().find_map(Result::err) {
+        return Err(error.into());
+    }
+<span class="boring">}</span></code></pre>
+<p>For example, <code>session_result_missing</code> plus a channel cleanup error keeps
+status 1 and reports the cleanup problem. If INT also reaches the final
+decision, cancellation wins and both failures stay as diagnostics. When an
+<code>Ended</code> reports a group that stays, <code>result_after</code> fails first. Thus, the
+original failure is already <code>session_result_invalid</code>. The final group branch
+in <code>settle</code> still prevents success independently.</p>
+<p>Only a successful <code>settle</code> reaches the result write. A write or flush failure
+then gives <code>result_write_failed</code>, status 5. A later signal can still stop the
+Ravel CLI during output, and a failed write can leave a partial value. The
+<a href="05-running-sessions.html#accept-a-result-only-after-success">caller accepts a result only after success</a>.
+The final decision and the output write are not one atomic operation.</p>
+<h2 id="find-where-a-change-belongs"><a class="header" href="#find-where-a-change-belongs">Find where a change belongs</a></h2>
+<p>You now know the order of the path. Which file do you open for a change? The
+table names the first file for frequent changes. Each row also names the
+neighbour that the change can affect.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Change</th><th>Start in</th><th>Check also</th></tr>
+</thead>
+<tbody>
+<tr><td>A new route or a new refusal of the owner</td><td>The configuration script</td><td>Nothing in Ravel</td></tr>
+<tr><td>A new host capability</td><td><code>rhai_worker/bridge.rs</code> and <code>rhai_worker/host.rs</code></td><td><code>rhai_worker/convert.rs</code>, the limits and the specification <code>configuration-evaluation.md</code></td></tr>
+<tr><td>The shape that <code>select</code> can return</td><td><code>config::judge_result</code> in <code>config.rs</code></td><td><code>choice::script_refusal</code> and the reference in chapter 6</td></tr>
+<tr><td>The code or status of a failure of the script</td><td><code>choice::script_refusal</code> in <code>choice.rs</code></td><td>The exit-status table in chapter 6</td></tr>
+<tr><td>The deadline, the output limit or worker teardown</td><td><code>worker::supervise</code> in <code>worker.rs</code></td><td><code>Watch</code> in <code>rhai_worker/serve.rs</code></td></tr>
+<tr><td>A harness run</td><td><code>harness::execute</code> in <code>rhai_worker/harness.rs</code></td><td><code>Host::run_harness</code> and <code>Host::settle</code> in <code>rhai_worker/host.rs</code></td></tr>
+<tr><td>The order of failures and cancellation</td><td><code>settle</code> in <code>run.rs</code></td><td><code>Handlers::finalise</code> in <code>cancellation.rs</code></td></tr>
+<tr><td>Process groups, escalation or the terminal</td><td><code>crates/keyed-launch/src/run.rs</code></td><td>Chapter 9</td></tr>
+</tbody>
+</table>
+</div>
+<p>Suppose that you change how Ravel stores a sent result, and the behaviour of
+the CLI stays the same. Start with <code>crates/ravel/src/completion.rs</code>. It owns
+allocation, the first complete value, checked reads and explicit channel
+removal. A change there also needs checks at its three consumers: the runner,
+<code>run</code> and <code>harness::execute</code>.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Code to inspect</th><th>Property that the change keeps</th></tr>
+</thead>
+<tbody>
+<tr><td><code>publish_result</code> and <code>SessionChannel</code> in <code>completion.rs</code></td><td>Ravel keeps the first complete value, empty differs from absent, and UTF-8 text stays unchanged</td></tr>
+<tr><td><code>Channel::appeared</code> in <code>crates/keyed-launch/src/channel.rs</code></td><td>Appearance alone tells the runner when to start completion, without a read of the contents</td></tr>
+<tr><td><code>Launch.channel</code>, <code>CapturedLaunch.channel</code> and <code>Ended</code> in the runner</td><td>Each launch uses its own channel and reports job state separately from appearance</td></tr>
+<tr><td><code>run</code> in <code>crates/ravel/src/run.rs</code></td><td>A fresh session-result context for each launch, a channel and an <code>Ended</code> from the same launch, explicit cleanup and the final priority</td></tr>
+<tr><td><code>harness::execute</code> in <code>crates/ravel/src/rhai_worker/harness.rs</code></td><td>A harness run’s result goes to the script as <code>run.result</code>, and a group that stays gives no result</td></tr>
+</tbody>
+</table>
+</div>
+<p>The completion name now appears only after the complete write. A new
+mechanism that shows a partly written value would break that agreement with
+the runner. Empty results also need a positive completion event, because zero
+bytes do not mean that no result exists.</p>
+<p><code>SessionChannel::result_after</code> accepts an <code>Ended</code> reference. Its type cannot
+establish that this end belongs to this channel. <code>run</code> and <code>harness::execute</code>
+each establish the association. Each passes its own channel to the runner,
+then passes that runner’s end to <code>result_after</code>. A storage change keeps this
+association as well as the file contents.</p>
+<p>For this change, exercise the result channel with empty, multiline and
+Unicode values, repeated sends, invalid files and nested sessions. Then
+exercise cancellation after a sent result, as in <code>ravel-parts-cancel</code>. Also
+exercise a result failure plus a cleanup failure, and cancellation plus a
+cleanup failure. A status check alone cannot show that the original failure
+and every cleanup report stayed.</p>
+<p>The configuration script’s choice of program does not depend on how Ravel
+stores a result. Its behaviour can stay unchanged for this change. The code
+boundaries above tell you where to inspect and test a change. They do not
+give a supported public component interface.</p>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="07-the-parts-of-ravel.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="09-jobs-signals-and-the-terminal.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="07-the-parts-of-ravel.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="09-jobs-signals-and-the-terminal.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

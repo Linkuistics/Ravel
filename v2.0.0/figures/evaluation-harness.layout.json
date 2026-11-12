@@ -1,0 +1,754 @@
+{
+  "w": 901.51953125,
+  "h": 849.85859375,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Harness run during evaluation — UML sequence",
+      "x": 450.759765625,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 432.6953125,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          41.99609375,
+          50.3125
+        ],
+        [
+          41.99609375,
+          721.53828125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          201.99609375,
+          50.3125
+        ],
+        [
+          201.99609375,
+          721.53828125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          427.0859375,
+          134.00078125
+        ],
+        [
+          427.0859375,
+          605.51328125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-run",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          603.49609375,
+          293.33593749999994
+        ],
+        [
+          603.49609375,
+          407.6195312499999
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-managed",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          805.16796875,
+          715.53828125
+        ],
+        [
+          805.16796875,
+          721.53828125
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 6.0,
+      "y0": 26.15625,
+      "x1": 77.9921875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 41.99609375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 149.32421875,
+      "y0": 26.15625,
+      "x1": 254.66796875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI",
+      "x": 201.99609375,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          41.99609375,
+          76.94921875
+        ],
+        [
+          201.99609375,
+          76.94921875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "start-session",
+      "x": 121.99609375,
+      "y": 72.94921875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 91.482421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          121.92265625
+        ],
+        [
+          361.99609375,
+          121.92265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Evaluate configuration script",
+      "x": 281.99609375,
+      "y": 117.92265625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 148.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 361.99609375,
+      "y0": 109.84453125,
+      "x1": 492.17578125,
+      "y1": 134.00078125
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai worker",
+      "x": 427.0859375,
+      "y": 121.92265625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 108.1796875,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          427.0859375,
+          174.97421874999998
+        ],
+        [
+          201.99609375,
+          174.97421874999998
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "run_harness over private socket: claude, args and stdin",
+      "x": 314.541015625,
+      "y": 170.97421874999998,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 213.08984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          194.46093749999997
+        ],
+        [
+          223.99609375,
+          194.46093749999997
+        ],
+        [
+          223.99609375,
+          212.46093749999997
+        ],
+        [
+          201.99609375,
+          212.46093749999997
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Find program. Check run budget",
+      "x": 229.99609375,
+      "y": 203.46093749999997,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          281.25781249999994
+        ],
+        [
+          506.17578125,
+          281.25781249999994
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launch in a new POSIX session,\nwith its own result channel and RAVEL_CONFIG_RUN",
+      "x": 354.0859375,
+      "y": 277.25781249999994,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 292.1796875,
+      "h": 47.31015625
+    },
+    {
+      "id": "head-run",
+      "shape": "box",
+      "role": "external",
+      "x0": 506.17578125,
+      "y0": 269.17968749999994,
+      "x1": 700.81640625,
+      "y1": 293.33593749999994
+    },
+    {
+      "id": "head-run-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "claude harness run",
+      "x": 603.49609375,
+      "y": 281.25781249999994,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 172.640625,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          603.49609375,
+          317.99101562499993
+        ],
+        [
+          625.49609375,
+          317.99101562499993
+        ],
+        [
+          625.49609375,
+          335.99101562499993
+        ],
+        [
+          603.49609375,
+          335.99101562499993
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Read stdin, write answer on stdout, exit",
+      "x": 631.49609375,
+      "y": 326.99101562499993,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          370.13281249999994
+        ],
+        [
+          223.99609375,
+          370.13281249999994
+        ],
+        [
+          223.99609375,
+          388.13281249999994
+        ],
+        [
+          201.99609375,
+          388.13281249999994
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Complete run group cleanup",
+      "x": 229.99609375,
+      "y": 379.13281249999994,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-28-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          595.49609375,
+          399.6195312499999
+        ],
+        [
+          611.49609375,
+          415.6195312499999
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-28-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          595.49609375,
+          415.6195312499999
+        ],
+        [
+          611.49609375,
+          399.6195312499999
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          460.5929687499999
+        ],
+        [
+          427.0859375,
+          460.5929687499999
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Return status, exitCode and stdout as a map",
+      "x": 314.541015625,
+      "y": 456.5929687499999,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 213.08984375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          427.0859375,
+          489.2480468749999
+        ],
+        [
+          449.0859375,
+          489.2480468749999
+        ],
+        [
+          449.0859375,
+          507.2480468749999
+        ],
+        [
+          427.0859375,
+          507.2480468749999
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Script reads answer and selects",
+      "x": 455.0859375,
+      "y": 498.2480468749999,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-10",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          427.0859375,
+          548.5398437499999
+        ],
+        [
+          201.99609375,
+          548.5398437499999
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Selection",
+      "x": 314.541015625,
+      "y": 544.5398437499999,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 66.517578125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-11",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          568.0265625
+        ],
+        [
+          223.99609375,
+          568.0265625
+        ],
+        [
+          223.99609375,
+          586.0265625
+        ],
+        [
+          201.99609375,
+          586.0265625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Check selection and reap worker",
+      "x": 229.99609375,
+      "y": 577.0265625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 132.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "end-38-a",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          419.0859375,
+          597.51328125
+        ],
+        [
+          435.0859375,
+          613.51328125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "end-38-b",
+      "shape": "line",
+      "role": "end",
+      "pts": [
+        [
+          419.0859375,
+          613.51328125
+        ],
+        [
+          435.0859375,
+          597.51328125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "msg-12",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          676.8234375
+        ],
+        [
+          41.99609375,
+          676.8234375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-12-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Write text routing notice on standard error",
+      "x": 121.99609375,
+      "y": 672.8234375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 148.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-13",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          201.99609375,
+          703.46015625
+        ],
+        [
+          714.81640625,
+          703.46015625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-13-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Launch selected program",
+      "x": 458.40625,
+      "y": 699.46015625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 180.4521484375,
+      "h": 10.63671875
+    },
+    {
+      "id": "head-managed",
+      "shape": "box",
+      "role": "external",
+      "x0": 714.81640625,
+      "y0": 691.38203125,
+      "x1": 895.51953125,
+      "y1": 715.53828125
+    },
+    {
+      "id": "head-managed-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "managed process",
+      "x": 805.16796875,
+      "y": 703.46015625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 158.703125,
+      "h": 12.15625
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 121.71533203125,
+      "y0": 727.53828125,
+      "x1": 779.80419921875,
+      "y1": 849.85859375
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel processes. Grey: external participants.\nAn X ends the pictured lifetime after cleanup or reap.\nThe run’s answer goes to the configuration script. The managed process is a later launch.\nIn the Claude example the run exits 0. It sends no end-session result.\nThe later managed process sends the final result prime.\nWith --json, the notice follows the supervision attempt.",
+      "x": 450.759765625,
+      "y": 788.6984375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 630.0888671875,
+      "h": 102.3203125
+    }
+  ]
+}

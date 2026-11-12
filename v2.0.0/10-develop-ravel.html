@@ -1,0 +1,982 @@
+<!DOCTYPE HTML>
+<html lang="en-GB" class="light sidebar-visible" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>Develop Ravel - The Ravel book</title>
+
+
+        <!-- Custom HTML head -->
+
+        <meta name="description" content="A guide to Ravel: its use, configuration, internals, development and delivery.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon-de23e50b.svg">
+        <link rel="shortcut icon" href="favicon-8114d1fc.png">
+        <link rel="stylesheet" href="css/variables-8adf115d.css">
+        <link rel="stylesheet" href="css/general-e96d0476.css">
+        <link rel="stylesheet" href="css/chrome-d279d366.css">
+        <link rel="stylesheet" href="css/print-9e4910d8.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="fonts/fonts-9644e21d.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" id="mdbook-highlight-css" href="highlight-493f70e1.css">
+        <link rel="stylesheet" id="mdbook-tomorrow-night-css" href="tomorrow-night-4c0ae647.css">
+        <link rel="stylesheet" id="mdbook-ayu-highlight-css" href="ayu-highlight-3fdfc3ac.css">
+
+        <!-- Custom theme stylesheets -->
+
+
+        <!-- Provide site root and default themes to javascript -->
+        <script>
+            const path_to_root = "";
+            const default_light_theme = "light";
+            const default_dark_theme = "navy";
+            window.path_to_searchindex_js = "searchindex-bb7e1905.js";
+        </script>
+        <!-- Start loading toc.js asap -->
+        <script src="toc-7dd7efa8.js"></script>
+    </head>
+    <body>
+    <div id="mdbook-help-container">
+        <div id="mdbook-help-popup">
+            <h2 class="mdbook-help-title">Keyboard shortcuts</h2>
+            <div>
+                <p>Press <kbd>←</kbd> or <kbd>→</kbd> to navigate between chapters</p>
+                <p>Press <kbd>S</kbd> or <kbd>/</kbd> to search in the book</p>
+                <p>Press <kbd>?</kbd> to show this help</p>
+                <p>Press <kbd>Esc</kbd> to hide this help</p>
+            </div>
+        </div>
+    </div>
+    <div id="mdbook-body-container">
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                let theme = localStorage.getItem('mdbook-theme');
+                let sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            const default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? default_dark_theme : default_light_theme;
+            let theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            const html = document.documentElement;
+            html.classList.remove('light')
+            html.classList.add(theme);
+            html.classList.add("js");
+        </script>
+
+        <input type="checkbox" id="mdbook-sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            let sidebar = null;
+            const sidebar_toggle = document.getElementById("mdbook-sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+                sidebar_toggle.checked = false;
+            }
+            if (sidebar === 'visible') {
+                sidebar_toggle.checked = true;
+            } else {
+                html.classList.remove('sidebar-visible');
+            }
+        </script>
+
+        <nav id="mdbook-sidebar" class="sidebar" aria-label="Table of contents">
+            <!-- populated by js -->
+            <mdbook-sidebar-scrollbox class="sidebar-scrollbox"></mdbook-sidebar-scrollbox>
+            <noscript>
+                <iframe class="sidebar-iframe-outer" src="toc.html"></iframe>
+            </noscript>
+            <div id="mdbook-sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <div id="mdbook-page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                <div id="mdbook-menu-bar-hover-placeholder"></div>
+                <div id="mdbook-menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="mdbook-sidebar-toggle" class="icon-button" for="mdbook-sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="mdbook-sidebar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M0 96C0 78.3 14.3 64 32 64H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32C14.3 128 0 113.7 0 96zM0 256c0-17.7 14.3-32 32-32H416c17.7 0 32 14.3 32 32s-14.3 32-32 32H32c-17.7 0-32-14.3-32-32zM448 416c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H416c17.7 0 32 14.3 32 32z"/></svg></span>
+                        </label>
+                        <button id="mdbook-theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="mdbook-theme-list">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M371.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L600.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S549.7-4.4 531.1 9.6L294.4 187.2c-24 18-38.2 46.1-38.4 76.1L371.3 367.1zm-19.6 25.4l-116-104.4C175.9 290.3 128 339.6 128 400c0 3.9 .2 7.8 .6 11.6c1.8 17.5-10.2 36.4-27.8 36.4H96c-17.7 0-32 14.3-32 32s14.3 32 32 32H240c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg></span>
+                        </button>
+                        <ul id="mdbook-theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-default_theme">Auto</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="mdbook-theme-ayu">Ayu</button></li>
+                        </ul>
+                        <button id="mdbook-search-toggle" class="icon-button" type="button" title="Search (`/`)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="/ s" aria-controls="mdbook-searchbar">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352c79.5 0 144-64.5 144-144s-64.5-144-144-144S64 128.5 64 208s64.5 144 144 144z"/></svg></span>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">The Ravel book</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <span class=fa-svg id="print-button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M128 0C92.7 0 64 28.7 64 64v96h64V64H354.7L384 93.3V160h64V93.3c0-17-6.7-33.3-18.7-45.3L400 18.7C388 6.7 371.7 0 354.7 0H128zM384 352v32 64H128V384 368 352H384zm64 32h32c17.7 0 32-14.3 32-32V256c0-35.3-28.7-64-64-64H64c-35.3 0-64 28.7-64 64v96c0 17.7 14.3 32 32 32H64v64c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V384zm-16-88c-13.3 0-24-10.7-24-24s10.7-24 24-24s24 10.7 24 24s-10.7 24-24 24z"/></svg></span>
+                        </a>
+                        <a href="https://github.com/Linkuistics/Ravel" title="Git repository" aria-label="Git repository">
+                            <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg></span>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="mdbook-search-wrapper" class="hidden">
+                    <form id="mdbook-searchbar-outer" class="searchbar-outer">
+                        <div class="search-wrapper">
+                            <input type="search" id="mdbook-searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="mdbook-searchresults-outer" aria-describedby="searchresults-header">
+                            <div class="spinner-wrapper">
+                                <span class=fa-svg id="fa-spin"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M304 48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zm0 416c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM48 304c26.5 0 48-21.5 48-48s-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48zm464-48c0-26.5-21.5-48-48-48s-48 21.5-48 48s21.5 48 48 48s48-21.5 48-48zM142.9 437c18.7-18.7 18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zm0-294.2c18.7-18.7 18.7-49.1 0-67.9S93.7 56.2 75 75s-18.7 49.1 0 67.9s49.1 18.7 67.9 0zM369.1 437c18.7 18.7 49.1 18.7 67.9 0s18.7-49.1 0-67.9s-49.1-18.7-67.9 0s-18.7 49.1 0 67.9z"/></svg></span>
+                            </div>
+                        </div>
+                    </form>
+                    <div id="mdbook-searchresults-outer" class="searchresults-outer hidden">
+                        <div id="mdbook-searchresults-header" class="searchresults-header"></div>
+                        <ul id="mdbook-searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('mdbook-sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('mdbook-sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#mdbook-sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="mdbook-content" class="content">
+                    <main>
+                        <h1 id="develop-ravel"><a class="header" href="#develop-ravel">Develop Ravel</a></h1>
+<p>Suppose that you change how Ravel returns a result. You want to be sure that a
+result with spaces at its ends reaches the caller with those spaces. In this
+chapter, you prepare a checkout and build Ravel. Then you find the code, choose
+where a test observes the rule, add the test and run the checks before you
+hand the change over. The same steps apply to every change to Ravel.</p>
+<p>The tests run real processes. They use temporary
+<a href="04-write-a-configuration-script.html">configuration scripts</a>, Rhai files that
+select programs, and fake programs that stand in for harnesses. A harness is
+an agent program, such as Claude Code or Codex, in which an LLM works.
+The tests need no model account, no personal
+configuration and no other project checkout.</p>
+<p><a href="07-the-parts-of-ravel.html">Chapter 7</a> explains the parts of Ravel and why each
+part exists.
+<a href="08-follow-a-session-through-the-code.html#find-where-a-change-belongs">Chapter 8</a>
+follows a session through the code that a change can affect.</p>
+<p>Ravel supports no separate component. Its private runner serves the Ravel
+CLI, which supervises one session and then exits. The runner’s return does
+not restore process-wide signal state. A program that needs supervised
+harness sessions invokes the Ravel CLI as a child process. This chapter
+teaches changes to Ravel itself.</p>
+<p>Ravel 1.x evaluated configuration scripts in a TypeScript worker. The checkout
+built that worker with Bun, typechecked its SDK and installed it beside the
+CLI. Ravel 2.0.0 removed the worker, its SDK, its build and its typecheck. The
+Rhai engine is now a Rust dependency inside the one executable, <code>bin/ravel</code>.
+Bun stays in the checkout only as a tool for two book checks.</p>
+<p>Links to files outside the book open repository sources on GitHub.
+Before a change reaches <code>main</code>, read its evidence and convention files from
+the checkout.</p>
+<h2 id="prepare-a-checkout"><a class="header" href="#prepare-a-checkout">Prepare a checkout</a></h2>
+<p>A checkout needs tools that an installed Ravel does not need. The build uses
+Rust 1.99.1 and a C linker. On macOS, the Command Line Tools supply the
+linker. On Linux, the system development tools supply it. The table shows
+which part of the work needs each tool.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Prerequisite</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td>rustup, with Rust 1.99.1, rustfmt and Clippy</td><td>Compile, format and lint the Rust workspace</td></tr>
+<tr><td>Task</td><td>Run the recipes in <code>Taskfile.yml</code></td></tr>
+<tr><td>cargo-nextest</td><td>List and run the Rust tests</td></tr>
+<tr><td>ShellCheck</td><td>Check the shell scripts during <code>task check</code></td></tr>
+<tr><td>Bash, curl, and tar with gzip and xz</td><td>Run the scripts and unpack the downloaded book tools</td></tr>
+<tr><td><code>shasum</code> or <code>sha256sum</code></td><td>Compare each download with its committed SHA-256 pin</td></tr>
+<tr><td>Git</td><td>Obtain the checkout, and let scripts read the tracked files</td></tr>
+</tbody>
+</table>
+</div>
+<p>The file <code>rust-toolchain.toml</code> at the root of the checkout selects Rust
+1.99.1, with rustfmt, Clippy and the three release target libraries. When
+rustup’s tools are first on <code>PATH</code>, <code>cargo</code> in the checkout uses that
+toolchain. <code>rustup toolchain install</code>, run in the checkout, installs that
+toolchain when rustup does not have it.</p>
+<ol>
+<li>Obtain a checkout of the Ravel repository.</li>
+<li>Use <code>cd</code> to enter its root directory, where <code>Taskfile.yml</code> is.</li>
+<li>Run <code>rustup toolchain install</code>.</li>
+<li>Run <code>task setup</code>.</li>
+<li>Run <code>task build</code>.</li>
+</ol>
+<p>Fragment from the checkout trial for this chapter: these commands omit tool
+installation and the command output.</p>
+<pre><code class="language-sh">rustup toolchain install
+task setup
+task build
+</code></pre>
+<p><code>task setup</code> needs network access on its first run. It downloads the book
+tools into <code>target/tools</code>. It does not install Rust, Task, ShellCheck or
+nextest. The table gives each download, its pin and the work that needs it.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Download</th><th>Pin</th><th>Work that needs it</th></tr>
+</thead>
+<tbody>
+<tr><td>Bun</td><td>1.4.2</td><td><code>task docs:ste</code> and <code>task docs:breaks</code>, which run <code>scripts/ste.ts</code> and <code>scripts/breaks.ts</code></td></tr>
+<tr><td>mdBook</td><td>0.5.4</td><td>The book build, <code>task docs:book</code> and the release book</td></tr>
+<tr><td>Typst</td><td>0.15.1</td><td>The figure render, <code>task docs:figures</code></td></tr>
+<tr><td>CeTZ and its dependency oxifmt</td><td>0.4.2 and 1.0.0</td><td>The figure render</td></tr>
+<tr><td>DejaVu fonts</td><td>2.37</td><td>The text of each figure</td></tr>
+</tbody>
+</table>
+</div>
+<p>The scripts compare each archive with its committed SHA-256 digest before
+use. The figure setup also checks the package trees and the font files. A bad
+archive in the cache causes another download. A fresh download with the wrong
+digest stops setup.</p>
+<p>Setup has tool pins for macOS arm64, Linux aarch64 and Linux x86_64. Native
+x86_64 Linux remains unqualified. The checkout trial below covers only macOS
+arm64.</p>
+<p>The Bun of the checkout is a development tool for the book only. No build of
+Ravel uses it, and no installation or archive holds it. The
+<a href="02-actors-and-words.html#evaluation-and-supervision">Ravel CLI</a> and its
+<a href="02-actors-and-words.html#evaluation-and-supervision">Rhai worker</a> need no Bun
+or Node at run time.</p>
+<h2 id="build-the-executable"><a class="header" href="#build-the-executable">Build the executable</a></h2>
+<p><code>task build</code> runs <code>cargo build --locked --workspace</code>. Cargo builds both Rust
+packages and writes the executable to <code>target/debug/ravel</code>, with the default
+Cargo target directory. The Rhai worker is not a separate build. The Ravel
+CLI starts another copy of <code>target/debug/ravel</code> in an internal role to
+evaluate a configuration script.</p>
+<p><code>Cargo.lock</code> pins every Rust dependency. <code>crates/ravel/Cargo.toml</code> pins the
+Rhai engine exactly, at version 1.27.0. A first build can need network access
+for the dependencies that the Cargo cache on the host does not hold.</p>
+<p>The build script <code>crates/ravel/build.rs</code> puts a source identity into the
+executable. That identity is a digest of the Rust sources of both packages,
+the package manifest, the build script and <code>Cargo.lock</code>. The worker’s <code>hello</code>
+holds the identity, and the Ravel CLI compares it with its own. Both roles come
+from one build, so a change to the worker always agrees with its CLI.
+<a href="07-the-parts-of-ravel.html#the-installed-executable-supplies-both-roles">Chapter 7</a>
+explains this check.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Use it when</th><th>Output or check</th></tr>
+</thead>
+<tbody>
+<tr><td><code>task build</code></td><td>You change Rust source</td><td><code>target/debug/ravel</code> and the runner library</td></tr>
+<tr><td><code>task check</code></td><td>You hand a change over</td><td>Format, lint, script checks and all Rust tests</td></tr>
+<tr><td><code>task rhai:upgrade-proof</code></td><td>You change the Rhai pin</td><td>The engine tests and the hostile classes through the CLI</td></tr>
+<tr><td><code>task notices</code></td><td>You change a dependency</td><td>Licence notices for the release graph, under <code>target/notices/</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><code>task notices</code> installs cargo-about 0.8.4 into the checkout on its first run,
+through <code>task notices:setup</code>. It refuses a dependency whose licence is not on
+the approved list. <code>task install</code> and the release builds run it, because each
+installation carries the notice file.</p>
+<h2 id="find-the-source-for-a-change"><a class="header" href="#find-the-source-for-a-change">Find the source for a change</a></h2>
+<p>The workspace has two Rust packages. <code>ravel</code> holds the CLI, the Rhai worker
+role and the result channel. <code>keyed-launch</code> holds the
+<a href="07-the-parts-of-ravel.html#the-runner-owns-the-local-job-mechanics">runner</a>.
+The package boundary does not promise a separately supported component. The
+table maps each kind of source and test to its directory.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Path from the checkout root</th><th>What a contributor finds there</th></tr>
+</thead>
+<tbody>
+<tr><td><code>crates/ravel/src/</code></td><td>CLI arguments, configuration script checks, the <a href="02-actors-and-words.html#the-managed-process-and-its-result">result</a> channel and the choice of the final outcome</td></tr>
+<tr><td><code>crates/ravel/src/rhai_worker/</code></td><td>The Rhai worker role and the CLI side of the host bridge</td></tr>
+<tr><td><code>crates/ravel/src/skills/</code></td><td>Skill source resolution, the default skill directory and the preamble that Ravel adds to the prompt</td></tr>
+<tr><td><code>crates/ravel/examples/</code></td><td>The Rhai examples that an installation copies to <code>share/ravel/examples/</code></td></tr>
+<tr><td><code>crates/ravel/build.rs</code></td><td>The source identity of the executable</td></tr>
+<tr><td><code>crates/keyed-launch/src/</code></td><td>Process groups, signals, waits, terminal recovery and the completion channel</td></tr>
+<tr><td><code>crates/ravel/tests/</code></td><td>Tests through the real <code>ravel</code> executable, with fake programs</td></tr>
+<tr><td><code>crates/keyed-launch/tests/</code></td><td>Runner tests with real processes and pseudo-terminals</td></tr>
+<tr><td><code>scripts/</code> and <code>Taskfile.yml</code></td><td>Reusable checks, book tools and delivery recipes</td></tr>
+</tbody>
+</table>
+</div>
+<p><a href="07-the-parts-of-ravel.html#find-each-part-in-the-source">Chapter 7, “Find each part in the source”</a>
+gives each part with the process where it runs. In the example of this
+chapter, the result goes through the
+<a href="07-the-parts-of-ravel.html#the-result-channel-carries-the-value">result channel</a>.
+<code>end-session</code> writes the complete result file in one atomic step, and the CLI
+reads it after cleanup. Tests with real subprocesses check nested
+<a href="02-actors-and-words.html#three-different-kinds-of-information">session-result context</a>,
+cancellation, process cleanup, and empty and multiline results. Thus, a change
+to this boundary needs more than a test of a parser.</p>
+<h2 id="choose-a-test-seam"><a class="header" href="#choose-a-test-seam">Choose a test seam</a></h2>
+<p>A <strong>test seam</strong> is the boundary at which a test supplies inputs and observes
+behaviour. Choose the nearest seam that can observe the behaviour of your
+change. For the spaces of a result, a test of the argument parser is too near.
+It cannot see what <code>end-session</code> writes or what the caller receives. The
+command boundary can see both.</p>
+<p>The table connects each behaviour to a seam and a focused command.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Behaviour to check</th><th>Seam and source</th><th>Focused command</th></tr>
+</thead>
+<tbody>
+<tr><td>A local conversion, parser or decision</td><td>Rust unit tests beside the CLI code</td><td><code>task test:session -- --bin ravel</code></td></tr>
+<tr><td>A result, <a href="02-actors-and-words.html#evaluation-and-supervision">refusal</a> or managed launch through the executable <!-- tc: depart synonym-rotation because launch names the runner's launch of a job, while start names other process creation --></td><td><code>crates/ravel/tests/cli.rs</code>, with temporary configuration scripts and fixture processes</td><td><code>task test:cli</code></td></tr>
+<tr><td>A configuration script, its settings, helpers, reads or harness runs</td><td><code>crates/ravel/tests/rhai_*.rs</code>, through the real <code>ravel start-session</code></td><td><code>task test:session -- --test rhai_config</code></td></tr>
+<tr><td>An LLM call in a configuration script</td><td><code>crates/ravel/tests/rhai_llm_calls.rs</code>, with a fake harness that plays the model</td><td><code>task test:session -- --test rhai_llm_calls</code></td></tr>
+<tr><td>Skill source resolution and delivery</td><td><code>crates/ravel/tests/skills_*.rs</code>, with local source trees and fake programs</td><td><code>task test:session -- --test skills_launch</code></td></tr>
+<tr><td>Hostile startup files, module shadows and diagnostics</td><td><code>crates/ravel/tests/hostile.rs</code></td><td><code>task test:session -- --test hostile</code></td></tr>
+<tr><td>Group cleanup, escalation or child exit status</td><td>The runner, with real subprocesses under <code>crates/keyed-launch/tests/</code></td><td><code>task test:runner</code></td></tr>
+<tr><td>Terminal foreground or modes</td><td>The linked runner in a fixture process on a private pseudo-terminal, in <code>tests/job.rs</code></td><td><code>task test:runner -- --test job</code></td></tr>
+<tr><td>All tests in the Ravel package</td><td>Unit tests and every test file of <code>crates/ravel/tests/</code></td><td><code>task test:session</code></td></tr>
+<tr><td>Both Rust packages</td><td>Workspace tests under nextest</td><td><code>task test</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The test tasks build what they need. Cargo builds the <code>ravel</code> executable before
+the integration tests of its package, and each test starts that executable.
+Thus, a test always uses the worker of the same build. The tests need no host
+Bun or Node, no model account and no installed Ravel.</p>
+<p>A configuration script can ask a model through a harness run, as
+<a href="04-write-a-configuration-script.html">chapter 4</a> teaches. The tests never make
+a real call. In <code>rhai_llm_calls.rs</code>, a fake harness on the private <code>PATH</code>
+plays the model. It prints a fixed answer and records its arguments and its
+standard input. The test then reads which route Ravel launched and what the
+fake received. Each case has a control: the same script with another answer
+must give the other route.</p>
+<p>A real call is a separate, opt-in check. <code>task harness:smoke:claude</code> and
+<code>task harness:smoke:codex</code> make one real call through Claude Code or Codex
+with the owner’s sign-in, and that call spends subscription usage. No default
+task runs them.
+<a href="04-write-a-configuration-script.html">Chapter 4</a> explains them. <code>task check</code>
+runs only <code>task harness:smoke:test</code>, which tests the smoke script against
+fake harnesses.</p>
+<p>When you change the Rhai pin, run <code>task rhai:upgrade-proof</code>. It prints the pin
+and checks that <code>Cargo.lock</code> builds the same version. Then it runs each
+<code>rhai_*</code> test target, in a fixed order. Last, it runs each hostile class of
+<code>rhai_limits.rs</code>, such as an endless loop, a deep recursion and a full heap.
+It fails when a <code>rhai_*</code> file is not on its list, or when a target runs no
+test.</p>
+<p>The runner’s terminal tests create a pseudo-terminal, or PTY. This private
+terminal lets a test observe foreground ownership and modes without a human
+terminal. The <code>in_pty</code> helper in <code>crates/keyed-launch/tests/job.rs</code> starts the
+command as the leader of a new POSIX session. It reads the terminal output all
+the time, so a full terminal buffer cannot stop the leader. At its deadline,
+it kills the leader’s process group and fails the test.</p>
+<p>Tests that change process-wide signal state use a separate process. The job
+tests run their own binary in a fixture role, a test function marked
+<code>#[ignore]</code>. A parent test invokes that role with its required environment.
+The fixture role is not a check when it runs alone.
+<a href="09-jobs-signals-and-the-terminal.html#lend-and-recover-the-terminal">Chapter 9</a>
+explains the terminal behaviour that these tests observe.</p>
+<p><code>task test:list</code> lists the cases before a run. The focused tasks pass the
+arguments after <code>--</code> to nextest. A package selector chooses code, <code>--test</code>
+chooses an integration-test binary, and <code>-E</code> chooses test names with a filter
+expression.</p>
+<p>Fragment from the checkout trial: list first, then run the added tests. The
+fragment omits their source and the nextest output.</p>
+<pre><code class="language-sh">task test:list -- -E 'test(book_)'
+task test:runner -- -E 'test(book_)'
+task test:cli -- -E 'test(book_)'
+task test:session -- --test rhai_llm_calls -E 'test(book_)'
+task test:session -- --bin ravel -E 'test(book_)'
+</code></pre>
+<p>The <code>book_</code> cases are the additions in
+<a href="#add-a-test">Add a test</a>. They exist only after you add them. A narrow filter
+can exclude related cases. Read both counts in the nextest summary. The passed
+count gives the cases that ran and passed. The skipped count includes the
+cases that an <code>-E</code> filter excluded.</p>
+<p>While you edit, run the focused checks. Before handoff, run the full suite.</p>
+<h2 id="run-the-checks-before-handoff"><a class="header" href="#run-the-checks-before-handoff">Run the checks before handoff</a></h2>
+<p><code>task check</code> runs <code>scripts/check.sh</code>. Each stage prints one line with its
+result. The script stops at the first stage that fails. Its last stage runs
+the workspace tests with nextest and shows their report. The earlier stages
+run in this order:</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Stage</th><th>Work</th></tr>
+</thead>
+<tbody>
+<tr><td><code>formatting</code></td><td><code>cargo fmt --all --check</code> checks the Rust format and changes no file</td></tr>
+<tr><td><code>scripts</code></td><td>ShellCheck checks the shell scripts under <code>scripts/</code></td></tr>
+<tr><td><code>book-bun-integrity</code></td><td>Offline fixtures check the book Bun’s download, cache recovery and the refusal of a corrupt download</td></tr>
+<tr><td><code>harness-smoke-fakes</code></td><td>The harness smoke script runs against fake harnesses and makes no real call</td></tr>
+<tr><td><code>installed-record</code></td><td>Controls check the script that compares a Homebrew installation record</td></tr>
+<tr><td><code>lint</code></td><td>Clippy checks the workspace and all targets with the committed lockfile</td></tr>
+<tr><td><code>terminal-recovery</code></td><td>Runner tests produce real-PTY receipts, then a CLI unit test reads them</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>task test:terminal-recovery</code> runs the last of these checks alone.</p>
+<p>The workspace configuration sets Clippy’s <code>all</code> lint group to <code>deny</code>. Thus,
+a Clippy report from that group fails the <code>lint</code> stage. When a stage fails,
+<code>scripts/check.sh</code> names its log and shows the last 60 lines.</p>
+<p>Each run of <code>task check</code> writes a new <code>target/check.*</code> log. The log holds the
+output of the earlier stages and the nextest report. The terminal-recovery
+check creates temporary receipts and removes them when its script exits. The
+format stage does not change source files.</p>
+<p><code>task check</code> does not build the book or run its example, excerpt, figure or
+prose checks. It also does not install Ravel or test release archives. Those
+workflows have their own tasks. The workspace test run uses nextest’s default
+selection. Thus, a pass does not mean that every ignored fixture or native
+measurement ran.</p>
+<p>Fragment from the checkout trial: run the full check after the focused checks.
+This fragment omits the output and the log paths, which change between runs.</p>
+<pre><code class="language-sh">task check
+</code></pre>
+<p>The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md">checkout trial record</a>
+gives the source revision, tool versions, commands and results. It describes
+one macOS machine with cached tools, not a clean-machine installation.</p>
+<h2 id="add-a-test"><a class="header" href="#add-a-test">Add a test</a></h2>
+<p>The following fragments come from tests added to a scratch copy of the
+checkout for this chapter. They use the helpers and imports of the named
+files. All five passed on macOS arm64. They show current behaviour and do not
+change the product.</p>
+<p>For a defect, first add an assertion that fails because of that defect. Then
+change the code and run the same test again. A test that passes before the
+code change cannot tell the old behaviour from the new behaviour.</p>
+<h3 id="test-the-command-boundary"><a class="header" href="#test-the-command-boundary">Test the command boundary</a></h3>
+<p>This is the test for the example of this chapter. In
+<code>crates/ravel/tests/cli.rs</code>, <code>Fixture</code> gives the executable an empty
+environment with a private <code>HOME</code>, <code>TMPDIR</code> and working directory. Its <code>PATH</code>
+contains <code>/usr/bin:/bin</code>. The <code>selecting</code> helper writes a Rhai configuration
+script that selects <code>/bin/sh</code> with a script of your choice. The real Rhai
+worker evaluates that configuration script.</p>
+<p>Fragment from the scratch copy of <code>crates/ravel/tests/cli.rs</code>: this test omits
+the imports and the <code>Fixture</code> definition.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn book_result_keeps_spaces() {
+    let fixture = Fixture::new();
+    let config = fixture.selecting(r#""$1" end-session -- "$2""#, "  done  ");
+    let output = fixture.start(&amp;config, "Check spaces.");
+
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&amp;output.stderr)
+    );
+    assert_eq!(output.stdout, b"  done  ");
+    assert_eq!(fs::read_dir(fixture.root.join("tmp")).unwrap().count(), 0);
+}
+<span class="boring">}</span></code></pre>
+<p>The helper gives the shell the built Ravel executable as <code>$1</code> and the result
+as <code>$2</code>. The shell sends the result with <code>end-session</code>. The assertions check
+success, the unchanged spaces and the cleanup of the fixture’s temporary
+directory. A test of the parser alone cannot check this path through both
+<code>ravel</code> processes.</p>
+<h3 id="test-an-llm-call-with-a-fake-model"><a class="header" href="#test-an-llm-call-with-a-fake-model">Test an LLM call with a fake model</a></h3>
+<p>You may want to check that a configuration script launches the route that a
+model’s answer chooses. In <code>crates/ravel/tests/rhai_llm_calls.rs</code>, <code>SELECTION</code>
+is a configuration script that asks the harness <code>classifier</code> to classify the
+prompt. It maps each answer to a route. <code>fake_model</code> writes a fake
+<code>classifier</code> on the private <code>PATH</code>, and <code>settings</code> names it as a harness.</p>
+<p>Fragment from the scratch copy of <code>crates/ravel/tests/rhai_llm_calls.rs</code>: this
+test omits the file’s imports, constants and helpers.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn book_fake_model_answer_chooses_the_route() {
+    let sandbox = Sandbox::new();
+    let recorded = sandbox.recording_agent();
+    fake_model(&amp;sandbox, "classifier", &amp;format!("echo {LIGHT}"));
+    settings(&amp;sandbox, &amp;["classifier"], 1);
+    sandbox.personal_rhai(&amp;rhai_script(SELECTION));
+
+    let notice = notice_of(&amp;start(&amp;sandbox, PROMPT, &amp;[], &amp;[]));
+
+    assert_eq!(recorded.argv().unwrap(), ["routed", "quick-route"]);
+    assert_runs(&amp;notice, &amp;[("classifier", "exited")]);
+}
+<span class="boring">}</span></code></pre>
+<p>The fake model prints the light answer, so Ravel launches <code>quick-route</code>. The
+routing notice lists one harness run of <code>classifier</code>. A copy of the test that
+expected <code>deep-route</code> failed. Thus, the route comes from the answer and not
+from a default. The file’s own test of this script also checks the other
+answer.</p>
+<h3 id="test-a-real-child-process"><a class="header" href="#test-a-real-child-process">Test a real child process</a></h3>
+<p>In <code>crates/keyed-launch/tests/launch.rs</code>, the test type <code>Harness</code> writes a
+shell script in a temporary directory. This type is not an agent harness. The
+<code>launch</code> helper builds the runner request. <code>support::controls()</code> gives the
+names of the inherited enclosing-session controls, and the runner removes
+them from the child.
+<a href="#keep-tests-separate-from-live-sessions">Keep tests separate from live sessions</a>
+lists these controls.</p>
+<p>Fragment from the scratch copy of <code>crates/keyed-launch/tests/launch.rs</code>: this
+test omits the file’s imports and helper definitions.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn book_child_exit_keeps_its_status() {
+    let harness = Harness::new();
+    let script = harness.script("exit 23\n");
+    let argv = harness.argv(&amp;script);
+    let channel = Channel::allocate(&amp;harness.control()).unwrap();
+
+    let ended = run(launch(&amp;argv, &amp;channel, support::controls(), None)).unwrap();
+
+    assert_eq!(ended.status.code(), Some(23));
+    assert_eq!(ended.end, End::Exited);
+    assert!(!ended.signalled);
+}
+<span class="boring">}</span></code></pre>
+<p>The child exits with status 23 without a completion signal. The assertions
+separate the exit status, the reason that supervision ended and the channel
+state. This test needs no PTY, because it makes no claim about a terminal.</p>
+<p>For a claim about a terminal, the helper in <code>job.rs</code> supplies the PTY. The
+launcher role reports its foreground group before and after the child runs.</p>
+<p>Fragment from the scratch copy of <code>crates/keyed-launch/tests/job.rs</code>: this test
+omits the imports, <code>Scratch</code>, the launcher role and the PTY helper.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[test]
+fn book_normal_exit_restores_foreground() {
+    let scratch = Scratch::new();
+    let child = scratch.script("exit 23\n");
+    let (status, output) = in_pty(
+        role_command(
+            "launcher",
+            &amp;[("JOB_CHILD", &amp;child), ("JOB_REPORT", &amp;scratch.os("report"))],
+        ),
+        Duration::from_secs(20),
+        |_| {},
+    );
+    assert!(status.success(), "{status:?}\n{output}");
+    let report = report(&amp;scratch.path("report"));
+    assert_eq!(report["code"], "23");
+    assert_eq!(report["before_foreground"], report["group"]);
+    assert_eq!(report["after_foreground"], report["group"]);
+}
+<span class="boring">}</span></code></pre>
+<p>The parent checks that the launcher completed its report. Then it reads the
+child’s status from that report. The two statuses belong to different
+processes. The table separates those observations in this example.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Process</th><th>Work and observation in this example</th></tr>
+</thead>
+<tbody>
+<tr><td>Parent test</td><td>Starts the launcher role through <code>in_pty</code>. Checks the role’s exit status, then reads the report</td></tr>
+<tr><td>Launcher role</td><td>Runs the same test binary in a separate process on the private PTY. Its linked runner supervises the child. Reports the foreground values and the child’s status</td></tr>
+<tr><td>Child</td><td>Runs the shell script that exits with status 23. The report’s <code>code</code> field holds this status</td></tr>
+</tbody>
+</table>
+</div>
+<p>This test checks the final foreground ownership. It does not check recovery
+after a change of modes. The raw-mode test near it changes the modes and
+checks that the change occurred before it checks recovery.</p>
+<h3 id="test-a-local-rule"><a class="header" href="#test-a-local-rule">Test a local rule</a></h3>
+<p>A CLI unit test can check the argument parser without a worker or a child
+process. The separator <code>--</code> makes a result such as <code>--help</code> into data.</p>
+<p>Fragment from the scratch copy of <code>crates/ravel/src/cli.rs</code>: add this test
+module at file scope. The fragment omits the argument definitions above it.</p>
+<pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn book_result_after_separator_is_data() {
+        let cli = Cli::try_parse_from(["ravel", "end-session", "--", "--help"]).unwrap();
+        let Command::EndSession { result } = cli.command else {
+            panic!("expected end-session");
+        };
+        assert_eq!(result, "--help");
+    }
+}
+<span class="boring">}</span></code></pre>
+<p>The parser returns <code>Command::EndSession</code> with the unchanged value. This test
+does not run <code>end-session</code> or need a result channel. The tests at the command
+boundary cover the later effect of that command.</p>
+<h2 id="install-and-test-the-installed-files"><a class="header" href="#install-and-test-the-installed-files">Install and test the installed files</a></h2>
+<p><code>task install</code> builds a release executable for the host and generates the
+licence notices. It copies Ravel’s files into <code>PREFIX</code>, then tests that
+installation. The default prefix is <code>~/.local</code>. With an explicit prefix, you
+can test a build and keep your usual installation.</p>
+<ol>
+<li>Choose a disposable prefix for the trial.</li>
+<li>Run <code>task install</code> with that prefix.</li>
+<li>Read the last line, which names the installed version and the prefix.</li>
+</ol>
+<p>Fragment from this chapter’s macOS arm64 trial: these commands omit the output
+and the removal of the disposable prefix.</p>
+<pre><code class="language-sh">task install PREFIX=target/install-trial
+task smoke
+</code></pre>
+<p>The installation puts the executable at <code>PREFIX/bin/ravel</code>, the three Rhai
+examples under <code>PREFIX/share/ravel/examples/</code> and the notice file under
+<code>PREFIX/share/ravel/notices/</code>. It removes an old <code>PREFIX/libexec/ravel</code>
+directory, which held the Ravel 1.x worker and SDK. It does not add the
+prefix to <code>PATH</code>, and it writes no installation record. Only a Homebrew
+formula writes <code>share/ravel/installation.json</code>, because only an installation
+by Homebrew knows the shared skill directory.
+<a href="06-reference.html#installed-layout">Chapter 6</a> describes the installed files.
+<a href="11-deliver-ravel.html">Chapter 11, “Deliver Ravel”</a>, covers release archives,
+their target checks and the formula.</p>
+<p>The table separates the installed files from temporary test files and build
+outputs.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>What it builds or checks</th><th>Files it leaves</th></tr>
+</thead>
+<tbody>
+<tr><td><code>task install PREFIX=…</code></td><td>Release executable and notices, then the installed smoke test</td><td>Installed files at the chosen prefix, plus build outputs</td></tr>
+<tr><td><code>task smoke</code></td><td>The same installation in a fresh prefix under <code>target/</code>, whose name contains a space and a non-ASCII letter</td><td>Build outputs. The script removes its temporary prefix when it exits</td></tr>
+<tr><td><code>task smoke:pair OLD=… NEW=…</code></td><td>On macOS, the installed Ravel 1.1 executable <code>OLD</code> and the installation under <code>NEW</code> at the same time. Each has its own temporary home, and a guard denies both runs the real home</td><td>Nothing. The script removes its temporary homes when it exits</td></tr>
+</tbody>
+</table>
+</div>
+<p>Before <code>task smoke</code> installs, it puts an old <code>libexec/ravel/sdk/</code> file and an
+unrelated <code>bin/other-tool</code> into its fresh prefix. After the installation, the
+old Ravel 1.x payload is gone and the unrelated tool is unchanged. Thus, the
+check shows what an upgrade over an old installation removes and keeps.</p>
+<p>The installed smoke test, <code>scripts/installed-smoke.sh</code>, starts with <code>env -i</code>.
+It tests both the direct path to the executable and a relative symlink from
+another prefix, as a package manager links an installation. Its private
+<code>PATH</code> has selected system utilities and fixture programs. It refuses to run
+if that <code>PATH</code> finds <code>bun</code>, <code>node</code> or a Grove command. It checks:</p>
+<ul>
+<li>the version line of the executable.</li>
+<li>that no <code>libexec/ravel</code> and no installation record exist.</li>
+<li>the installed examples and the notice file.</li>
+<li>ordinary, empty, multiline and option-like results, which return unchanged.</li>
+<li>child output, which goes to diagnostics and not to the result.</li>
+<li>relative Rhai imports, measured reads,
+<a href="04-write-a-configuration-script.html#supply-selection-context">selection context</a>
+and <code>--param</code> values.</li>
+<li>the refusal of a <code>policy.ts</code> entry as <code>config_format_retired</code>, with
+status 3.</li>
+<li><code>end-session</code> without session-result context, which fails.</li>
+<li>the cleanup of temporary session files.</li>
+</ul>
+<p>These tasks passed on macOS 27.0.1 arm64 in this chapter’s trial. This local
+smoke check does not qualify release archives, Linux floors or a different
+host.</p>
+<h2 id="check-the-book"><a class="header" href="#check-the-book">Check the book</a></h2>
+<p>Book checks are separate from <code>task check</code>. A source change can make a quoted
+excerpt stale even when every Rust test passes. A change to the book can break
+a command example without a change to product code.</p>
+<p><code>task docs:book</code> first builds the book, then serves it at
+<code>http://127.0.0.1:8775</code>. The server builds the book again after a source
+change. <code>PORT=…</code> selects another port. <code>task docs:book:build</code> only builds,
+under <code>target/book</code>. Its script, <code>scripts/book.sh</code>, fails on an mdBook <code>ERROR</code>
+or <code>WARN</code> diagnostic, even if mdBook exits with status 0. A successful build
+does not show that every link resolves or that a figure is legible.</p>
+<p>The table matches each kind of book change to the check that can find a
+related defect.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Change</th><th>Check</th><th>What the check shows</th></tr>
+</thead>
+<tbody>
+<tr><td>Chapter or book configuration</td><td><code>task docs:book:build</code></td><td>mdBook builds without an <code>ERROR</code> or <code>WARN</code> diagnostic</td></tr>
+<tr><td>Figure source or shared figure module</td><td><code>task docs:figures</code></td><td>Fresh SVGs and layout records match the committed files</td></tr>
+<tr><td>Complete command example</td><td><code>task docs:examples</code></td><td>The built executable runs each complete example and meets its stated output and status</td></tr>
+<tr><td>Source excerpt or its source file</td><td><code>task docs:excerpts</code></td><td>Each excerpt still occurs as consecutive whole lines in its named tracked file</td></tr>
+<tr><td>Prose, table, heading or figure text</td><td><code>task docs:ste -- --strict</code></td><td>No violation of the STE rules that a script can check, or of the shared word decisions</td></tr>
+<tr><td>Chapter layout</td><td><code>task docs:breaks -- --strict</code></td><td>No prose run is longer than 450 words under the check’s rules</td></tr>
+</tbody>
+</table>
+</div>
+<p>The figure checks use the pinned Typst, packages and fonts from <code>task setup</code>.
+They render into a scratch directory. <code>task docs:figures:update</code> instead
+writes the SVGs and <code>.layout.json</code> files beside their <code>.typ</code> sources. After an
+intended figure change, run the update task, read the diff and view the built
+page. Then run the comparison again.</p>
+<p>The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/book/figures.md">figure convention</a>
+describes the shared modules and the visual checks. Equality with a fresh
+render does not show that a diagram explains the right behaviour.</p>
+<p>The example check builds Ravel first. It evaluates real Rhai configuration
+scripts and runs fake programs with a private home, temporary directory and
+<code>PATH</code>. Standard input is <code>/dev/null</code>. It compares the declared streams and
+exit status, with only the scratch path normalised. Every complete example
+runs on every platform. An <code>&lt;!-- example: ... --&gt;</code> comment is a page error,
+because the convention has no directive.</p>
+<p>Fragments do not run. The example check also does not compare source
+excerpts. The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/book/examples.md">example convention</a>
+defines the labels and the output claims.</p>
+<p>The excerpt check needs no build. Its comparison keeps spaces and
+indentation. It refuses untracked sources, symbolic links and generated paths.
+An exact quotation can still have an incorrect explanation. The
+<a href="https://github.com/Linkuistics/Ravel/blob/main/docs/book/excerpts.md">excerpt convention</a>
+describes the label and the comparison.</p>
+<p>The STE and prose-break tasks report problems without failure, unless you
+pass <code>--strict</code>. They run on the book Bun from <code>task setup</code>. By default, the
+STE check examines all chapter files, <code>SUMMARY.md</code>, <code>CONTEXT.md</code>, <code>README.md</code>
+and the text of each figure layout record. The prose-break check examines the
+chapters. A table, figure or code block breaks a prose run. Headings and lists
+do not.</p>
+<p>Neither check can show clear explanations or agreement with every STE rule. A
+human read still checks meaning, order and the use of active verbs.</p>
+<p>The checkers have their own tests. A <strong>control</strong> gives a checker a known bad
+input and requires it to refuse that input. A <strong>mutant</strong> removes a safeguard
+from a copy of the checker. A control then must fail against that copy. These
+tests help show that a clean report has a useful meaning. The table names the
+controls to run after a change to a checker.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task</th><th>Controls it runs</th></tr>
+</thead>
+<tbody>
+<tr><td><code>docs:figures:test</code></td><td>Unchanged figures, and changes to sources, SVGs, records, layout pins, tools and packages</td></tr>
+<tr><td><code>docs:examples:test</code></td><td>Good pages, and wrong output, status, labels, build identity, environment and other example rules</td></tr>
+<tr><td><code>docs:examples:mutants</code></td><td>Copies of the example checker with one safeguard removed each</td></tr>
+<tr><td><code>docs:excerpts:test</code></td><td>Changed source or quotation, invalid paths and labels, then checker mutants</td></tr>
+<tr><td><code>docs:ste:test</code></td><td>Planted text violations and the default file selection, then rule mutants</td></tr>
+<tr><td><code>docs:breaks:test</code></td><td>Prose at and above the limit, each kind of break, and rule mutants</td></tr>
+<tr><td><code>book:integrity</code></td><td>Offline mdBook download fixtures, cache reuse, recovery from a corrupt cache and refusal of a bad download</td></tr>
+<tr><td><code>book:bun:integrity</code></td><td>Offline book Bun download fixtures, cache recovery and refusal of a corrupt download</td></tr>
+</tbody>
+</table>
+</div>
+<p><code>book:integrity</code> needs the archive that <code>task setup</code> checked. It replaces the
+download boundary and uses private tool directories. It does not test the
+availability of GitHub or the book’s content. Run a checker’s controls when
+you change that checker. Run the related content checks when you change a
+chapter.</p>
+<p>Fragment from this chapter’s final validation: these commands omit setup and
+the reports. They check the complete book, not only this chapter.</p>
+<pre><code class="language-sh">task docs:book:build
+task docs:figures
+task docs:examples
+task docs:excerpts
+task docs:ste -- --strict
+task docs:breaks -- --strict
+</code></pre>
+<h2 id="keep-tests-separate-from-live-sessions"><a class="header" href="#keep-tests-separate-from-live-sessions">Keep tests separate from live sessions</a></h2>
+<p>A test can run inside an LLM <a href="02-actors-and-words.html#caller-and-owner">session</a>
+that Ravel supervises. If a test inherits that session’s real result path,
+its <code>end-session</code> call can stop the developer’s session. Thus, each test
+boundary removes the inherited authority before it creates its own fixture
+inputs. The table maps each test boundary to its guard and the source that
+applies it.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Boundary</th><th>Guard</th><th>Source</th></tr>
+</thead>
+<tbody>
+<tr><td>Cargo commands</td><td>Force the listed session controls to empty values</td><td><code>.cargo/config.toml</code></td></tr>
+<tr><td>Runner subprocess helpers</td><td>Remove those names from commands, or pass the names as runner scrub controls</td><td><code>crates/keyed-launch/tests/support/mod.rs</code></td></tr>
+<tr><td>CLI, Rhai, skill and hostile fixtures</td><td>Use <code>env_clear()</code>, a private <code>HOME</code> and <code>TMPDIR</code>, and a fixture <code>PATH</code></td><td><code>crates/ravel/tests/cli.rs</code> and <code>crates/ravel/tests/support/</code></td></tr>
+<tr><td>Installed smoke</td><td>Start with <code>env -i</code>, then supply only fixture inputs</td><td><code>scripts/install.sh</code> and <code>scripts/installed-smoke.sh</code></td></tr>
+</tbody>
+</table>
+</div>
+<p>The Cargo guards cover these names:</p>
+<ul>
+<li><code>GROVE_LAUNCH_DIR</code>, <code>GROVE_SIGNAL_FILE</code> and <code>GROVE_RUN_SIGNAL_FILE</code>.</li>
+<li><code>HARNESS_DISPATCH_EXIT_FILE</code>, <code>HARNESS_DISPATCH_RUN_ID</code> and
+<code>HARNESS_DISPATCH_STATE_DIR</code>.</li>
+<li><code>RAVEL_EXIT_FILE</code>, <code>RAVEL_RUN_ID</code> and <code>RAVEL_STATE_DIR</code>.</li>
+</ul>
+<p>An empty value disables the inherited authority. It does not send the
+authority to another path. The runner helpers also protect direct subprocess
+invocations that do not go through Cargo. The CLI fixtures create temporary
+configuration scripts, so tests do not need the developer’s personal
+configuration script.</p>
+<p>The <code>GROVE_*</code> and <code>HARNESS_DISPATCH_*</code> names stay in these guards on purpose.
+They protect tests from older enclosing-session controls. They are safety
+exceptions that remain from the extraction of Ravel, not product dependencies.
+Paths in source provenance and the retired-project record give historical
+attribution. Ravel does not load those projects or interpret their task
+trees. The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/caller-references.md">caller-reference inventory</a>
+classifies these references in source files and dotfiles.</p>
+<p>For a new subprocess test, use the fixture of the chosen seam again. Supply
+only the environment values that the case needs. If the case needs a result
+channel, create that channel inside its temporary fixture. Never supply the
+enclosing session’s real result path.</p>
+<h2 id="read-the-evidence-for-a-change"><a class="header" href="#read-the-evidence-for-a-change">Read the evidence for a change</a></h2>
+<p>An evidence note explains what a particular source read or measured run
+shows. Evidence notes are outside the book, with their receipts and logs. The
+tasks produce check output. A contributor writes the note that connects that
+output to a claim and states its limits. A task does not change a dated
+evidence note. The table connects each question to a note and the source of
+its observations.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Question about a change</th><th>Evidence to read</th><th>Source of its observations</th></tr>
+</thead>
+<tbody>
+<tr><td>Which observations support the skill directory contract and the rule for a package of a default source?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/skill-discovery-design-evidence.md">Skill discovery design evidence</a></td><td>Source reads, local trials and the checks of each stage of the 2.0.0 line</td></tr>
+<tr><td>Did a particular release reach its remote and installed destinations?</td><td>The release evidence that the release task writes, <code>target/release-evidence/vX.Y.Z.json</code>, and the <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/publication-evidence.md">release and installation record</a></td><td>The release tasks, download comparisons and installed Homebrew checks</td></tr>
+<tr><td>Does an archive contain and run the required files?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/archive-evidence.md">Archive evidence</a></td><td><code>release:smoke</code>, <code>release:test</code> and <code>release:formula</code>, at the revision named in the note</td></tr>
+<tr><td>Does the release procedure refuse an unsafe cut or resume the right step?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/release-lifecycle-evidence.md">Release lifecycle evidence</a></td><td><code>release:lifecycle:test</code> and the archive and formula checks</td></tr>
+<tr><td>Which resource and failure paths motivated the later repairs? <!-- tc: depart synonym-rotation because repairs names the recorded work of the completion-failure notes, while fixture names a test input --></td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/result-job-source-evidence.md">Result/job source evidence</a></td><td>A source read at the revision named in the note, not a runtime task</td></tr>
+<tr><td>Which checks distinguish the completion-failure repairs?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/completion-failure-design-evidence.md">Completion failure evidence</a></td><td>Focused runner and CLI tests, <code>test:terminal-recovery</code> and <code>check</code>, with their recorded controls</td></tr>
+<tr><td>Why does native entry follow this protocol?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-transition-design.md">Native-entry design</a></td><td>Source and design analysis, with later observations linked separately</td></tr>
+<tr><td>What did the native-entry instruments measure?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md">Native-entry evidence</a></td><td>The current native-entry and Linux checks, and archived campaign receipts</td></tr>
+<tr><td>What did the TypeScript worker of Ravel 1.x establish?</td><td><a href="https://github.com/Linkuistics/Ravel/blob/main/docs/runtime-evidence.md">Runtime evidence</a> and <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/component-evidence.md">component evidence</a></td><td>Historical runs. Each note says that its worker, SDK and Bun controls are retired</td></tr>
+<tr><td>Where are the run records?</td><td><a href="https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/">Evidence directory</a></td><td>The linked note names each receipt set, its command and its source revision</td></tr>
+</tbody>
+</table>
+</div>
+<p>Start with the note’s source revision and measured platform. Then read the
+section that matches the claim. Earlier sections can describe work that later
+sections complete. A design proposal is not an observed run. An old failure
+does not show that the current source still fails, and an old pass does not
+show that it still passes.</p>
+<p>The current native-entry instruments examine the state of the executable at
+entry and its cleanup. The archived campaign compared a frozen product from
+before the repair, the <strong>incumbent</strong>, with the repaired product. Its drivers
+and the protected-test comparison, R01, were retired in the change to Rhai.
+The historical
+<a href="https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43">campaign records</a>
+keep their measured source revisions, plans and receipts. Those observations
+do not show that the current source has the same behaviour. The table below
+names the available instruments.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Instrument</th><th>Tasks, purpose and evidence</th></tr>
+</thead>
+<tbody>
+<tr><td>Native entry</td><td><code>native-entry:build</code><br><code>native-entry:front</code><br><code>native-entry:runner</code><br><code>native-entry:start</code><br><code>test:native-entry</code><br>Build the private fixture. Run the CLI cases, the runner cases and the <code>start_check</code> cases for the runner’s public API. Read the development sections of the <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md">native-entry note</a></td></tr>
+<tr><td>Linux</td><td><code>native-linux:image</code><br><code>test:native-linux</code><br>Build the Linux environment and run the current Rust, Rhai and native-entry checks, with unchanged source digests. Earlier target measurements remain in the <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52">Linux campaign section</a></td></tr>
+</tbody>
+</table>
+</div>
+<p>The Linux tasks call <code>scripts/native-linux.sh</code> to stage and check the files of
+the current checkout without the host’s Git objects. The native-entry tasks
+build and select Rust tests directly. A development test pass alone does not
+show the complete campaign or the support of a new platform. The measured
+support covers aarch64 macOS and aarch64 Linux. x86_64 Linux is built and run
+only under emulation, and native qualification is still absent.</p>
+<p>Three tasks serve editable design views on localhost: <code>task docs:result-job</code>
+on port 8774, <code>task docs:rhai-configuration</code> on port 8776 and
+<code>task docs:skills</code> on port 8778. Each accepts <code>PORT=…</code> and needs network
+access for Mermaid. These design views are separate from the book’s Typst
+figures and show no runtime result.</p>
+<p>The <a href="https://github.com/Linkuistics/Ravel/blob/main/docs/retired-project.md">retired-project record</a>
+names the former actor-daemon revision for historical attribution only.</p>
+<h2 id="find-a-development-task"><a class="header" href="#find-a-development-task">Find a development task</a></h2>
+<p><code>task --list</code> shows the public task names and short descriptions in the
+current checkout. The table maps each name at this chapter’s draft to its
+explanation. The sections above explain the development tasks.
+<a href="11-deliver-ravel.html">Chapter 11, “Deliver Ravel”</a>, owns the release
+workflow. Its release tasks can create a release version, write remote state
+and replace an installation. Thus, they are not commands for a chapter check.</p>
+<div class="table-wrapper">
+<table>
+<thead>
+<tr><th>Task names</th><th>Destination</th></tr>
+</thead>
+<tbody>
+<tr><td><code>setup</code></td><td><a href="#prepare-a-checkout">Prepare a checkout</a></td></tr>
+<tr><td><code>build</code>, <code>notices</code>, <code>notices:setup</code>, <code>notices:test</code>, <code>rhai:upgrade-proof</code></td><td><a href="#build-the-executable">Build the executable</a></td></tr>
+<tr><td><code>test</code>, <code>test:session</code>, <code>test:cli</code>, <code>test:runner</code>, <code>test:list</code></td><td><a href="#choose-a-test-seam">Choose a test seam</a></td></tr>
+<tr><td><code>harness:smoke:claude</code>, <code>harness:smoke:codex</code>, <code>harness:smoke:test</code></td><td><a href="#choose-a-test-seam">Choose a test seam</a></td></tr>
+<tr><td><code>check</code>, <code>test:terminal-recovery</code></td><td><a href="#run-the-checks-before-handoff">Run the checks before handoff</a></td></tr>
+<tr><td><code>install</code>, <code>smoke</code>, <code>smoke:pair</code></td><td><a href="#install-and-test-the-installed-files">Install and test the installed files</a></td></tr>
+<tr><td><code>docs:book</code>, <code>docs:book:build</code>, <code>docs:figures</code>, <code>docs:figures:update</code>, <code>docs:figures:test</code></td><td><a href="#check-the-book">Check the book</a></td></tr>
+<tr><td><code>docs:examples</code>, <code>docs:examples:test</code>, <code>docs:examples:mutants</code>, <code>docs:excerpts</code>, <code>docs:excerpts:test</code></td><td><a href="#check-the-book">Check the book</a></td></tr>
+<tr><td><code>docs:ste</code>, <code>docs:ste:test</code>, <code>docs:breaks</code>, <code>docs:breaks:test</code>, <code>book:integrity</code>, <code>book:bun:integrity</code></td><td><a href="#check-the-book">Check the book</a></td></tr>
+<tr><td><code>docs:result-job</code>, <code>docs:rhai-configuration</code>, <code>docs:skills</code></td><td><a href="#read-the-evidence-for-a-change">Read the evidence for a change</a></td></tr>
+<tr><td><code>native-entry:build</code><br><code>native-entry:front</code><br><code>native-entry:runner</code><br><code>native-entry:start</code><br><code>test:native-entry</code></td><td><a href="#read-the-evidence-for-a-change">Read the evidence for a change</a></td></tr>
+<tr><td><code>native-linux:image</code><br><code>test:native-linux</code></td><td><a href="#read-the-evidence-for-a-change">Read the evidence for a change</a></td></tr>
+<tr><td><code>release:archives</code>, <code>release:smoke</code>, <code>release:test</code>, <code>release:formula</code></td><td><a href="11-deliver-ravel.html#build-archives-before-a-release">Chapter 11, “Build archives before a release”</a></td></tr>
+<tr><td><code>release:doctor</code>, <code>release:notes</code>, <code>release:lifecycle:test</code></td><td><a href="11-deliver-ravel.html#prepare-a-version-cut">Chapter 11, “Prepare a version cut”</a></td></tr>
+<tr><td><code>release:patch</code>, <code>release:minor</code>, <code>release:major</code></td><td><a href="11-deliver-ravel.html#cut-and-deliver-a-release">Chapter 11, “Cut and deliver a release”</a></td></tr>
+<tr><td><code>release:promote</code></td><td><a href="11-deliver-ravel.html#promote-a-versioned-release">Chapter 11, “Promote a versioned release”</a></td></tr>
+</tbody>
+</table>
+</div>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="09-jobs-signals-and-the-terminal.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                            </a>
+
+                            <a rel="next prefetch" href="11-deliver-ravel.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="09-jobs-signals-and-the-terminal.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"/></svg></span>
+                    </a>
+
+                    <a rel="next prefetch" href="11-deliver-ravel.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"/></svg></span>
+                    </a>
+            </nav>
+
+        </div>
+
+        <template id=fa-eye><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M288 32c-80.8 0-145.5 36.8-192.6 80.6C48.6 156 17.3 208 2.5 243.7c-3.3 7.9-3.3 16.7 0 24.6C17.3 304 48.6 356 95.4 399.4C142.5 443.2 207.2 480 288 480s145.5-36.8 192.6-80.6c46.8-43.5 78.1-95.4 93-131.1c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C433.5 68.8 368.8 32 288 32zM432 256c0 79.5-64.5 144-144 144s-144-64.5-144-144s64.5-144 144-144s144 64.5 144 144zM288 192c0 35.3-28.7 64-64 64c-11.5 0-22.3-3-31.6-8.4c-.2 2.8-.4 5.5-.4 8.4c0 53 43 96 96 96s96-43 96-96s-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6z"/></svg></span></template>
+        <template id=fa-eye-slash><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M38.8 5.1C28.4-3.1 13.3-1.2 5.1 9.2S-1.2 34.7 9.2 42.9l592 464c10.4 8.2 25.5 6.3 33.7-4.1s6.3-25.5-4.1-33.7L525.6 386.7c39.6-40.6 66.4-86.1 79.9-118.4c3.3-7.9 3.3-16.7 0-24.6c-14.9-35.7-46.2-87.7-93-131.1C465.5 68.8 400.8 32 320 32c-68.2 0-125 26.3-169.3 60.8L38.8 5.1zM223.1 149.5C248.6 126.2 282.7 112 320 112c79.5 0 144 64.5 144 144c0 24.9-6.3 48.3-17.4 68.7L408 294.5c5.2-11.8 8-24.8 8-38.5c0-53-43-96-96-96c-2.8 0-5.6 .1-8.4 .4c5.3 9.3 8.4 20.1 8.4 31.6c0 10.2-2.4 19.8-6.6 28.3l-90.3-70.8zm223.1 298L373 389.9c-16.4 6.5-34.3 10.1-53 10.1c-79.5 0-144-64.5-144-144c0-6.9 .5-13.6 1.4-20.2L83.1 161.5C60.3 191.2 44 220.8 34.5 243.7c-3.3 7.9-3.3 16.7 0 24.6c14.9 35.7 46.2 87.7 93 131.1C174.5 443.2 239.2 480 320 480c47.8 0 89.9-12.9 126.2-32.5z"/></svg></span></template>
+        <template id=fa-copy><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M502.6 70.63l-61.25-61.25C435.4 3.371 427.2 0 418.7 0H255.1c-35.35 0-64 28.66-64 64l.0195 256C192 355.4 220.7 384 256 384h192c35.2 0 64-28.8 64-64V93.25C512 84.77 508.6 76.63 502.6 70.63zM464 320c0 8.836-7.164 16-16 16H255.1c-8.838 0-16-7.164-16-16L239.1 64.13c0-8.836 7.164-16 16-16h128L384 96c0 17.67 14.33 32 32 32h47.1V320zM272 448c0 8.836-7.164 16-16 16H63.1c-8.838 0-16-7.164-16-16L47.98 192.1c0-8.836 7.164-16 16-16H160V128H63.99c-35.35 0-64 28.65-64 64l.0098 256C.002 483.3 28.66 512 64 512h192c35.2 0 64-28.8 64-64v-32h-47.1L272 448z"/></svg></span></template>
+        <template id=fa-play><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/></svg></span></template>
+        <template id=fa-clock-rotate-left><span class=fa-svg><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc. --><path d="M75 75L41 41C25.9 25.9 0 36.6 0 57.9V168c0 13.3 10.7 24 24 24H134.1c21.4 0 32.1-25.9 17-41l-30.8-30.8C155 85.5 203 64 256 64c106 0 192 86 192 192s-86 192-192 192c-40.8 0-78.6-12.7-109.7-34.4c-14.5-10.1-34.4-6.6-44.6 7.9s-6.6 34.4 7.9 44.6C151.2 495 201.7 512 256 512c141.4 0 256-114.6 256-256S397.4 0 256 0C185.3 0 121.3 28.7 75 75zm181 53c-13.3 0-24 10.7-24 24V256c0 6.4 2.5 12.5 7 17l72 72c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-65-65V152c0-13.3-10.7-24-24-24z"/></svg></span></template>
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr-ef4e11c1.min.js"></script>
+        <script src="mark-09e88c2c.min.js"></script>
+        <script src="searcher-09f2665d.js"></script>
+
+        <script src="clipboard-1626706a.min.js"></script>
+        <script src="highlight-abc7f01d.js"></script>
+        <script src="book-609e4cb8.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+
+    </div>
+    </body>
+</html>

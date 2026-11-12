@@ -1,0 +1,811 @@
+{
+  "w": 628.1572265625,
+  "h": 1219.38046875,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Cancellation during selection — UML sequence",
+      "x": 314.07861328125,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 421.078125,
+      "h": 12.15625
+    },
+    {
+      "id": "life-caller",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          49.13525390625,
+          50.3125
+        ],
+        [
+          49.13525390625,
+          1091.06015625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          224.13525390625,
+          71.26875000000001
+        ],
+        [
+          224.13525390625,
+          1091.06015625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          441.44384765625,
+          165.43515625
+        ],
+        [
+          441.44384765625,
+          1091.06015625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-harness",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          556.38525390625,
+          330.91171875
+        ],
+        [
+          556.38525390625,
+          1091.06015625
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-caller",
+      "shape": "box",
+      "role": "external",
+      "x0": 13.13916015625,
+      "y0": 26.15625,
+      "x1": 85.13134765625,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-caller-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "caller",
+      "x": 49.13525390625,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 49.9921875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 145.54150390625,
+      "y0": 26.156250000000004,
+      "x1": 302.72900390625,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI\n(runner inside)",
+      "x": 224.13525390625,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 135.1875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          49.13525390625,
+          97.90546875000001
+        ],
+        [
+          224.13525390625,
+          97.90546875000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "start-session",
+      "x": 136.63525390625,
+      "y": 93.90546875000001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 91.482421875,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          142.87890625
+        ],
+        [
+          399.13525390625,
+          142.87890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Start worker. Check identity. Send request",
+      "x": 311.63525390625,
+      "y": 138.87890625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 163.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 399.13525390625,
+      "y0": 120.32265625,
+      "x1": 483.75244140625,
+      "y1": 165.43515625
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai\nworker",
+      "x": 441.44384765625,
+      "y": 142.87890625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 62.6171875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "note-15",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          145.54150390625,
+          173.43515625
+        ],
+        [
+          473.75244140625,
+          173.43515625
+        ],
+        [
+          483.75244140625,
+          183.43515625
+        ],
+        [
+          483.75244140625,
+          234.7453125
+        ],
+        [
+          145.54150390625,
+          234.7453125
+        ]
+      ]
+    },
+    {
+      "id": "note-15-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          473.75244140625,
+          173.43515625
+        ],
+        [
+          473.75244140625,
+          183.43515625
+        ],
+        [
+          483.75244140625,
+          183.43515625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-15-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "The worker evaluates trusted configuration script.\nIt has no session-result context.",
+      "x": 314.64697265625,
+      "y": 204.09023437500002,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 318.2109375,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          441.44384765625,
+          263.38203125
+        ],
+        [
+          224.13525390625,
+          263.38203125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Host call: run_harness",
+      "x": 332.78955078125,
+      "y": 259.38203125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 157.0869140625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          308.35546875
+        ],
+        [
+          497.75244140625,
+          308.35546875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Start harness run with its own result channel",
+      "x": 360.94384765625,
+      "y": 304.35546875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 261.6171875,
+      "h": 28.9734375
+    },
+    {
+      "id": "head-harness",
+      "shape": "box",
+      "role": "external",
+      "x0": 497.75244140625,
+      "y0": 285.79921875,
+      "x1": 615.01806640625,
+      "y1": 330.91171875
+    },
+    {
+      "id": "head-harness-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "evaluation\nharness",
+      "x": 556.38525390625,
+      "y": 308.35546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 95.265625,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "note-24",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          399.13525390625,
+          338.91171875
+        ],
+        [
+          605.01806640625,
+          338.91171875
+        ],
+        [
+          615.01806640625,
+          348.91171875
+        ],
+        [
+          615.01806640625,
+          436.8953125
+        ],
+        [
+          399.13525390625,
+          436.8953125
+        ]
+      ]
+    },
+    {
+      "id": "note-24-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          605.01806640625,
+          338.91171875
+        ],
+        [
+          605.01806640625,
+          348.91171875
+        ],
+        [
+          615.01806640625,
+          348.91171875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-24-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "The script waits for data. The harness has no terminal.\nIts result channel cannot complete the outer session.",
+      "x": 507.07666015625,
+      "y": 387.90351562499995,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 195.8828125,
+      "h": 83.98359375
+    },
+    {
+      "id": "div-27-rule-a",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          7.13916015625,
+          464.8953125
+        ],
+        [
+          621.01806640625,
+          464.8953125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-27-rule-b",
+      "shape": "line",
+      "role": "rule",
+      "pts": [
+        [
+          7.13916015625,
+          468.8953125
+        ],
+        [
+          621.01806640625,
+          468.8953125
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "div-27",
+      "shape": "box",
+      "role": "divider",
+      "x0": 182.52880859375,
+      "y0": 458.576953125,
+      "x1": 445.62841796875,
+      "y1": 475.213671875
+    },
+    {
+      "id": "div-27-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Cancellation reaches the Ravel CLI",
+      "x": 314.07861328125,
+      "y": 466.8953125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 243.099609375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          556.38525390625,
+          503.53203125
+        ],
+        [
+          224.13525390625,
+          503.53203125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "INT (the fake harness sends it to its parent)",
+      "x": 390.26025390625,
+      "y": 499.53203125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 306.376953125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          530.16875
+        ],
+        [
+          556.38525390625,
+          530.16875
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt to stop the harness run’s group",
+      "x": 390.26025390625,
+      "y": 526.16875,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 283.845703125,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          586.32890625
+        ],
+        [
+          246.13525390625,
+          586.32890625
+        ],
+        [
+          246.13525390625,
+          604.32890625
+        ],
+        [
+          224.13525390625,
+          604.32890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Attempt harness reap, group confirmation\nand run-directory cleanup within the stop bound",
+      "x": 252.13525390625,
+      "y": 595.32890625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 102.3203125
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          691.4625000000001
+        ],
+        [
+          441.44384765625,
+          691.4625000000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Close protocol. Attempt bounded stop and wait",
+      "x": 332.78955078125,
+      "y": 687.4625000000001,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 205.30859375,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          729.2859375
+        ],
+        [
+          246.13525390625,
+          729.2859375
+        ],
+        [
+          246.13525390625,
+          747.2859375
+        ],
+        [
+          224.13525390625,
+          747.2859375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Drain bounded diagnostics. Attempt\nworker private-directory cleanup",
+      "x": 252.13525390625,
+      "y": 738.2859375,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "note-41",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          145.54150390625,
+          783.1093750000001
+        ],
+        [
+          605.01806640625,
+          783.1093750000001
+        ],
+        [
+          615.01806640625,
+          793.1093750000001
+        ],
+        [
+          615.01806640625,
+          899.4296875000001
+        ],
+        [
+          145.54150390625,
+          899.4296875000001
+        ]
+      ]
+    },
+    {
+      "id": "note-41-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          605.01806640625,
+          783.1093750000001
+        ],
+        [
+          605.01806640625,
+          793.1093750000001
+        ],
+        [
+          615.01806640625,
+          793.1093750000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-41-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Ravel confirms reap and removal before it reports them as complete.\nFailed attempts stay as diagnostics. No X certifies teardown here.\nRavel launches no final managed process and allocates no final-session channel.",
+      "x": 380.27978515625,
+      "y": 841.2695312500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 449.4765625,
+      "h": 102.3203125
+    },
+    {
+      "id": "msg-10",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          939.2531250000001
+        ],
+        [
+          246.13525390625,
+          939.2531250000001
+        ],
+        [
+          246.13525390625,
+          957.2531250000001
+        ],
+        [
+          224.13525390625,
+          957.2531250000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-10-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Keep cancellation primary. Retain any\noriginal failure and teardown problems",
+      "x": 252.13525390625,
+      "y": 948.2531250000001,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 147.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "msg-11",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          224.13525390625,
+          1081.06015625
+        ],
+        [
+          49.13525390625,
+          1081.06015625
+        ]
+      ],
+      "dashed": true,
+      "arrow": true
+    },
+    {
+      "id": "msg-11-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Report cancellation and raise INT again\n(shell status 130). Return no result to the caller",
+      "x": 136.63525390625,
+      "y": 1077.06015625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 163.0,
+      "h": 83.98359375
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 6.0,
+      "y0": 1097.06015625,
+      "x1": 622.1572265625,
+      "y1": 1219.38046875
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel processes. Grey: caller and evaluation harness.\nHarness cleanup precedes worker teardown. The worker itself sends no signal.\nThis example sends INT directly to the Ravel CLI. It is not keyboard delivery.\nHUP and TERM give shell statuses 129 and 143 by the same cancellation rule.\nIf signal propagation fails, Ravel exits with the numeric status for that signal.\nCancellation reports attempted teardown, not a guarantee that cleanup succeeded.",
+      "x": 314.07861328125,
+      "y": 1158.2203125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 588.1572265625,
+      "h": 102.3203125
+    }
+  ]
+}

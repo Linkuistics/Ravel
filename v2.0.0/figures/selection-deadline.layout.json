@@ -1,0 +1,568 @@
+{
+  "w": 636.4111328125,
+  "h": 599.3398437499999,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Deadline during a harness run — UML sequence",
+      "x": 318.20556640625,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 431.390625,
+      "h": 12.15625
+    },
+    {
+      "id": "life-cli",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          58.671875,
+          71.26875000000001
+        ],
+        [
+          58.671875,
+          526.0296874999999
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-runner",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          240.671875,
+          50.3125
+        ],
+        [
+          240.671875,
+          526.0296874999999
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-run",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          410.671875,
+          71.26875000000001
+        ],
+        [
+          410.671875,
+          526.0296874999999
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "life-worker",
+      "shape": "line",
+      "role": "lifeline",
+      "pts": [
+        [
+          565.3212890625,
+          50.3125
+        ],
+        [
+          565.3212890625,
+          526.0296874999999
+        ]
+      ],
+      "dashed": true,
+      "arrow": false
+    },
+    {
+      "id": "head-cli",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 6.0,
+      "y0": 26.156250000000004,
+      "x1": 111.34375,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-cli-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Ravel CLI\nlatch",
+      "x": 58.671875,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 83.34375,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-runner",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 199.26953125,
+      "y0": 26.15625,
+      "x1": 282.07421875,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-runner-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "runner",
+      "x": 240.671875,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 60.8046875,
+      "h": 12.15625
+    },
+    {
+      "id": "head-run",
+      "shape": "box",
+      "role": "external",
+      "x0": 339.36328125,
+      "y0": 26.156250000000004,
+      "x1": 481.98046875,
+      "y1": 71.26875000000001
+    },
+    {
+      "id": "head-run-label",
+      "shape": "text",
+      "role": "external",
+      "face": "name",
+      "text": "fake-advisor\nand its group",
+      "x": 410.671875,
+      "y": 48.712500000000006,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 120.6171875,
+      "h": 33.112500000000004
+    },
+    {
+      "id": "head-worker",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 500.2314453125,
+      "y0": 26.15625,
+      "x1": 630.4111328125,
+      "y1": 50.3125
+    },
+    {
+      "id": "head-worker-label",
+      "shape": "text",
+      "role": "ravel",
+      "face": "name",
+      "text": "Rhai worker",
+      "x": 565.3212890625,
+      "y": 38.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 108.1796875,
+      "h": 12.15625
+    },
+    {
+      "id": "msg-1",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          58.671875,
+          109.09218750000002
+        ],
+        [
+          80.671875,
+          109.09218750000002
+        ],
+        [
+          80.671875,
+          127.09218750000002
+        ],
+        [
+          58.671875,
+          127.09218750000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-1-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Deadline expires after 1 s. Host::settle sets StopRequest.",
+      "x": 86.671875,
+      "y": 118.09218750000002,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 142.0,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "msg-2",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          58.671875,
+          177.55234375000003
+        ],
+        [
+          240.671875,
+          177.55234375000003
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-2-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Stop harness run",
+      "x": 149.671875,
+      "y": 173.55234375000003,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 121.2666015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-3",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          240.671875,
+          222.52578125000002
+        ],
+        [
+          410.671875,
+          222.52578125000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-3-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "TERM to group and run",
+      "x": 325.671875,
+      "y": 218.52578125000002,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 158.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-4",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          410.671875,
+          236.52578125000002
+        ],
+        [
+          432.671875,
+          236.52578125000002
+        ],
+        [
+          432.671875,
+          254.52578125000002
+        ],
+        [
+          410.671875,
+          254.52578125000002
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-4-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Trap writes note",
+      "x": 438.671875,
+      "y": 245.52578125000002,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 114.6494140625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-5",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          410.671875,
+          281.1625
+        ],
+        [
+          58.671875,
+          281.1625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-5-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Signal variant: trap sends TERM. Latch keeps it.",
+      "x": 234.671875,
+      "y": 277.1625,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 336.93359375,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-6",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          240.671875,
+          326.1359375
+        ],
+        [
+          410.671875,
+          326.1359375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-6-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "After 5 s: KILL to group and run",
+      "x": 325.671875,
+      "y": 322.1359375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 158.0,
+      "h": 28.9734375
+    },
+    {
+      "id": "msg-7",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          240.671875,
+          389.44609375
+        ],
+        [
+          410.671875,
+          389.44609375
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-7-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Two group KILL attempts, reap and group query",
+      "x": 325.671875,
+      "y": 385.44609375,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 158.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "msg-8",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          58.671875,
+          416.0828125
+        ],
+        [
+          565.3212890625,
+          416.0828125
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-8-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "TERM, then KILL after 1 s if needed, then reap",
+      "x": 311.99658203125,
+      "y": 412.0828125,
+      "anchor": "south",
+      "align": "center",
+      "wrapped": true,
+      "w": 324.916015625,
+      "h": 10.63671875
+    },
+    {
+      "id": "msg-9",
+      "shape": "line",
+      "role": "relation",
+      "pts": [
+        [
+          58.671875,
+          444.737890625
+        ],
+        [
+          80.671875,
+          444.737890625
+        ],
+        [
+          80.671875,
+          462.737890625
+        ],
+        [
+          58.671875,
+          462.737890625
+        ]
+      ],
+      "dashed": false,
+      "arrow": true
+    },
+    {
+      "id": "msg-9-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Remove private directories. Read latch again.",
+      "x": 86.671875,
+      "y": 453.737890625,
+      "anchor": "west",
+      "align": "left",
+      "wrapped": true,
+      "w": 142.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "note-31",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          6.0,
+          489.39296874999997
+        ],
+        [
+          620.4111328125,
+          489.39296874999997
+        ],
+        [
+          630.4111328125,
+          499.39296874999997
+        ],
+        [
+          630.4111328125,
+          514.0296874999999
+        ],
+        [
+          6.0,
+          514.0296874999999
+        ]
+      ]
+    },
+    {
+      "id": "note-31-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          620.4111328125,
+          489.39296874999997
+        ],
+        [
+          620.4111328125,
+          499.39296874999997
+        ],
+        [
+          630.4111328125,
+          499.39296874999997
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "note-31-label",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "No signal: selection_timeout, 124. With TERM: selection_cancelled, 143.",
+      "x": 318.20556640625,
+      "y": 501.7113281249999,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 604.4111328125,
+      "h": 10.63671875
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 39.67529296875,
+      "y0": 532.0296874999999,
+      "x1": 596.73583984375,
+      "y1": 599.3398437499999
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: Ravel. Grey: harness run and group. Cleanup steps are attempts.\nSignal arrows are attempts. The second example adds the TERM to the CLI.\nNo final managed process starts.",
+      "x": 318.20556640625,
+      "y": 565.684765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 529.060546875,
+      "h": 47.31015625
+    }
+  ]
+}

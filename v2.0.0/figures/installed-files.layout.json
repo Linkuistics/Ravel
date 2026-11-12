@@ -1,0 +1,850 @@
+{
+  "w": 640.359375,
+  "h": 1064.93828125,
+  "elements": [
+    {
+      "id": "title",
+      "shape": "text",
+      "role": "label",
+      "face": "title",
+      "text": "Installed files — UML deployment view",
+      "x": 320.1796875,
+      "y": 6.078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 348.0390625,
+      "h": 12.15625
+    },
+    {
+      "id": "host",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          4.7509765625,
+          40.15625
+        ],
+        [
+          18.7509765625,
+          26.15625
+        ],
+        [
+          635.6083984375,
+          26.15625
+        ],
+        [
+          635.6083984375,
+          837.27109375
+        ],
+        [
+          621.6083984375,
+          851.27109375
+        ],
+        [
+          4.7509765625,
+          851.27109375
+        ]
+      ]
+    },
+    {
+      "id": "host-front",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          4.7509765625,
+          40.15625
+        ],
+        [
+          621.6083984375,
+          40.15625
+        ],
+        [
+          621.6083984375,
+          851.27109375
+        ],
+        [
+          4.7509765625,
+          851.27109375
+        ]
+      ]
+    },
+    {
+      "id": "host-edge",
+      "shape": "line",
+      "role": "boundary",
+      "pts": [
+        [
+          621.6083984375,
+          40.15625
+        ],
+        [
+          635.6083984375,
+          26.15625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "host-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Host",
+      "x": 313.1796875,
+      "y": 54.234375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 36.4296875,
+      "h": 12.15625
+    },
+    {
+      "id": "prefix",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          22.7509765625,
+          78.3125
+        ],
+        [
+          285.0869140625,
+          78.3125
+        ],
+        [
+          293.0869140625,
+          102.46875
+        ],
+        [
+          603.6083984375,
+          102.46875
+        ],
+        [
+          603.6083984375,
+          523.8578125
+        ],
+        [
+          22.7509765625,
+          523.8578125
+        ]
+      ]
+    },
+    {
+      "id": "prefix-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "PREFIX (installation directory)",
+      "x": 153.9189453125,
+      "y": 90.390625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 238.3359375,
+      "h": 12.15625
+    },
+    {
+      "id": "front",
+      "shape": "box",
+      "role": "ravel",
+      "x0": 40.7509765625,
+      "y0": 144.28828124999998,
+      "x1": 213.8583984375,
+      "y1": 231.93515624999998
+    },
+    {
+      "id": "front-icon",
+      "shape": "polygon",
+      "role": "ravel",
+      "pts": [
+        [
+          194.8583984375,
+          151.28828124999998
+        ],
+        [
+          201.8583984375,
+          151.28828124999998
+        ],
+        [
+          206.8583984375,
+          156.28828124999998
+        ],
+        [
+          206.8583984375,
+          167.28828124999998
+        ],
+        [
+          194.8583984375,
+          167.28828124999998
+        ]
+      ]
+    },
+    {
+      "id": "front-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          201.8583984375,
+          151.28828124999998
+        ],
+        [
+          201.8583984375,
+          156.28828124999998
+        ],
+        [
+          206.8583984375,
+          156.28828124999998
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "front-text",
+      "shape": "text",
+      "role": "ravel",
+      "face": "body",
+      "text": "bin/ravel\nRavel CLI\nwith linked runner\nand Rhai engine",
+      "x": 127.3046875,
+      "y": 188.11171875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 127.107421875,
+      "h": 65.64687500000001
+    },
+    {
+      "id": "share",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          283.8583984375,
+          120.46875
+        ],
+        [
+          397.7412109375,
+          120.46875
+        ],
+        [
+          405.7412109375,
+          144.625
+        ],
+        [
+          585.6083984375,
+          144.625
+        ],
+        [
+          585.6083984375,
+          505.8578125
+        ],
+        [
+          283.8583984375,
+          505.8578125
+        ]
+      ]
+    },
+    {
+      "id": "share-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "share/ravel",
+      "x": 340.7998046875,
+      "y": 132.546875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 89.8828125,
+      "h": 12.15625
+    },
+    {
+      "id": "record",
+      "shape": "box",
+      "role": "external",
+      "x0": 356.546875,
+      "y0": 162.625,
+      "x1": 512.919921875,
+      "y1": 213.5984375
+    },
+    {
+      "id": "record-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          493.919921875,
+          169.625
+        ],
+        [
+          500.919921875,
+          169.625
+        ],
+        [
+          505.919921875,
+          174.625
+        ],
+        [
+          505.919921875,
+          185.625
+        ],
+        [
+          493.919921875,
+          185.625
+        ]
+      ]
+    },
+    {
+      "id": "record-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          500.919921875,
+          169.625
+        ],
+        [
+          500.919921875,
+          174.625
+        ],
+        [
+          505.919921875,
+          174.625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "record-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "installation.json\nHomebrew only",
+      "x": 434.7333984375,
+      "y": 188.11171875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 110.373046875,
+      "h": 28.9734375
+    },
+    {
+      "id": "examples-dir",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          352.63232421875,
+          239.5984375
+        ],
+        [
+          453.83544921875,
+          239.5984375
+        ],
+        [
+          461.83544921875,
+          263.7546875
+        ],
+        [
+          516.83447265625,
+          263.7546875
+        ],
+        [
+          516.83447265625,
+          369.06484375
+        ],
+        [
+          352.63232421875,
+          369.06484375
+        ]
+      ]
+    },
+    {
+      "id": "examples-dir-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "examples",
+      "x": 403.23388671875,
+      "y": 251.6765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 77.203125,
+      "h": 12.15625
+    },
+    {
+      "id": "examples",
+      "shape": "box",
+      "role": "external",
+      "x0": 370.63232421875,
+      "y0": 281.7546875,
+      "x1": 498.83447265625,
+      "y1": 351.06484375
+    },
+    {
+      "id": "examples-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          479.83447265625,
+          288.7546875
+        ],
+        [
+          486.83447265625,
+          288.7546875
+        ],
+        [
+          491.83447265625,
+          293.7546875
+        ],
+        [
+          491.83447265625,
+          304.7546875
+        ],
+        [
+          479.83447265625,
+          304.7546875
+        ]
+      ]
+    },
+    {
+      "id": "examples-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          486.83447265625,
+          288.7546875
+        ],
+        [
+          486.83447265625,
+          293.7546875
+        ],
+        [
+          491.83447265625,
+          293.7546875
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "examples-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "static.rhai\nsample.rhai\nllm.rhai",
+      "x": 434.7333984375,
+      "y": 316.409765625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 82.2021484375,
+      "h": 47.31015625
+    },
+    {
+      "id": "notices-dir",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          301.8583984375,
+          395.06484375
+        ],
+        [
+          383.4833984375,
+          395.06484375
+        ],
+        [
+          391.4833984375,
+          419.22109375
+        ],
+        [
+          567.6083984375,
+          419.22109375
+        ],
+        [
+          567.6083984375,
+          487.8578125
+        ],
+        [
+          301.8583984375,
+          487.8578125
+        ]
+      ]
+    },
+    {
+      "id": "notices-dir-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "notices",
+      "x": 342.6708984375,
+      "y": 407.14296875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 57.625,
+      "h": 12.15625
+    },
+    {
+      "id": "notices",
+      "shape": "box",
+      "role": "external",
+      "x0": 319.8583984375,
+      "y0": 437.22109375,
+      "x1": 549.6083984375,
+      "y1": 469.8578125
+    },
+    {
+      "id": "notices-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          530.6083984375,
+          444.22109375
+        ],
+        [
+          537.6083984375,
+          444.22109375
+        ],
+        [
+          542.6083984375,
+          449.22109375
+        ],
+        [
+          542.6083984375,
+          460.22109375
+        ],
+        [
+          530.6083984375,
+          460.22109375
+        ]
+      ]
+    },
+    {
+      "id": "notices-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          537.6083984375,
+          444.22109375
+        ],
+        [
+          537.6083984375,
+          449.22109375
+        ],
+        [
+          542.6083984375,
+          449.22109375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "notices-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "THIRD-PARTY-NOTICES.md",
+      "x": 434.7333984375,
+      "y": 453.539453125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 183.75,
+      "h": 10.63671875
+    },
+    {
+      "id": "skill-keg",
+      "shape": "polygon",
+      "role": "note",
+      "pts": [
+        [
+          190.09716796875,
+          549.8578125
+        ],
+        [
+          338.85498046875,
+          549.8578125
+        ],
+        [
+          346.85498046875,
+          574.0140625
+        ],
+        [
+          436.26220703125,
+          574.0140625
+        ],
+        [
+          436.26220703125,
+          737.9609375
+        ],
+        [
+          190.09716796875,
+          737.9609375
+        ]
+      ]
+    },
+    {
+      "id": "skill-keg-name",
+      "shape": "text",
+      "role": "label",
+      "face": "head",
+      "text": "Skill source keg",
+      "x": 264.47607421875,
+      "y": 561.9359375,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 124.7578125,
+      "h": 12.15625
+    },
+    {
+      "id": "payload",
+      "shape": "box",
+      "role": "external",
+      "x0": 208.09716796875,
+      "y0": 592.0140625,
+      "x1": 418.26220703125,
+      "y1": 642.9875000000001
+    },
+    {
+      "id": "payload-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          399.26220703125,
+          599.0140625
+        ],
+        [
+          406.26220703125,
+          599.0140625
+        ],
+        [
+          411.26220703125,
+          604.0140625
+        ],
+        [
+          411.26220703125,
+          615.0140625
+        ],
+        [
+          399.26220703125,
+          615.0140625
+        ]
+      ]
+    },
+    {
+      "id": "payload-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          406.26220703125,
+          599.0140625
+        ],
+        [
+          406.26220703125,
+          604.0140625
+        ],
+        [
+          411.26220703125,
+          604.0140625
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "payload-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "libexec/skill-sources/ID/\nSource payload",
+      "x": 313.1796875,
+      "y": 617.50078125,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 164.1650390625,
+      "h": 28.9734375
+    },
+    {
+      "id": "alias",
+      "shape": "box",
+      "role": "external",
+      "x0": 221.50244140625,
+      "y0": 668.9875000000001,
+      "x1": 404.85693359375,
+      "y1": 719.9609375000001
+    },
+    {
+      "id": "alias-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          385.85693359375,
+          675.9875000000001
+        ],
+        [
+          392.85693359375,
+          675.9875000000001
+        ],
+        [
+          397.85693359375,
+          680.9875000000001
+        ],
+        [
+          397.85693359375,
+          691.9875000000001
+        ],
+        [
+          385.85693359375,
+          691.9875000000001
+        ]
+      ]
+    },
+    {
+      "id": "alias-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          392.85693359375,
+          675.9875000000001
+        ],
+        [
+          392.85693359375,
+          680.9875000000001
+        ],
+        [
+          397.85693359375,
+          680.9875000000001
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "alias-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "share/ravel/skills/ID\nAlias to payload",
+      "x": 313.1796875,
+      "y": 694.4742187500001,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 137.3544921875,
+      "h": 28.9734375
+    },
+    {
+      "id": "shared",
+      "shape": "box",
+      "role": "external",
+      "x0": 185.1796875,
+      "y0": 763.9609375,
+      "x1": 441.1796875,
+      "y1": 833.27109375
+    },
+    {
+      "id": "shared-icon",
+      "shape": "polygon",
+      "role": "external",
+      "pts": [
+        [
+          422.1796875,
+          770.9609375
+        ],
+        [
+          429.1796875,
+          770.9609375
+        ],
+        [
+          434.1796875,
+          775.9609375
+        ],
+        [
+          434.1796875,
+          786.9609375
+        ],
+        [
+          422.1796875,
+          786.9609375
+        ]
+      ]
+    },
+    {
+      "id": "shared-icon-fold",
+      "shape": "line",
+      "role": "fold",
+      "pts": [
+        [
+          429.1796875,
+          770.9609375
+        ],
+        [
+          429.1796875,
+          775.9609375
+        ],
+        [
+          434.1796875,
+          775.9609375
+        ]
+      ],
+      "dashed": false,
+      "arrow": false
+    },
+    {
+      "id": "shared-text",
+      "shape": "text",
+      "role": "external",
+      "face": "body",
+      "text": "Shared prefix: share/ravel/skills/ID\nLink to keg alias",
+      "x": 313.1796875,
+      "y": 798.616015625,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": true,
+      "w": 210.0,
+      "h": 47.31015625
+    },
+    {
+      "id": "key",
+      "shape": "box",
+      "role": "key",
+      "x0": 6.0,
+      "y0": 869.27109375,
+      "x1": 634.359375,
+      "y1": 1064.93828125
+    },
+    {
+      "id": "key-text",
+      "shape": "text",
+      "role": "label",
+      "face": "body",
+      "text": "Blue: the executable. Grey: other files. Outlines group directories.\nThe file group lists separate files relative to share/ravel/examples.\nThe CLI starts the same bin/ravel as a separate Rhai worker and checks its identity.\nA skill source is installed by its own formula, not by Ravel.\nThe shared prefix link resolves through the keg alias to the source payload.\nThe worker is a process role, not another installed executable.\nThe owner copies and edits the examples. sample.rhai and llm.rhai import static.rhai.\nInstalled execution needs no separate language runtime or source checkout.\nTHIRD-PARTY-NOTICES.md lists notices for Rust dependencies.\nRelease archives additionally carry README.md and LICENSE at their root.",
+      "x": 320.1796875,
+      "y": 967.1046875,
+      "anchor": "center",
+      "align": "center",
+      "wrapped": false,
+      "w": 600.359375,
+      "h": 175.6671875
+    }
+  ]
+}
