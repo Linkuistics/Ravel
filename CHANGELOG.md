@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.0.0
+
 Ravel 2.0.0 changes the configuration format from TypeScript to Rhai. A
 `policy.ts` entry refuses as `config_format_retired`, exit 3, and its remedy
 names chapter 4 of the book, "Write a configuration script". The settings file

@@ -52,7 +52,7 @@ Before you use the examples of this book, compare the version output with
 this version line:
 
 ```text
-ravel @RAVEL_BOOK_VERSION@
+ravel 2.0.0
 ```
 
 The release procedure writes the version of the release into that line. If
