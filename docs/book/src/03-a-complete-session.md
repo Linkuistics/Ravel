@@ -43,21 +43,21 @@ Fragment: installation and version check. This block omits Homebrew setup
 and the installation output.
 
 ```sh
+brew tap linkuistics/taps
+brew trust linkuistics/taps
 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --skip-link linkuistics/taps/ravel@2
 export PATH="$(brew --prefix ravel@2)/bin:$PATH"
 ravel --version
 ```
 
-That installation needs no `brew trust` step. Homebrew does not trust a tap
-when `brew tap` adds it. A fully qualified name such as
-`linkuistics/taps/ravel@2` trusts the formula that it names. The Ravel
-formulae load no other formula from the tap.
-
-Grove's formula is different,
-because it loads its dependency `ravel` from the tap. Grove's README
-therefore gives `brew trust linkuistics/taps` before its first install.
-Homebrew's [Tap Trust](https://docs.brew.sh/Tap-Trust#installing-from-a-tap)
-page states the rules.
+Homebrew does not trust a tap when `brew tap` adds it. A fully qualified
+name such as `linkuistics/taps/ravel@2` trusts only the formula that it
+names. To install a keg-only versioned formula, Homebrew also loads the
+unversioned formula, here `ravel`. It refuses that formula from a tap that
+is not trusted. The `brew trust` step therefore comes before the first
+installation. Homebrew's
+[Tap Trust](https://docs.brew.sh/Tap-Trust#installing-from-a-tap) page
+states the rules.
 
 Before you use the examples of this book, compare the version output with
 this version line:
