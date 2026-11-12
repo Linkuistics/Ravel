@@ -65,10 +65,17 @@ result in the release task's evidence. No second release-state database is neede
 
 The implementation keeps these rules in the following places:
 
-- `scripts/release-channel.sh` owns the mapping and the admission rules. Every
-  script that writes or reads a formula takes `--channel` as an argument and
-  reads no environment value for it. Only `release-publish.sh --check-tap`
-  takes no channel, because it reads the tap state alone.
+- `scripts/release-channel.sh` owns the mapping and the admission rules. The
+  other scripts read no environment value for the channel. Each script of the
+  cut that writes or reads one formula takes `--channel` as an argument. Three
+  scripts are exceptions:
+  - `release-publish.sh --check-tap` takes no channel, because it reads the
+    tap state alone.
+  - `release-formula.sh` takes an optional channel as its second positional
+    argument. It renders and tests both formulae on every run. Without a
+    channel it keeps both formulae, and with one it keeps only that formula.
+  - `release-promote.sh` takes no channel. A promotion always reads
+    `ravel@2.rb` and writes `ravel.rb` and `ravel@2.rb`.
 - The task requires `CHANNEL` for every version. Thus omission refuses at the
   first cut of 2.0.0 and at every later cut.
 - `versioned-2` publishes only major 2. It refuses after `Formula/ravel.rb`

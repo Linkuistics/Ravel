@@ -2,11 +2,52 @@
 
 ## Unreleased
 
+Ravel 2.0.0 changes the configuration format from TypeScript to Rhai. A
+`policy.ts` entry refuses as `config_format_retired`, exit 3, and its remedy
+names chapter 4 of the book, "Write a configuration script". The settings file
+gains the keys `configEnv`, `harnesses`, `budgets` and `skills`. Scripts call
+the host functions of the `ravel` namespace and export schema 4. The release
+removes the Bun worker, and Ravel withdraws operating-system confinement.
+
+Ravel 2.0.0 also delivers skill directories to the session. Homebrew publishes
+2.0.0 first as the keg-only `ravel@2`, and unversioned `ravel` stays at 1.1.0.
+
+- Change the configuration format to Rhai. Ravel reads
+  `~/.config/ravel/config.rhai`, and it evaluates no TypeScript or
+  JavaScript. When the default Rhai entry is absent and `policy.ts` exists,
+  `start-session` refuses as `config_format_retired`, stage `authority`,
+  exit 3. A `--config` entry that names a `.ts`, `.mts`, `.cts`, `.js`, `.mjs`
+  or `.cjs` file refuses the same way. The remedy names `config.rhai` and
+  chapter 4, "Write a configuration script", which teaches the Rhai format.
+  No conversion tool exists, so convert each configuration by hand. The
+  shipped examples are `static.rhai`, `sample.rhai` and `llm.rhai`.
+- Add the settings keys `configEnv`, `harnesses` and `budgets`. `configEnv`
+  replaces `policyEnv`, and `--config-env` replaces `--policy-env`. Both grant
+  environment names to `ravel::env`. Ravel refuses `policyEnv` as
+  `settings_invalid`, exit 2, and `--policy-env` as an unknown option. Neither
+  is an alias. `harnesses` maps a name to a harness `program` and optional
+  `capabilities`. `budgets.harnessRuns` sets the harness runs of one
+  evaluation, from 0 to 16. The default is 0, so a script runs no harness
+  until the owner sets a budget. The entries below describe the `skills` key.
+- Add the host functions of the `ravel` namespace: `read_text`, `read_json`,
+  `json_parse`, `json_encode`, `json_check`, `uuid_v4`, `path_resolve`,
+  `path_parent`, `env`, `harnesses`, `remaining` and `run_harness`. Each one
+  is available in `load_context`, in `select` and at the top level of a
+  module. An LLM call is a harness run of Claude Code or Codex with the
+  owner's sign-in. Ravel makes no request to a model API itself.
+- Carry one explicit release channel through the release tasks.
+  `release:patch`, `release:minor` and `release:major` require
+  `CHANNEL=versioned-2` or `CHANNEL=unversioned`, with no default. The
+  `versioned-2` channel publishes the keg-only `ravel@2`. Add
+  `task release:promote VERSION=X.Y.Z`. It publishes a complete `ravel@2`
+  release as unversioned `ravel`, with no cut, build, tag or book change.
+  `task release:lifecycle:test` tests the channels and the promotion with
+  their mutants.
 - Keep watching after a group stop answers `EPERM`. On macOS, the TERM of a
   sent result can meet the child's own exit. During the exit teardown, the
   group refuses the signal, but the exit is not visible yet. Ravel 1.1 then
   ended the session as `supervision_failed`, exit 5, without the result. The
-  report now waits for the reap, terminal recovery and confirmed group
+  report now waits for the reap, terminal recovery and a checked group
   absence, as a report after the exit does. A refused stop to the direct
   child, or another error, still fails at once.
 - Read the default skill directory. When the settings name no
@@ -106,8 +147,8 @@
   refuses as `skill_resource_invalid`.
 - Bound each skill resolution. At most 16 sources, 256 search directories and
   256 mandatory files can be configured. A mandatory file has at most 65,536
-  bytes, a regular file 16 MiB, one source 128 MiB, all sources 512 MiB and
-  one source 20,000 entries. The descriptor and the discovery instructions
+  bytes, and a regular file 16 MiB. One source has at most 128 MiB and 20,000
+  entries, and all sources together 512 MiB. The descriptor and the discovery instructions
   each have at most 1 MiB. A larger value refuses as `skill_limit_exceeded`,
   exit 3, with the value, the bound and the subject. Ravel never truncates or
   omits guidance to meet a bound.
@@ -147,6 +188,8 @@
   fails when the installations or the real Ravel settings and cache change.
 
 ## v1.1.0
+
+<!-- tc: off because the notes of published releases stay as they were published -->
 
 - Correct five failure paths. Only the behaviour after a failure changes. The
   command-line arguments, the owner configuration and the results of a

@@ -9,27 +9,26 @@ instructions.
 
 ## Status and ownership
 
-This specification states the directory-delivery contract of the combined
-Ravel 2.0.0. It is the contract of the `skill-directory-delivery` line. Ravel
-`main` does not hold this feature, and no release contains it.
+This specification states the directory-delivery contract of Ravel 2.0.0,
+which combines it with the Rhai configuration script. Ravel 2.0.0 implements
+the whole contract. That includes the
+[default skill directory](#default-skill-directory) and the refusal of a source
+`type` other than `local` in [settings](#settings).
 
 Skill sources are local directories. Ravel reads them, and it does not fetch,
 install or update them, as
 [skill sources are local directories](../adr/skill-sources-are-local-directories.md)
 records.
 
-The line implements this contract, with the refusal of a source `type` other
-than `local` in [settings](#settings). The
-[default skill directory](#default-skill-directory) joined the contract before
-the 2.0.0 cut, and the line implements it. The formula template writes the
-installation record, and its test reads it. The channel tooling that renders
-`ravel@2` from that template is ahead, as
-[release channels](release-channels.md) states.
+The formula template writes the installation record, and the formula test
+reads it. [Release channels](release-channels.md) renders `ravel@2` and
+`ravel` from that one template.
 
-The [actual harness trials](#actual-harness-trials) are still ahead.
-The [design evidence](../skill-discovery-design-evidence.md)
-records the source observations, the exact base of the line and the handoff of
-each stage.
+Grove's `docs/common-loading-acceptance-record.md` holds the
+[actual harness trials](#actual-harness-trials) of Claude Code and Codex. They
+ran staged builds before the 2.0.0 cut, and each case states its limit. The
+[design evidence](../skill-discovery-design-evidence.md) records the source
+observations, the base of each stage and the handoff of each stage.
 
 Each rule has one owner:
 

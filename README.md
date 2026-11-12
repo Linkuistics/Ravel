@@ -25,13 +25,24 @@ configuration script. Its local runner supervises the selected process. These
 parts are built and versioned together as one tool.
 
 Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
+A third command, `ravel skills resolve`, prints the skill directories that a
+session receives. Ravel 2.0.0 adds the directories of the owner's local skill
+sources to the prompt of each session, and the agent reads the skills that
+apply.
+
+Homebrew installs Ravel 2.0.0 as the keg-only `ravel@2`. Unversioned `ravel`
+stays at 1.1.0 until callers accept 2.0.0. [Chapter 3](docs/book/src/03-a-complete-session.md)
+gives the installation command.
 
 The book is the guide to Ravel. It says what Ravel is for, how to write a
 configuration script and how to run sessions. It also explains the parts of Ravel, how
 to develop it and how to deliver it.
 
 The book is in this repository checkout under `docs/book/`. A release archive
-does not have it. To read it from a checkout, run `task setup` one time. Then
+does not have it. Each release puts its book on
+[GitHub Pages](https://linkuistics.github.io/Ravel/).
+
+To read the book from a checkout, run `task setup` one time. Then
 run `task docs:book` to build the book and serve it on localhost. You can also
 read the Markdown in `docs/book/src/`. Start at
 [chapter 1](docs/book/src/01-what-ravel-is-for.md).
