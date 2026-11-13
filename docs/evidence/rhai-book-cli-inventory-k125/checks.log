@@ -1,0 +1,92 @@
+COMMAND: mise exec -- task docs:book:build
+task: [docs:book:build] bash scripts/book.sh build
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/AgenticOrchestration/Ravel.gh-issue-2/docs/book/../../target/book`
+STATUS: 0
+COMMAND: mise exec -- task docs:excerpts
+task: [docs:excerpts] bash scripts/excerpts.sh check 
+excerpts: 22 passed, 0 failed; 0 page error(s)
+STATUS: 0
+COMMAND: mise exec -- task docs:ste
+task: [docs:ste] bash scripts/ste.sh 
+ste: docs/book/src/01-what-ravel-is-for.md: 0 problems
+ste: docs/book/src/02-actors-and-words.md: 0 problems
+ste: docs/book/src/03-a-complete-session.md: 0 problems
+ste: docs/book/src/04-write-a-configuration-script.md: 0 problems
+ste: docs/book/src/05-running-sessions.md: 0 problems
+ste: docs/book/src/06-reference.md: 0 problems
+ste: docs/book/src/07-the-parts-of-ravel.md: 0 problems
+ste: docs/book/src/08-follow-a-session-through-the-code.md: 0 problems
+ste: docs/book/src/09-jobs-signals-and-the-terminal.md: 0 problems
+ste: docs/book/src/10-develop-ravel.md: 0 problems
+ste: docs/book/src/11-deliver-ravel.md: 0 problems
+ste: docs/book/src/SUMMARY.md: 0 problems
+ste: CONTEXT.md: 0 problems
+ste: README.md: 0 problems
+ste: docs/book/src/figures/escalation-timing.layout.json: 0 problems
+ste: docs/book/src/figures/evaluation-harness.layout.json: 0 problems
+ste: docs/book/src/figures/host-bridge.layout.json: 0 problems
+ste: docs/book/src/figures/inherited-result-path.layout.json: 0 problems
+ste: docs/book/src/figures/installed-files.layout.json: 0 problems
+ste: docs/book/src/figures/outcome-precedence.layout.json: 0 problems
+ste: docs/book/src/figures/process-authority.layout.json: 0 problems
+ste: docs/book/src/figures/release-delivery.layout.json: 0 problems
+ste: docs/book/src/figures/review-flow.layout.json: 0 problems
+ste: docs/book/src/figures/routing-notice.layout.json: 0 problems
+ste: docs/book/src/figures/selection-cancellation.layout.json: 0 problems
+ste: docs/book/src/figures/selection-deadline.layout.json: 0 problems
+ste: docs/book/src/figures/session-authority.layout.json: 0 problems
+ste: docs/book/src/figures/session-code-path.layout.json: 0 problems
+ste: docs/book/src/figures/session-outcomes.layout.json: 0 problems
+ste: docs/book/src/figures/settled-exit-status.layout.json: 0 problems
+ste: docs/book/src/figures/source-components.layout.json: 0 problems
+ste: docs/book/src/figures/successful-session.layout.json: 0 problems
+ste: docs/book/src/figures/supervision-cancellation.layout.json: 0 problems
+ste: docs/book/src/figures/system-context.layout.json: 0 problems
+ste: docs/book/src/figures/terminal-lending-recovery.layout.json: 0 problems
+ste: 0 problems in 35 files
+STATUS: 0
+COMMAND: mise exec -- task docs:breaks
+task: [docs:breaks] bash scripts/breaks.sh 
+breaks: docs/book/src/01-what-ravel-is-for.md: 0 runs longer than 450 words
+breaks: docs/book/src/02-actors-and-words.md: 0 runs longer than 450 words
+breaks: docs/book/src/03-a-complete-session.md: 0 runs longer than 450 words
+breaks: docs/book/src/04-write-a-configuration-script.md: 0 runs longer than 450 words
+breaks: docs/book/src/05-running-sessions.md: 0 runs longer than 450 words
+breaks: docs/book/src/06-reference.md: 0 runs longer than 450 words
+breaks: docs/book/src/07-the-parts-of-ravel.md: 0 runs longer than 450 words
+breaks: docs/book/src/08-follow-a-session-through-the-code.md: 0 runs longer than 450 words
+breaks: docs/book/src/09-jobs-signals-and-the-terminal.md: 0 runs longer than 450 words
+breaks: docs/book/src/10-develop-ravel.md: 0 runs longer than 450 words
+breaks: docs/book/src/11-deliver-ravel.md: 0 runs longer than 450 words
+breaks: 0 runs longer than 450 words in 11 files
+STATUS: 0
+COMMAND: mise exec -- task book:integrity
+book-integrity: fresh fetch, verified-cache reuse, corrupt-cache recovery and the refusals of a corrupt download, a wrong pin and a failed download passed (mdbook 0.5.4)
+STATUS: 0
+COMMAND: mise exec -- task test:cli
+task: [test:cli] cargo nextest run --locked -p ravel --test cli 
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.14s
+────────────
+ Nextest run ID 93f3e0a2-71b1-4972-b6e5-a7820567b6e2 with nextest profile: default
+    Starting 14 tests across 1 binary (1 test skipped)
+        PASS [   0.188s] ( 1/14) ravel::cli every_start_session_option_prints_a_description
+        PASS [   0.196s] ( 2/14) ravel::cli end_requires_one_result_and_live_inherited_context
+        PASS [   0.205s] ( 3/14) ravel::cli two_verbs_help_version_and_no_compatibility_commands
+        PASS [   0.218s] ( 4/14) ravel::cli settings_bounds_and_discarded_storage_refuse_without_launching
+        PASS [   0.242s] ( 5/14) ravel::cli terminal_recovery_public_cli_failed_exec
+        PASS [   0.734s] ( 6/14) ravel::cli context_reads_params_choice_and_environment_grants_reach_config
+        PASS [   0.764s] ( 7/14) ravel::cli refused_config_never_launches_and_unreported_exit_is_failure
+        PASS [   0.776s] ( 8/14) ravel::cli withdrawn_confinement_flags_refuse_before_settings_and_a_prompt_word_is_caller_data
+        PASS [   1.202s] ( 9/14) ravel::cli selection_deadline_stops_real_worker
+        PASS [   1.244s] (10/14) ravel::cli nested_command_context_is_isolated_and_first_result_wins
+        PASS [   1.401s] (11/14) ravel::cli worker_private_cleanup_failure_blocks_admission
+        PASS [   1.403s] (12/14) ravel::cli unwritable_result_stdout_refuses_before_launch
+        PASS [   1.419s] (13/14) ravel::cli cancellation_during_selection_launches_nothing_and_during_session_reaps_group
+        PASS [   2.963s] (14/14) ravel::cli routed_result_is_exact_prompt_is_unchanged_and_child_stdout_is_separate
+────────────
+     Summary [   2.964s] 14 tests run: 14 passed, 1 skipped
+STATUS: 0
+Evidence assertions: exact root help fragment; 13 public start-session options excluding generated help; explicit help succeeds; all 196 subject digests unchanged.
+STATUS: 0

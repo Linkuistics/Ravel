@@ -1,0 +1,238 @@
+{
+  "binarySha256": "adf39f3174145aaf46deac0d169aabc06ac7330507bfb9e0ba01ec03d56c1b17",
+  "cases": [
+    {
+      "argv": [
+        "ravel"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "Route and supervise a session, returning its opaque result\n\nUsage: ravel <COMMAND>\n\nCommands:\n  start-session  Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process\n  end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session\n  skills         Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n\nExamples:\n  ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'\n  ravel end-session done\n  ravel skills resolve\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "--help"
+      ],
+      "status": 0,
+      "stdout": "Route and supervise a session, returning its opaque result\n\nUsage: ravel <COMMAND>\n\nCommands:\n  start-session  Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process\n  end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session\n  skills         Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n\nExamples:\n  ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'\n  ravel end-session done\n  ravel skills resolve\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "-h"
+      ],
+      "status": 0,
+      "stdout": "Route and supervise a session, returning its opaque result\n\nUsage: ravel <COMMAND>\n\nCommands:\n  start-session  Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process\n  end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session\n  skills         Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nOptions:\n  -h, --help     Print help\n  -V, --version  Print version\n\nExamples:\n  ravel start-session --kind feature --prompt 'Implement the parser; finish with ravel end-session done'\n  ravel end-session done\n  ravel skills resolve\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "--version"
+      ],
+      "status": 0,
+      "stdout": "ravel 2.0.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "-V"
+      ],
+      "status": 0,
+      "stdout": "ravel 2.0.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "--help"
+      ],
+      "status": 0,
+      "stdout": "Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process\n\nUsage: ravel start-session [OPTIONS] --kind <TEXT>\n\nOptions:\n      --kind <TEXT>            The caller's session kind: any nonempty token, given to the configuration script's select as it is\n      --prompt <TEXT>          The harness prompt, given to the configuration script's select byte for byte as originalPrompt; run needs this or --prompt-file\n      --prompt-file <PATH>     Read the harness prompt from this file, relative to the current directory\n      --task-file <PATH>       The task's file, relative to the current directory; supplies no kind or identity\n      --task-id <ID>           The task's stable identity: opaque UTF-8, at most 1024 bytes\n      --config <PATH>          Evaluate this Rhai configuration entry instead of ~/.config/ravel/config.rhai; relative to the current directory\n      --param <NAME=VALUE>     Caller data for the configuration script's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes\n      --context <PATH>         A version-1 JSON context document for the configuration script, read as data; relative to the current directory\n      --timeout-ms <MS>        Stop the configuration script and launch nothing (exit 124) if selection takes longer; 1000 to 600000, replacing the timeoutMs owner setting [default: 30000]\n      --context-bytes <BYTES>  Refuse a context delivered to selection that encodes to more bytes; 1 to 8388608, replacing the contextBytes owner setting [default: 262144]\n      --config-env <NAME>      Let the configuration script read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the configEnv setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value\n      --exit-dir <DIR>         Allocate the private session channel beneath this existing writable directory\n      --json                   Render configuration refusals and routing notices as JSON on stderr\n  -h, --help                   Print help\n\nOnly the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./config.rhai --param profile=careful --prompt 'Check and end with a result'\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "-h"
+      ],
+      "status": 0,
+      "stdout": "Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process\n\nUsage: ravel start-session [OPTIONS] --kind <TEXT>\n\nOptions:\n      --kind <TEXT>            The caller's session kind: any nonempty token, given to the configuration script's select as it is\n      --prompt <TEXT>          The harness prompt, given to the configuration script's select byte for byte as originalPrompt; run needs this or --prompt-file\n      --prompt-file <PATH>     Read the harness prompt from this file, relative to the current directory\n      --task-file <PATH>       The task's file, relative to the current directory; supplies no kind or identity\n      --task-id <ID>           The task's stable identity: opaque UTF-8, at most 1024 bytes\n      --config <PATH>          Evaluate this Rhai configuration entry instead of ~/.config/ravel/config.rhai; relative to the current directory\n      --param <NAME=VALUE>     Caller data for the configuration script's select, by name; repeatable. The name is nonempty and holds no =, the value is any UTF-8 text, a repeated name refuses, and all names and values together are at most 65536 bytes\n      --context <PATH>         A version-1 JSON context document for the configuration script, read as data; relative to the current directory\n      --timeout-ms <MS>        Stop the configuration script and launch nothing (exit 124) if selection takes longer; 1000 to 600000, replacing the timeoutMs owner setting [default: 30000]\n      --context-bytes <BYTES>  Refuse a context delivered to selection that encodes to more bytes; 1 to 8388608, replacing the contextBytes owner setting [default: 262144]\n      --config-env <NAME>      Let the configuration script read this environment variable with ravel::env, beyond HOME, PATH, TMPDIR, LANG and LC_*; repeatable, added to the configEnv setting. Names Ravel reserves refuse: LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_*. Diagnostics report each name and whether it is set, never a value\n      --exit-dir <DIR>         Allocate the private session channel beneath this existing writable directory\n      --json                   Render configuration refusals and routing notices as JSON on stderr\n  -h, --help                   Print help\n\nOnly the exact result is written to stdout, without a newline. Session output and diagnostics go to stderr. A child ending without a result exits 1; cancellation returns its signal with no result. Malformed input exits 2, configuration refusal 3, worker/supervision failure 5, selection timeout 124, program failures 126/127. After end-session, Ravel waits 2 seconds, sends TERM, waits up to 5 seconds, then KILL and reaps the process group.\n\nExamples:\n  ravel start-session --kind feature --prompt-file ./prompt.txt\n  ravel start-session --kind check --config ./config.rhai --param profile=careful --prompt 'Check and end with a result'\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "end-session",
+        "--help"
+      ],
+      "status": 0,
+      "stdout": "Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session\n\nUsage: ravel end-session <RESULT>\n\nArguments:\n  <RESULT>  \n\nOptions:\n  -h, --help  Print help\n\nThe command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no Rhai configuration script.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "end-session",
+        "-h"
+      ],
+      "status": 0,
+      "stdout": "Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session\n\nUsage: ravel end-session <RESULT>\n\nArguments:\n  <RESULT>  \n\nOptions:\n  -h, --help  Print help\n\nThe command uses the RAVEL_EXIT_FILE that it inherits. It has no session ID argument and no target argument. Ravel keeps the first result that it receives. If the context is missing or stale, the command exits with status 1. The command reads no settings and no Rhai configuration script.\n\nExamples:\n  ravel end-session done\n  ravel end-session -- '--help'\n  ravel end-session ''\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "--help"
+      ],
+      "status": 0,
+      "stdout": "Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nUsage: ravel skills <COMMAND>\n\nCommands:\n  resolve  Capture the skill sources, store their snapshots and print the discovery instructions\n\nOptions:\n  -h, --help  Print help\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "-h"
+      ],
+      "status": 0,
+      "stdout": "Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nUsage: ravel skills <COMMAND>\n\nCommands:\n  resolve  Capture the skill sources, store their snapshots and print the discovery instructions\n\nOptions:\n  -h, --help  Print help\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness\n\nUsage: ravel skills <COMMAND>\n\nCommands:\n  resolve  Capture the skill sources, store their snapshots and print the discovery instructions\n\nOptions:\n  -h, --help  Print help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "resolve",
+        "--help"
+      ],
+      "status": 0,
+      "stdout": "Capture the skill sources, store their snapshots and print the discovery instructions\n\nUsage: ravel skills resolve [OPTIONS]\n\nOptions:\n      --json  Print one JSON object, and render a failure as a JSON failure document on stderr\n  -h, --help  Print help\n\nThe command reads the skills object of ~/.config/ravel/settings.json. When the settings name no sources, it reads the sources of the default skill directory, which the record share/ravel/installation.json of the installation names; \"sources\": [] turns that default off. It evaluates no configuration script, creates no result channel and launches no harness. It takes no skill name, task or source override.\n\nCache side effect: each run copies the current bytes of every local source and stores immutable snapshots and a directory descriptor under ~/.cache/ravel/skills/v1. Ravel never removes them automatically. A failure can leave complete snapshots, but never a partial descriptor.\n\nOutput: the discovery instructions, with a final newline. With --json, one object with schemaVersion 1 and status \"resolved\", and descriptorPath, sources, directories, mandatory and instructions. When delivery is disabled, the plain output is empty, --json prints {\"schemaVersion\":1,\"status\":\"disabled\"}, and the status is 0. A failure goes to stderr with a nonzero status and prints no instructions: 2 for a command-line or settings problem, 3 for a skill refusal, 5 for an internal failure.\n\nExamples:\n  ravel skills resolve\n  ravel skills resolve --json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "resolve",
+        "-h"
+      ],
+      "status": 0,
+      "stdout": "Capture the skill sources, store their snapshots and print the discovery instructions\n\nUsage: ravel skills resolve [OPTIONS]\n\nOptions:\n      --json  Print one JSON object, and render a failure as a JSON failure document on stderr\n  -h, --help  Print help\n\nThe command reads the skills object of ~/.config/ravel/settings.json. When the settings name no sources, it reads the sources of the default skill directory, which the record share/ravel/installation.json of the installation names; \"sources\": [] turns that default off. It evaluates no configuration script, creates no result channel and launches no harness. It takes no skill name, task or source override.\n\nCache side effect: each run copies the current bytes of every local source and stores immutable snapshots and a directory descriptor under ~/.cache/ravel/skills/v1. Ravel never removes them automatically. A failure can leave complete snapshots, but never a partial descriptor.\n\nOutput: the discovery instructions, with a final newline. With --json, one object with schemaVersion 1 and status \"resolved\", and descriptorPath, sources, directories, mandatory and instructions. When delivery is disabled, the plain output is empty, --json prints {\"schemaVersion\":1,\"status\":\"disabled\"}, and the status is 0. A failure goes to stderr with a nonzero status and prints no instructions: 2 for a command-line or settings problem, 3 for a skill refusal, 5 for an internal failure.\n\nExamples:\n  ravel skills resolve\n  ravel skills resolve --json\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "ravel",
+        "help"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (malformed_input, stage cli): unrecognized subcommand 'help'\n  input: help\n  remedy: usage: ravel <COMMAND>; see ravel --help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "--version"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (malformed_input, stage cli): unexpected argument '--version' found\n  input: --version\n  remedy: usage: ravel start-session [OPTIONS] --kind <TEXT>; see ravel start-session --help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "end-session",
+        "--version"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (malformed_input, stage cli): unexpected argument '--version' found\n  input: --version\n  remedy: to pass '--version' as a value, use '-- --version'; usage: ravel end-session <RESULT>; see ravel end-session --help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "--version"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (malformed_input, stage cli): unexpected argument '--version' found\n  input: --version\n  remedy: usage: ravel skills <COMMAND>; see ravel skills --help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "skills",
+        "resolve",
+        "--version"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (malformed_input, stage cli): unexpected argument '--version' found\n  input: --version\n  remedy: usage: ravel skills resolve [OPTIONS]; see ravel skills resolve --help\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "--json"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "{\"error\":{\"code\":\"malformed_input\",\"exit\":2,\"input\":\"--json\",\"message\":\"unexpected argument '--json' found\",\"remedy\":\"usage: ravel <COMMAND>; see ravel --help\",\"stage\":\"cli\"},\"schemaVersion\":2}\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "--json"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "{\"error\":{\"code\":\"malformed_input\",\"exit\":2,\"input\":\"--kind\",\"message\":\"the following required arguments were not provided: --kind <TEXT>\",\"remedy\":\"usage: ravel start-session --kind <TEXT> --json; see ravel start-session --help\",\"stage\":\"cli\"},\"schemaVersion\":2}\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "--confine",
+        "--kind",
+        "proof",
+        "--prompt",
+        "x"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (confinement_withdrawn, stage cli): --confine was withdrawn in Ravel 2.0.0, which does not confine a session\n  input: --confine\n  remedy: remove --confine and --runtime-read, and select the sandbox of the harness in the configuration script, such as codex --sandbox workspace-write; Ravel 1.1 keeps --confine\n"
+    },
+    {
+      "argv": [
+        "ravel",
+        "start-session",
+        "--runtime-read",
+        "x",
+        "--kind",
+        "proof",
+        "--prompt",
+        "x"
+      ],
+      "status": 2,
+      "stdout": "",
+      "stderr": "ravel: refused (confinement_withdrawn, stage cli): --runtime-read was withdrawn in Ravel 2.0.0, which does not confine a session\n  input: --runtime-read\n  remedy: remove --confine and --runtime-read, and select the sandbox of the harness in the configuration script, such as codex --sandbox workspace-write; Ravel 1.1 keeps --confine\n"
+    }
+  ]
+}

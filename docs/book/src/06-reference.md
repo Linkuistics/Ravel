@@ -123,11 +123,11 @@ the help and version requests.
 
 | Request | Output | Status |
 |---|---|---|
-| `ravel` without a verb | Help on standard error. | `2` |
-| `ravel --help`, `ravel start-session --help`, `ravel end-session --help`, `ravel skills resolve --help` | Help on standard output. `-h` is the short option on each of these command lines. | `0` |
+| `ravel` without a verb, or `ravel skills` without `resolve` | Help on standard error. | `2` |
+| `ravel --help`, `ravel start-session --help`, `ravel end-session --help`, `ravel skills --help`, `ravel skills resolve --help` | Help on standard output. `-h` is the short option on each of these command lines. | `0` |
 | `ravel --version`, `ravel -V` | The package version of the [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision) on standard output. The version option belongs only to the top-level command. | `0` |
 
-Fragment: the output of `ravel --help` from the checkout build on 2026-11-02.
+Fragment: the output of `ravel --help` from the checkout build on 2026-11-14.
 This block omits the command and its status, 0.
 
 ```text
@@ -136,9 +136,9 @@ Route and supervise a session, returning its opaque result
 Usage: ravel <COMMAND>
 
 Commands:
-  start-session  Route the prompt, with any configured skill directories, through an owner Rhai configuration script and supervise its selected process
+  start-session  Route the prompt, with any skill directories, through an owner Rhai configuration script and supervise its selected process
   end-session    Send exactly one opaque result to Ravel and ask Ravel to end the enclosing session
-  skills         Resolve the skill sources of the owner settings, without a configuration script or a harness
+  skills         Resolve the skill sources of the owner settings or of the default skill directory, without a configuration script or a harness
 
 Options:
   -h, --help     Print help

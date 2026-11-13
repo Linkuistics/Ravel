@@ -1,4 +1,4 @@
-# rhai-book-inside-k124
+# rhai-book-inside-k124 — brief
 
 ## Goal
 
@@ -52,3 +52,27 @@ Mechanical checks and model-proxy results cannot stand in for this read.
 Current gate evidence is native arm64 macOS only. It adds no new Linux, real
 harness, fresh-reader or published rendering evidence. Inventory coverage does
 not establish comprehension. Keep all contract limitations visible.
+
+## Decomposition
+
+The five source inventories and the fresh whole-book read exceed one focused
+session. Produce each independently checkable inventory as an `impl` evidence
+artifact, in CLI, configuration, lifecycle, components and workflows order.
+Then the final `proof` reads all eleven chapters, reconciles every inventory,
+fixes every class, clears handed-forward work, refreshes affected gate evidence
+and arranges Read 2 outside the editorial node. Inventory work does not replace
+that whole-document read or establish comprehension.
+
+## Decisions (running log)
+
+2026-11-14: Split the five explicit contract inventories into bounded evidence
+tasks before the final whole-document proof. Each inventory derives its subjects
+from current source, maps each subject to book locations, and fixes or explicitly
+owns discovered gaps. Only the first child is executed in this session. The final
+proof retains every original criterion and the unused fresh-review allowance.
+
+2026-11-14: k125 delivered the CLI inventory at
+`docs/evidence/rhai-book-cli-inventory-k125/`, with all enumerated CLI items mapped
+to explanatory reference headings, current help evidence and two reference
+corrections. Its 196 subject digests match across validation. Reconcile this
+evidence before reuse; it does not settle any other inventory or final proof.
