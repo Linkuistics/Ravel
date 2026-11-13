@@ -1,0 +1,16 @@
+grove: launching art through Ravel — rhai-book-inside-k121
+ravel: starting provider openai, model gpt-6.1-terra, effort high for kind "art"
+bili: codex session slot .codex-bili-s1 claimed — this launch's proxy runs on lane codex-s1 (concurrent sessions stay isolated, #3203).
+bili: started proxy at http://127.0.0.1:18787 (MITM domains: defaults)
+bili: proxy log: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/bili-proxy-18787.log
+bili: injecting native bili MCP tools for codex (disable with BILI_LAUNCHER_PLUGIN=0).
+bili: codex pinned to embedded mode (--no-daemon) — the launcher proxy is session-scoped; a shared background server would outlive it and bypass compression.
+bili: codex budget aligned — -c, model_auto_compact_token_limit=1050000 (model: gpt-6.1-terra)
+bili: codex state shared — CODEX_SQLITE_HOME=/Users/antony/.codex; the SQLite state lives in the real home (one live db across native/bili runs), no overlay copies.
+Error: stdout is not a terminal
+ravel: stop attempt 1 target -3713 signal 9: Operation not permitted (os error 1)
+ravel: stop attempt 2 target -3713 signal 9: Operation not permitted (os error 1)
+ravel: refused (session_result_missing, stage exec): the managed process ended without a result (exit status: 1)
+  remedy: have the managed process call ravel end-session RESULT before it exits
+grove: session ended without a supported Grove result — status exit status: 1, elapsed 1.511s; loop stopped.
+       session kind `art` for `rhai-book-inside-k121` failed; if Ravel refused the launch, its diagnostic and remedy are above and the leaf is still live. Either way, rerun `grove` to continue.
