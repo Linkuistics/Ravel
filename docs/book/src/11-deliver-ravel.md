@@ -964,7 +964,7 @@ of the cause and the output.
 ```sh
 jj new RELEASE_COMMIT
 scripts/release-install.sh --channel CHANNEL
-scripts/release-evidence.sh --channel CHANNEL
+bash scripts/release-evidence.sh --channel CHANNEL
 scripts/release-book.sh live vX.Y.Z
 ```
 

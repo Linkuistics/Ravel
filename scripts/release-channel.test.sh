@@ -185,12 +185,23 @@ section_taskfile() {
     local line
     for line in "bash scripts/release-prepare.sh --channel versioned-2 --level $level" \
       'scripts/release-build.sh --channel versioned-2' 'scripts/release-publish.sh --channel versioned-2' \
-      'scripts/release-install.sh --channel versioned-2' 'scripts/release-evidence.sh --channel versioned-2'; do
+      'scripts/release-install.sh --channel versioned-2' 'bash scripts/release-evidence.sh --channel versioned-2'; do
       grep -Fxq "task: [release] $line" "$fixtures/dry" || fail "release:$level does not run '$line'"
     done
     if grep -E 'brew (install|upgrade|test)|--channel unversioned' "$fixtures/dry"; then fail "release:$level bypasses the channel"; fi
   done
   ok 'the release tasks require CHANNEL and carry it to every step'
+
+  # A command that starts a script by its path runs only if the file is
+  # executable: the 2.0.0 cut stopped at "permission denied", exit 127.
+  # Read each such script from the subject, because the fixture has none.
+  local started script
+  started="$(sed -nE 's/^[[:space:]]*-[[:space:]]+(scripts\/[^[:space:]]+).*/\1/p' "$subject/Taskfile.yml" | sort -u)"
+  [[ "$started" == *scripts/release-doctor.sh* ]] || fail 'the Taskfile scan found no script started by its path'
+  while IFS= read -r script; do
+    [[ -x "$subject/$script" ]] || fail "the Taskfile starts $script by its path, but the file is not executable: start it through bash"
+  done <<<"$started"
+  ok 'each script that the Taskfile starts by its path is executable'
 
   refuses 'release:promote without VERSION' 'missing required variables: VERSION' task --dir "$repo" release:promote
   [[ ! -e "$repo/.jj/release-lock" ]] || fail 'release:promote took the lock before refusing'
@@ -902,6 +913,8 @@ render keeps placeholder	scripts/release-common.sh	    sed -i.bak '/^@KEG_ONLY@$
 task channel unchecked	Taskfile.yml	          enum: [versioned-2, unversioned]	          enum: [versioned-2, unversioned, stable]
 task prepare unchannelled	Taskfile.yml	bash scripts/release-prepare.sh --channel {{.CHANNEL}} --level {{.LEVEL}}	bash scripts/release-prepare.sh --channel unversioned --level {{.LEVEL}}
 task install unchannelled	Taskfile.yml	scripts/release-install.sh --channel {{.CHANNEL}}	scripts/release-install.sh --channel unversioned
+task evidence by path	Taskfile.yml	      - bash scripts/release-evidence.sh --channel {{.CHANNEL}}	      - scripts/release-evidence.sh --channel {{.CHANNEL}}
+task non-executable by path	Taskfile.yml	      - bash scripts/release-check.sh lifecycle	      - scripts/release-check.sh lifecycle
 prepare skips admission	scripts/release-prepare.sh	    reason="$(channel_admits "$channel" "$target" "$unversioned")" || die "$reason"	    :
 prepare fixed baseline	scripts/release-prepare.sh	    baseline_file="$(channel_baseline_file "$channel" "$version")"	    baseline_file=ravel.rb
 publish default channel	scripts/release-publish.sh	  reason="$(channel_select "$channel")" || die "$reason"	  channel="${channel:-unversioned}"

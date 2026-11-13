@@ -421,6 +421,6 @@ tasks:
       # first: `task install` puts one in ~/.local/bin by default.
       - scripts/release-install.sh --channel {{.CHANNEL}}
       # Writes target/release-evidence/vX.Y.Z.json.
-      - scripts/release-evidence.sh --channel {{.CHANNEL}}
+      - bash scripts/release-evidence.sh --channel {{.CHANNEL}}
       # Last, because Pages shows a pushed branch after a delay.
       - scripts/release-book.sh live "$(git describe --tags --exact-match HEAD)"
