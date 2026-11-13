@@ -24,8 +24,8 @@ The Ravel CLI embeds Rhai and starts a second copy of itself to evaluate the
 configuration script. Its local runner supervises the selected process. These
 parts are built and versioned together as one tool.
 
-Ravel has two verbs: `ravel start-session` and `ravel end-session RESULT`.
-A third command, `ravel skills resolve`, prints the skill directories that a
+Ravel starts and ends sessions with `ravel start-session` and
+`ravel end-session RESULT`. The command `ravel skills resolve` prints the skill directories that a
 session receives. Ravel 2.0.0 adds the directories of the owner's local skill
 sources to the prompt of each session, and the agent reads the skills that
 apply.

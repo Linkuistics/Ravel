@@ -516,9 +516,9 @@ outputs.
 | `task smoke:pair OLD=… NEW=…` | On macOS, the installed Ravel 1.1 executable `OLD` and the installation under `NEW` at the same time. Each has its own temporary home, and a guard denies both runs the real home | Nothing. The script removes its temporary homes when it exits |
 
 The guard of `smoke:pair` denies every path in your real home directory. Thus,
-the script refuses an `OLD` or `NEW` prefix there before it starts a session. A
-checkout under your home holds `target/install-trial`, so install the `NEW`
-prefix elsewhere for this check.
+the script refuses an `OLD` or `NEW` prefix there before it starts a session.
+It also refuses a temporary directory there. A checkout under your home holds
+`target/install-trial`, so install the `NEW` prefix elsewhere for this check.
 
 Fragment: install into a prefix outside your home, then run both versions.
 These commands omit the output. `OLD` is the absolute path of an installed

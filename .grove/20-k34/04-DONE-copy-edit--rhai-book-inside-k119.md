@@ -27,3 +27,13 @@ Copy-edit chapters 7 to 11 of the Ravel book after the two drafts of this node. 
 ## Notes
 
 - The owner can judge the later grove's copy-edit, art and proof sufficient and prune this tail. The proof stage of this node still cuts Read 2, as the node brief requires.
+
+## Decisions (running log)
+
+**Copy-edit of the later changes, 2026-11-14.**
+The later copy-edit at `8e07b803` is the precedent. The changes since it in chapters 7–11 include the skill-source examples, figure introductions and alternatives, the checkout and release evidence summaries, the pair-smoke fragment and the promotion history.
+The installation correction at `cbb16287c8b2` also changes chapters 1, 3 and 6, the contract and the README. Its draft log records the Homebrew evidence. The node brief, prose contract, word decisions, glossary and documentation lessons supply the context.
+
+The README now names the session commands without counting two commands immediately before a third. Chapter 10 now states that the pair-smoke guard also refuses a temporary directory in the real home. `scripts/installed-pair-smoke.sh` checks that directory alongside both prefixes. No later-stage defect was found in these edits.
+
+**Checks, 2026-11-14.** `task docs:ste -- --strict` reported no problems in 35 files. `task docs:examples` passed 27 examples, with 73 fragments not run. `task docs:excerpts` passed 22 excerpts. These checks do not assess reader comprehension or run the installation and pair-smoke fragments.
