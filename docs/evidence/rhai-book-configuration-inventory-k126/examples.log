@@ -1,0 +1,16 @@
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.19s
+task: [docs:examples] bash scripts/examples.sh check docs/book/src/04-write-a-configuration-script.md docs/book/src/06-reference.md
+pass docs/book/src/04-write-a-configuration-script.md:250
+pass docs/book/src/04-write-a-configuration-script.md:534
+pass docs/book/src/04-write-a-configuration-script.md:710
+pass docs/book/src/04-write-a-configuration-script.md:860
+pass docs/book/src/04-write-a-configuration-script.md:1001
+pass docs/book/src/04-write-a-configuration-script.md:1102
+pass docs/book/src/04-write-a-configuration-script.md:1293
+pass docs/book/src/04-write-a-configuration-script.md:1416
+pass docs/book/src/04-write-a-configuration-script.md:1576
+pass docs/book/src/04-write-a-configuration-script.md:1834
+pass docs/book/src/04-write-a-configuration-script.md:2027
+pass docs/book/src/04-write-a-configuration-script.md:2272
+examples: 12 passed, 0 failed; 22 fragment(s) not run; 0 page error(s)

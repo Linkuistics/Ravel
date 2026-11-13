@@ -426,7 +426,7 @@ also holds the skill directories and the discovery instructions, and the
 script needs no change for them. A harness that reads only some directories
 needs a read grant for the skill snapshots. Make that grant from
 `request.skills`, for example one argument for each `snapshotRoot`. The
-shipped example `harness-table.rhai` does this for its lead harness.
+repository example `harness-table.rhai` does this for its lead harness.
 
 Excerpt from `crates/ravel/examples/harness-table.rhai`: the function that
 lists the snapshot roots. The function `harness_args` puts each root after

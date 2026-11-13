@@ -1,0 +1,255 @@
+{
+  "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+  "discoveredTotal": 62,
+  "has_more": false,
+  "files": [
+    {
+      "path": "crates/ravel/src/authority.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/cancellation/propagation_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/cancellation.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/choice.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/cli.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/completion.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/completion_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/config.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/context.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/directory_control.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/environment.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/frame.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/harness_entries.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/inputs.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/lib.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/limits.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/main.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests/faults.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/partial_acquisition_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/private_directory.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/program.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/refusal.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/bridge.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/callbacks.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/convert.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/discovery.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/engine.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/fixtures.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/front.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/harness.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/heap.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/helpers.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/host.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/locate.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/mod.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/reader.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/resolver.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/role.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/serve.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/run.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/schema.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/settings.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/signal_state.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/bounds.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/cache.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/command.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/default_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/dir.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/installed.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/launch.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/mod.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/preamble.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/publication_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/settings.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/snapshot.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/skills/watch.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/strict_json.rs",
+      "classification": "adjacent implementation, no independent public configuration fields assigned"
+    },
+    {
+      "path": "crates/ravel/src/worker/native_tests.rs",
+      "classification": "test support, outside production inventory"
+    },
+    {
+      "path": "crates/ravel/src/worker.rs",
+      "classification": "configuration evidence"
+    },
+    {
+      "path": "crates/ravel/src/worker_admission_tests.rs",
+      "classification": "test support, outside production inventory"
+    }
+  ]
+}

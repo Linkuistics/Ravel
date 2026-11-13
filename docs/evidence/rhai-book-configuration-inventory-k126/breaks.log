@@ -1,0 +1,4 @@
+task: [docs:breaks] bash scripts/breaks.sh --strict docs/book/src/04-write-a-configuration-script.md docs/book/src/06-reference.md
+breaks: docs/book/src/04-write-a-configuration-script.md: 0 runs longer than 450 words
+breaks: docs/book/src/06-reference.md: 0 runs longer than 450 words
+breaks: 0 runs longer than 450 words in 2 files

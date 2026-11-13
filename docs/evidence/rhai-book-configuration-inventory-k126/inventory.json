@@ -1,0 +1,2362 @@
+[
+  {
+    "id": "CFG-001",
+    "category": "entry",
+    "item": "default entry",
+    "rule": "Only $HOME/.config/ravel/config.rhai, with absolute HOME. No repository search or XDG_CONFIG_HOME override.",
+    "source": "crates/ravel/src/authority.rs:64–174",
+    "lookup": "docs/book/src/06-reference.md:1414–1465",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–402",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-002",
+    "category": "entry",
+    "item": "explicit entry",
+    "rule": "--config resolves relative to caller cwd and does not move settings.",
+    "source": "crates/ravel/src/authority.rs:64–174",
+    "lookup": "docs/book/src/06-reference.md:1414–1465",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–402",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-003",
+    "category": "entry",
+    "item": "entry admission",
+    "rule": "Canonical regular UTF-8 .rhai file. Symlinks use the real file directory.",
+    "source": "crates/ravel/src/authority.rs:64–174",
+    "lookup": "docs/book/src/06-reference.md:1414–1465",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–402",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-004",
+    "category": "entry",
+    "item": "no fallback",
+    "rule": "An unreadable or dangling default wins. Missing default with policy.ts refuses the retired format.",
+    "source": "crates/ravel/src/authority.rs:64–174",
+    "lookup": "docs/book/src/06-reference.md:1414–1465",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–402",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-005",
+    "category": "entry",
+    "item": "retired extensions",
+    "rule": "ts, mts, cts, js, mjs and cjs refuse as config_format_retired. Other unsupported suffixes refuse.",
+    "source": "crates/ravel/src/authority.rs:64–174",
+    "lookup": "docs/book/src/06-reference.md:1414–1465",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–402",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-006",
+    "category": "settings",
+    "item": "settings discovery",
+    "rule": "$HOME/.config/ravel/settings.json only. Missing file or missing/nonabsolute HOME means defaults.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-007",
+    "category": "settings",
+    "item": "settings shape",
+    "rule": "Regular file, one strict JSON object. Duplicate names and unknown keys refuse. Validate before flags override.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-008",
+    "category": "settings",
+    "item": "timeoutMs",
+    "rule": "Optional integer 1000..600000, default 30000. --timeout-ms overrides.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-009",
+    "category": "settings",
+    "item": "contextBytes",
+    "rule": "Optional integer 1..8388608, default 262144. --context-bytes overrides.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-010",
+    "category": "settings",
+    "item": "configEnv",
+    "rule": "Optional array of variable names. Default empty. Grants add to the base readable set.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-011",
+    "category": "settings",
+    "item": "harnesses",
+    "rule": "Optional name-keyed object. Default empty. Entries cannot add environment, cwd or launch templates.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-012",
+    "category": "settings",
+    "item": "budgets",
+    "rule": "Optional object. Only harnessRuns is accepted.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-013",
+    "category": "settings",
+    "item": "skills",
+    "rule": "Optional object. Unknown nested fields refuse. Omission uses default skill discovery.",
+    "source": "crates/ravel/src/settings.rs:55–139",
+    "lookup": "docs/book/src/06-reference.md:1467–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-014",
+    "category": "environment",
+    "item": "base names",
+    "rule": "HOME, PATH, TMPDIR, LANG and LC_* are readable without grants.",
+    "source": "crates/ravel/src/environment.rs:19–51,94–175",
+    "lookup": "docs/book/src/06-reference.md:1450–1465,1477–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-015",
+    "category": "environment",
+    "item": "grant syntax",
+    "rule": "Nonempty UTF-8 name, no equals sign. Repeated names merge, unset names remain unset.",
+    "source": "crates/ravel/src/environment.rs:19–51,94–175",
+    "lookup": "docs/book/src/06-reference.md:1450–1465,1477–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-016",
+    "category": "environment",
+    "item": "excluded grants",
+    "rule": "LD_*, DYLD_*, RAVEL_* and HARNESS_DISPATCH_* cannot be granted.",
+    "source": "crates/ravel/src/environment.rs:19–51,94–175",
+    "lookup": "docs/book/src/06-reference.md:1450–1465,1477–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-017",
+    "category": "environment",
+    "item": "grant errors",
+    "rule": "Malformed names use malformed_input. Excluded names use excluded_grant. Worker OS environment is empty.",
+    "source": "crates/ravel/src/environment.rs:19–51,94–175",
+    "lookup": "docs/book/src/06-reference.md:1450–1465,1477–1525",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-018",
+    "category": "harness settings",
+    "item": "harnesses.NAME",
+    "rule": "1..64 lowercase ASCII letters, digits and hyphens. First character is alphanumeric.",
+    "source": "crates/ravel/src/harness_entries.rs:1–154",
+    "lookup": "docs/book/src/06-reference.md:1492–1494",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-019",
+    "category": "harness settings",
+    "item": "harnesses.NAME.program",
+    "rule": "Required nonempty string. Resolve a bare name through caller PATH or a path from caller cwd.",
+    "source": "crates/ravel/src/harness_entries.rs:1–154",
+    "lookup": "docs/book/src/06-reference.md:1492–1494",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-020",
+    "category": "harness settings",
+    "item": "harnesses.NAME.capabilities",
+    "rule": "Optional array of nonempty strings. Default empty. Labels are not interpreted.",
+    "source": "crates/ravel/src/harness_entries.rs:1–154",
+    "lookup": "docs/book/src/06-reference.md:1492–1494",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-021",
+    "category": "budget settings",
+    "item": "budgets.harnessRuns",
+    "rule": "Only owner settings can change it. Integer 0..16, default 0. No caller flag raises it.",
+    "source": "crates/ravel/src/settings.rs:159–190",
+    "lookup": "docs/book/src/06-reference.md:1495,1558",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-022",
+    "category": "skill settings",
+    "item": "skills.schemaVersion",
+    "rule": "Required integer 1.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-023",
+    "category": "skill settings",
+    "item": "skills.sources",
+    "rule": "Optional exact ordered source list. Omitted uses defaults. Empty with no mandatory file disables delivery.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-024",
+    "category": "skill settings",
+    "item": "skills.sources[].id",
+    "rule": "Unique 1..64 lowercase ASCII letters/digits, first a letter, single hyphens between groups.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-025",
+    "category": "skill settings",
+    "item": "skills.sources[].type",
+    "rule": "Required local. Other values refuse before remaining fields.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-026",
+    "category": "skill settings",
+    "item": "skills.sources[].path",
+    "rule": "Required absolute UTF-8 directory. No tilde/environment expansion or control characters.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-027",
+    "category": "skill settings",
+    "item": "skills.sources[].roots",
+    "rule": "Required nonempty unique normalised relative directory paths. Dot means source root.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-028",
+    "category": "skill settings",
+    "item": "skills.mandatory",
+    "rule": "Optional ordered unique references. Empty sources plus nonempty mandatory refuses.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-029",
+    "category": "skill settings",
+    "item": "skills.mandatory[].source",
+    "rule": "Required configured ID, or a default source ID when sources is omitted.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-030",
+    "category": "skill settings",
+    "item": "skills.mandatory[].path",
+    "rule": "Required normalised relative file. Dot is not a file.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-031",
+    "category": "skill settings",
+    "item": "skills.resolutionTimeoutMs",
+    "rule": "Optional 1000..3600000 milliseconds. Default 120000. No flag changes it.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-032",
+    "category": "skill settings",
+    "item": "relative skill paths",
+    "rule": "No absolute start, empty segment, dot/dotdot, backslash, control character or trailing separator.",
+    "source": "crates/ravel/src/skills/settings.rs:38–348",
+    "lookup": "docs/book/src/06-reference.md:1496–1517",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-033",
+    "category": "exports and evaluation",
+    "item": "SCHEMA_VERSION",
+    "rule": "Required exported integer constant 4. Different integer is unsupported_version. Missing/wrong type is config_invalid.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-034",
+    "category": "exports and evaluation",
+    "item": "VERSION",
+    "rule": "Required exported nonblank owner-maintained string, independent of package version.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-035",
+    "category": "exports and evaluation",
+    "item": "select(request, context)",
+    "rule": "Required public function with exactly two parameters.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-036",
+    "category": "exports and evaluation",
+    "item": "load_context(request)",
+    "rule": "Optional public function with exactly one parameter. Unit refuses context_invalid. Refusal skips select.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-037",
+    "category": "exports and evaluation",
+    "item": "phase order",
+    "rule": "Entry/import top levels run once, then optional loader, then select.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-038",
+    "category": "exports and evaluation",
+    "item": "global constants",
+    "rule": "Functions read exported constants with global::. They do not capture enclosing variables.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-039",
+    "category": "exports and evaluation",
+    "item": "strict execution",
+    "rule": "Undefined variables fail compilation, absent map properties fail execution, eval is disabled.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-040",
+    "category": "exports and evaluation",
+    "item": "print/debug",
+    "rule": "Captured stdout/stderr diagnostics. Both count against diagnosticsBytes.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:61–212,326–451",
+    "lookup": "docs/book/src/06-reference.md:1602–1625",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:363–456,961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-041",
+    "category": "request",
+    "item": "request.schemaVersion",
+    "rule": "Integer 4.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-042",
+    "category": "request",
+    "item": "request.kind",
+    "rule": "Required nonempty caller token. Ravel defines no catalogue.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-043",
+    "category": "request",
+    "item": "request.originalPrompt",
+    "rule": "Caller UTF-8 bytes unchanged, possibly empty, no NUL, at most 1048576 bytes.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-044",
+    "category": "request",
+    "item": "request.prompt",
+    "rule": "Prompt to deliver to program. Original bytes when skills disabled, prepared prompt otherwise.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-045",
+    "category": "request",
+    "item": "request.cwd",
+    "rule": "Caller cwd as data. Worker starts in a private directory.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-046",
+    "category": "request",
+    "item": "request.params",
+    "rule": "Name-to-string map, empty if absent. Nonempty names without equals, unique names, 65536 aggregate bytes.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-047",
+    "category": "request",
+    "item": "request.taskFile",
+    "rule": "Absolute UTF-8 path or unit. Not canonicalised or read. Need not exist.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-048",
+    "category": "request",
+    "item": "request.taskId",
+    "rule": "Opaque nonempty UTF-8 token of at most 1024 bytes or unit.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-049",
+    "category": "request",
+    "item": "request.context",
+    "rule": "Checked caller context or unit, before measured is attached. Loader sees original caller input.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-050",
+    "category": "request",
+    "item": "request.skills",
+    "rule": "Unit when disabled. Otherwise exactly descriptorPath, sources, directories, mandatory.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145; crates/ravel/src/skills/mod.rs:807–851",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-051",
+    "category": "request",
+    "item": "request.limits",
+    "rule": "Seven effective bounds. Mutating this map cannot raise enforcement.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:455–533; crates/ravel/src/inputs.rs:1–145",
+    "lookup": "docs/book/src/06-reference.md:1654–1664",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-052",
+    "category": "request skill descriptor",
+    "item": "skills.descriptorPath",
+    "rule": "Absolute retained descriptor path.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-053",
+    "category": "request skill descriptor",
+    "item": "skills.sources",
+    "rule": "Ordered records describing the resolved snapshots.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-054",
+    "category": "request skill descriptor",
+    "item": "skills.sources[].id",
+    "rule": "Source ID.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-055",
+    "category": "request skill descriptor",
+    "item": "skills.sources[].type",
+    "rule": "local.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-056",
+    "category": "request skill descriptor",
+    "item": "skills.sources[].resourceDigest",
+    "rule": "SHA-256 of source snapshot manifest.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-057",
+    "category": "request skill descriptor",
+    "item": "skills.sources[].snapshotRoot",
+    "rule": "Absolute snapshot directory.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-058",
+    "category": "request skill descriptor",
+    "item": "skills.sources[].originPath",
+    "rule": "Original absolute local source path.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-059",
+    "category": "request skill descriptor",
+    "item": "skills.directories",
+    "rule": "Deduplicated absolute search directories in source/root order.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-060",
+    "category": "request skill descriptor",
+    "item": "skills.directories[].source",
+    "rule": "Source ID.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-061",
+    "category": "request skill descriptor",
+    "item": "skills.directories[].path",
+    "rule": "Absolute search directory.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-062",
+    "category": "request skill descriptor",
+    "item": "skills.mandatory",
+    "rule": "Ordered required files.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-063",
+    "category": "request skill descriptor",
+    "item": "skills.mandatory[].source",
+    "rule": "Source ID.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-064",
+    "category": "request skill descriptor",
+    "item": "skills.mandatory[].path",
+    "rule": "Absolute mandatory file.",
+    "source": "crates/ravel/src/skills/launch.rs:28–51",
+    "lookup": "docs/book/src/06-reference.md:673–685,1663",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-065",
+    "category": "effective bounds",
+    "item": "limits.selectionMs",
+    "rule": "Default 30000, 1000..600000. Whole worker launch/startup/import/loader/select/judgement deadline.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-066",
+    "category": "effective bounds",
+    "item": "limits.contextBytes",
+    "rule": "Default 262144, 1..8388608. Caller bytes and compact delivered JSON including measured must each fit.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-067",
+    "category": "effective bounds",
+    "item": "limits.sourceBytes",
+    "rule": "min(65536,contextBytes). A read may give positive max_bytes <=contextBytes.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-068",
+    "category": "effective bounds",
+    "item": "limits.sources",
+    "rule": "Fixed 256. Separate caps for measured reads and attributed source records.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-069",
+    "category": "effective bounds",
+    "item": "limits.messageBytes",
+    "rule": "Fixed 1048576. Worker host request, selection or failure report.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-070",
+    "category": "effective bounds",
+    "item": "limits.diagnosticsBytes",
+    "rule": "Fixed 262144, combined worker stdout/stderr.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-071",
+    "category": "effective bounds",
+    "item": "limits.harnessRuns",
+    "rule": "Default 0, owner setting 0..16. Launched runs consume one. Unavailable launches do not.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-072",
+    "category": "effective bounds",
+    "item": "bound enforcement",
+    "rule": "Owner/CLI copies enforce bounds outside script try. Changing request fields cannot raise them.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-073",
+    "category": "effective bounds",
+    "item": "bound origin",
+    "rule": "default, fixed, settings.json or flag. Source cap inherits context origin when lower. Explicit read uses max_bytes.",
+    "source": "crates/ravel/src/limits.rs:27–54,191–285",
+    "lookup": "docs/book/src/06-reference.md:1552–1567",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-074",
+    "category": "selected",
+    "item": "selected.status",
+    "rule": "Required selected literal.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-075",
+    "category": "selected",
+    "item": "selected.program",
+    "rule": "Required nonblank no-NUL string. Absolute, caller-relative path with slash, or caller PATH lookup. Supplies argv[0].",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-076",
+    "category": "selected",
+    "item": "selected.args",
+    "rule": "Required string array. Empty array/items allowed, NUL forbidden. Each item one argument, no shell expansion/splitting.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-077",
+    "category": "selected",
+    "item": "selected.provider",
+    "rule": "Required nonblank label reported unchanged. Does not contact a provider.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-078",
+    "category": "selected",
+    "item": "selected.model",
+    "rule": "Required nonblank label. Actual harness model options go in args.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-079",
+    "category": "selected",
+    "item": "selected.effort",
+    "rule": "Required nonblank label. No Ravel effort catalogue or flag conversion.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-080",
+    "category": "selected",
+    "item": "selected.reason",
+    "rule": "Required nonblank explanation reported verbatim.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-081",
+    "category": "selected",
+    "item": "selected shape",
+    "rule": "All seven fields required, unknown fields refuse. Unit abstains. Uncaught script exception refuses without fallback.",
+    "source": "crates/ravel/src/config.rs:1–245",
+    "lookup": "docs/book/src/06-reference.md:1677–1699",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-082",
+    "category": "refused",
+    "item": "refused.status",
+    "rule": "Required refused literal.",
+    "source": "crates/ravel/src/config.rs:88–245",
+    "lookup": "docs/book/src/06-reference.md:1701–1750",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-083",
+    "category": "refused",
+    "item": "refused.code",
+    "rule": "Required nonblank owner string.",
+    "source": "crates/ravel/src/config.rs:88–245",
+    "lookup": "docs/book/src/06-reference.md:1701–1750",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-084",
+    "category": "refused",
+    "item": "refused.message",
+    "rule": "Required nonblank explanation.",
+    "source": "crates/ravel/src/config.rs:88–245",
+    "lookup": "docs/book/src/06-reference.md:1701–1750",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-085",
+    "category": "refused",
+    "item": "refused.remedy",
+    "rule": "Required nonblank repair instruction.",
+    "source": "crates/ravel/src/config.rs:88–245",
+    "lookup": "docs/book/src/06-reference.md:1701–1750",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-086",
+    "category": "refused",
+    "item": "refused shape",
+    "rule": "Exactly four fields. Accepted from loader or select. No final process is launched.",
+    "source": "crates/ravel/src/config.rs:88–245",
+    "lookup": "docs/book/src/06-reference.md:1701–1750",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:457–530",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-087",
+    "category": "context",
+    "item": "context.schemaVersion",
+    "rule": "Required number 1, separate from request schema 4.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-088",
+    "category": "context",
+    "item": "context.summary",
+    "rule": "Optional string, empty allowed.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-089",
+    "category": "context",
+    "item": "context.acceptanceCriteria",
+    "rule": "Optional string array, empty array/items allowed.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-090",
+    "category": "context",
+    "item": "context.facts",
+    "rule": "Optional object of arbitrary JSON values. Data is not executable authority.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-091",
+    "category": "context",
+    "item": "context.assessments",
+    "rule": "Optional object of attributed judgement records.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-092",
+    "category": "context",
+    "item": "context.assessments.*.by",
+    "rule": "Required nonblank author string, exactly by and value.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-093",
+    "category": "context",
+    "item": "context.assessments.*.value",
+    "rule": "Required arbitrary JSON value.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-094",
+    "category": "context",
+    "item": "context.sources",
+    "rule": "Optional attributed source array, at most 256. Does not read a file.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-095",
+    "category": "context",
+    "item": "context.sources[].name",
+    "rule": "Required nonblank source name.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-096",
+    "category": "context",
+    "item": "context.sources[].sha256",
+    "rule": "Optional lowercase 64-hex SHA-256. Digest or version required.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-097",
+    "category": "context",
+    "item": "context.sources[].version",
+    "rule": "Optional nonblank version. Digest or version required.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-098",
+    "category": "context",
+    "item": "context.sources[].bytes",
+    "rule": "Optional nonnegative integer byte count.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-099",
+    "category": "context",
+    "item": "context unknown fields",
+    "rule": "Unknown top-level/nested record fields refuse. Free-form fact names remain data.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-100",
+    "category": "context",
+    "item": "context.measured",
+    "rule": "Only Ravel attaches it. Caller or loader supplying it refuses. Measures actual reads even if loader substitutes context.",
+    "source": "crates/ravel/src/context.rs:400–690",
+    "lookup": "docs/book/src/06-reference.md:1872–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-101",
+    "category": "measured reads",
+    "item": "measured[].name",
+    "rule": "Canonical source file path.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-102",
+    "category": "measured reads",
+    "item": "measured[].via",
+    "rule": "--context, read_text or read_json.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-103",
+    "category": "measured reads",
+    "item": "measured[].bytes",
+    "rule": "Actual byte count before JSON parsing.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-104",
+    "category": "measured reads",
+    "item": "measured[].sha256",
+    "rule": "Lowercase SHA-256 of actual bytes.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-105",
+    "category": "measured reads",
+    "item": "ReadSource.name",
+    "rule": "Canonical path returned beside read content.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-106",
+    "category": "measured reads",
+    "item": "ReadSource.bytes",
+    "rule": "Actual byte count returned beside content.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-107",
+    "category": "measured reads",
+    "item": "ReadSource.sha256",
+    "rule": "Lowercase digest, usable in attributed sources.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-108",
+    "category": "measured reads",
+    "item": "read_text result.text",
+    "rule": "UTF-8 content. Result also has source.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-109",
+    "category": "measured reads",
+    "item": "read_json result.value",
+    "rule": "Parsed JSON converted to Rhai. Result also has source.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-110",
+    "category": "measured reads",
+    "item": "read result.source",
+    "rule": "Three-field ReadSource object. Unreadable ordinary source errors may be caught.",
+    "source": "crates/ravel/src/context.rs:1–260",
+    "lookup": "docs/book/src/06-reference.md:1923–1935",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1376",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-111",
+    "category": "host signatures",
+    "item": "ravel::read_text(path)",
+    "rule": "Measured UTF-8 regular file, relative to caller cwd. Default read bound.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-112",
+    "category": "host signatures",
+    "item": "ravel::read_text(path,max_bytes)",
+    "rule": "Same, with a positive whole-number cap <=contextBytes.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-113",
+    "category": "host signatures",
+    "item": "ravel::read_json(path)",
+    "rule": "Measured strict JSON regular file. Default read bound.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-114",
+    "category": "host signatures",
+    "item": "ravel::read_json(path,max_bytes)",
+    "rule": "Same, with explicit positive cap <=contextBytes.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-115",
+    "category": "host signatures",
+    "item": "ravel::json_parse(text)",
+    "rule": "Strict JSON string to Rhai value. Invalid JSON and conversion-depth excess throw.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-116",
+    "category": "host signatures",
+    "item": "ravel::json_encode(value)",
+    "rule": "Compact sorted-key JSON string. Preserves float type. Non-JSON data throws.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-117",
+    "category": "host signatures",
+    "item": "ravel::json_check(value,schema)",
+    "rule": "Validates supported schema. Returns original value or catchable data error.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-118",
+    "category": "host signatures",
+    "item": "ravel::uuid_v4()",
+    "rule": "OS-random RFC 9562 version-4 UUID string.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-119",
+    "category": "host signatures",
+    "item": "ravel::path_resolve(base,path)",
+    "rule": "Lexical POSIX path resolution. Absolute base required, no filesystem access.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-120",
+    "category": "host signatures",
+    "item": "ravel::path_parent(path)",
+    "rule": "Lexical POSIX parent of absolute path. No filesystem access.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-121",
+    "category": "host signatures",
+    "item": "ravel::env(name)",
+    "rule": "Granted caller environment string or unit. Unset returns unit, denied/nonUTF8 throws.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-122",
+    "category": "host signatures",
+    "item": "ravel::harnesses()",
+    "rule": "Owner registry in name order, no execution/network.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-123",
+    "category": "host signatures",
+    "item": "ravel::remaining()",
+    "rule": "Remaining whole milliseconds, harness runs and measured-source slots.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-124",
+    "category": "host signatures",
+    "item": "ravel::run_harness(request)",
+    "rule": "One synchronous harness run under owner bounds. It is not the final managed session.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:377–416; crates/ravel/src/rhai_worker/helpers.rs:16–67",
+    "lookup": "docs/book/src/06-reference.md:1959–1972",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1495,1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-125",
+    "category": "host rules",
+    "item": "phase availability",
+    "rule": "All host functions are available during top-level, loader and select phases.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-126",
+    "category": "host rules",
+    "item": "counting reads",
+    "rule": "Caller document and host reads count when bytes arrive, including bad UTF-8/JSON. Missing files do not count.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-127",
+    "category": "host rules",
+    "item": "bound errors",
+    "rule": "Source, source-count and host-message bounds are fatal through try. Ordinary source errors can be caught.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-128",
+    "category": "host rules",
+    "item": "no direct I/O",
+    "rule": "Worker computes, CLI performs host effects. Imports use the same host boundary.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-129",
+    "category": "host rules",
+    "item": "run isolation",
+    "rule": "New POSIX session, caller cwd, caller environment with completion controls scrubbed, own result channel and RAVEL_CONFIG_RUN.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-130",
+    "category": "host rules",
+    "item": "run skill delivery",
+    "rule": "Resolved skill descriptor and prompt guidance also reach harness runs. This is not OS confinement.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-131",
+    "category": "host rules",
+    "item": "cleanup failure",
+    "rule": "Failure to clean up run is fatal harness_cleanup_failed.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:1–665",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2087–2121,2180–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-132",
+    "category": "JSON conversion",
+    "item": "unit",
+    "rule": "Rhai unit maps to JSON null in both directions.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-133",
+    "category": "JSON conversion",
+    "item": "boolean",
+    "rule": "JSON boolean maps to Rhai boolean.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-134",
+    "category": "JSON conversion",
+    "item": "integer",
+    "rule": "Signed 64-bit JSON integers map to Rhai integer. Larger JSON integers become floating point.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-135",
+    "category": "JSON conversion",
+    "item": "float",
+    "rule": "Finite floating-point values only. Nonfinite values refuse at their path.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-136",
+    "category": "JSON conversion",
+    "item": "string",
+    "rule": "UTF-8 JSON strings.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-137",
+    "category": "JSON conversion",
+    "item": "array",
+    "rule": "Recursive JSON arrays.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-138",
+    "category": "JSON conversion",
+    "item": "map",
+    "rule": "String-keyed maps become JSON objects. Captured shared values use current contents.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-139",
+    "category": "JSON conversion",
+    "item": "non-JSON values",
+    "rule": "Functions, custom values and other unsupported types refuse at their location.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:1–230",
+    "lookup": "docs/book/src/06-reference.md:2008–2025",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-140",
+    "category": "JSON Schema",
+    "item": "schema.type",
+    "rule": "One type name or a nonempty array of names: object,array,string,number,integer,boolean,null. Integer accepts integral floats such as 3.0.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-141",
+    "category": "JSON Schema",
+    "item": "schema.properties",
+    "rule": "Object mapping property names to schemas.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-142",
+    "category": "JSON Schema",
+    "item": "schema.required",
+    "rule": "String array of required object property names.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-143",
+    "category": "JSON Schema",
+    "item": "schema.additionalProperties",
+    "rule": "Boolean, defaults true.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-144",
+    "category": "JSON Schema",
+    "item": "schema.items",
+    "rule": "One schema for every array element.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-145",
+    "category": "JSON Schema",
+    "item": "schema.enum",
+    "rule": "Array of scalar JSON choices. An empty array permits no value.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-146",
+    "category": "JSON Schema",
+    "item": "schema.title",
+    "rule": "String metadata, ignored during validation.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-147",
+    "category": "JSON Schema",
+    "item": "schema.description",
+    "rule": "String metadata, ignored during validation.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-148",
+    "category": "JSON Schema",
+    "item": "schema applicability",
+    "rule": "Unknown keywords refuse schema_invalid. Known type-specific keywords are ignored for other value types.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-149",
+    "category": "JSON Schema",
+    "item": "schema errors",
+    "rule": "Malformed schema gives schema_invalid, mismatch json_mismatch, non-JSON value json_unencodable. Catchable code/message/name.",
+    "source": "crates/ravel/src/schema.rs:1–356",
+    "lookup": "docs/book/src/06-reference.md:2027–2050",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-150",
+    "category": "harness discovery",
+    "item": "harnesses[].name",
+    "rule": "Owner entry name.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-151",
+    "category": "harness discovery",
+    "item": "harnesses[].program",
+    "rule": "Owner configured program, unchanged.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-152",
+    "category": "harness discovery",
+    "item": "harnesses[].available",
+    "rule": "Boolean executable availability.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-153",
+    "category": "harness discovery",
+    "item": "harnesses[].resolved",
+    "rule": "Resolved absolute executable path or unit.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-154",
+    "category": "harness discovery",
+    "item": "harnesses[].reason",
+    "rule": "not_found, not_executable or unit.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-155",
+    "category": "harness discovery",
+    "item": "harnesses[].capabilities",
+    "rule": "Owner labels, unchanged and uninterpreted.",
+    "source": "crates/ravel/src/rhai_worker/discovery.rs:1–47",
+    "lookup": "docs/book/src/06-reference.md:2060–2075",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-156",
+    "category": "remaining",
+    "item": "remaining.ms",
+    "rule": "Whole time left, nonnegative.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:300–333",
+    "lookup": "docs/book/src/06-reference.md:2081–2085",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-157",
+    "category": "remaining",
+    "item": "remaining.harnessRuns",
+    "rule": "Unspent owner run slots.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:300–333",
+    "lookup": "docs/book/src/06-reference.md:2081–2085",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-158",
+    "category": "remaining",
+    "item": "remaining.sources",
+    "rule": "Unspent measured-read slots, not attributed-source allowance.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:300–333",
+    "lookup": "docs/book/src/06-reference.md:2081–2085",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-159",
+    "category": "harness request",
+    "item": "run.harness",
+    "rule": "Required nonempty registered name.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:258–365",
+    "lookup": "docs/book/src/06-reference.md:2123–2144",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-160",
+    "category": "harness request",
+    "item": "run.args",
+    "rule": "Required array of strings with no NUL.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:258–365",
+    "lookup": "docs/book/src/06-reference.md:2123–2144",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-161",
+    "category": "harness request",
+    "item": "run.stdin",
+    "rule": "Optional UTF-8 string.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:258–365",
+    "lookup": "docs/book/src/06-reference.md:2123–2144",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-162",
+    "category": "harness request",
+    "item": "run.timeoutMs",
+    "rule": "Optional positive whole milliseconds, capped at remaining evaluation time.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:258–365",
+    "lookup": "docs/book/src/06-reference.md:2123–2144",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-163",
+    "category": "harness request",
+    "item": "run shape",
+    "rule": "No other fields. Invalid host requests terminate evaluation. Oversized encoded requests are fatal.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:258–365",
+    "lookup": "docs/book/src/06-reference.md:2123–2144",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-164",
+    "category": "harness result",
+    "item": "run.status",
+    "rule": "exited, signalled, timed_out, output_limit or unavailable.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-165",
+    "category": "harness result",
+    "item": "run.exitCode",
+    "rule": "Exit code when exited, otherwise unit.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-166",
+    "category": "harness result",
+    "item": "run.signal",
+    "rule": "Signal when signalled, otherwise unit.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-167",
+    "category": "harness result",
+    "item": "run.stdout",
+    "rule": "Captured standard output text, at most 1MiB.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-168",
+    "category": "harness result",
+    "item": "run.stderr",
+    "rule": "Captured standard error text, at most 1MiB.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-169",
+    "category": "harness result",
+    "item": "run.result",
+    "rule": "Accepted result string or unit. A process exit alone does not provide a result.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-170",
+    "category": "harness result",
+    "item": "run.elapsedMs",
+    "rule": "Elapsed milliseconds.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-171",
+    "category": "harness result",
+    "item": "run.error",
+    "rule": "Unavailable-launch code/message object or unit.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-172",
+    "category": "harness result",
+    "item": "status.exited",
+    "rule": "Run ended with an exit code. Script must inspect the code.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-173",
+    "category": "harness result",
+    "item": "status.signalled",
+    "rule": "Run ended due to signal.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-174",
+    "category": "harness result",
+    "item": "status.timed_out",
+    "rule": "Run deadline expired and cleanup completed.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-175",
+    "category": "harness result",
+    "item": "status.output_limit",
+    "rule": "Per-stream output bound exceeded, then cleanup.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-176",
+    "category": "harness result",
+    "item": "status.unavailable",
+    "rule": "No run charged. unknown_harness, harness_not_found, harness_not_executable or harness_launch_failed.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460,492–665; crates/ravel/src/rhai_worker/harness.rs:132–159,380–406",
+    "lookup": "docs/book/src/06-reference.md:2160–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-177",
+    "category": "imports",
+    "item": "relative resolution",
+    "rule": "From importing canonical file directory, not caller cwd.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-178",
+    "category": "imports",
+    "item": "absolute resolution",
+    "rule": "Absolute module paths accepted.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-179",
+    "category": "imports",
+    "item": "extension rule",
+    "rule": "Append .rhai only when path has no extension.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-180",
+    "category": "imports",
+    "item": "module admission",
+    "rule": "Readable regular UTF-8 file <=1MiB. Canonical name identifies source.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-181",
+    "category": "imports",
+    "item": "cache",
+    "rule": "Each canonical file evaluates once. Symlinks share the cache.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-182",
+    "category": "imports",
+    "item": "cycles",
+    "rule": "Direct or indirect import cycle is fatal config_import_failed.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-183",
+    "category": "imports",
+    "item": "module count",
+    "rule": "64 distinct files besides entry. 65th refuses config_import_failed.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-184",
+    "category": "imports",
+    "item": "import measurement",
+    "rule": "Canonical name, bytes and SHA-256 reported separately from context reads.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-185",
+    "category": "imports",
+    "item": "import failure",
+    "rule": "Cannot catch failed import and continue selection.",
+    "source": "crates/ravel/src/rhai_worker/resolver.rs:1–145; crates/ravel/src/rhai_worker/host.rs:180–269",
+    "lookup": "docs/book/src/06-reference.md:2225–2250",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:961–1058",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-186",
+    "category": "engine bounds",
+    "item": "operations",
+    "rule": "100000000 cumulatively across evaluation.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-187",
+    "category": "engine bounds",
+    "item": "call depth",
+    "rule": "64.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-188",
+    "category": "engine bounds",
+    "item": "top-level expression depth",
+    "rule": "64.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-189",
+    "category": "engine bounds",
+    "item": "function expression depth",
+    "rule": "32.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-190",
+    "category": "engine bounds",
+    "item": "string bytes",
+    "rule": "16777216 (16MiB).",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-191",
+    "category": "engine bounds",
+    "item": "array elements",
+    "rule": "1048576 including nested elements.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-192",
+    "category": "engine bounds",
+    "item": "map properties",
+    "rule": "1048576 including nested properties.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-193",
+    "category": "engine bounds",
+    "item": "variables",
+    "rule": "16384 live variables.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-194",
+    "category": "engine bounds",
+    "item": "script functions",
+    "rule": "4096.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-195",
+    "category": "engine bounds",
+    "item": "worker heap",
+    "rule": "1073741824 live allocated bytes. memory_limit is fatal through try.",
+    "source": "crates/ravel/src/rhai_worker/heap.rs:1–120; crates/ravel/src/rhai_worker/mod.rs:129–144",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-196",
+    "category": "engine bounds",
+    "item": "container checks",
+    "rule": "Return-value checks can follow in-place growth. Heap bound still applies.",
+    "source": "crates/ravel/src/rhai_worker/mod.rs:129–144,209; crates/ravel/src/rhai_worker/engine.rs:166–212",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-197",
+    "category": "engine bounds",
+    "item": "engine failure",
+    "rule": "script_limit is fatal through try, including array/map callbacks.",
+    "source": "crates/ravel/src/rhai_worker/engine.rs:166–212,277–325; crates/ravel/src/rhai_worker/callbacks.rs:1–48; crates/ravel/src/rhai_worker/pointer_calls.rs:1–82",
+    "lookup": "docs/book/src/06-reference.md:2267–2290",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-198",
+    "category": "other fixed bounds",
+    "item": "evaluation stack",
+    "rule": "64MiB, same release/development value.",
+    "source": "crates/ravel/src/rhai_worker/role.rs:27,90",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-199",
+    "category": "other fixed bounds",
+    "item": "entry/module source bytes",
+    "rule": "1048576 per file.",
+    "source": "crates/ravel/src/authority.rs:16; crates/ravel/src/rhai_worker/host.rs:645–665",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-200",
+    "category": "other fixed bounds",
+    "item": "encoded read reply bytes",
+    "rule": "38541312 bytes. Host read uses FRONT_FRAME_BYTES, the larger evaluate/harness reply frame. Excess is catchable source_unreadable and consumes one source. Corrected stale 19MiB book value.",
+    "source": "crates/ravel/src/frame.rs:21–63; crates/ravel/src/rhai_worker/host.rs:704–787",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "corrected"
+  },
+  {
+    "id": "CFG-201",
+    "category": "other fixed bounds",
+    "item": "JSON depth",
+    "rule": "100 nested array/map levels.",
+    "source": "crates/ravel/src/rhai_worker/convert.rs:14",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-202",
+    "category": "other fixed bounds",
+    "item": "schema depth",
+    "rule": "32 with root level 1.",
+    "source": "crates/ravel/src/schema.rs:15–21",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-203",
+    "category": "other fixed bounds",
+    "item": "simultaneous host calls",
+    "rule": "One synchronous call.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:65–120",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-204",
+    "category": "other fixed bounds",
+    "item": "harness output bytes",
+    "rule": "1048576 per stdout/stderr stream.",
+    "source": "crates/ravel/src/rhai_worker/harness.rs:1–180; crates/ravel/src/limits.rs:27–54",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-205",
+    "category": "other fixed bounds",
+    "item": "one harness deadline",
+    "rule": "min(positive timeoutMs,remaining whole deadline).",
+    "source": "crates/ravel/src/rhai_worker/host.rs:347–460",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-206",
+    "category": "other fixed bounds",
+    "item": "whole deadline",
+    "rule": "Cannot be caught or raised. Native calls are stopped from outside worker.",
+    "source": "crates/ravel/src/rhai_worker/serve.rs:69–106; crates/ravel/src/rhai_worker/front.rs:140–197",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-207",
+    "category": "other fixed bounds",
+    "item": "cleanup wait",
+    "rule": "At most 8 seconds for harness cleanup, then worker teardown has 1-second grace before KILL. Kernel stalls can delay exit.",
+    "source": "crates/ravel/src/rhai_worker/host.rs:129–136; crates/ravel/src/run.rs:25–29; crates/ravel/src/worker.rs:46–50,645–740",
+    "lookup": "docs/book/src/06-reference.md:2276–2298",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1240–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-208",
+    "category": "skill fixed bounds",
+    "item": "skillSources",
+    "rule": "16.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-209",
+    "category": "skill fixed bounds",
+    "item": "skillSearchDirectories",
+    "rule": "256.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-210",
+    "category": "skill fixed bounds",
+    "item": "skillMandatoryFiles",
+    "rule": "256.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-211",
+    "category": "skill fixed bounds",
+    "item": "mandatoryFileBytes",
+    "rule": "65536.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-212",
+    "category": "skill fixed bounds",
+    "item": "resourceBytes",
+    "rule": "16777216.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-213",
+    "category": "skill fixed bounds",
+    "item": "sourceBytes",
+    "rule": "134217728 per source.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-214",
+    "category": "skill fixed bounds",
+    "item": "totalSourceBytes",
+    "rule": "536870912.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-215",
+    "category": "skill fixed bounds",
+    "item": "sourceEntries",
+    "rule": "20000 including directories and links.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-216",
+    "category": "skill fixed bounds",
+    "item": "descriptorBytes",
+    "rule": "1048576.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-217",
+    "category": "skill fixed bounds",
+    "item": "preambleBytes",
+    "rule": "1048576.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-218",
+    "category": "skill fixed bounds",
+    "item": "preparedPromptBytes",
+    "rule": "1048576. Original caller bytes occur unchanged once between nonce delimiters.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-219",
+    "category": "skill fixed bounds",
+    "item": "skill bound behaviour",
+    "rule": "Equal passes, greater refuses skill_limit_exceeded. No truncation, omission or disabled delivery to fit.",
+    "source": "crates/ravel/src/skills/bounds.rs:1–115; crates/ravel/src/skills/launch.rs:13–24,130–175",
+    "lookup": "docs/book/src/06-reference.md:841–859,938–958",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:403–456",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-220",
+    "category": "installed examples",
+    "item": "static.rhai",
+    "rule": "Installed. question=low, bugfix=medium, feature=high, migration/architecture=xhigh. Unsupported kind incomplete_mapping.",
+    "source": "scripts/release-common.sh:25–62; crates/ravel/examples/static.rhai:1–43",
+    "lookup": "docs/book/src/06-reference.md:2299–2370",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:181–362,2399–2425",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-221",
+    "category": "installed examples",
+    "item": "sample.rhai",
+    "rule": "Installed. Imports static. Reads .ravel-choice with 4096 cap. Missing defaults, exactly one offered choice required. Careful route uses high.",
+    "source": "crates/ravel/examples/sample.rhai:1–82",
+    "lookup": "docs/book/src/06-reference.md:2314–2347",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:181–362,2399–2425",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-222",
+    "category": "installed examples",
+    "item": "llm.rhai",
+    "rule": "Installed. Imports static, asks claude once within owner budget and 20s, validates structured_output, falls back to caller kind on unusable result. Routes preserve request.prompt.",
+    "source": "crates/ravel/examples/llm.rhai:1–90",
+    "lookup": "docs/book/src/06-reference.md:2314–2347",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:181–362,2399–2425",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-223",
+    "category": "repository example",
+    "item": "harness-table.rhai",
+    "rule": "Repository test/example only. Not installed. Chapter 4 corrected shipped to repository.",
+    "source": "scripts/release-common.sh:25–62; crates/ravel/examples/harness-table.rhai:1–149",
+    "lookup": "docs/book/src/06-reference.md:2318–2347",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:430–435,822–960",
+    "result": "corrected"
+  },
+  {
+    "id": "CFG-224",
+    "category": "host data error",
+    "item": "error.code",
+    "rule": "Error code string.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:418–451; crates/ravel/src/rhai_worker/helpers.rs:155–175",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2207–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-225",
+    "category": "host data error",
+    "item": "error.message",
+    "rule": "Diagnostic string.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:418–451; crates/ravel/src/rhai_worker/helpers.rs:155–175",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2207–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-226",
+    "category": "host data error",
+    "item": "error.name",
+    "rule": "File/environment name when supplied, otherwise absent or unit.",
+    "source": "crates/ravel/src/rhai_worker/bridge.rs:418–451; crates/ravel/src/rhai_worker/helpers.rs:155–175",
+    "lookup": "docs/book/src/06-reference.md:1974–2006,2207–2223",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1377–1495",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-227",
+    "category": "unavailable error",
+    "item": "run.error.code",
+    "rule": "Unavailable-launch code.",
+    "source": "crates/ravel/src/rhai_worker/harness.rs:132–159",
+    "lookup": "docs/book/src/06-reference.md:2171–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-228",
+    "category": "unavailable error",
+    "item": "run.error.message",
+    "rule": "Diagnostic string.",
+    "source": "crates/ravel/src/rhai_worker/harness.rs:132–159",
+    "lookup": "docs/book/src/06-reference.md:2171–2205",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1646–1781",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-229",
+    "category": "skill discovery",
+    "item": "installation record",
+    "rule": "share/ravel/installation.json under the canonical executable prefix. Read only when sources is omitted. Missing record supplies no default directory.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-230",
+    "category": "skill discovery",
+    "item": "installation.schemaVersion",
+    "rule": "Required integer 1. Exactly schemaVersion and skillDirectory. Duplicate/unknown fields and unreadable or malformed record refuse skill_directory_invalid.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-231",
+    "category": "skill discovery",
+    "item": "installation.skillDirectory",
+    "rule": "Absolute UTF-8 path, without empty/dot/dotdot segments, tilde, controls or trailing separator.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-232",
+    "category": "skill discovery",
+    "item": "default listing",
+    "rule": "List on every resolution. Missing directory supplies no source. Ignore dot-prefixed names. Byte-sort source IDs.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-233",
+    "category": "skill discovery",
+    "item": "default entries",
+    "rule": "Source-ID directory or link to directory with at least one root. Invalid names, non-directories, missing roots and dangling/cyclic links refuse skill_directory_invalid.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-234",
+    "category": "skill discovery",
+    "item": "default roots",
+    "rule": "skills then craft, each when a directory exists. No other root is discovered.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-235",
+    "category": "skill discovery",
+    "item": "configured sources precedence",
+    "rule": "Explicit sources replaces defaults and bypasses the installation record. Empty sources disables delivery when mandatory is empty.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  },
+  {
+    "id": "CFG-236",
+    "category": "skill discovery",
+    "item": "default mandatory references",
+    "rule": "With sources omitted, mandatory.source must name a discovered source. Missing source refuses skill_source_missing.",
+    "source": "crates/ravel/src/skills/installed.rs:24–284; crates/ravel/src/skills/mod.rs:187–311",
+    "lookup": "docs/book/src/06-reference.md:756–819,1493–1503",
+    "teaching": "docs/book/src/04-write-a-configuration-script.md:1496–1645; docs/book/src/06-reference.md:756–819",
+    "result": "covered"
+  }
+]

@@ -2276,7 +2276,7 @@ See [evaluation bounds](04-write-a-configuration-script.md#set-bounds-and-enviro
 | Worker evaluation stack | 64 MiB. A worker abort is an operational failure, not a successful selection. |
 | Imported modules | 64 files besides the entry. A 65th distinct module gives `config_import_failed`. |
 | Entry or module source | 1,048,576 bytes per file. Entry failure gives `config_unreadable`, and module failure gives `config_import_failed`. |
-| Encoded host-read reply | 19,922,944 bytes (19 MiB), with JSON escapes and record fields. Excess throws catchable `source_unreadable` and consumes one source. |
+| Encoded host-read reply | 38,541,312 bytes, with JSON escapes and record fields. Excess throws catchable `source_unreadable` and consumes one source. |
 | JSON conversion depth | 100 levels of arrays and maps. The boundary reports a data-conversion error at the value's location. |
 | JSON Schema depth | 32 levels, with the root at level 1. Excess gives catchable `schema_invalid`. |
 | Host calls at one time | One, because each host call is synchronous. |
