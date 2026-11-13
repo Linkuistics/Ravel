@@ -1291,6 +1291,21 @@ Chapter 1 also said that the book on GitHub Pages stays unchecked until that rel
 
 **Check:** Search the document for “yet”, “until” and “not … so far”. For each match, name the observation that would end the limit, and make it.
 
+### L82. Map a waiting task's done-when list to the delivered work before you draft
+
+A task file can wait while another workstream delivers the same document. The task then describes a state that no longer exists, and a session that obeys it drafts the document a second time.
+Before you draft, find the commits that last changed the document and its subject. Map each item of the task's done-when list to the delivered text, its check result, or a gap.
+Then diff the subject from the delivered proof to the current source. Only a change in that diff, or a gap in the map, needs new work.
+
+**Source:** Owner evidence, `rhai-book-use-k74`, 2026-11-13: “I think this may already be done!”
+Session evidence, `rhai-book-inside-k35`, 2026-11-14.
+**Ravel application:** The draft task for chapters 7–9 still described a Bun worker and eight old excerpts.
+
+A later grove had already drafted those chapters in `56dac027`, `f6ee3135` and `47c6422e`. It then copy-edited them, added figures and proofed the whole book in `424af53d`.
+After that proof, only the version number in `Cargo.toml` changed under `crates/`, and the three chapters did not change. Each done-when item mapped to delivered text, and the four book checks passed again.
+
+**Check:** For each done-when item, name the delivered location or the gap. Show the diff of the subject since the delivered proof, and name each statement that the diff can reach.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.
