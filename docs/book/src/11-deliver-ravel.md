@@ -1,21 +1,29 @@
 # Deliver Ravel
 
-Ravel 2.0.0 has a delivery problem that a version number alone cannot solve.
-Grove, the task-tree driver and Ravel's first caller, has a released version
-that accepts only Ravel 1.x. Grove's formula depends on the unversioned
-Homebrew formula `ravel`. If `ravel` moved to 2.0.0 at once, every new
-installation and every upgrade of Grove would install a Ravel that this Grove refuses. [Grove](https://github.com/Linkuistics/grove) is only an illustrative
-caller here. Any released caller that refuses a new major has the same
-problem.
+Ravel 2.0.0 had a delivery problem that a version number alone could not
+solve. Grove, the task-tree driver and Ravel's first caller, had a released
+version that accepted only Ravel 1.x. Grove's formula depends on the
+unversioned Homebrew formula `ravel`. If `ravel` moved to 2.0.0 at once, every
+new installation and every upgrade of Grove would install a Ravel that this
+Grove refused. [Grove](https://github.com/Linkuistics/grove) is only an
+illustrative caller here. Any released caller that refuses a new major has the
+same problem.
 
-Thus, the 2.0.0 delivery has two steps. First, one version cut makes one tag,
-one book and three archives. It delivers them through the keg-only formula `ravel@2`, and unversioned `ravel` stays at 1.1.0. Later, when the caller has a
-compatible release, `task release:promote` delivers the same archives as unversioned `ravel`. Promotion cuts no version and builds nothing.
+Thus, the 2.0.0 delivery had two steps. First, one version cut made one tag,
+one book and three archives. It delivered them through the keg-only formula
+`ravel@2`, and unversioned `ravel` stayed at 1.1.0. Later, Grove 22.9.0
+accepted Ravel 2.0.0. Then `task release:promote` delivered the same archives
+as unversioned `ravel`. Promotion cuts no version and builds nothing.
 
-| Step | Task | What changes in the tap | Unversioned `ravel` afterwards |
+| Step | Task | What changed in the tap | Unversioned `ravel` afterwards |
 |---|---|---|---|
-| The cut of 2.0.0 | `task release:major CHANNEL=versioned-2` | `Formula/ravel@2.rb` holds 2.0.0 | 1.1.0 |
-| The promotion, after the caller's compatible release | `task release:promote VERSION=2.0.0` | `Formula/ravel.rb` holds 2.0.0, and `ravel@2.rb` gains a deprecation | 2.0.0 |
+| The cut of 2.0.0 | `task release:major CHANNEL=versioned-2` | `Formula/ravel@2.rb` held 2.0.0 | 1.1.0 |
+| The promotion, after the caller's compatible release | `task release:promote VERSION=2.0.0` | `Formula/ravel.rb` held 2.0.0, and `ravel@2.rb` received a deprecation | 2.0.0 |
+
+Both steps are complete for 2.0.0. Thus, each later version cut selects
+`CHANNEL=unversioned`, and `CHANNEL=versioned-2` refuses it. The chapter
+teaches both steps, because a later major that a released caller refuses can
+need the same two steps.
 
 This chapter follows that delivery. It starts with what a release holds and
 how the checks show that each archive works. Then it explains the two formula
@@ -44,8 +52,8 @@ archives, to the environments where their programs run and to Homebrew.
 ## Keep the version and executable together
 
 The workspace has one Ravel version, independent of any caller. `Cargo.toml`
-supplies it to both Rust packages. Until the cut of 2.0.0, the checkout's
-version is 1.1.0, the last release. An unreleased archive uses the checkout's
+supplies it to both Rust packages. Between two cuts, the checkout's version
+is the version of the last release. An unreleased archive uses the checkout's
 version even when its source differs from that version's release tag. Thus,
 the archive name alone does not make it a released artifact.
 
@@ -283,13 +291,17 @@ but does not link its commands into the shared prefix. Thus, `ravel@2`
 installs beside unversioned `ravel` and does not change the `ravel` command that an active caller uses. A user who wants 2.0.0 before promotion names the
 prefix of `ravel@2`.
 
-Why does Ravel deliver 2.0.0 through `ravel@2` first? The decision record
+Why did Ravel deliver 2.0.0 through `ravel@2` first? The decision record
 `docs/adr/a-caller-transition-publishes-a-versioned-formula-first.md` gives
-the reason. A released caller, Grove 22.8, accepts only stable Ravel 1.x from
-1.1.0. Its formula depends on unversioned `ravel`, and its formula test
-requires a 1.x version. Direct delivery of 2.0.0 as `ravel` would move
-every new Grove installation and every upgrade to a Ravel that this Grove
-refuses. The cost is a transition formula and a second delivery step, the promotion.
+the reason. At the cut, the released caller Grove 22.8 accepted only stable
+Ravel 1.x from 1.1.0. Its formula depended on unversioned `ravel`, and its
+formula test required a 1.x version. Direct delivery of 2.0.0 as `ravel`
+would move every new Grove installation and every upgrade to a Ravel that this
+Grove refused.
+
+The cost was a transition formula and a second delivery step, the promotion.
+The same record applies this rule to each later major that a
+released caller refuses.
 
 Each version-cut task, `release:patch`, `release:minor` or `release:major`, requires `CHANNEL`. It has no default, so an omission never changes unversioned `ravel`. `scripts/release-channel.sh` maps the channel
 to its formula name, file, class, keg-only line and prefix. Each script of the cut that writes or reads a formula takes `--channel` as an argument.
@@ -301,10 +313,14 @@ to its formula name, file, class, keg-only line and prefix. Each script of the c
 | `versioned-2` | Major 2 only | Any other major. Also any version after unversioned `ravel` has major 2, because promotion is then complete |
 | `unversioned` | Any version, except major 2 before promotion | A major-2 version while unversioned `ravel` has a major below 2, or is absent |
 
-Before the cut, preparation checks the baseline release in the formula that delivered it. The first 2.0.0 cut checks baseline 1.1.0 in `Formula/ravel.rb`,
-then delivers 2.0.0 through `ravel@2`. A later 2.x cut before promotion checks its baseline in `Formula/ravel@2.rb` and delivers through `ravel@2` again. After promotion, a cut
-selects `CHANNEL=unversioned` and checks its baseline in `Formula/ravel.rb`.
-`ravel@2` then stays at the promoted version and receives no later release.
+Before the cut, preparation checks the baseline release in the formula that
+delivered it. The cut of 2.0.0 checked baseline 1.1.0 in `Formula/ravel.rb`,
+then delivered 2.0.0 through `ravel@2`. A 2.x cut before promotion would
+check its baseline in `Formula/ravel@2.rb` and deliver through `ravel@2` again.
+The promotion of 2.0.0 came first, so no such cut occurred. After promotion,
+each cut selects `CHANNEL=unversioned` and checks its baseline in
+`Formula/ravel.rb`. `ravel@2` stays at the promoted version, 2.0.0, and
+receives no later release.
 
 Homebrew links a requested versioned keg-only formula into the shared prefix
 when neither that formula nor its unversioned formula is installed. Thus, the
@@ -514,9 +530,10 @@ model.
 
 ## Cut and deliver a release
 
-Fragment: the first cut of 2.0.0, from Ravel's default colocated workspace.
-This recipe omits the preparation above and the output. It shows the tap path
-of one machine.
+Fragment: the command that cut 2.0.0, from Ravel's default colocated
+workspace. This recipe omits the preparation above and the output. It shows
+the tap path of one machine. A later cut names its own task with
+`CHANNEL=unversioned`, for example `task release:patch CHANNEL=unversioned`.
 
 ```sh
 RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:major CHANNEL=versioned-2
@@ -651,9 +668,9 @@ You may want new and upgraded default installations to use a complete
 that release available as unversioned `ravel`. It cuts no version,
 builds no archive, creates no tag or GitHub release and changes no book.
 
-Fragment: promote 2.0.0 from Ravel's default colocated workspace. This recipe
-omits the readiness receipt and the output. It shows the tap path of one
-machine.
+Fragment: the command that promoted 2.0.0, from Ravel's default colocated
+workspace. This recipe omits the readiness receipt and the output. It shows
+the tap path of one machine.
 
 ```sh
 RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:promote VERSION=2.0.0
@@ -714,7 +731,8 @@ and pushes the remote `origin` by name. A retry checks and keeps a formula, comm
 it.
 
 After promotion, `CHANNEL=versioned-2` refuses every later version, and each
-later cut selects `CHANNEL=unversioned`.
+later cut selects `CHANNEL=unversioned`. The promotion of 2.0.0 is complete,
+so this rule applies to each cut after 2.0.0.
 
 ### See what promotion changes for an owner
 
@@ -909,8 +927,9 @@ First, inspect the source, the local and remote tags, the GitHub assets and
 the tap.
 
 Every recovery command below that writes or reads a formula takes the channel
-that the cut selected. For the first cut of 2.0.0, that is
-`--channel versioned-2`. No resume mode has a default channel. A resume with the other channel
+that the cut selected. For the cut of 2.0.0, that was
+`--channel versioned-2`. For each later cut, it is `--channel unversioned`.
+No resume mode has a default channel. A resume with the other channel
 refuses at its channel check or writes the wrong formula. Thus, name the
 cut's channel each time.
 

@@ -1306,6 +1306,37 @@ After that proof, only the version number in `Cargo.toml` changed under `crates/
 
 **Check:** For each done-when item, name the delivered location or the gap. Show the diff of the subject since the delivered proof, and name each statement that the diff can reach.
 
+### L83. Check a transition's present-tense statements against the system that it changes
+
+A procedure written during a transition describes the temporary state in the present tense, such as “the unversioned formula stays at the old version”.
+Such a sentence has no “until” or “yet”, so the search of L81 cannot find it.
+When the transition ends in an external system, such as a package tap, nothing in the repository changes, and every check still passes.
+Before you approve such a chapter, read the current state of each external system that the procedure changes.
+Then search the document for the values of the temporary state, such as the old version and the transition's own names.
+
+**Source:** Session evidence, `rhai-book-inside-k36`, 2026-11-14.
+**Ravel application:** The search of L81 in chapters 10 and 11 found one stale sentence, the checkout's version before the cut.
+The tap's remote `main` then showed the promotion of 2.0.0 to unversioned `ravel`, with the deprecated `ravel@2`.
+Chapter 11 still said, in the present tense, that Grove accepts only Ravel 1.x and that unversioned `ravel` stays at 1.1.0.
+
+The chapter now tells the 2.0.0 transition in the simple past. It also says that each later cut selects `CHANNEL=unversioned`.
+A search for `ravel@2` and `1.1.0` found the same state in chapter 3, chapter 6, the contract and the README. Draft `rhai-book-inside-k120` received them, because they are outside the chapters of k36.
+
+**Check:** List each external system that the document's procedure changes, and read its current state. Search the whole document for each value of the temporary state. Classify each match as history, a rule or a stale present-tense claim.
+
+### L84. Run each command with the values that an earlier procedure on the page gives
+
+A page can show a value in one procedure, such as an install prefix. A later command can then use a placeholder for the same input.
+The reader then uses the earlier value. A guard in the later command can refuse it, and no check runs that combination.
+For each placeholder, find the earlier value on the page that the reader can use for it. Run the command with that value.
+
+**Source:** Session evidence, `rhai-book-inside-k36`, 2026-11-14.
+**Ravel application:** Chapter 10 installs into `target/install-trial`, then names `task smoke:pair OLD=… NEW=…`.
+The pair script refuses a prefix inside the real home, and a checkout is usually there. The run with the chapter's prefix failed with status 201.
+The chapter now states the rule and shows a prefix outside the home. The pair check passed with such a prefix.
+
+**Check:** List each placeholder in the page's commands. Name the earlier value that the reader can use for it, and run the command with that value.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.

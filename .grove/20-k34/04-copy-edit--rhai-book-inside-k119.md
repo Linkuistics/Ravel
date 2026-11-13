@@ -11,6 +11,8 @@ Copy-edit chapters 7 to 11 of the Ravel book after the two drafts of this node. 
   That grove also drafted chapters 10–11 in `ca8c7d01`, copy-edited chapters 7–11 in `8e07b803`, made the figures in `7d9526e9` and proofed the whole book in `424af53d`.
   The running log of `rhai-book-inside-k35` maps each of its done-when items to that work.
 - Read the running log of `rhai-book-inside-k36` for what the second draft changed.
+  It changed chapter 11 after the promotion of 2.0.0, added the home rule of `smoke:pair` to chapter 10, and added lessons L83 and L84.
+- The third draft, `rhai-book-inside-k120`, corrects the installation path in chapters 3 and 6, the contract and the README. Read its running log, and copy-edit those changes too.
 - Compare the text with the copy-edit of `8e07b803` before you repeat it. Read each change after that commit in full, because it has had no copy-edit.
   After `424af53d`, chapter 11 changed one command line, and chapter 3 changed outside this node's chapters.
 - Apply the current lessons in `docs/documentation-lessons.md`, including L82.

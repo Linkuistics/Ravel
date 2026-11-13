@@ -101,6 +101,8 @@ design needs the settled requirements.
 
   The later grove already delivered the whole-book proof in `424af53d` and release `v2.0.0` in `ed6cedbf`.
   Its proof record is `docs/evidence/ravel-book-k311/README.md`.
+  The tap then promoted 2.0.0 to unversioned `ravel`: the remote `main` of `linkuistics/taps` is `06c7198`, and `ravel@2` carries a deprecation.
+  The readiness receipt names Grove 22.9.0 as the compatible caller. `rhai-book-inside-k36` found this state on 2026-11-14.
 
   Compare the old book and release task contracts with those delivered artifacts before you repeat work.
   Read 2 remains required. The owner's confirmation covered the Part II exercises, not that later checkpoint.

@@ -515,6 +515,20 @@ outputs.
 | `task smoke` | The same installation in a fresh prefix under `target/`, whose name contains a space and a non-ASCII letter | Build outputs. The script removes its temporary prefix when it exits |
 | `task smoke:pair OLD=… NEW=…` | On macOS, the installed Ravel 1.1 executable `OLD` and the installation under `NEW` at the same time. Each has its own temporary home, and a guard denies both runs the real home | Nothing. The script removes its temporary homes when it exits |
 
+The guard of `smoke:pair` denies every path in your real home directory. Thus,
+the script refuses an `OLD` or `NEW` prefix there before it starts a session. A
+checkout under your home holds `target/install-trial`, so install the `NEW`
+prefix elsewhere for this check.
+
+Fragment: install into a prefix outside your home, then run both versions.
+These commands omit the output. `OLD` is the absolute path of an installed
+Ravel 1.1 executable.
+
+```sh
+task install PREFIX=/tmp/ravel-pair-trial
+task smoke:pair OLD=/absolute/path/to/ravel-1.1/bin/ravel NEW=/tmp/ravel-pair-trial
+```
+
 Before `task smoke` installs, it puts an old `libexec/ravel/sdk/` file and an
 unrelated `bin/other-tool` into its fresh prefix. After the installation, the
 old Ravel 1.x payload is gone and the unrelated tool is unchanged. Thus, the
