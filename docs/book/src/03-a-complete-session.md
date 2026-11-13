@@ -31,33 +31,53 @@ with status 0 only if its final write to standard output also succeeds.
 ## Install Ravel and check its version
 
 Use a macOS or GNU/Linux host with Homebrew. The Homebrew formula
-`linkuistics/taps/ravel@2` installs release archives for aarch64 macOS,
-aarch64 GNU/Linux and x86_64 GNU/Linux.
-
-Ravel 2.0 first uses a separate, keg-only formula while the unversioned
-formula stays at 1.1.0. Keg-only means that Homebrew keeps its executable
-outside the shared command directory. This shell uses the versioned prefix
-so that the examples run with Rhai.
+`linkuistics/taps/ravel` installs release archives for aarch64 macOS,
+aarch64 GNU/Linux and x86_64 GNU/Linux. Homebrew links the `ravel`
+executable into its shared command directory, for example
+`/opt/homebrew/bin` on aarch64 macOS. Homebrew setup puts that directory on
+your `PATH`.
 
 Fragment: installation and version check. This block omits Homebrew setup
 and the installation output.
 
 ```sh
-brew tap linkuistics/taps
-brew trust linkuistics/taps
-HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --skip-link linkuistics/taps/ravel@2
-export PATH="$(brew --prefix ravel@2)/bin:$PATH"
+HOMEBREW_NO_INSTALL_CLEANUP=1 brew install linkuistics/taps/ravel
 ravel --version
 ```
 
-Homebrew does not trust a tap when `brew tap` adds it. A fully qualified
-name such as `linkuistics/taps/ravel@2` trusts only the formula that it
-names. To install a keg-only versioned formula, Homebrew also loads the
-unversioned formula, here `ravel`. It refuses that formula from a tap that
-is not trusted. The `brew trust` step therefore comes before the first
-installation. Homebrew's
+The command gives the full name of the formula: the tap `linkuistics/taps`,
+then the formula `ravel`. With a full name, `brew install` adds the tap if
+your Homebrew does not have it.
+
+Why is there no `brew trust` step? Homebrew runs the Ruby code of a formula
+when it loads it. Thus, Homebrew loads a formula from a tap outside Homebrew
+only after you trust it.
+
+A full name in `brew install` trusts only the formula that it names.
+Homebrew records that trust, so later commands such as `brew upgrade` can
+load the formula. The `ravel` formula needs no other formula, so you need
+not trust the whole tap. Homebrew's
 [Tap Trust](https://docs.brew.sh/Tap-Trust#installing-from-a-tap) page
 states the rules.
+
+Why does the command set `HOMEBREW_NO_INSTALL_CLEANUP=1`? The variable
+turns off Homebrew's cleanup for this one command. That cleanup removes old
+versions of the installed formula. If an older `ravel` is already installed,
+`brew install` upgrades it, and the cleanup then removes the old version.
+
+A session that runs under the old version still needs that executable to
+end. Thus, the old version must stay until that session ends.
+[Chapter 11, “Keep each old keg for its active readers”](11-deliver-ravel.md#keep-each-old-keg-for-its-active-readers),
+explains the rule and the setting that also protects the old version from
+later cleanup.
+
+An earlier copy of this book installed the versioned formula
+`linkuistics/taps/ravel@2` and put its directory on `PATH`. The book of the
+2.0.0 release on GitHub Pages is such a copy. Homebrew now marks `ravel@2`
+as deprecated, with `ravel` as its replacement. If your `PATH` still has
+the directory of `ravel@2`, remove that directory from `PATH`. Then
+`command -v ravel` prints a path in Homebrew's shared command directory,
+and later upgrades of `ravel` reach your shell.
 
 Before you use the examples of this book, compare the version output with
 this version line:
@@ -73,12 +93,12 @@ the two versions are different, open the book for your installed version from
 The release procedure keeps each release's book in its own directory there.
 
 Ravel 1.1.0 was the first release that carried the book. A copy of the book
-from a checkout between releases has the placeholder, and its text can
-describe changes that no release has yet.
+from a checkout between releases has the placeholder or the version of the
+last release. Its text can describe changes that no release has yet.
 [Chapter 11](11-deliver-ravel.md#keep-the-book-with-its-release) explains the
 version line and the address of each release's book.
 
-The directory that `brew --prefix ravel@2` prints contains the
+The directory that `brew --prefix ravel` prints contains the
 [Ravel CLI](02-actors-and-words.md#evaluation-and-supervision), `bin/ravel`.
 That executable also contains the Rhai engine, which runs the configuration
 script. Ravel launches a second copy of its own binary as the separate

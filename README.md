@@ -30,9 +30,10 @@ session receives. Ravel 2.0.0 adds the directories of the owner's local skill
 sources to the prompt of each session, and the agent reads the skills that
 apply.
 
-Homebrew installs Ravel 2.0.0 as the keg-only `ravel@2`. Unversioned `ravel`
-stays at 1.1.0 until callers accept 2.0.0. [Chapter 3](docs/book/src/03-a-complete-session.md)
-gives the installation command.
+Homebrew installs Ravel with `brew install linkuistics/taps/ravel`.
+[Chapter 3](docs/book/src/03-a-complete-session.md) gives the complete
+installation command and explains each part. The versioned formula `ravel@2`
+served the transition to 2.0.0, and Homebrew now marks it as deprecated.
 
 The book is the guide to Ravel. It says what Ravel is for, how to write a
 configuration script and how to run sessions. It also explains the parts of Ravel, how

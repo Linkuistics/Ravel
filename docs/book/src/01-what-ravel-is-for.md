@@ -761,6 +761,6 @@ the book.
 
 You can build and examine the local book. GitHub shows the
 Markdown of a pushed branch, and nobody checked that view of this copy. The
-book of Ravel 1.1.0 is on GitHub Pages. The book of a later version reaches
+book of each release from Ravel 1.1.0 is on GitHub Pages. The book of a later version reaches
 GitHub Pages only with its release. Thus, that copy stays unchecked until
 then.

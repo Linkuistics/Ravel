@@ -773,8 +773,8 @@ is a JSON object with exactly these members:
 
 Each Homebrew formula of Ravel writes the record at installation. Its
 `skillDirectory` is `$(brew --prefix)/share/ravel/skills`, for example
-`/opt/homebrew/share/ravel/skills`. The keg-only `ravel@2` names the same
-directory as the unversioned `ravel`.
+`/opt/homebrew/share/ravel/skills`. The deprecated versioned formula
+`ravel@2` names the same directory as the formula `ravel`.
 
 The release archives and `task install` write no record, because only the
 installation knows its prefix. A build in `target` and a copied executable
@@ -2351,10 +2351,10 @@ Where are the files of an installed Ravel? You may want the executable for a
 caller's configuration, or the example configuration scripts to copy.
 
 `PREFIX` is the installation root, independent of the owner's `HOME`.
-For the versioned Homebrew formula, `brew --prefix ravel@2` gives this path.
-After promotion, `brew --prefix ravel` gives the unversioned installation's
-path. [Chapter 3](03-a-complete-session.md#install-ravel-and-check-its-version)
-selects the versioned executable for this book's examples.
+For the Homebrew formula `ravel`, `brew --prefix ravel` gives this path.
+[Chapter 3](03-a-complete-session.md#install-ravel-and-check-its-version)
+installs that formula for this book's examples. The deprecated versioned
+formula `ravel@2` has its own path, which `brew --prefix ravel@2` gives.
 
 Ravel 2.0.0 installs one executable with the Rhai engine inside it.
 It needs no separate language runtime or source checkout.

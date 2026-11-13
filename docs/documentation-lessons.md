@@ -1337,6 +1337,47 @@ The chapter now states the rule and shows a prefix outside the home. The pair ch
 
 **Check:** List each placeholder in the page's commands. Name the earlier value that the reader can use for it, and run the command with that value.
 
+### L85. State the reason for each step, and check the reason again when its state ends
+
+A step can depend on a temporary state for its reason, not only for its values.
+When that state ends, the step can still succeed. Thus, a search for old values and every run still pass, and the reader does work that has no purpose.
+A step without a stated reason cannot be checked in this way.
+
+Give the reason for each step of a procedure where the step occurs.
+When a state that a procedure depends on ends, read the reason of each step again. Remove the step, or write its new reason.
+
+**Source:** Session evidence, `rhai-book-inside-k120`, 2026-11-14.
+
+**Ravel application:** Chapter 3 told the reader to run `brew trust linkuistics/taps` before `brew install`.
+The reason was that a versioned formula also loads the unversioned formula, and Homebrew refuses an untrusted formula.
+After the promotion, the reader installs the unversioned `ravel`, which needs no other formula. A full name trusts that formula and records the trust.
+The `brew trust` step still worked, but it trusted every current and future item of the tap for no reason. The draft removed it.
+
+The same fragment set `HOMEBREW_NO_INSTALL_CLEANUP=1`, but the chapter gave no reason for it.
+The draft found the reason in Homebrew's manual page. `brew install` upgrades an installed outdated formula, and the upgrade then removes old versions.
+The chapter now states that reason, so a later check can find out whether the reason still applies.
+
+**Check:** For each step, quote the sentence that gives its reason, or record that it has none.
+For each reason, name the state that it depends on and read that state in the external system. Remove a step whose reason no longer holds, and run the procedure again without it.
+
+### L86. Tell the readers of a fixed copy what changed
+
+A release can publish a copy of a document that nobody can change afterwards, such as a book for each version.
+An external change can then make an instruction in that copy stale, although the copy still names the current version.
+Correct the current text. Also tell the readers who followed the old instruction what changed and what to do.
+Name the fixed copy, the old instruction and the check that shows the new state.
+
+**Source:** Session evidence, `rhai-book-inside-k120`, 2026-11-14.
+
+**Ravel application:** The book of 2.0.0 on GitHub Pages has the version line `ravel 2.0.0`. It installs `ravel@2` and puts the directory of that formula on `PATH`.
+The tap later deprecated `ravel@2` for `ravel`. A reader of that copy who has `ravel 2.0.0` sees no difference in the version check.
+That reader's `PATH` then keeps `ravel@2` ahead of later upgrades of `ravel`.
+
+Chapter 3 now names that copy and the old step. It tells the reader to remove the directory from `PATH` and check `command -v ravel`.
+
+**Check:** List each fixed copy that the current text replaces, such as each published release of the document. Compare its instructions with the current text.
+For each difference that an external change caused, find the sentence in the current text that tells the old copy's reader what to do.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.

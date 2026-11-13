@@ -428,10 +428,11 @@ The book also states them wherever they matter:
   fake executable of the same name, and records the agent's version and the
   date its flags were checked against that agent's own help.
 - **The reader's Ravel**: chapter 3 tells the reader to install Ravel with
-  Homebrew (`linkuistics/taps/ravel@2`, with its prefix on `PATH`) and to check that `ravel --version`
+  Homebrew (`linkuistics/taps/ravel`) and to check that `ravel --version`
   prints the version that the book names. The book names that version in one
-  place. The release writes its own version there and checks it. Until that
-  release, the book shows a placeholder. The owner chose this on 2026-10-18
+  place. The release writes its own version there and checks it. Between
+  releases, the book shows a placeholder or the version of the last release.
+  The owner chose this on 2026-10-18
   (“Set at release time”), in place of a build from the checkout. The
   examples check still runs the build of the checkout through the seam.
 - **Fragments are labelled** as fragments, with what they omit.

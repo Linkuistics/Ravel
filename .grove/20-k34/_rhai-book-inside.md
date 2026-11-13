@@ -66,5 +66,6 @@ The two drafts share one stem, so name them by key. Chapter 9 changes least, bec
 - The second draft `rhai-book-inside-k36` found chapters 10–11 delivered by `ravel-book-inside-k308`, k309, k310 and k311.
   It also found that the tap promoted 2.0.0 to unversioned `ravel` on its remote `main`, `06c7198`. Grove 22.9.0 is the compatible caller.
   The draft retold chapter 11's transition in the simple past and named `CHANNEL=unversioned` for each later cut.
-  The third draft `rhai-book-inside-k120` corrects the `ravel@2` installation path in chapters 3 and 6, the contract and the README.
+  The third draft `rhai-book-inside-k120` moved chapters 1, 3 and 6, the contract and the README to unversioned `ravel`. Its running log lists the Homebrew evidence.
+  Chapter 3 now tells a reader of the 2.0.0 book on GitHub Pages, which installs `ravel@2`, what changed.
   The whole-book proof checks each `ravel@2` and `1.1.0` statement against that promoted state.
