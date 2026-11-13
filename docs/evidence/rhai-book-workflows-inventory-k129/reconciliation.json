@@ -1,0 +1,2238 @@
+{
+  "previous_manifest": "docs/evidence/rhai-book-components-inventory-k128/subjects.sha256",
+  "subjects": 372,
+  "items": [
+    {
+      "path": ".cargo/config.toml",
+      "previous": "bdf56cbcc0040fbbc22848d9b874a8d2b1f7c35cef28af36cff8efcc515154ce",
+      "current": "bdf56cbcc0040fbbc22848d9b874a8d2b1f7c35cef28af36cff8efcc515154ce",
+      "unchanged": true
+    },
+    {
+      "path": "CONTEXT.md",
+      "previous": "699ff4d9025e889531eea65377570c2f3edbb592afabff91a1eac7b82af5e0b1",
+      "current": "699ff4d9025e889531eea65377570c2f3edbb592afabff91a1eac7b82af5e0b1",
+      "unchanged": true
+    },
+    {
+      "path": "Cargo.lock",
+      "previous": "2871de489cc6957a44d4a738be9cf5b1a1cd397133cb511e9e08bc461fc2ccd6",
+      "current": "2871de489cc6957a44d4a738be9cf5b1a1cd397133cb511e9e08bc461fc2ccd6",
+      "unchanged": true
+    },
+    {
+      "path": "Cargo.toml",
+      "previous": "67ec1a36f581b0816217101966e26b9d76ee9bedf0716c728adf132ecfe6e876",
+      "current": "67ec1a36f581b0816217101966e26b9d76ee9bedf0716c728adf132ecfe6e876",
+      "unchanged": true
+    },
+    {
+      "path": "README.md",
+      "previous": "b952aef57eca0567d68b8eb72388247f293b8ca952ef56b37babb4cf4ff78f9b",
+      "current": "b952aef57eca0567d68b8eb72388247f293b8ca952ef56b37babb4cf4ff78f9b",
+      "unchanged": true
+    },
+    {
+      "path": "Taskfile.yml",
+      "previous": "99ac272b29ee5500292430d15c8d211720f32b5a9313ab87f86e52ff228ca941",
+      "current": "99ac272b29ee5500292430d15c8d211720f32b5a9313ab87f86e52ff228ca941",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/Cargo.toml",
+      "previous": "ba527ff4d8a4ee2d3bc9d8d88f91aa9f395b25d8634e5bec7cd9ef2905bfe0a6",
+      "current": "ba527ff4d8a4ee2d3bc9d8d88f91aa9f395b25d8634e5bec7cd9ef2905bfe0a6",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/argv.rs",
+      "previous": "c659333b482706b0a1241c91885cfb848ae878d3dff460128351d44567f74558",
+      "current": "c659333b482706b0a1241c91885cfb848ae878d3dff460128351d44567f74558",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/capture.rs",
+      "previous": "2cf715a6e2a6fcd48e01466d2cb879e0bcdf8cb8778ad1f9c19ccd0a02f5963d",
+      "current": "2cf715a6e2a6fcd48e01466d2cb879e0bcdf8cb8778ad1f9c19ccd0a02f5963d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/channel.rs",
+      "previous": "7a1f74f0547cc856a607ad4a00fc12845c8952177c0b2c70a98a9d9ca8a87b49",
+      "current": "7a1f74f0547cc856a607ad4a00fc12845c8952177c0b2c70a98a9d9ca8a87b49",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/error.rs",
+      "previous": "a3a38080f1a00c1ae452c585d3525f5d8c7e9462ab144a1982ef96dfcc90f098",
+      "current": "a3a38080f1a00c1ae452c585d3525f5d8c7e9462ab144a1982ef96dfcc90f098",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/lib.rs",
+      "previous": "a7481a835af520be7a4e578b097fc6a3dcea8832b4c0f43e80d539fa450e292e",
+      "current": "a7481a835af520be7a4e578b097fc6a3dcea8832b4c0f43e80d539fa450e292e",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/native_barrier.rs",
+      "previous": "51d6c8b8052c9bf25044426ea862aa332b4f74497e53922813ceb9f7dc92d4f8",
+      "current": "51d6c8b8052c9bf25044426ea862aa332b4f74497e53922813ceb9f7dc92d4f8",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/native_hooks.rs",
+      "previous": "c3c30b1c122b104a8f8a4ceddcab854768c1153545b2f75d201811ab40e1d89f",
+      "current": "c3c30b1c122b104a8f8a4ceddcab854768c1153545b2f75d201811ab40e1d89f",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/run.rs",
+      "previous": "f00294cbfc712e0b3c6f7b1f4fe974c4181cf3939bf18426c4d5393131f8d550",
+      "current": "f00294cbfc712e0b3c6f7b1f4fe974c4181cf3939bf18426c4d5393131f8d550",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_faults.rs",
+      "previous": "77be04bfd30d798cf61f2d104bed1a1026aa31daee51496f7dc6aea4dc0f0cfa",
+      "current": "77be04bfd30d798cf61f2d104bed1a1026aa31daee51496f7dc6aea4dc0f0cfa",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_tests.rs",
+      "previous": "397e4fe05bf840734fba691c7057fed012550b9a1014738bd2273fb7503c0fd6",
+      "current": "397e4fe05bf840734fba691c7057fed012550b9a1014738bd2273fb7503c0fd6",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/src/run/terminal_tests.rs",
+      "previous": "98ee4cf2191f71300571a4824767e61c51d023184fbc43f1db73968909f22b92",
+      "current": "98ee4cf2191f71300571a4824767e61c51d023184fbc43f1db73968909f22b92",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/authority.rs",
+      "previous": "54e96e97d96b3ce18dcf2d598d7c128015c8e79c0c95aea880ab20f6b2e3c6ea",
+      "current": "54e96e97d96b3ce18dcf2d598d7c128015c8e79c0c95aea880ab20f6b2e3c6ea",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/captured.rs",
+      "previous": "1e8137e5de53b74fb34bdc4c0ce858bcee1e0b52130bc8da248a0dbe8afc0740",
+      "current": "1e8137e5de53b74fb34bdc4c0ce858bcee1e0b52130bc8da248a0dbe8afc0740",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/internal/wait_events.rs",
+      "previous": "a3447c64510e03af65ea61eb940b8777f30cb8965fa0a4db0280837426d647bc",
+      "current": "a3447c64510e03af65ea61eb940b8777f30cb8965fa0a4db0280837426d647bc",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/interrupt.rs",
+      "previous": "8987f61c5d48dbcd4d4a1711844a22d9856bfa528701c722b736421d09918938",
+      "current": "8987f61c5d48dbcd4d4a1711844a22d9856bfa528701c722b736421d09918938",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/job.rs",
+      "previous": "2c38ece04665e1c68d4ffd7945d7a93921091b41cc7519b7dd2a0384ea6cfc82",
+      "current": "2c38ece04665e1c68d4ffd7945d7a93921091b41cc7519b7dd2a0384ea6cfc82",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/launch.rs",
+      "previous": "95322da0f7f7b19c739a28936696565de0ab1110d80a4630b8cb2104f5969376",
+      "current": "95322da0f7f7b19c739a28936696565de0ab1110d80a4630b8cb2104f5969376",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/noninteractive.rs",
+      "previous": "d4800acfb723950afc39d8af972ac759de9b5621276f831fa3880e30542dc018",
+      "current": "d4800acfb723950afc39d8af972ac759de9b5621276f831fa3880e30542dc018",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/reraise.rs",
+      "previous": "cf4970d71c6bb80c877e49a8c392bbb1654cbc9a45994a820e4113171a9fc845",
+      "current": "cf4970d71c6bb80c877e49a8c392bbb1654cbc9a45994a820e4113171a9fc845",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/start_check.rs",
+      "previous": "ba0d864831e5696ca6930d2d595284e9d1093e493b64d0ab6327b03926e48771",
+      "current": "ba0d864831e5696ca6930d2d595284e9d1093e493b64d0ab6327b03926e48771",
+      "unchanged": true
+    },
+    {
+      "path": "crates/keyed-launch/tests/support/mod.rs",
+      "previous": "b6a23503593308671d21c44bb7764fcf5c6f2dc62382cce5c6fa7777dd8fe73d",
+      "current": "b6a23503593308671d21c44bb7764fcf5c6f2dc62382cce5c6fa7777dd8fe73d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/Cargo.toml",
+      "previous": "3202fceaf011aecda5ae9afcc996184bf8bc85a24e0555ec3ae59683ac9c45c6",
+      "current": "3202fceaf011aecda5ae9afcc996184bf8bc85a24e0555ec3ae59683ac9c45c6",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/build.rs",
+      "previous": "995e14dad2309c298b88a0f0366d14e845ac6733f2267f9c08acff87b5398ae7",
+      "current": "995e14dad2309c298b88a0f0366d14e845ac6733f2267f9c08acff87b5398ae7",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/examples/harness-table.rhai",
+      "previous": "f46f2083d8dccbbedc7864cb56d7fd976e03274592cb5969b435cd8064d31177",
+      "current": "f46f2083d8dccbbedc7864cb56d7fd976e03274592cb5969b435cd8064d31177",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/examples/llm.rhai",
+      "previous": "58e703ff072e32eef01598c129ae0224e2d573d0bddd36f287f403623b799b1d",
+      "current": "58e703ff072e32eef01598c129ae0224e2d573d0bddd36f287f403623b799b1d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/examples/sample.rhai",
+      "previous": "c78ca82f14376c0b7ea82b74db83e0908b31882373d5337c96fa703789d154eb",
+      "current": "c78ca82f14376c0b7ea82b74db83e0908b31882373d5337c96fa703789d154eb",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/examples/static.rhai",
+      "previous": "2b1741c3a1ca92c5b1f14e7094ab873f56a504eeb4985de7617343720cf217ac",
+      "current": "2b1741c3a1ca92c5b1f14e7094ab873f56a504eeb4985de7617343720cf217ac",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/authority.rs",
+      "previous": "d62a0d404b085a63410fd4ccedf64de5682b2883d78cbd3b3e1042cf9506da08",
+      "current": "d62a0d404b085a63410fd4ccedf64de5682b2883d78cbd3b3e1042cf9506da08",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/cancellation.rs",
+      "previous": "018c1e77010a3bb082320895908abe42a856a80f6857b4eac6e448867d67f444",
+      "current": "018c1e77010a3bb082320895908abe42a856a80f6857b4eac6e448867d67f444",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/cancellation/propagation_tests.rs",
+      "previous": "c8d6183d3f8df8ae0c947074c135a2f6af9d6b32c51dc3a09e21108c2822a2a0",
+      "current": "c8d6183d3f8df8ae0c947074c135a2f6af9d6b32c51dc3a09e21108c2822a2a0",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/choice.rs",
+      "previous": "a9debc5af4e0d99229fe7cbe623e78045a4e6d1cfb90a7ceb84893c87f88b8dd",
+      "current": "a9debc5af4e0d99229fe7cbe623e78045a4e6d1cfb90a7ceb84893c87f88b8dd",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/cli.rs",
+      "previous": "708a16020f82b0d73f5d8c94b97f355bb2e11f39dad827266523a53189c050bf",
+      "current": "708a16020f82b0d73f5d8c94b97f355bb2e11f39dad827266523a53189c050bf",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/completion.rs",
+      "previous": "4d6a11912573be3e3fa487f8e8924e65064da4daec5c8ad950c45c279aa8d59b",
+      "current": "4d6a11912573be3e3fa487f8e8924e65064da4daec5c8ad950c45c279aa8d59b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/completion_tests.rs",
+      "previous": "329e09348eeb2538d6423cd744ece026048da410426bafde004a112e10f4de2c",
+      "current": "329e09348eeb2538d6423cd744ece026048da410426bafde004a112e10f4de2c",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/config.rs",
+      "previous": "a88ae31d4227e34ebcb7a71405eb7111c3882e5eb5475c89e0d672d63dab4e66",
+      "current": "a88ae31d4227e34ebcb7a71405eb7111c3882e5eb5475c89e0d672d63dab4e66",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/context.rs",
+      "previous": "6e54f0fd24b7c47e1915ed656da72c55203f59e78ba58563a8a4b75316332cde",
+      "current": "6e54f0fd24b7c47e1915ed656da72c55203f59e78ba58563a8a4b75316332cde",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/directory_control.rs",
+      "previous": "812d7fdd7bbf57e1f04e84223a35cef32a2a0c8ee8c55c24bd8ccf795d1acd41",
+      "current": "812d7fdd7bbf57e1f04e84223a35cef32a2a0c8ee8c55c24bd8ccf795d1acd41",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/environment.rs",
+      "previous": "a5c52b862962d94ff25fa5fec1d5e26037b3e7065cca963c93f6765a9f68f184",
+      "current": "a5c52b862962d94ff25fa5fec1d5e26037b3e7065cca963c93f6765a9f68f184",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/frame.rs",
+      "previous": "0dba0cf7b21f7639ad8269f1179c43f3c80baf5874cbbee0cd426f515525b682",
+      "current": "0dba0cf7b21f7639ad8269f1179c43f3c80baf5874cbbee0cd426f515525b682",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/harness_entries.rs",
+      "previous": "18a573797a3472652e088f57599cbca4aee65e366a8461eef8769477062d4f70",
+      "current": "18a573797a3472652e088f57599cbca4aee65e366a8461eef8769477062d4f70",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/inputs.rs",
+      "previous": "3d7ade86bfde2f989bbe6f13acadd0722df26d207f16e950a94b977725a364e6",
+      "current": "3d7ade86bfde2f989bbe6f13acadd0722df26d207f16e950a94b977725a364e6",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/lib.rs",
+      "previous": "1bfca9301cc077b67ffce837cceb16aa9dc0a83e8230f88ae8970a18b377d1a9",
+      "current": "1bfca9301cc077b67ffce837cceb16aa9dc0a83e8230f88ae8970a18b377d1a9",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/limits.rs",
+      "previous": "0702646bef2180653293200d3bf1a175e33bcbe666b77971985fb7bb7a5b042b",
+      "current": "0702646bef2180653293200d3bf1a175e33bcbe666b77971985fb7bb7a5b042b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/main.rs",
+      "previous": "b03ea376a156126c641740119a6d27cf4a75e47816a6014204b8ae2bf488ff23",
+      "current": "b03ea376a156126c641740119a6d27cf4a75e47816a6014204b8ae2bf488ff23",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests.rs",
+      "previous": "c2819ed596c62167884a6782cb27760cac1c01cdd1aa372a31df8663959b7476",
+      "current": "c2819ed596c62167884a6782cb27760cac1c01cdd1aa372a31df8663959b7476",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests/faults.rs",
+      "previous": "caaaeb3070142edfb46b611bad9891c563031cfce585f690420ca07f05d12ee6",
+      "current": "caaaeb3070142edfb46b611bad9891c563031cfce585f690420ca07f05d12ee6",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/partial_acquisition_tests.rs",
+      "previous": "1856a5927d41a3620011851f79228e7eefbdf5e895cd87439ab8116f19dddeac",
+      "current": "1856a5927d41a3620011851f79228e7eefbdf5e895cd87439ab8116f19dddeac",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/private_directory.rs",
+      "previous": "8b868a302b9aade409df237282160c6ae75f5e8dca81cee665f304d0ae72aba7",
+      "current": "8b868a302b9aade409df237282160c6ae75f5e8dca81cee665f304d0ae72aba7",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/program.rs",
+      "previous": "6a250ebbea9dc5f27310828d7f55972e6c7c1b629f8d727dd33755b287cb0673",
+      "current": "6a250ebbea9dc5f27310828d7f55972e6c7c1b629f8d727dd33755b287cb0673",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/refusal.rs",
+      "previous": "714e24df5769a53b08cddf1b48693f3a3dd6bdf0c84a518c0193e62b6702119b",
+      "current": "714e24df5769a53b08cddf1b48693f3a3dd6bdf0c84a518c0193e62b6702119b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/bridge.rs",
+      "previous": "0ed9f5fe51e1abdeb264243349c6b16b3e163d4be82bd447d0676b5bccf15055",
+      "current": "0ed9f5fe51e1abdeb264243349c6b16b3e163d4be82bd447d0676b5bccf15055",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/callbacks.rs",
+      "previous": "1899fafcb9725e2fba5361faab34dd7e43f16b472aaaa15e0935a2c788b207d2",
+      "current": "1899fafcb9725e2fba5361faab34dd7e43f16b472aaaa15e0935a2c788b207d2",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/convert.rs",
+      "previous": "c920fc260c5a7c54fc61817735b4fcdebc1650e0b082f9f2b62b64f71bc8e518",
+      "current": "c920fc260c5a7c54fc61817735b4fcdebc1650e0b082f9f2b62b64f71bc8e518",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/discovery.rs",
+      "previous": "83c4694497bb4fa04cbeeaa65d39b80da97eaa0e5b423101d48e509c8c1a9619",
+      "current": "83c4694497bb4fa04cbeeaa65d39b80da97eaa0e5b423101d48e509c8c1a9619",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/engine.rs",
+      "previous": "0e3f296c399f39b0b0fc8d81396f9784c15934eca18f73fcd9761004456bcda0",
+      "current": "0e3f296c399f39b0b0fc8d81396f9784c15934eca18f73fcd9761004456bcda0",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/fixtures.rs",
+      "previous": "91c1524554b4a5c75a5f6d4f9d53409e043a9837731425ed8a6f4e0b5eca7db3",
+      "current": "91c1524554b4a5c75a5f6d4f9d53409e043a9837731425ed8a6f4e0b5eca7db3",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/front.rs",
+      "previous": "2b1cc5e81b1c19aaa53ad5a9f3fea3d8cbb0b5995eb993e25331d15942884733",
+      "current": "2b1cc5e81b1c19aaa53ad5a9f3fea3d8cbb0b5995eb993e25331d15942884733",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/harness.rs",
+      "previous": "d19e2e58d6e28730ea7cfab0f3b7dcfcd5266a01f54027b6887b98eb82b176d0",
+      "current": "d19e2e58d6e28730ea7cfab0f3b7dcfcd5266a01f54027b6887b98eb82b176d0",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/heap.rs",
+      "previous": "9834bff05ca5816dc73eee2f981321ed9c591824d77482f7676233d2a2800f0b",
+      "current": "9834bff05ca5816dc73eee2f981321ed9c591824d77482f7676233d2a2800f0b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/helpers.rs",
+      "previous": "54f52a2bbd4f8ff4988d3f1c26a509fd356580dcf62e09a9b213301855f828e1",
+      "current": "54f52a2bbd4f8ff4988d3f1c26a509fd356580dcf62e09a9b213301855f828e1",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/host.rs",
+      "previous": "1e1601a6500a303c6804f9b748ea034bc2b029609167461882d381eaab00d21b",
+      "current": "1e1601a6500a303c6804f9b748ea034bc2b029609167461882d381eaab00d21b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/locate.rs",
+      "previous": "661056fe23ed449e94e5fdac944cd7150f7440ba53519cb8faa96be8c99e021d",
+      "current": "661056fe23ed449e94e5fdac944cd7150f7440ba53519cb8faa96be8c99e021d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/mod.rs",
+      "previous": "03e285e3ec169360a5f1364f260f0a6c88f17422ab19a5592873f458a75818ef",
+      "current": "03e285e3ec169360a5f1364f260f0a6c88f17422ab19a5592873f458a75818ef",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+      "previous": "078022d229dd6e7a7038fdb00281c049436730c5da5e56c6b3b3fb42576e8c62",
+      "current": "078022d229dd6e7a7038fdb00281c049436730c5da5e56c6b3b3fb42576e8c62",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/reader.rs",
+      "previous": "72e2b7092d054601134252c368c53c0687effe5d237579106911ad5ad044ec05",
+      "current": "72e2b7092d054601134252c368c53c0687effe5d237579106911ad5ad044ec05",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/resolver.rs",
+      "previous": "cea50fb47a7dcf6b9fa76fb72a8afe96557424f35cbd3e66a6d5e68e516eec95",
+      "current": "cea50fb47a7dcf6b9fa76fb72a8afe96557424f35cbd3e66a6d5e68e516eec95",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/role.rs",
+      "previous": "6e19cce46bbf505ffd34c22cd744f205f1051ed214169b9909540bec6e446174",
+      "current": "6e19cce46bbf505ffd34c22cd744f205f1051ed214169b9909540bec6e446174",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/serve.rs",
+      "previous": "34f58abe0ca7db0357088f1f8715b3fb4258d2eaf92f3ac4ac7a346a782e2e83",
+      "current": "34f58abe0ca7db0357088f1f8715b3fb4258d2eaf92f3ac4ac7a346a782e2e83",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/run.rs",
+      "previous": "0187e3ffcb382a8919c2b369c9bff7dc6f29e2e17c63fca84aceaeefc9088cd8",
+      "current": "0187e3ffcb382a8919c2b369c9bff7dc6f29e2e17c63fca84aceaeefc9088cd8",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/schema.rs",
+      "previous": "8bfaaa27ac5f0b4fc8a13c64df238e4eefc0e610a2def4fa3f2c07eb905f1649",
+      "current": "8bfaaa27ac5f0b4fc8a13c64df238e4eefc0e610a2def4fa3f2c07eb905f1649",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/settings.rs",
+      "previous": "e89399996c287991f9dc4d8629a22ace894989db5c60ddac69c4262dc72f5c2a",
+      "current": "e89399996c287991f9dc4d8629a22ace894989db5c60ddac69c4262dc72f5c2a",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/signal_state.rs",
+      "previous": "82aa6d8e5b393c5a6c10f713a24cc46a3dd14cb59077283e2a99ae0ca58bb8d0",
+      "current": "82aa6d8e5b393c5a6c10f713a24cc46a3dd14cb59077283e2a99ae0ca58bb8d0",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/bounds.rs",
+      "previous": "49d17084157b8cc661dc5a91f72ad2ba866d2198abd1676d21198c41e1c8628c",
+      "current": "49d17084157b8cc661dc5a91f72ad2ba866d2198abd1676d21198c41e1c8628c",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/cache.rs",
+      "previous": "8f38bbba55e4c5a12ca59032f3d91121a0be6d7d05212bc21d18e651672e0546",
+      "current": "8f38bbba55e4c5a12ca59032f3d91121a0be6d7d05212bc21d18e651672e0546",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/command.rs",
+      "previous": "cef6b4bf3e87026da9b3ab8860408193e8dad03cae4cd19fa13931124893ebcb",
+      "current": "cef6b4bf3e87026da9b3ab8860408193e8dad03cae4cd19fa13931124893ebcb",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/default_tests.rs",
+      "previous": "1613aacf2ce64fdf03d529a3faf987700bdad307086de7148a89a60371b36b7e",
+      "current": "1613aacf2ce64fdf03d529a3faf987700bdad307086de7148a89a60371b36b7e",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/dir.rs",
+      "previous": "a9f52a16bb02ff2318ae430b70dcb115f4394574b9cea127543b5946c1f864b0",
+      "current": "a9f52a16bb02ff2318ae430b70dcb115f4394574b9cea127543b5946c1f864b0",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/installed.rs",
+      "previous": "08fbd05f62b0f369cdcd28de382a0c3fa2652ca53e81d617f8c1cc927874004c",
+      "current": "08fbd05f62b0f369cdcd28de382a0c3fa2652ca53e81d617f8c1cc927874004c",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/launch.rs",
+      "previous": "6eddce677171063c9c9f7d5e8b89c2008aa276a4053090f8697fc10c52a1b8a9",
+      "current": "6eddce677171063c9c9f7d5e8b89c2008aa276a4053090f8697fc10c52a1b8a9",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/mod.rs",
+      "previous": "231864228258c4c5fc99ef7e57a5ff76ad9868c08d09fa971e6675e49029b6e4",
+      "current": "231864228258c4c5fc99ef7e57a5ff76ad9868c08d09fa971e6675e49029b6e4",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/preamble.rs",
+      "previous": "45958307a58363cb70d093033114cd2264b1f3975157a39c63b270d8ca29e70d",
+      "current": "45958307a58363cb70d093033114cd2264b1f3975157a39c63b270d8ca29e70d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/publication_tests.rs",
+      "previous": "d4c3fae5dbfcfc2db01e59a5d5955666bad1e78520ac24bb64f60de05a682f85",
+      "current": "d4c3fae5dbfcfc2db01e59a5d5955666bad1e78520ac24bb64f60de05a682f85",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/settings.rs",
+      "previous": "c91bc080d476cb5796d2cabe0a5188aafb69e301425662bee8000efcc6165732",
+      "current": "c91bc080d476cb5796d2cabe0a5188aafb69e301425662bee8000efcc6165732",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/snapshot.rs",
+      "previous": "ff2c8cd82ee69cb41d8b550c33d3f38f6525cd6673ceae264f83a6cb35d5145d",
+      "current": "ff2c8cd82ee69cb41d8b550c33d3f38f6525cd6673ceae264f83a6cb35d5145d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/skills/watch.rs",
+      "previous": "a8274a76cdd6cc591166406171c5bc79160c86ad42b375d25a0ade780b250100",
+      "current": "a8274a76cdd6cc591166406171c5bc79160c86ad42b375d25a0ade780b250100",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/strict_json.rs",
+      "previous": "0c99986e7800455f6b90b236d173361f6aecea07e60adad10eb15adc17bc7c05",
+      "current": "0c99986e7800455f6b90b236d173361f6aecea07e60adad10eb15adc17bc7c05",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/worker.rs",
+      "previous": "9176aca69ff504013be30b34fe37bcbf2731086702b053b0ce7efdabceed30f1",
+      "current": "9176aca69ff504013be30b34fe37bcbf2731086702b053b0ce7efdabceed30f1",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/worker/native_tests.rs",
+      "previous": "5a3cd7748fe9e7efd3742623e48f6c3705bd46cd64576ab122190fd9c488a788",
+      "current": "5a3cd7748fe9e7efd3742623e48f6c3705bd46cd64576ab122190fd9c488a788",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/src/worker_admission_tests.rs",
+      "previous": "b31f8b689792f48b0ad3999ffa127a5b10f1f43e7cbef54081ab3731bf552c60",
+      "current": "b31f8b689792f48b0ad3999ffa127a5b10f1f43e7cbef54081ab3731bf552c60",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/cli.rs",
+      "previous": "928b0432e78f76cf3e77117486ac6f98e96dc7de31f5d6007a6fee5262253354",
+      "current": "928b0432e78f76cf3e77117486ac6f98e96dc7de31f5d6007a6fee5262253354",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/config_diagnostics.rs",
+      "previous": "2299b27ff9e13f324efbcd9bd774231fc8ba019565b27235b99282112b96cb4d",
+      "current": "2299b27ff9e13f324efbcd9bd774231fc8ba019565b27235b99282112b96cb4d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/equivalence/fixtures/harness-table.json",
+      "previous": "0885d0c3bff543a0996673e228e2e5a1122a02e1964db50442bb485466049e9f",
+      "current": "0885d0c3bff543a0996673e228e2e5a1122a02e1964db50442bb485466049e9f",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/equivalence/fixtures/sample.json",
+      "previous": "ca6ae3a2889e2c8947cafdc33774d22fd5869b1119562b38e441a31cd41e2101",
+      "current": "ca6ae3a2889e2c8947cafdc33774d22fd5869b1119562b38e441a31cd41e2101",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/equivalence/fixtures/static.json",
+      "previous": "ef53987c43a387e2d2a9bac84bd36a92d9dacc9c7001ef60fbcba2c7b277aac7",
+      "current": "ef53987c43a387e2d2a9bac84bd36a92d9dacc9c7001ef60fbcba2c7b277aac7",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/hostile.rs",
+      "previous": "958e1cfbbb0420ffae2a9b127295f46112b2fd0ff7d2b389bdc557dffc7c9d0d",
+      "current": "958e1cfbbb0420ffae2a9b127295f46112b2fd0ff7d2b389bdc557dffc7c9d0d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_config.rs",
+      "previous": "35d92363306b364f7815773e95d17c16e36a04669c4eaf2c49c97e547527ba97",
+      "current": "35d92363306b364f7815773e95d17c16e36a04669c4eaf2c49c97e547527ba97",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_examples.rs",
+      "previous": "ba5a60e712895eae246bb72134eb40904dc5c87d554acdff4e6f33166dfd0d3e",
+      "current": "ba5a60e712895eae246bb72134eb40904dc5c87d554acdff4e6f33166dfd0d3e",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_harness_run.rs",
+      "previous": "24136462b1d07283284b98cccd7756f8462446280400b3ecbc51f4bb9533c71d",
+      "current": "24136462b1d07283284b98cccd7756f8462446280400b3ecbc51f4bb9533c71d",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_helpers.rs",
+      "previous": "0c7b6d7d700bc6f0af4b27ef639dc56da9472643c6242d01bb2788b5121acce8",
+      "current": "0c7b6d7d700bc6f0af4b27ef639dc56da9472643c6242d01bb2788b5121acce8",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_json_check.rs",
+      "previous": "edda9da4334a57d47110c812d0b958aa32a0b956005060fd5847ea91088fac4a",
+      "current": "edda9da4334a57d47110c812d0b958aa32a0b956005060fd5847ea91088fac4a",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_limits.rs",
+      "previous": "261314b476a2866609c47f985c8e8c985e96d6e252d195f644c8bd4b03f06fd4",
+      "current": "261314b476a2866609c47f985c8e8c985e96d6e252d195f644c8bd4b03f06fd4",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_llm_calls.rs",
+      "previous": "258b76db810933a79326b1b6dda1934ca2e68bad2b0124076f27eed30c4a3a83",
+      "current": "258b76db810933a79326b1b6dda1934ca2e68bad2b0124076f27eed30c4a3a83",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_reads.rs",
+      "previous": "3a94fd902d37844b4b285d1b1f2b4865e53ca0c91bd790ebb72fea4a87d47b5b",
+      "current": "3a94fd902d37844b4b285d1b1f2b4865e53ca0c91bd790ebb72fea4a87d47b5b",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_request.rs",
+      "previous": "49f27ea835d79de1b8c95bdaa2cecc4fc27916f7b582da818f567716736f1fd8",
+      "current": "49f27ea835d79de1b8c95bdaa2cecc4fc27916f7b582da818f567716736f1fd8",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_role.rs",
+      "previous": "07a6279a83f7c76b2ff3a08195ecc9df6d1b88f54f46f725190c87af6f426041",
+      "current": "07a6279a83f7c76b2ff3a08195ecc9df6d1b88f54f46f725190c87af6f426041",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/rhai_settings.rs",
+      "previous": "492c5b8f400c5f3825fe8a0f9ad52650ac828da0c62134ea0b7a28af32128dff",
+      "current": "492c5b8f400c5f3825fe8a0f9ad52650ac828da0c62134ea0b7a28af32128dff",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/session_process.rs",
+      "previous": "b9b5d89717bbd24cb55697a4c181a52f3e8f9750a3b0708d25d0ea291fc6214a",
+      "current": "b9b5d89717bbd24cb55697a4c181a52f3e8f9750a3b0708d25d0ea291fc6214a",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_bounds.rs",
+      "previous": "2ae5c007b6311fdc928a1d301c929621363bf9337ac3e366170c5a3760d1c6e2",
+      "current": "2ae5c007b6311fdc928a1d301c929621363bf9337ac3e366170c5a3760d1c6e2",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_default.rs",
+      "previous": "f84ea517b4e2f6d5ad27c0180f6115937fbdf73ecb28a3049056b6b75c68c7f7",
+      "current": "f84ea517b4e2f6d5ad27c0180f6115937fbdf73ecb28a3049056b6b75c68c7f7",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_launch.rs",
+      "previous": "b3567a87bdbd8bdbbd8931d03ca84641dcc5efdf434471f204dd9f657aa3adda",
+      "current": "b3567a87bdbd8bdbbd8931d03ca84641dcc5efdf434471f204dd9f657aa3adda",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_lifetime.rs",
+      "previous": "bc4c94f99700c870fd4ed7fd42d7662702269b0f91b090325ba5333a83a75426",
+      "current": "bc4c94f99700c870fd4ed7fd42d7662702269b0f91b090325ba5333a83a75426",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_publication.rs",
+      "previous": "8fc65993fa2b3976ad6c43d909eeed72a03759f3738eee83dffe08f471ebb1de",
+      "current": "8fc65993fa2b3976ad6c43d909eeed72a03759f3738eee83dffe08f471ebb1de",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/skills_resolve.rs",
+      "previous": "a7c5d3430d4ae0ede5cbc348a3bb3aa1af9768ff98b109cf784fdbb40c0a20cc",
+      "current": "a7c5d3430d4ae0ede5cbc348a3bb3aa1af9768ff98b109cf784fdbb40c0a20cc",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/support/mod.rs",
+      "previous": "78bd3d4e56019cdaf7f4f5c5e12838ca8b065eeb7c1065c2e7bd50b4f01b5e1e",
+      "current": "78bd3d4e56019cdaf7f4f5c5e12838ca8b065eeb7c1065c2e7bd50b4f01b5e1e",
+      "unchanged": true
+    },
+    {
+      "path": "crates/ravel/tests/support/rhai.rs",
+      "previous": "8c5a6c9719b240e680c7d1a093c5ba7dff8c3506070a628846e5c7887f96f344",
+      "current": "8c5a6c9719b240e680c7d1a093c5ba7dff8c3506070a628846e5c7887f96f344",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/book.toml",
+      "previous": "ccf0e7574951d60b99a15ba99fc3a19dc8303d683d1e10ad3659594b6ba285dc",
+      "current": "ccf0e7574951d60b99a15ba99fc3a19dc8303d683d1e10ad3659594b6ba285dc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/contract.md",
+      "previous": "92e7ad835c74342ab3bb5e119462124b5da3e28baafad8847e4e67c38c9ebab2",
+      "current": "92e7ad835c74342ab3bb5e119462124b5da3e28baafad8847e4e67c38c9ebab2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/examples.md",
+      "previous": "44278d013f3ee3d61e19d99f407cd48e240e049f1f978f0b9abe9e9bdf4c17bd",
+      "current": "44278d013f3ee3d61e19d99f407cd48e240e049f1f978f0b9abe9e9bdf4c17bd",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/excerpts.md",
+      "previous": "f77f1128482b4ca57fb2fafcb36a392f87ffc4ade91e631da7c74f0c7d75466d",
+      "current": "f77f1128482b4ca57fb2fafcb36a392f87ffc4ade91e631da7c74f0c7d75466d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/figures.md",
+      "previous": "b0a87a9dafd8ab74c28777a2ec8835511563fc32a3564a88f859f7465859502c",
+      "current": "b0a87a9dafd8ab74c28777a2ec8835511563fc32a3564a88f859f7465859502c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/01-what-ravel-is-for.md",
+      "previous": "809c293c14a28eea6187eff63c0516cd3ddb49ca405042ce080465d283a75d82",
+      "current": "809c293c14a28eea6187eff63c0516cd3ddb49ca405042ce080465d283a75d82",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/02-actors-and-words.md",
+      "previous": "a2db362445bf3ec0c56b4ebc8e5a50150c360817cf60d785fecad16b96003679",
+      "current": "a2db362445bf3ec0c56b4ebc8e5a50150c360817cf60d785fecad16b96003679",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/03-a-complete-session.md",
+      "previous": "e8f869b01477865949ce23d5cb1e5c3b9524a075722151e32b2f3121644c1650",
+      "current": "e8f869b01477865949ce23d5cb1e5c3b9524a075722151e32b2f3121644c1650",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/04-write-a-configuration-script.md",
+      "previous": "acbad594a0babcc4ff9c448d26532e21aedd701460900906e60bba4cef4784a4",
+      "current": "acbad594a0babcc4ff9c448d26532e21aedd701460900906e60bba4cef4784a4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/05-running-sessions.md",
+      "previous": "99dab95fa8a56addd14330ca4c9891d4a6abb909f328c6c0333626b4c8aab73e",
+      "current": "99dab95fa8a56addd14330ca4c9891d4a6abb909f328c6c0333626b4c8aab73e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/06-reference.md",
+      "previous": "e606b2fa4eeb1393e0c10ef8e7cded7df4263bd0ab7813cea0e1712bb3221696",
+      "current": "e606b2fa4eeb1393e0c10ef8e7cded7df4263bd0ab7813cea0e1712bb3221696",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/07-the-parts-of-ravel.md",
+      "previous": "4a43361395f6f5a914498544333a3ffa2835cc957732476dd514d13ca5e40c6b",
+      "current": "4a43361395f6f5a914498544333a3ffa2835cc957732476dd514d13ca5e40c6b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/08-follow-a-session-through-the-code.md",
+      "previous": "1d8a95728a9474d25c9d8b1a2dc0657fd4bd18ee9d2152582eed057e13008796",
+      "current": "1d8a95728a9474d25c9d8b1a2dc0657fd4bd18ee9d2152582eed057e13008796",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/09-jobs-signals-and-the-terminal.md",
+      "previous": "8595278e3a0186710b3ba7481eaa9881bc9982116a7e013de7409f477042bf90",
+      "current": "8595278e3a0186710b3ba7481eaa9881bc9982116a7e013de7409f477042bf90",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "previous": "0b99ea59fa0b3d6b3e395e965086edd69ea046be8b34064287bd21e856d21ce3",
+      "current": "31d872fb409a4cc68130b0307c3013a635cfa208747ed92511ab635f1e6cde06",
+      "unchanged": false
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "previous": "2b9555cc31447da0ea5613f967d3ab156b21f36216469b45abaff47d3a3488dd",
+      "current": "2b9555cc31447da0ea5613f967d3ab156b21f36216469b45abaff47d3a3488dd",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/SUMMARY.md",
+      "previous": "0b57d79eccc2de86020510ea9598cfc707bc7bd0f44980a42f15ab0c0ff9335b",
+      "current": "0b57d79eccc2de86020510ea9598cfc707bc7bd0f44980a42f15ab0c0ff9335b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_activity.typ",
+      "previous": "dbb7e11507ac42d9d4517e2a46ba1b83a7ab2a7b348893df2d7e71165c601ca7",
+      "current": "dbb7e11507ac42d9d4517e2a46ba1b83a7ab2a7b348893df2d7e71165c601ca7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_c4.typ",
+      "previous": "fb58c4610d4fd376fa093e46bb86c9f247e90f5e017aacb8ac611ee30ad401be",
+      "current": "fb58c4610d4fd376fa093e46bb86c9f247e90f5e017aacb8ac611ee30ad401be",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_deployment.typ",
+      "previous": "83236a215fcb5a6a218ed7148a4202d61531da146a1a6504d5c5ac64a8060bb2",
+      "current": "83236a215fcb5a6a218ed7148a4202d61531da146a1a6504d5c5ac64a8060bb2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_draw.typ",
+      "previous": "c704aab9e621ed0a398d1364d1238ff9f427c88c5ba92a60107f2a7965293458",
+      "current": "c704aab9e621ed0a398d1364d1238ff9f427c88c5ba92a60107f2a7965293458",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_layout.typ",
+      "previous": "482ad7575516cf28a4de22afa7274dbd709c24cfa3168bc3181195eb1080c1bf",
+      "current": "482ad7575516cf28a4de22afa7274dbd709c24cfa3168bc3181195eb1080c1bf",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_sequence.typ",
+      "previous": "3bc5e3359fc82508433b920c99eb1c9ac478329a47aa59fab3d4397acba5ba86",
+      "current": "3bc5e3359fc82508433b920c99eb1c9ac478329a47aa59fab3d4397acba5ba86",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_state.typ",
+      "previous": "ce9ce94b9a75bccc303987f29094a0798176843b295ba793de28b93795c5b446",
+      "current": "ce9ce94b9a75bccc303987f29094a0798176843b295ba793de28b93795c5b446",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_style.typ",
+      "previous": "f22a2816d7c669d86ebf26b894145bfce4a2a0ae53cc44ac49c80226ec3e784b",
+      "current": "f22a2816d7c669d86ebf26b894145bfce4a2a0ae53cc44ac49c80226ec3e784b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/_timing.typ",
+      "previous": "ac0105004aad1e611190cbda22dc73dd526a6ac81825eff5bca733e800fc9964",
+      "current": "ac0105004aad1e611190cbda22dc73dd526a6ac81825eff5bca733e800fc9964",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/escalation-timing.layout.json",
+      "previous": "06b06a01b0914898637700ba11c3a55810e1533dce9ee805a0fe822d527c4971",
+      "current": "06b06a01b0914898637700ba11c3a55810e1533dce9ee805a0fe822d527c4971",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/escalation-timing.svg",
+      "previous": "0750867475a07372b3c7e5e4f8733dee19b5e95000c96cfded38663dfa530649",
+      "current": "0750867475a07372b3c7e5e4f8733dee19b5e95000c96cfded38663dfa530649",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/escalation-timing.typ",
+      "previous": "c93fb637e47ad49a9eca2ce2de7cf1fad104e930a5c9c94c0c68c2db5470381f",
+      "current": "c93fb637e47ad49a9eca2ce2de7cf1fad104e930a5c9c94c0c68c2db5470381f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/evaluation-harness.layout.json",
+      "previous": "898cf9094e12ae4c3817164d0cb1fa3e5e3701378b2b4a2f18688bc9365a8e08",
+      "current": "898cf9094e12ae4c3817164d0cb1fa3e5e3701378b2b4a2f18688bc9365a8e08",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/evaluation-harness.svg",
+      "previous": "09215c97d179c1ae0dc66a64a20f2da7979116250272ab3921a96898db9bbbf8",
+      "current": "09215c97d179c1ae0dc66a64a20f2da7979116250272ab3921a96898db9bbbf8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/evaluation-harness.typ",
+      "previous": "36f5527f91a994f9d149a7123e63decc0f065bbb923da1c659f95646cf49cb35",
+      "current": "36f5527f91a994f9d149a7123e63decc0f065bbb923da1c659f95646cf49cb35",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/host-bridge.layout.json",
+      "previous": "7ae7b1111d565e04dfff19c70b3aa8230d2ecf5260110c3931a963248773513f",
+      "current": "7ae7b1111d565e04dfff19c70b3aa8230d2ecf5260110c3931a963248773513f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/host-bridge.svg",
+      "previous": "d230be48d688f63405dec606b952fb606e3041a32849361283a79559f061990e",
+      "current": "d230be48d688f63405dec606b952fb606e3041a32849361283a79559f061990e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/host-bridge.typ",
+      "previous": "93c0d9133e4c5e4ea011a504bb08f1de0966f38dfb76175a01f6a1f5730e8564",
+      "current": "93c0d9133e4c5e4ea011a504bb08f1de0966f38dfb76175a01f6a1f5730e8564",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/inherited-result-path.layout.json",
+      "previous": "409c6182a0755b87f9fb82a278eb34296def3019ee8d64e01ad803e1aeeb5820",
+      "current": "409c6182a0755b87f9fb82a278eb34296def3019ee8d64e01ad803e1aeeb5820",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/inherited-result-path.svg",
+      "previous": "e330b09292a5f97b3c608377642e3fe18f222df289906cef62d373f894a7c30b",
+      "current": "e330b09292a5f97b3c608377642e3fe18f222df289906cef62d373f894a7c30b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/inherited-result-path.typ",
+      "previous": "ae9043c7a1f9e7fadad7c3586c7638a945e1cf11adb0cfb8d973ce074d9db1de",
+      "current": "ae9043c7a1f9e7fadad7c3586c7638a945e1cf11adb0cfb8d973ce074d9db1de",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/installed-files.layout.json",
+      "previous": "d3bb2ed9dbbf1ad7c5fc7a4fa4508c4af5a1ba2dd26cf5bf43ab67832dbbd195",
+      "current": "d3bb2ed9dbbf1ad7c5fc7a4fa4508c4af5a1ba2dd26cf5bf43ab67832dbbd195",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/installed-files.svg",
+      "previous": "dc8be0f5976ca624f1052981e78119214ad28c45b24c5b0654abe403111b87ea",
+      "current": "dc8be0f5976ca624f1052981e78119214ad28c45b24c5b0654abe403111b87ea",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/installed-files.typ",
+      "previous": "d206ad2e2288931cd17a87e6d4c015f6501d70905b0398c44a62b13e2150ef84",
+      "current": "d206ad2e2288931cd17a87e6d4c015f6501d70905b0398c44a62b13e2150ef84",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/outcome-precedence.layout.json",
+      "previous": "e952a093dc1c653a662db7e5cf0a19dc7afb2d7b360b8dc48b43250e3f3ec194",
+      "current": "e952a093dc1c653a662db7e5cf0a19dc7afb2d7b360b8dc48b43250e3f3ec194",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/outcome-precedence.svg",
+      "previous": "13d459d56d34eecf2182dabf8b0956e6f28aec8533ca1af3bf0fdfff040964eb",
+      "current": "13d459d56d34eecf2182dabf8b0956e6f28aec8533ca1af3bf0fdfff040964eb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/outcome-precedence.typ",
+      "previous": "e1221b0db2045acaefc3ebca7c92a41f62ac9433c2384863f8c84e9b86812681",
+      "current": "e1221b0db2045acaefc3ebca7c92a41f62ac9433c2384863f8c84e9b86812681",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/process-authority.layout.json",
+      "previous": "359c03db1cd87bb5ddc094cc24c16e02fc321295a81eb19af2fcccf85224024e",
+      "current": "359c03db1cd87bb5ddc094cc24c16e02fc321295a81eb19af2fcccf85224024e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/process-authority.svg",
+      "previous": "872b6ca1026305f6ab160424fe89140f5f2923da959e77f3d8b9a336b24c0d0c",
+      "current": "872b6ca1026305f6ab160424fe89140f5f2923da959e77f3d8b9a336b24c0d0c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/process-authority.typ",
+      "previous": "a99d33eeec11a2d73e8ee532e8a0346b9d9b0b36029ca4c7339046ba64969401",
+      "current": "a99d33eeec11a2d73e8ee532e8a0346b9d9b0b36029ca4c7339046ba64969401",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/release-delivery.layout.json",
+      "previous": "d3524e120a6d113aacd5047d326b776fa73f866e0723d91eb29995e51f9b86a2",
+      "current": "d3524e120a6d113aacd5047d326b776fa73f866e0723d91eb29995e51f9b86a2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/release-delivery.svg",
+      "previous": "2acdfc13878898324c9b026d8ac3f917ecdd03ea81e5129755862654db0320ba",
+      "current": "2acdfc13878898324c9b026d8ac3f917ecdd03ea81e5129755862654db0320ba",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/release-delivery.typ",
+      "previous": "b41deba11545802dca2757a93caf45513779c1128f344c64c83352961b6cb4e4",
+      "current": "b41deba11545802dca2757a93caf45513779c1128f344c64c83352961b6cb4e4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/review-flow.layout.json",
+      "previous": "bcb4385403c255a622149a5f19df1fcfd89daa37a1b5ac360bfac046a43a8c00",
+      "current": "bcb4385403c255a622149a5f19df1fcfd89daa37a1b5ac360bfac046a43a8c00",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/review-flow.svg",
+      "previous": "43304feb699ebbe84f515a4e53e864a64924666cdbbb036b9d06f4713d8456a1",
+      "current": "43304feb699ebbe84f515a4e53e864a64924666cdbbb036b9d06f4713d8456a1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/review-flow.typ",
+      "previous": "a99888f6dc413f5906ce6783e73453c0361658b28251d9a4036257c2f739a8b5",
+      "current": "a99888f6dc413f5906ce6783e73453c0361658b28251d9a4036257c2f739a8b5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/routing-notice.layout.json",
+      "previous": "ad22810382a2b3ce2e004bf8b1b7cd948ce4e7540ba3a5ce3b1e8f2b8dd142f8",
+      "current": "ad22810382a2b3ce2e004bf8b1b7cd948ce4e7540ba3a5ce3b1e8f2b8dd142f8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/routing-notice.svg",
+      "previous": "4af4672d7439143b7ec2c4dc298c4790987ccb7a924aa5dae79d5ed7a6961a54",
+      "current": "4af4672d7439143b7ec2c4dc298c4790987ccb7a924aa5dae79d5ed7a6961a54",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/routing-notice.typ",
+      "previous": "9fe74dd1d8acdc1e0a06017ac6309e3b61faf940b6f63fc4a27410574523f0d1",
+      "current": "9fe74dd1d8acdc1e0a06017ac6309e3b61faf940b6f63fc4a27410574523f0d1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-cancellation.layout.json",
+      "previous": "9bb8e663c3c7ee5a4618f3e77fc16ca5ff04bf974861e4eb82548a3cea72dc01",
+      "current": "9bb8e663c3c7ee5a4618f3e77fc16ca5ff04bf974861e4eb82548a3cea72dc01",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-cancellation.svg",
+      "previous": "cbd859fa9206fb375e710c839406a38a30328f9a6c9746d781d517e60d8513a8",
+      "current": "cbd859fa9206fb375e710c839406a38a30328f9a6c9746d781d517e60d8513a8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-cancellation.typ",
+      "previous": "cf1e7817b1b9177515fab979e83388658f49b5235adb4ca5418e8c4afef6c2c6",
+      "current": "cf1e7817b1b9177515fab979e83388658f49b5235adb4ca5418e8c4afef6c2c6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-deadline.layout.json",
+      "previous": "afa6b88af5a63c3b58190cadd36052c84a44b94628b22be43c9c2e1bb715c7a1",
+      "current": "afa6b88af5a63c3b58190cadd36052c84a44b94628b22be43c9c2e1bb715c7a1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-deadline.svg",
+      "previous": "bdb54cb852e4acf863c91e47bd34425f1a2aadfcf01e555588dd820c592dfa16",
+      "current": "bdb54cb852e4acf863c91e47bd34425f1a2aadfcf01e555588dd820c592dfa16",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/selection-deadline.typ",
+      "previous": "cc55360f2ae22314656c14e3b3f0a66cc1ce474fd82816f71bb7a2679f30d8d6",
+      "current": "cc55360f2ae22314656c14e3b3f0a66cc1ce474fd82816f71bb7a2679f30d8d6",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-authority.layout.json",
+      "previous": "85eb008dbb8e134d255b55019d10f25503f476d1a492a2346954bbec1ec3328d",
+      "current": "85eb008dbb8e134d255b55019d10f25503f476d1a492a2346954bbec1ec3328d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-authority.svg",
+      "previous": "84fa4d5b10dc628be74823c826e810ed003dd6c9f03ec38979592af5e0b05068",
+      "current": "84fa4d5b10dc628be74823c826e810ed003dd6c9f03ec38979592af5e0b05068",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-authority.typ",
+      "previous": "46eb1c098bfc7bafd6a94d5cc1f95f7a3d326449f880a578e9c62cc2012d1109",
+      "current": "46eb1c098bfc7bafd6a94d5cc1f95f7a3d326449f880a578e9c62cc2012d1109",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-code-path.layout.json",
+      "previous": "76b724b7d65368488e7da181d71f96c3a1726d74d420889b9f502a126617e8f5",
+      "current": "76b724b7d65368488e7da181d71f96c3a1726d74d420889b9f502a126617e8f5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-code-path.svg",
+      "previous": "ae42a3bf0a977a6394f085d37a778e0312eab53ba0518f892de4eccaa9b13ad0",
+      "current": "ae42a3bf0a977a6394f085d37a778e0312eab53ba0518f892de4eccaa9b13ad0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-code-path.typ",
+      "previous": "f974ec2d902a7522e05486298847b8f6b76fbbd78d6c8d1c32e213547426c5df",
+      "current": "f974ec2d902a7522e05486298847b8f6b76fbbd78d6c8d1c32e213547426c5df",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-outcomes.layout.json",
+      "previous": "5a2584a5ee85eff77866a54caa87d5ec46a727c9a05634a106c23339aae6d424",
+      "current": "5a2584a5ee85eff77866a54caa87d5ec46a727c9a05634a106c23339aae6d424",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-outcomes.svg",
+      "previous": "dcc5f4d9842402c3a1f00288b51f86c2134cb68a5d4281d6ee7e50988c17ec19",
+      "current": "dcc5f4d9842402c3a1f00288b51f86c2134cb68a5d4281d6ee7e50988c17ec19",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/session-outcomes.typ",
+      "previous": "4680815d9657bcf149be7279f06a992d7f045968ecfb198b103b4a979d775767",
+      "current": "4680815d9657bcf149be7279f06a992d7f045968ecfb198b103b4a979d775767",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/settled-exit-status.layout.json",
+      "previous": "add4773f2caa1b6b1862fe6ec24fb358f7001952c9e9b86c846b92fcc4212fc9",
+      "current": "add4773f2caa1b6b1862fe6ec24fb358f7001952c9e9b86c846b92fcc4212fc9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/settled-exit-status.svg",
+      "previous": "68aaced10da9db7ed4fbdbfe61a3c29975ef74adacd14e721a0fa4c359951511",
+      "current": "68aaced10da9db7ed4fbdbfe61a3c29975ef74adacd14e721a0fa4c359951511",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/settled-exit-status.typ",
+      "previous": "8e6fbbdb87e5c4ca96f7ce0cdbd310964dd3a5943406f2eb1609076fda6cb27a",
+      "current": "8e6fbbdb87e5c4ca96f7ce0cdbd310964dd3a5943406f2eb1609076fda6cb27a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/source-components.layout.json",
+      "previous": "202f447e92b23fe0e4660f55ccf52256790a7d20439ee6f484aed86ae3b574c2",
+      "current": "202f447e92b23fe0e4660f55ccf52256790a7d20439ee6f484aed86ae3b574c2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/source-components.svg",
+      "previous": "08fe35952a215fb1420e25955380034c9574d9725937d8e310eb95991df2d5ca",
+      "current": "08fe35952a215fb1420e25955380034c9574d9725937d8e310eb95991df2d5ca",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/source-components.typ",
+      "previous": "780c45b73a8c7b38a292667d75a690e80ee5c95bc3de98230315eed66c8d11d3",
+      "current": "780c45b73a8c7b38a292667d75a690e80ee5c95bc3de98230315eed66c8d11d3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/successful-session.layout.json",
+      "previous": "3bee2354d0fd0af2ed66021c4358918fee7decd0713211e7642dfc6966f206c1",
+      "current": "3bee2354d0fd0af2ed66021c4358918fee7decd0713211e7642dfc6966f206c1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/successful-session.svg",
+      "previous": "c3ade846477ecb6df70b148a20879780d7a530927c95a0c62e58b342eeb66ef4",
+      "current": "c3ade846477ecb6df70b148a20879780d7a530927c95a0c62e58b342eeb66ef4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/successful-session.typ",
+      "previous": "a090ba1cb88615948caca2b0be858e8a51ccf73e2182c9b13681041852e863c1",
+      "current": "a090ba1cb88615948caca2b0be858e8a51ccf73e2182c9b13681041852e863c1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/supervision-cancellation.layout.json",
+      "previous": "3a6fb748f9e3cbc9abaf386bc79dbd31cb7a8489503175c2246bfd7bd2a1c262",
+      "current": "3a6fb748f9e3cbc9abaf386bc79dbd31cb7a8489503175c2246bfd7bd2a1c262",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/supervision-cancellation.svg",
+      "previous": "84dcfa1ee153c1c27c48416947f780b101e568d2bf02494439e72621727128a8",
+      "current": "84dcfa1ee153c1c27c48416947f780b101e568d2bf02494439e72621727128a8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/supervision-cancellation.typ",
+      "previous": "8156dfebc210dbd89d9a77ca78971a6a7f1499d20363ef784ffee529db31634e",
+      "current": "8156dfebc210dbd89d9a77ca78971a6a7f1499d20363ef784ffee529db31634e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/system-context.layout.json",
+      "previous": "ee217f9b8922424aa12e0e41479145cf3e905ae70cfc5af140751d2846e67c4c",
+      "current": "ee217f9b8922424aa12e0e41479145cf3e905ae70cfc5af140751d2846e67c4c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/system-context.svg",
+      "previous": "b58662f580d5a04af47e71cec7d96e77b606ae5c761944bd89c11d5c616870d7",
+      "current": "b58662f580d5a04af47e71cec7d96e77b606ae5c761944bd89c11d5c616870d7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/system-context.typ",
+      "previous": "3513d01b3cc26c02235c59506070471e4403b6b11c8ca576d73e5e3b360f4aca",
+      "current": "3513d01b3cc26c02235c59506070471e4403b6b11c8ca576d73e5e3b360f4aca",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/terminal-lending-recovery.layout.json",
+      "previous": "f4dbdfe5cc506349c1b2c6853e6fe71c5ab9b2d2a6cf4ac8d4f50f2046a3fecc",
+      "current": "f4dbdfe5cc506349c1b2c6853e6fe71c5ab9b2d2a6cf4ac8d4f50f2046a3fecc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/terminal-lending-recovery.svg",
+      "previous": "fcabc6eef19f12063c04693ff87574b6364e42cd3e4947ac45925e3f81e48fb0",
+      "current": "fcabc6eef19f12063c04693ff87574b6364e42cd3e4947ac45925e3f81e48fb0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/src/figures/terminal-lending-recovery.typ",
+      "previous": "e1e4a5cf35fac799c6913492fed06fccb2475e4d41f3cf4b76982c9c37cbbdaf",
+      "current": "e1e4a5cf35fac799c6913492fed06fccb2475e4d41f3cf4b76982c9c37cbbdaf",
+      "unchanged": true
+    },
+    {
+      "path": "docs/book/ste.md",
+      "previous": "a3b484f6cd835702e1deeaf7dc54e9e1e96e93461362a49af49bd46d506b1b0e",
+      "current": "a3b484f6cd835702e1deeaf7dc54e9e1e96e93461362a49af49bd46d506b1b0e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/documentation-lessons.md",
+      "previous": "7e53612849dccc42395b08adc89a6a640802afe738e48288b0be01ab5103f2e2",
+      "current": "7e53612849dccc42395b08adc89a6a640802afe738e48288b0be01ab5103f2e2",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/ravel-book-k311/inputs.json",
+      "previous": "0663856ff634fa1ac17a5c014720cfa230fed01475933d39191f15abb5b38828",
+      "current": "0663856ff634fa1ac17a5c014720cfa230fed01475933d39191f15abb5b38828",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-cli-inventory-k125/subjects.sha256",
+      "previous": "6f4fce5bfe5afbaea91f3279fa291db609d100a3a8a5804e85724d0324d9ff17",
+      "current": "6f4fce5bfe5afbaea91f3279fa291db609d100a3a8a5804e85724d0324d9ff17",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-components-inventory-k128/inventory.json",
+      "previous": "ef1bed74a680bbe39bbb2c211f03f2f421a54a98fbede399e4b19e5baf0803be",
+      "current": "ef1bed74a680bbe39bbb2c211f03f2f421a54a98fbede399e4b19e5baf0803be",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-components-inventory-k128/source-scope.json",
+      "previous": "594477e1fca1a353b33465bc502928f0c8435382046c27f2c4a7e92849fcfa8a",
+      "current": "594477e1fca1a353b33465bc502928f0c8435382046c27f2c4a7e92849fcfa8a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-configuration-inventory-k126/inventory.json",
+      "previous": "648f0629fa6afe62c483b1ece677f761bbfdff8437ea9837ea7fb382e476e827",
+      "current": "648f0629fa6afe62c483b1ece677f761bbfdff8437ea9837ea7fb382e476e827",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-configuration-inventory-k126/subjects.sha256",
+      "previous": "3024e15914c05ad18e513528002a11b7ad842feaad6815db20255689e05bd712",
+      "current": "3024e15914c05ad18e513528002a11b7ad842feaad6815db20255689e05bd712",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-gates-k123/inputs-after.sha256",
+      "previous": "0750fc0d6a047e716cf2e9ae4956e97f29f42b0e4b86a78debe89d36a79015f7",
+      "current": "0750fc0d6a047e716cf2e9ae4956e97f29f42b0e4b86a78debe89d36a79015f7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-gates-k123/inputs-before.sha256",
+      "previous": "0750fc0d6a047e716cf2e9ae4956e97f29f42b0e4b86a78debe89d36a79015f7",
+      "current": "0750fc0d6a047e716cf2e9ae4956e97f29f42b0e4b86a78debe89d36a79015f7",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/inventory.json",
+      "previous": "9213c84621c253f974122b52652f02000b36abc0399fb86659ffdb823d821277",
+      "current": "9213c84621c253f974122b52652f02000b36abc0399fb86659ffdb823d821277",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/source-scope.json",
+      "previous": "c6680419b9e03650bc739b7140a426b18973c7d4cfc2ac78e68568df27448e1f",
+      "current": "c6680419b9e03650bc739b7140a426b18973c7d4cfc2ac78e68568df27448e1f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/subjects.sha256",
+      "previous": "8f444887e5319daf1cdb0c8fecc489d0fbc8f9fc8cf9411e1c0712d2f044ce27",
+      "current": "8f444887e5319daf1cdb0c8fecc489d0fbc8f9fc8cf9411e1c0712d2f044ce27",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/configuration-evaluation.md",
+      "previous": "262aa2f092c6a42098fac08b4429440dbcc606f20ed1f9facc3305c06482a67f",
+      "current": "262aa2f092c6a42098fac08b4429440dbcc606f20ed1f9facc3305c06482a67f",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/release-channels-readiness.example.json",
+      "previous": "3f7b0468d29b25515f3eb7ef3440a805578cefa5ce26755ee3ae769ccc62d26c",
+      "current": "3f7b0468d29b25515f3eb7ef3440a805578cefa5ce26755ee3ae769ccc62d26c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/release-channels.md",
+      "previous": "574ac7b7110cd8e45ab1cfe1d109cbf7a4536b3bf59aada35b86860c5efd45de",
+      "current": "574ac7b7110cd8e45ab1cfe1d109cbf7a4536b3bf59aada35b86860c5efd45de",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/result-job-completion.md",
+      "previous": "7e6c7a4bebce3196f2e174d9176face9805b29034ff15c30f2b5a48232ffb03a",
+      "current": "7e6c7a4bebce3196f2e174d9176face9805b29034ff15c30f2b5a48232ffb03a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/session-execution.md",
+      "previous": "594edced8fdc3829b130a94bdb6235a561c9c550e7d73bcb10aa66f5d0b6c14a",
+      "current": "594edced8fdc3829b130a94bdb6235a561c9c550e7d73bcb10aa66f5d0b6c14a",
+      "unchanged": true
+    },
+    {
+      "path": "docs/specs/skill-discovery.md",
+      "previous": "8da769c225ca382280b4cd12a34d3e294cb7a702b3b7bc20f856dd18e5ccaabc",
+      "current": "8da769c225ca382280b4cd12a34d3e294cb7a702b3b7bc20f856dd18e5ccaabc",
+      "unchanged": true
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "previous": "549235ab2427b24002f5b4af406df0613ef0413c7a3680c4fe5f134b0ad900e7",
+      "current": "549235ab2427b24002f5b4af406df0613ef0413c7a3680c4fe5f134b0ad900e7",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/book-bun.sh",
+      "previous": "ac82a47662e68416590d11c91ea83d3bd1aafe4ba154aa98c1d1ce24e35ee8bc",
+      "current": "ac82a47662e68416590d11c91ea83d3bd1aafe4ba154aa98c1d1ce24e35ee8bc",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/book-bun.test.sh",
+      "previous": "c10ddad0973700dfabd6362557c22fea06ced5edab1df237d59f679249b1cdf6",
+      "current": "c10ddad0973700dfabd6362557c22fea06ced5edab1df237d59f679249b1cdf6",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/book-integrity.test.sh",
+      "previous": "d19ba6c32d868165dc0e521cae1eb06f6f216fc8084d82fdb728723287053080",
+      "current": "d19ba6c32d868165dc0e521cae1eb06f6f216fc8084d82fdb728723287053080",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/book.sh",
+      "previous": "c14c5889ca890d5ac65e4a01c32da8799da464f952830aa683dd800c38189c51",
+      "current": "c14c5889ca890d5ac65e4a01c32da8799da464f952830aa683dd800c38189c51",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/breaks.sh",
+      "previous": "5fdde0b9b96533e3935672556d080e09da45e17cc0390d3b4bb381ec3ad6e269",
+      "current": "5fdde0b9b96533e3935672556d080e09da45e17cc0390d3b4bb381ec3ad6e269",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/breaks.test.sh",
+      "previous": "1b636b23f538bcb495ae97b5094b2022a6c9734361049bb37c680eff91eb8ec7",
+      "current": "1b636b23f538bcb495ae97b5094b2022a6c9734361049bb37c680eff91eb8ec7",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/breaks.ts",
+      "previous": "76c715aa5b8579841316f3321c3a219dd222e7000dd1a3e2b5b16c1ab0ac23af",
+      "current": "76c715aa5b8579841316f3321c3a219dd222e7000dd1a3e2b5b16c1ab0ac23af",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/check.sh",
+      "previous": "b141eeeb2305b27f1cf4757c927a141c250f54bdb4a2301e44c753ee857ef2fb",
+      "current": "b141eeeb2305b27f1cf4757c927a141c250f54bdb4a2301e44c753ee857ef2fb",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-extract.awk",
+      "previous": "31db7bfe45197d40539e4e97d1b54ce2400edcef00e5f30b8dd745940cdd518d",
+      "current": "31db7bfe45197d40539e4e97d1b54ce2400edcef00e5f30b8dd745940cdd518d",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/cancel.md",
+      "previous": "ed866bde2b0905025204a16cc3f510665a23651fe53b262e7d8efa813bfe8dc0",
+      "current": "ed866bde2b0905025204a16cc3f510665a23651fe53b262e7d8efa813bfe8dc0",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/leak.md",
+      "previous": "dce9b878eaf4f66f8a06092c707662c85b226b2d37a6fa135b20c80cdf3df905",
+      "current": "dce9b878eaf4f66f8a06092c707662c85b226b2d37a6fa135b20c80cdf3df905",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/pass.md",
+      "previous": "376dd8fb52bef8aa48bfaf45791454149472b0ff8315fbcd69d059312b8d0d90",
+      "current": "376dd8fb52bef8aa48bfaf45791454149472b0ff8315fbcd69d059312b8d0d90",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/shapes.md",
+      "previous": "7988c5dd2488af6b71b8566fdcd216f49314d96e91d94c252d50fe2112ad2476",
+      "current": "7988c5dd2488af6b71b8566fdcd216f49314d96e91d94c252d50fe2112ad2476",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/slow.md",
+      "previous": "4fcaf6fde9b6961bb96465efee8e17a22a2e08894551ee548997b92449a7b564",
+      "current": "4fcaf6fde9b6961bb96465efee8e17a22a2e08894551ee548997b92449a7b564",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples.sh",
+      "previous": "6cb9402377252af5c1044b271d8a886662d46f24768405add69435abf382840f",
+      "current": "6cb9402377252af5c1044b271d8a886662d46f24768405add69435abf382840f",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/examples.test.sh",
+      "previous": "859d02898033d2037129c16495437e1cf6d22d5b8bae0d41ab37b72066567548",
+      "current": "859d02898033d2037129c16495437e1cf6d22d5b8bae0d41ab37b72066567548",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/excerpts.sh",
+      "previous": "48efb0d116151b205ff4e319b286977231036f4b8cdcb092c5a667d62ff8870a",
+      "current": "48efb0d116151b205ff4e319b286977231036f4b8cdcb092c5a667d62ff8870a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/excerpts.test.sh",
+      "previous": "81de0380ecb486999a61d3c757afa72f427533ddb97dc90a2cf0e6503d3aa552",
+      "current": "81de0380ecb486999a61d3c757afa72f427533ddb97dc90a2cf0e6503d3aa552",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+      "previous": "67764d981887ebdddbd76f64c94a0975914833edf57eac843554e8101a356e14",
+      "current": "67764d981887ebdddbd76f64c94a0975914833edf57eac843554e8101a356e14",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/_draw.typ",
+      "previous": "cb8517a7d0502d7e74634bca47dcf745da271b6ceef4ab7fe782b611f03f517a",
+      "current": "cb8517a7d0502d7e74634bca47dcf745da271b6ceef4ab7fe782b611f03f517a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.layout.json",
+      "previous": "bcba92ad2703444f9b693e5144241d9eed5b645e44726a59b95cc84e3bbe1c7b",
+      "current": "bcba92ad2703444f9b693e5144241d9eed5b645e44726a59b95cc84e3bbe1c7b",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.svg",
+      "previous": "574893f94af06a09fac5543f2abba6dbe984fa439e110d9861809dad13c323be",
+      "current": "574893f94af06a09fac5543f2abba6dbe984fa439e110d9861809dad13c323be",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.typ",
+      "previous": "a044065b27f7bcb4655872a999f3760371894b6c3bc8605b9121c01d3572fbe1",
+      "current": "a044065b27f7bcb4655872a999f3760371894b6c3bc8605b9121c01d3572fbe1",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures.sh",
+      "previous": "4ec2448f616950c98a114e145035e52ab13d98ed73c56f261f73042861230960",
+      "current": "4ec2448f616950c98a114e145035e52ab13d98ed73c56f261f73042861230960",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/figures.test.sh",
+      "previous": "6a925e6aad08e3bef7ac1940887e32a091aeb2bde431ade4213450960cb6b3f2",
+      "current": "6a925e6aad08e3bef7ac1940887e32a091aeb2bde431ade4213450960cb6b3f2",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/harness-smoke.sh",
+      "previous": "1b2da3e2ce1c7a3a2a6dbd3c8ca516832bc2ec39f22936afb58ecdac8e4377d9",
+      "current": "1b2da3e2ce1c7a3a2a6dbd3c8ca516832bc2ec39f22936afb58ecdac8e4377d9",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/harness-smoke.test.sh",
+      "previous": "4906e5696873dcc5ef52ba932c5fbb9911ac202a0b77175eb7710915c40b591f",
+      "current": "4906e5696873dcc5ef52ba932c5fbb9911ac202a0b77175eb7710915c40b591f",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/install.sh",
+      "previous": "69d3806c3cd918843b7d446867acd51195dc4e5953f37ebcf5006268a32c769d",
+      "current": "69d3806c3cd918843b7d446867acd51195dc4e5953f37ebcf5006268a32c769d",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/installed-check.sh",
+      "previous": "8b1414554479bec106d014651ebaf6ac0fa39039f8db9126c8652c26a4411389",
+      "current": "8b1414554479bec106d014651ebaf6ac0fa39039f8db9126c8652c26a4411389",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/installed-pair-smoke.sh",
+      "previous": "16b88074271a5610904ac1978b048b6e69d11cf93864529244e82c68bda39137",
+      "current": "16b88074271a5610904ac1978b048b6e69d11cf93864529244e82c68bda39137",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/installed-record.sh",
+      "previous": "0765253351a5aa4798c40b6935f4803ec46bfcbc056e1ac25c32de60f4831d5a",
+      "current": "0765253351a5aa4798c40b6935f4803ec46bfcbc056e1ac25c32de60f4831d5a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/installed-record.test.sh",
+      "previous": "58042004398ae74646fd36a727117d4cf572ffcdde6b30532cc161030be8728c",
+      "current": "58042004398ae74646fd36a727117d4cf572ffcdde6b30532cc161030be8728c",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/installed-smoke.sh",
+      "previous": "085e846a4d2b56343de574f0000c9184fc6e2f0d3affde568c4b96797308b09d",
+      "current": "085e846a4d2b56343de574f0000c9184fc6e2f0d3affde568c4b96797308b09d",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux-qemu.sh",
+      "previous": "c214e5f659c9de37ebc5d26534b74e0cc6e6638c4867a6a1315a7912dc1fe23a",
+      "current": "c214e5f659c9de37ebc5d26534b74e0cc6e6638c4867a6a1315a7912dc1fe23a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux.sh",
+      "previous": "1f57b50240d60df934585fadd94176fb5db288480535e56e3ebcdd192849c284",
+      "current": "1f57b50240d60df934585fadd94176fb5db288480535e56e3ebcdd192849c284",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/Dockerfile",
+      "previous": "5f2a5e74632e63a0b0166996321754db9bf12f336b94502134da7ddc5d2ead8a",
+      "current": "5f2a5e74632e63a0b0166996321754db9bf12f336b94502134da7ddc5d2ead8a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/emulation-probe.c",
+      "previous": "b209dcb1f3da8ee8f7a751dd78ee0d901d53508cb8ac974d5f2111a95f2a468c",
+      "current": "b209dcb1f3da8ee8f7a751dd78ee0d901d53508cb8ac974d5f2111a95f2a468c",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/measure.sh",
+      "previous": "d74f1c2512725e2d2e7fffd32483072b7ca121630641b853d61eb1ad1c331728",
+      "current": "d74f1c2512725e2d2e7fffd32483072b7ca121630641b853d61eb1ad1c331728",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/pivot-root.c",
+      "previous": "09eb574ad4575a45d3076c18206613f85752c1e4c2b861d0f503bfe87e1f5b80",
+      "current": "09eb574ad4575a45d3076c18206613f85752c1e4c2b861d0f503bfe87e1f5b80",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/qemu-interpreter.c",
+      "previous": "396a0195165da1f7bbf629f0947327ca8b5b67dad4574a6d25a19a732f1f9b44",
+      "current": "396a0195165da1f7bbf629f0947327ca8b5b67dad4574a6d25a19a732f1f9b44",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/native-linux/signal-domain.c",
+      "previous": "7710323a801a0ffe9896111e3faad0d495068672e556932da3cde539ded13c43",
+      "current": "7710323a801a0ffe9896111e3faad0d495068672e556932da3cde539ded13c43",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/notices.sh",
+      "previous": "f10b27dd0f0da185480d1f44b18bdf98907640f2fc333435e57abaabaa34afad",
+      "current": "f10b27dd0f0da185480d1f44b18bdf98907640f2fc333435e57abaabaa34afad",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/notices.test.sh",
+      "previous": "8ecdee1a9f467f62e811811ebc83a475f56ca03ff17aa7cb36c8457f70eff12d",
+      "current": "8ecdee1a9f467f62e811811ebc83a475f56ca03ff17aa7cb36c8457f70eff12d",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-archives.test.sh",
+      "previous": "7fe990196d937f4cae43dd72e307cdccc1a68196e657f62b7dba60184aa7009f",
+      "current": "7fe990196d937f4cae43dd72e307cdccc1a68196e657f62b7dba60184aa7009f",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-book-version.sh",
+      "previous": "17a0acb8b5fbd4443d80569e7d376fd7dadf55f70e829accb326618b82b5a74d",
+      "current": "17a0acb8b5fbd4443d80569e7d376fd7dadf55f70e829accb326618b82b5a74d",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-book-version.test.sh",
+      "previous": "3fef9640161d5f799701fe21cdd572c18a063c68ad75747f518d360eef1956f1",
+      "current": "3fef9640161d5f799701fe21cdd572c18a063c68ad75747f518d360eef1956f1",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-book.sh",
+      "previous": "74062f9230e39ce268285bfe458ddeed02a53ff81a1edc7298df1754d0070889",
+      "current": "74062f9230e39ce268285bfe458ddeed02a53ff81a1edc7298df1754d0070889",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-book.test.sh",
+      "previous": "2448480e8b04755825aee1eb7a1d509047daeed01db322a010a54685712283fc",
+      "current": "2448480e8b04755825aee1eb7a1d509047daeed01db322a010a54685712283fc",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-build.sh",
+      "previous": "fb1d7146a1fe6069c44d51e70ae3a698c760f58077e158465eaa40e354953805",
+      "current": "fb1d7146a1fe6069c44d51e70ae3a698c760f58077e158465eaa40e354953805",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-build.test.sh",
+      "previous": "1e724b42d2ec832b437a73d880a42dd3e3d16bdd06d746db0452a8ebfe030401",
+      "current": "1e724b42d2ec832b437a73d880a42dd3e3d16bdd06d746db0452a8ebfe030401",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-channel.sh",
+      "previous": "1387f5d07322490269c488b5a20218dc0a2f9062af212e13004ccc62d4547eb8",
+      "current": "1387f5d07322490269c488b5a20218dc0a2f9062af212e13004ccc62d4547eb8",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-channel.test.sh",
+      "previous": "eb0bbb8b1b5817488ac4e1a50530e5fae76efa2f3db22253bf0b635bfbae6edc",
+      "current": "eb0bbb8b1b5817488ac4e1a50530e5fae76efa2f3db22253bf0b635bfbae6edc",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-check.sh",
+      "previous": "572b21c3b51fc58e791c8bb7c1f32826384c2e0b47035b5d705c089938f7b61c",
+      "current": "572b21c3b51fc58e791c8bb7c1f32826384c2e0b47035b5d705c089938f7b61c",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-common.sh",
+      "previous": "4523813c6f7ef8ed94f3e104545a6e550641ed1d48495da65cf5fdc1ffec0e7a",
+      "current": "4523813c6f7ef8ed94f3e104545a6e550641ed1d48495da65cf5fdc1ffec0e7a",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-doctor.sh",
+      "previous": "d6ab4f75d63fd9958fda0c04a0885cafd58af90b3b72a200886668f5f747aba0",
+      "current": "d6ab4f75d63fd9958fda0c04a0885cafd58af90b3b72a200886668f5f747aba0",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-doctor.test.sh",
+      "previous": "371cb444f2da73c5bccc332030afc9a82dc8787d589e3afb89fc0b4e1b1b04cb",
+      "current": "371cb444f2da73c5bccc332030afc9a82dc8787d589e3afb89fc0b4e1b1b04cb",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-evidence.sh",
+      "previous": "8037542bac4d9e790bf6824ca86e5cef336dd4dbe5bbc43a1594318c2868eb31",
+      "current": "8037542bac4d9e790bf6824ca86e5cef336dd4dbe5bbc43a1594318c2868eb31",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-formula.sh",
+      "previous": "9d9d73d9a346412dc3203bfc5b58a93c3bde6569b19214cb19f84a65db69b319",
+      "current": "9d9d73d9a346412dc3203bfc5b58a93c3bde6569b19214cb19f84a65db69b319",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-formula.test.rb",
+      "previous": "902890db676358e16278fd39d4c1ff6fa11f404edcfde5e6fc29c607d6f86769",
+      "current": "902890db676358e16278fd39d4c1ff6fa11f404edcfde5e6fc29c607d6f86769",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-install.sh",
+      "previous": "0c67d31a1150cefeda1807163cf7f3f8f0280fe82f0c9e73910d5699464e4ff3",
+      "current": "0c67d31a1150cefeda1807163cf7f3f8f0280fe82f0c9e73910d5699464e4ff3",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-lifecycle.test.sh",
+      "previous": "492cc684ecb5f7cf134f7ecc1121422b78028970cd5d501a82ec4672722f7d90",
+      "current": "492cc684ecb5f7cf134f7ecc1121422b78028970cd5d501a82ec4672722f7d90",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-notes.sh",
+      "previous": "4ac452d1192fec0f777e3833f869b26e25b9c7cf12d23584bcf9fb12adcac443",
+      "current": "4ac452d1192fec0f777e3833f869b26e25b9c7cf12d23584bcf9fb12adcac443",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-prepare.sh",
+      "previous": "6cc228f4d0a0371887d1ba78468ac56455bd7f96055fa48bc293b3f155829150",
+      "current": "6cc228f4d0a0371887d1ba78468ac56455bd7f96055fa48bc293b3f155829150",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-prepare.test.sh",
+      "previous": "049698eb4a7683b61da9a2cacd00dc6c942464aa136fe672fe5200aa7216fc01",
+      "current": "049698eb4a7683b61da9a2cacd00dc6c942464aa136fe672fe5200aa7216fc01",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-promote.sh",
+      "previous": "ee6266edd5591c380832bba6376242779e2f43ae22ae27776a8f4ccbfef232d8",
+      "current": "ee6266edd5591c380832bba6376242779e2f43ae22ae27776a8f4ccbfef232d8",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-publish.sh",
+      "previous": "1f3960b9bcecfacc90c1b3990bd4765bba8444988c2331c108b8d2e4b05133a5",
+      "current": "1f3960b9bcecfacc90c1b3990bd4765bba8444988c2331c108b8d2e4b05133a5",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-smoke-qemu.sh",
+      "previous": "29722c478f09a32ec388af657472e1f40f443a1a3193eea6a6fb6d5758fa6dcc",
+      "current": "29722c478f09a32ec388af657472e1f40f443a1a3193eea6a6fb6d5758fa6dcc",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-smoke-target.sh",
+      "previous": "b694f10545db2dfdd29b95a3aa233ed6aa710bcb2d9ed7f36481bfeaa8d8a985",
+      "current": "b694f10545db2dfdd29b95a3aa233ed6aa710bcb2d9ed7f36481bfeaa8d8a985",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release-smoke.sh",
+      "previous": "a76fd37cf142987e816c8db9b944c57cce624643fee2f1aa5ac004ca39949c74",
+      "current": "a76fd37cf142987e816c8db9b944c57cce624643fee2f1aa5ac004ca39949c74",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/release.test.sh",
+      "previous": "ff34bfb08379d8dc24685357eee52a3b9d6e3f752f03ea9b8bf19dfde71e8416",
+      "current": "ff34bfb08379d8dc24685357eee52a3b9d6e3f752f03ea9b8bf19dfde71e8416",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/rhai-upgrade-proof.sh",
+      "previous": "b962dab2f742f6c37299ef2c02946cd468e727cff0fe3f1de1bc72d8763c0fc1",
+      "current": "b962dab2f742f6c37299ef2c02946cd468e727cff0fe3f1de1bc72d8763c0fc1",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/ste.sh",
+      "previous": "a33838fbd3d43a3d147347c56fe75b396675aacae889b169d4e4a7ab2e6ddcad",
+      "current": "a33838fbd3d43a3d147347c56fe75b396675aacae889b169d4e4a7ab2e6ddcad",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/ste.test.sh",
+      "previous": "6259e89d2fc0950762cde28f4909f94d23824610b5dc877c66b8e32905375007",
+      "current": "6259e89d2fc0950762cde28f4909f94d23824610b5dc877c66b8e32905375007",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/ste.ts",
+      "previous": "92bd2beb23075488134351fea571dc760b09375e1431d85f7076906c42be7241",
+      "current": "92bd2beb23075488134351fea571dc760b09375e1431d85f7076906c42be7241",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/templates/notices.md.hbs",
+      "previous": "96d7e614f6b797c8711fa43cfe98e4c4785f16636b4a4e8193573665a3a38203",
+      "current": "96d7e614f6b797c8711fa43cfe98e4c4785f16636b4a4e8193573665a3a38203",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/templates/ravel.rb.tmpl",
+      "previous": "faf9ebee858a6089b5bc3d81aad22ab272745126ad14723175900940049a0fef",
+      "current": "faf9ebee858a6089b5bc3d81aad22ab272745126ad14723175900940049a0fef",
+      "unchanged": true
+    },
+    {
+      "path": "scripts/terminal-recovery-check.sh",
+      "previous": "01965f5462e22c0fff90344841a24ecdbb33e8c3577cad89bb7bc922b6ba8c5d",
+      "current": "01965f5462e22c0fff90344841a24ecdbb33e8c3577cad89bb7bc922b6ba8c5d",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/bun",
+      "previous": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5",
+      "current": "35d20dd0263e5c950194434b925454fdfa9ba6e4467da960410fa05b08a7a5b5",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/bun-darwin-aarch64-1.4.2.tgz",
+      "previous": "a9df486eaf7e9db9bdebb1fa425e8c9809abd783b1c518d1dbc5096a53b861ed",
+      "current": "a9df486eaf7e9db9bdebb1fa425e8c9809abd783b1c518d1dbc5096a53b861ed",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/cargo-about/.crates.toml",
+      "previous": "13a3dc6711471be3ac37083387c5b790e2776884b5c83772b32e5c2c0b4a9e18",
+      "current": "13a3dc6711471be3ac37083387c5b790e2776884b5c83772b32e5c2c0b4a9e18",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/cargo-about/.crates2.json",
+      "previous": "161519cb1fb23a48a87fb416a3892402c597e749c4c5c782a9672385a637b8db",
+      "current": "161519cb1fb23a48a87fb416a3892402c597e749c4c5c782a9672385a637b8db",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/cargo-about/bin/cargo-about",
+      "previous": "d471e84971c4a59b1c4f6aae3eac7ad7c5538ebb5195b8996b520a34eab21b48",
+      "current": "d471e84971c4a59b1c4f6aae3eac7ad7c5538ebb5195b8996b520a34eab21b48",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/cetz-0.4.2.tar.gz",
+      "previous": "e1d2f121b166f1520fc529cad834e2ca5e0b6bcab6816e1d0e07d70836aa0b59",
+      "current": "e1d2f121b166f1520fc529cad834e2ca5e0b6bcab6816e1d0e07d70836aa0b59",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/dejavu-fonts-ttf-2.37.tar.bz2",
+      "previous": "fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e846e17d7",
+      "current": "fa9ca4d13871dd122f61258a80d01751d603b4d3ee14095d65453b4e846e17d7",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/fonts/dejavu-2.37/DejaVuSans-Bold.ttf",
+      "previous": "e6476c1b80502924294eed40894c5b18e06c181444ca953e5334262df9c27724",
+      "current": "e6476c1b80502924294eed40894c5b18e06c181444ca953e5334262df9c27724",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/fonts/dejavu-2.37/DejaVuSans.ttf",
+      "previous": "7da195a74c55bef988d0d48f9508bd5d849425c1770dba5d7bfc6ce9ed848954",
+      "current": "7da195a74c55bef988d0d48f9508bd5d849425c1770dba5d7bfc6ce9ed848954",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono-Bold.ttf",
+      "previous": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+      "current": "bce60f1b4421acd9ea51ba6623d7024ecbe6817a953e3654df62a5e6bdf8f769",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono.ttf",
+      "previous": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582",
+      "current": "b4a6c3e4faab8773f4ff761d56451646409f29abedd68f05d38c2df667d3c582",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/mdbook",
+      "previous": "49f163c7a5a9d0a4fc9cacf34bd0b96b11801458effddb1b7e951377af909d8e",
+      "current": "49f163c7a5a9d0a4fc9cacf34bd0b96b11801458effddb1b7e951377af909d8e",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/mdbook-v0.5.4-aarch64-apple-darwin.tar.gz",
+      "previous": "03e8a6d8b13a2971e0b3280affd03b388373c1485e26f73407c3a76b0b1838df",
+      "current": "03e8a6d8b13a2971e0b3280affd03b388373c1485e26f73407c3a76b0b1838df",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/oxifmt-1.0.0.tar.gz",
+      "previous": "7d17a1fc8ad01740ec3cb2b03c7360a4225ff9318e5710765fa98ea6fd59594f",
+      "current": "7d17a1fc8ad01740ec3cb2b03c7360a4225ff9318e5710765fa98ea6fd59594f",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst",
+      "previous": "7c4a136b377f3689400afe37b4f0fe3528d50faaa55cbb1106ac8a128f86ba1a",
+      "current": "7c4a136b377f3689400afe37b4f0fe3528d50faaa55cbb1106ac8a128f86ba1a",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-aarch64-apple-darwin.tar.xz",
+      "previous": "48f62ed034aa3a7978309579ac6ca00045e2ef0da73114e8af27cfd8e74dc05a",
+      "current": "48f62ed034aa3a7978309579ac6ca00045e2ef0da73114e8af27cfd8e74dc05a",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/LICENSE",
+      "previous": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "current": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/README.md",
+      "previous": "0045647b07b2a251cf4ffbf7401d68f5c30bf2ff2d080096d422cae1f41426ea",
+      "current": "0045647b07b2a251cf4ffbf7401d68f5c30bf2ff2d080096d422cae1f41426ea",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/cetz-core/cetz_core.wasm",
+      "previous": "8e980195e214736aebd8d5faa962e4e7820015d16fc9b49edf9dcf7984f22788",
+      "current": "8e980195e214736aebd8d5faa962e4e7820015d16fc9b49edf9dcf7984f22788",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/aabb.typ",
+      "previous": "a458c96cdb796955216b4c9b01cf232130359249461d4cbe6b34e2e4a3c2e9a5",
+      "current": "a458c96cdb796955216b4c9b01cf232130359249461d4cbe6b34e2e4a3c2e9a5",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/anchor.typ",
+      "previous": "bcb7edfaa727b3d5b0be4f9003761b4446a5ff96ed374d64d836fde624b60a08",
+      "current": "bcb7edfaa727b3d5b0be4f9003761b4446a5ff96ed374d64d836fde624b60a08",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/bezier.typ",
+      "previous": "c5205f1f971d8274e7d506975e83576bea6c313c7976b11ce110db176dd65a63",
+      "current": "c5205f1f971d8274e7d506975e83576bea6c313c7976b11ce110db176dd65a63",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/canvas.typ",
+      "previous": "b22c4aeed144238f02614eee9710aa9d0e594d1d25399b9aef2d87bec5755974",
+      "current": "b22c4aeed144238f02614eee9710aa9d0e594d1d25399b9aef2d87bec5755974",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/complex.typ",
+      "previous": "ea463f2cc596b3b25775b6ffefa323d3240898683c9883331b73108eecfc52b6",
+      "current": "ea463f2cc596b3b25775b6ffefa323d3240898683c9883331b73108eecfc52b6",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/coordinate.typ",
+      "previous": "c59ec4660d510f847d7ea245376a6eb1489db722d328c20b4d34c1fc3ff84216",
+      "current": "c59ec4660d510f847d7ea245376a6eb1489db722d328c20b4d34c1fc3ff84216",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/deps.typ",
+      "previous": "486a5c68c091cf47c59ad3767176b46c6bf92bc760bf83cad31e2594198f4daf",
+      "current": "486a5c68c091cf47c59ad3767176b46c6bf92bc760bf83cad31e2594198f4daf",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw.typ",
+      "previous": "2ab63ab5c20e875c0f12a3630bb99606e47aa076b5b94769f6930f7a24270258",
+      "current": "2ab63ab5c20e875c0f12a3630bb99606e47aa076b5b94769f6930f7a24270258",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/grouping.typ",
+      "previous": "82611e93ad2f6fccde4a313db02eb8a6aeb8d596ce959b747d4830f25d855da0",
+      "current": "82611e93ad2f6fccde4a313db02eb8a6aeb8d596ce959b747d4830f25d855da0",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/projection.typ",
+      "previous": "a0c7e67d8e6752fd1d9f383374f5aeacc86d0706618424e312bb2a8e437f5c92",
+      "current": "a0c7e67d8e6752fd1d9f383374f5aeacc86d0706618424e312bb2a8e437f5c92",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/shapes.typ",
+      "previous": "8001363447a69292df8a5210c3963987c65e203e7d0c6981759e7d4bf21e4db1",
+      "current": "8001363447a69292df8a5210c3963987c65e203e7d0c6981759e7d4bf21e4db1",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/styling.typ",
+      "previous": "83c0bbbc53e10c974776440355df41add4329436a78ad033fdcc2682f7a2e33a",
+      "current": "83c0bbbc53e10c974776440355df41add4329436a78ad033fdcc2682f7a2e33a",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/transformations.typ",
+      "previous": "98479838bee69d302d8ab394c9240c7ab1eb4794395927133350f433cfac8fc1",
+      "current": "98479838bee69d302d8ab394c9240c7ab1eb4794395927133350f433cfac8fc1",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/util.typ",
+      "previous": "d3bae1e134665833e97700710df8ce7de0f0f5be6bab202088bc9250af589ae4",
+      "current": "d3bae1e134665833e97700710df8ce7de0f0f5be6bab202088bc9250af589ae4",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/drawable.typ",
+      "previous": "727c3290105d00248c4784fbc4def7f3e6eafc9803391f3c32305dd8c7826bb2",
+      "current": "727c3290105d00248c4784fbc4def7f3e6eafc9803391f3c32305dd8c7826bb2",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/hobby.typ",
+      "previous": "7d7cf7f226dbddc4bbee1049d90ec5960e7c3e09feef8b771224df6a5850bdbe",
+      "current": "7d7cf7f226dbddc4bbee1049d90ec5960e7c3e09feef8b771224df6a5850bdbe",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/intersection.typ",
+      "previous": "1c41308e5fa1b0dd8f4d86f7682e7937f3125dfd21a83cea408b1cca8d5f5c02",
+      "current": "1c41308e5fa1b0dd8f4d86f7682e7937f3125dfd21a83cea408b1cca8d5f5c02",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib.typ",
+      "previous": "53380cd9de16c1f845f325e9d8be8e0f03493c2073fba1c54d546e1906a8f8ed",
+      "current": "53380cd9de16c1f845f325e9d8be8e0f03493c2073fba1c54d546e1906a8f8ed",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/angle.typ",
+      "previous": "8af04e34eec5ac8aa74a245829fe4f690c6ed5fbe33ac3bf817da68e3be345b8",
+      "current": "8af04e34eec5ac8aa74a245829fe4f690c6ed5fbe33ac3bf817da68e3be345b8",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations.typ",
+      "previous": "1f44aa27842638530864ba3bed22dc3012546f16e7ee9d7a5f2d6afe34acf2ac",
+      "current": "1f44aa27842638530864ba3bed22dc3012546f16e7ee9d7a5f2d6afe34acf2ac",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/brace.typ",
+      "previous": "17aa7d25fe6a7b5e6cc9cbf46106fe843b750dec03e7f603d949952234449a09",
+      "current": "17aa7d25fe6a7b5e6cc9cbf46106fe843b750dec03e7f603d949952234449a09",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/path.typ",
+      "previous": "953b0066d0ebc3cc4c9e0f6b481330e88bfd532a436fb1f90583651b0f6e7d23",
+      "current": "953b0066d0ebc3cc4c9e0f6b481330e88bfd532a436fb1f90583651b0f6e7d23",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/palette.typ",
+      "previous": "29111ad2ca7cc5d34aa17a256efee5808d71d3ef29c3eac6e40341dda96065b3",
+      "current": "29111ad2ca7cc5d34aa17a256efee5808d71d3ef29c3eac6e40341dda96065b3",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/pin.typ",
+      "previous": "c75574113ef8bddeaba74becdc04347a8a7496a20e4842935a7874df63f9612b",
+      "current": "c75574113ef8bddeaba74becdc04347a8a7496a20e4842935a7874df63f9612b",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/tree.typ",
+      "previous": "77e0412502c13151744a25e4648bb1fc3b19ae1c42a8ddd42c06a6e50499ac03",
+      "current": "77e0412502c13151744a25e4648bb1fc3b19ae1c42a8ddd42c06a6e50499ac03",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark-shapes.typ",
+      "previous": "223b5b737babc0b3a2c11b92d58f4d36866fe2ed55effc82532249a8233bad52",
+      "current": "223b5b737babc0b3a2c11b92d58f4d36866fe2ed55effc82532249a8233bad52",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark.typ",
+      "previous": "4cbe4de26abcba193543334f958ab03f4a426df8e71e032353094d1ca099e2f3",
+      "current": "4cbe4de26abcba193543334f958ab03f4a426df8e71e032353094d1ca099e2f3",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/matrix.typ",
+      "previous": "17ce3494b0e6ec567c991a1489206fcf40764f9acf5cfd6e5e9658c754f11d78",
+      "current": "17ce3494b0e6ec567c991a1489206fcf40764f9acf5cfd6e5e9658c754f11d78",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/path-util.typ",
+      "previous": "4eba2a39a2257c36fc81cae88600798641aae03295238d8f7645b03fc8084926",
+      "current": "4eba2a39a2257c36fc81cae88600798641aae03295238d8f7645b03fc8084926",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/polygon.typ",
+      "previous": "a4af08c24712f0005fed17a4647ba04b8855e5c2755483245bafc4ae73aea70c",
+      "current": "a4af08c24712f0005fed17a4647ba04b8855e5c2755483245bafc4ae73aea70c",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/process.typ",
+      "previous": "08fbc2ba0cfcf5517dd4f75e764f4e7fc962668d7e2c2375ce2f50f7f6221129",
+      "current": "08fbc2ba0cfcf5517dd4f75e764f4e7fc962668d7e2c2375ce2f50f7f6221129",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/sorting.typ",
+      "previous": "d9cafee6e584100c3e71e7a787841589aa289e1900b1eb3d181bc1325400a6ae",
+      "current": "d9cafee6e584100c3e71e7a787841589aa289e1900b1eb3d181bc1325400a6ae",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/styles.typ",
+      "previous": "717baee57a6135b5f33cbbbebe0bb03b81c2a30518a460f4e5221ddab8780ec7",
+      "current": "717baee57a6135b5f33cbbbebe0bb03b81c2a30518a460f4e5221ddab8780ec7",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/util.typ",
+      "previous": "fd619fc3c6ee978e7cf5ff7b2b403cf94cb3b2cb17a853a44f2959db89c13b98",
+      "current": "fd619fc3c6ee978e7cf5ff7b2b403cf94cb3b2cb17a853a44f2959db89c13b98",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/vector.typ",
+      "previous": "169fdb9e8cc46faeb90df0f689a3a326f8ec0ca454aecdd6e616800c57bf05d4",
+      "current": "169fdb9e8cc46faeb90df0f689a3a326f8ec0ca454aecdd6e616800c57bf05d4",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/version.typ",
+      "previous": "a8db3068d965ccf4a8041e0a5d7afe13ced5b9f137fe67d9cbd45b7ce08c5c89",
+      "current": "a8db3068d965ccf4a8041e0a5d7afe13ced5b9f137fe67d9cbd45b7ce08c5c89",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/wasm.typ",
+      "previous": "b79986b390caafa7eb46832a17bb4f4f37538b9310ee9d4b8c46a312f4260f44",
+      "current": "b79986b390caafa7eb46832a17bb4f4f37538b9310ee9d4b8c46a312f4260f44",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/cetz/0.4.2/typst.toml",
+      "previous": "2ccea70cc14ad8d79897179d3c8946758e610903e59f154acdb0f9b9ff81ac02",
+      "current": "2ccea70cc14ad8d79897179d3c8946758e610903e59f154acdb0f9b9ff81ac02",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE",
+      "previous": "36bb253818ac13761081556ff5c457d626da9df1eb4f56194d9ad3926c418a68",
+      "current": "36bb253818ac13761081556ff5c457d626da9df1eb4f56194d9ad3926c418a68",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-APACHE",
+      "previous": "0ad3adeb631c724cf636ab276ce6636816eeb2bc002b852d2989e5ed8bbca694",
+      "current": "0ad3adeb631c724cf636ab276ce6636816eeb2bc002b852d2989e5ed8bbca694",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-MIT",
+      "previous": "14f5b5f40f5fbcf613fec86746979319afb7708e835776467c20b797b45864b5",
+      "current": "14f5b5f40f5fbcf613fec86746979319afb7708e835776467c20b797b45864b5",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/README.md",
+      "previous": "d9852070f002dd42a06d69ba3a243f097fa5a778f042a9ca72236cf128a24b54",
+      "current": "d9852070f002dd42a06d69ba3a243f097fa5a778f042a9ca72236cf128a24b54",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/lib.typ",
+      "previous": "9d1ae81fffd85c20d1cbbc130200f32099615771fa146af36cc4a1e0f0242c2d",
+      "current": "9d1ae81fffd85c20d1cbbc130200f32099615771fa146af36cc4a1e0f0242c2d",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/oxifmt.typ",
+      "previous": "e3575b8760f158fca284a66cfefaf033a6b9e31a425f913686fd185e6ed2300a",
+      "current": "e3575b8760f158fca284a66cfefaf033a6b9e31a425f913686fd185e6ed2300a",
+      "unchanged": true
+    },
+    {
+      "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/typst.toml",
+      "previous": "323397fd70c1830714bbd8a6f33951b5d2b04eb5841b4f524922279c1fb197fd",
+      "current": "323397fd70c1830714bbd8a6f33951b5d2b04eb5841b4f524922279c1fb197fd",
+      "unchanged": true
+    }
+  ]
+}

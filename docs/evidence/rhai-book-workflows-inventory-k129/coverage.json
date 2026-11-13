@@ -1,0 +1,3873 @@
+{
+  "tier": 2,
+  "current_artifacts": {
+      "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+      "signal": "best_effort",
+      "indexed_at": "2026-11-13T16:58:28Z",
+      "metadata": {
+        "generation": "2026-11-13T16:58:28Z",
+        "index_mode": "full",
+        "recorded_at": "2026-11-13T16:58:28Z",
+        "recording_status": "complete",
+        "ignored_files_stored": 27,
+        "ignored_files_total": 27,
+        "hash_records_complete": true,
+        "coverage_version": 3,
+        "generation_matches": true
+      },
+      "paths": [
+        {
+          "requested_path": "docs/evidence/rhai-book-workflows-inventory-k129/README.md",
+          "path": "docs/evidence/rhai-book-workflows-inventory-k129/README.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-workflows-inventory-k129/inventory.json",
+          "path": "docs/evidence/rhai-book-workflows-inventory-k129/inventory.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-workflows-inventory-k129/task-list.json",
+          "path": "docs/evidence/rhai-book-workflows-inventory-k129/task-list.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-workflows-inventory-k129/verify.py",
+          "path": "docs/evidence/rhai-book-workflows-inventory-k129/verify.py",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        }
+      ],
+      "scopes": [],
+      "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+    },
+  "results": [
+    {
+      "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+      "signal": "best_effort",
+      "indexed_at": "2026-11-13T16:45:04Z",
+      "metadata": {
+        "generation": "2026-11-13T16:45:04Z",
+        "index_mode": "full",
+        "recorded_at": "2026-11-13T16:51:20Z",
+        "recording_status": "complete",
+        "ignored_files_stored": 27,
+        "ignored_files_total": 27,
+        "hash_records_complete": true,
+        "coverage_version": 3,
+        "generation_matches": true
+      },
+      "paths": [
+        {
+          "requested_path": ".cargo/config.toml",
+          "path": ".cargo/config.toml",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": ".cargo",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "CONTEXT.md",
+          "path": "CONTEXT.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "Cargo.lock",
+          "path": "Cargo.lock",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "Cargo.toml",
+          "path": "Cargo.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "README.md",
+          "path": "README.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "Taskfile.yml",
+          "path": "Taskfile.yml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "about.toml",
+          "path": "about.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/Cargo.toml",
+          "path": "crates/keyed-launch/Cargo.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/argv.rs",
+          "path": "crates/keyed-launch/src/argv.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/capture.rs",
+          "path": "crates/keyed-launch/src/capture.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/channel.rs",
+          "path": "crates/keyed-launch/src/channel.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/error.rs",
+          "path": "crates/keyed-launch/src/error.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/lib.rs",
+          "path": "crates/keyed-launch/src/lib.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/native_barrier.rs",
+          "path": "crates/keyed-launch/src/native_barrier.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/native_hooks.rs",
+          "path": "crates/keyed-launch/src/native_hooks.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/run.rs",
+          "path": "crates/keyed-launch/src/run.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/run/native_faults.rs",
+          "path": "crates/keyed-launch/src/run/native_faults.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/run/native_tests.rs",
+          "path": "crates/keyed-launch/src/run/native_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/src/run/terminal_tests.rs",
+          "path": "crates/keyed-launch/src/run/terminal_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/authority.rs",
+          "path": "crates/keyed-launch/tests/authority.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/captured.rs",
+          "path": "crates/keyed-launch/tests/captured.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/internal/wait_events.rs",
+          "path": "crates/keyed-launch/tests/internal/wait_events.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/interrupt.rs",
+          "path": "crates/keyed-launch/tests/interrupt.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/job.rs",
+          "path": "crates/keyed-launch/tests/job.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/launch.rs",
+          "path": "crates/keyed-launch/tests/launch.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/noninteractive.rs",
+          "path": "crates/keyed-launch/tests/noninteractive.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/reraise.rs",
+          "path": "crates/keyed-launch/tests/reraise.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/start_check.rs",
+          "path": "crates/keyed-launch/tests/start_check.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/keyed-launch/tests/support/mod.rs",
+          "path": "crates/keyed-launch/tests/support/mod.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/Cargo.toml",
+          "path": "crates/ravel/Cargo.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/build.rs",
+          "path": "crates/ravel/build.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/examples/harness-table.rhai",
+          "path": "crates/ravel/examples/harness-table.rhai",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/examples/llm.rhai",
+          "path": "crates/ravel/examples/llm.rhai",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/examples/sample.rhai",
+          "path": "crates/ravel/examples/sample.rhai",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/examples/static.rhai",
+          "path": "crates/ravel/examples/static.rhai",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/authority.rs",
+          "path": "crates/ravel/src/authority.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/cancellation.rs",
+          "path": "crates/ravel/src/cancellation.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/cancellation/propagation_tests.rs",
+          "path": "crates/ravel/src/cancellation/propagation_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/choice.rs",
+          "path": "crates/ravel/src/choice.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/cli.rs",
+          "path": "crates/ravel/src/cli.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/completion.rs",
+          "path": "crates/ravel/src/completion.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/completion_tests.rs",
+          "path": "crates/ravel/src/completion_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/config.rs",
+          "path": "crates/ravel/src/config.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/context.rs",
+          "path": "crates/ravel/src/context.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/directory_control.rs",
+          "path": "crates/ravel/src/directory_control.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/environment.rs",
+          "path": "crates/ravel/src/environment.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/frame.rs",
+          "path": "crates/ravel/src/frame.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/harness_entries.rs",
+          "path": "crates/ravel/src/harness_entries.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/inputs.rs",
+          "path": "crates/ravel/src/inputs.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/lib.rs",
+          "path": "crates/ravel/src/lib.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/limits.rs",
+          "path": "crates/ravel/src/limits.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/main.rs",
+          "path": "crates/ravel/src/main.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/native_entry_tests.rs",
+          "path": "crates/ravel/src/native_entry_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/native_entry_tests/faults.rs",
+          "path": "crates/ravel/src/native_entry_tests/faults.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/partial_acquisition_tests.rs",
+          "path": "crates/ravel/src/partial_acquisition_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/private_directory.rs",
+          "path": "crates/ravel/src/private_directory.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/program.rs",
+          "path": "crates/ravel/src/program.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/refusal.rs",
+          "path": "crates/ravel/src/refusal.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/bridge.rs",
+          "path": "crates/ravel/src/rhai_worker/bridge.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/callbacks.rs",
+          "path": "crates/ravel/src/rhai_worker/callbacks.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/convert.rs",
+          "path": "crates/ravel/src/rhai_worker/convert.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/discovery.rs",
+          "path": "crates/ravel/src/rhai_worker/discovery.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/engine.rs",
+          "path": "crates/ravel/src/rhai_worker/engine.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/fixtures.rs",
+          "path": "crates/ravel/src/rhai_worker/fixtures.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/front.rs",
+          "path": "crates/ravel/src/rhai_worker/front.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/harness.rs",
+          "path": "crates/ravel/src/rhai_worker/harness.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/heap.rs",
+          "path": "crates/ravel/src/rhai_worker/heap.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/helpers.rs",
+          "path": "crates/ravel/src/rhai_worker/helpers.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/host.rs",
+          "path": "crates/ravel/src/rhai_worker/host.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/locate.rs",
+          "path": "crates/ravel/src/rhai_worker/locate.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/mod.rs",
+          "path": "crates/ravel/src/rhai_worker/mod.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+          "path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/reader.rs",
+          "path": "crates/ravel/src/rhai_worker/reader.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/resolver.rs",
+          "path": "crates/ravel/src/rhai_worker/resolver.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/role.rs",
+          "path": "crates/ravel/src/rhai_worker/role.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/rhai_worker/serve.rs",
+          "path": "crates/ravel/src/rhai_worker/serve.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/run.rs",
+          "path": "crates/ravel/src/run.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/schema.rs",
+          "path": "crates/ravel/src/schema.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/settings.rs",
+          "path": "crates/ravel/src/settings.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/signal_state.rs",
+          "path": "crates/ravel/src/signal_state.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/bounds.rs",
+          "path": "crates/ravel/src/skills/bounds.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/cache.rs",
+          "path": "crates/ravel/src/skills/cache.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/command.rs",
+          "path": "crates/ravel/src/skills/command.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/default_tests.rs",
+          "path": "crates/ravel/src/skills/default_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/dir.rs",
+          "path": "crates/ravel/src/skills/dir.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/installed.rs",
+          "path": "crates/ravel/src/skills/installed.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/launch.rs",
+          "path": "crates/ravel/src/skills/launch.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/mod.rs",
+          "path": "crates/ravel/src/skills/mod.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/preamble.rs",
+          "path": "crates/ravel/src/skills/preamble.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/publication_tests.rs",
+          "path": "crates/ravel/src/skills/publication_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/settings.rs",
+          "path": "crates/ravel/src/skills/settings.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/snapshot.rs",
+          "path": "crates/ravel/src/skills/snapshot.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/skills/watch.rs",
+          "path": "crates/ravel/src/skills/watch.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/strict_json.rs",
+          "path": "crates/ravel/src/strict_json.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/worker.rs",
+          "path": "crates/ravel/src/worker.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/worker/native_tests.rs",
+          "path": "crates/ravel/src/worker/native_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/src/worker_admission_tests.rs",
+          "path": "crates/ravel/src/worker_admission_tests.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/cli.rs",
+          "path": "crates/ravel/tests/cli.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/config_diagnostics.rs",
+          "path": "crates/ravel/tests/config_diagnostics.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/equivalence/fixtures/harness-table.json",
+          "path": "crates/ravel/tests/equivalence/fixtures/harness-table.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/equivalence/fixtures/sample.json",
+          "path": "crates/ravel/tests/equivalence/fixtures/sample.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/equivalence/fixtures/static.json",
+          "path": "crates/ravel/tests/equivalence/fixtures/static.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/hostile.rs",
+          "path": "crates/ravel/tests/hostile.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_config.rs",
+          "path": "crates/ravel/tests/rhai_config.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_examples.rs",
+          "path": "crates/ravel/tests/rhai_examples.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_harness_run.rs",
+          "path": "crates/ravel/tests/rhai_harness_run.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_helpers.rs",
+          "path": "crates/ravel/tests/rhai_helpers.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_json_check.rs",
+          "path": "crates/ravel/tests/rhai_json_check.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_limits.rs",
+          "path": "crates/ravel/tests/rhai_limits.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_llm_calls.rs",
+          "path": "crates/ravel/tests/rhai_llm_calls.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_reads.rs",
+          "path": "crates/ravel/tests/rhai_reads.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_request.rs",
+          "path": "crates/ravel/tests/rhai_request.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_role.rs",
+          "path": "crates/ravel/tests/rhai_role.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/rhai_settings.rs",
+          "path": "crates/ravel/tests/rhai_settings.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/session_process.rs",
+          "path": "crates/ravel/tests/session_process.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/skills_bounds.rs",
+          "path": "crates/ravel/tests/skills_bounds.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/skills_default.rs",
+          "path": "crates/ravel/tests/skills_default.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/skills_launch.rs",
+          "path": "crates/ravel/tests/skills_launch.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/skills_lifetime.rs",
+          "path": "crates/ravel/tests/skills_lifetime.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/skills_publication.rs",
+          "path": "crates/ravel/tests/skills_publication.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        }
+      ],
+      "scopes": [
+        {
+          "requested_scope": "scripts",
+          "scope": "scripts",
+          "total": 4,
+          "has_more": false,
+          "entries": [
+            {
+              "path": "scripts/examples.test.sh",
+              "kind": "parse_partial",
+              "detail": "1-779",
+              "ranges": [
+                {
+                  "start": 1,
+                  "end": 779
+                }
+              ]
+            },
+            {
+              "path": "scripts/figures-fixtures/figures/layers.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix"
+            },
+            {
+              "path": "scripts/native-linux-qemu.sh",
+              "kind": "parse_partial",
+              "detail": "116-116,116-116",
+              "ranges": [
+                {
+                  "start": 116,
+                  "end": 116
+                },
+                {
+                  "start": 116,
+                  "end": 116
+                }
+              ]
+            },
+            {
+              "path": "scripts/release-smoke-qemu.sh",
+              "kind": "parse_partial",
+              "detail": "184-184,184-184",
+              "ranges": [
+                {
+                  "start": 184,
+                  "end": 184
+                },
+                {
+                  "start": 184,
+                  "end": 184
+                }
+              ]
+            }
+          ],
+          "status": "known_gaps"
+        },
+        {
+          "requested_scope": "Taskfile.yml",
+          "scope": "Taskfile.yml",
+          "total": 0,
+          "has_more": false,
+          "entries": [],
+          "status": "no_recorded_issue"
+        },
+        {
+          "requested_scope": "docs/book/src/10-develop-ravel.md",
+          "scope": "docs/book/src/10-develop-ravel.md",
+          "total": 0,
+          "has_more": false,
+          "entries": [],
+          "status": "no_recorded_issue"
+        },
+        {
+          "requested_scope": "docs/book/src/11-deliver-ravel.md",
+          "scope": "docs/book/src/11-deliver-ravel.md",
+          "total": 0,
+          "has_more": false,
+          "entries": [],
+          "status": "no_recorded_issue"
+        }
+      ],
+      "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+    },
+    {
+      "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+      "signal": "best_effort",
+      "indexed_at": "2026-11-13T16:45:04Z",
+      "metadata": {
+        "generation": "2026-11-13T16:45:04Z",
+        "index_mode": "full",
+        "recorded_at": "2026-11-13T16:51:20Z",
+        "recording_status": "complete",
+        "ignored_files_stored": 27,
+        "ignored_files_total": 27,
+        "hash_records_complete": true,
+        "coverage_version": 3,
+        "generation_matches": true
+      },
+      "paths": [
+        {
+          "requested_path": "crates/ravel/tests/skills_resolve.rs",
+          "path": "crates/ravel/tests/skills_resolve.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/support/mod.rs",
+          "path": "crates/ravel/tests/support/mod.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "crates/ravel/tests/support/rhai.rs",
+          "path": "crates/ravel/tests/support/rhai.rs",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/book.toml",
+          "path": "docs/book/book.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/contract.md",
+          "path": "docs/book/contract.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/examples.md",
+          "path": "docs/book/examples.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/excerpts.md",
+          "path": "docs/book/excerpts.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/figures.md",
+          "path": "docs/book/figures.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/01-what-ravel-is-for.md",
+          "path": "docs/book/src/01-what-ravel-is-for.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/02-actors-and-words.md",
+          "path": "docs/book/src/02-actors-and-words.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/03-a-complete-session.md",
+          "path": "docs/book/src/03-a-complete-session.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/04-write-a-configuration-script.md",
+          "path": "docs/book/src/04-write-a-configuration-script.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/05-running-sessions.md",
+          "path": "docs/book/src/05-running-sessions.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/06-reference.md",
+          "path": "docs/book/src/06-reference.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/07-the-parts-of-ravel.md",
+          "path": "docs/book/src/07-the-parts-of-ravel.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/08-follow-a-session-through-the-code.md",
+          "path": "docs/book/src/08-follow-a-session-through-the-code.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/09-jobs-signals-and-the-terminal.md",
+          "path": "docs/book/src/09-jobs-signals-and-the-terminal.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/10-develop-ravel.md",
+          "path": "docs/book/src/10-develop-ravel.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/11-deliver-ravel.md",
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/SUMMARY.md",
+          "path": "docs/book/src/SUMMARY.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_activity.typ",
+          "path": "docs/book/src/figures/_activity.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_c4.typ",
+          "path": "docs/book/src/figures/_c4.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_deployment.typ",
+          "path": "docs/book/src/figures/_deployment.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_draw.typ",
+          "path": "docs/book/src/figures/_draw.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_layout.typ",
+          "path": "docs/book/src/figures/_layout.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_sequence.typ",
+          "path": "docs/book/src/figures/_sequence.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_state.typ",
+          "path": "docs/book/src/figures/_state.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_style.typ",
+          "path": "docs/book/src/figures/_style.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/_timing.typ",
+          "path": "docs/book/src/figures/_timing.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/escalation-timing.layout.json",
+          "path": "docs/book/src/figures/escalation-timing.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/escalation-timing.svg",
+          "path": "docs/book/src/figures/escalation-timing.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/escalation-timing.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/escalation-timing.typ",
+          "path": "docs/book/src/figures/escalation-timing.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/evaluation-harness.layout.json",
+          "path": "docs/book/src/figures/evaluation-harness.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/evaluation-harness.svg",
+          "path": "docs/book/src/figures/evaluation-harness.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/evaluation-harness.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/evaluation-harness.typ",
+          "path": "docs/book/src/figures/evaluation-harness.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/host-bridge.layout.json",
+          "path": "docs/book/src/figures/host-bridge.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/host-bridge.svg",
+          "path": "docs/book/src/figures/host-bridge.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/host-bridge.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/host-bridge.typ",
+          "path": "docs/book/src/figures/host-bridge.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/inherited-result-path.layout.json",
+          "path": "docs/book/src/figures/inherited-result-path.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/inherited-result-path.svg",
+          "path": "docs/book/src/figures/inherited-result-path.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/inherited-result-path.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/inherited-result-path.typ",
+          "path": "docs/book/src/figures/inherited-result-path.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/installed-files.layout.json",
+          "path": "docs/book/src/figures/installed-files.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/installed-files.svg",
+          "path": "docs/book/src/figures/installed-files.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/installed-files.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/installed-files.typ",
+          "path": "docs/book/src/figures/installed-files.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/outcome-precedence.layout.json",
+          "path": "docs/book/src/figures/outcome-precedence.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/outcome-precedence.svg",
+          "path": "docs/book/src/figures/outcome-precedence.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/outcome-precedence.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/outcome-precedence.typ",
+          "path": "docs/book/src/figures/outcome-precedence.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/process-authority.layout.json",
+          "path": "docs/book/src/figures/process-authority.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/process-authority.svg",
+          "path": "docs/book/src/figures/process-authority.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/process-authority.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/process-authority.typ",
+          "path": "docs/book/src/figures/process-authority.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/release-delivery.layout.json",
+          "path": "docs/book/src/figures/release-delivery.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/release-delivery.svg",
+          "path": "docs/book/src/figures/release-delivery.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/release-delivery.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/release-delivery.typ",
+          "path": "docs/book/src/figures/release-delivery.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/review-flow.layout.json",
+          "path": "docs/book/src/figures/review-flow.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/review-flow.svg",
+          "path": "docs/book/src/figures/review-flow.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/review-flow.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/review-flow.typ",
+          "path": "docs/book/src/figures/review-flow.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/routing-notice.layout.json",
+          "path": "docs/book/src/figures/routing-notice.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/routing-notice.svg",
+          "path": "docs/book/src/figures/routing-notice.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/routing-notice.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/routing-notice.typ",
+          "path": "docs/book/src/figures/routing-notice.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-cancellation.layout.json",
+          "path": "docs/book/src/figures/selection-cancellation.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-cancellation.svg",
+          "path": "docs/book/src/figures/selection-cancellation.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/selection-cancellation.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-cancellation.typ",
+          "path": "docs/book/src/figures/selection-cancellation.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-deadline.layout.json",
+          "path": "docs/book/src/figures/selection-deadline.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-deadline.svg",
+          "path": "docs/book/src/figures/selection-deadline.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/selection-deadline.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/selection-deadline.typ",
+          "path": "docs/book/src/figures/selection-deadline.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-authority.layout.json",
+          "path": "docs/book/src/figures/session-authority.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-authority.svg",
+          "path": "docs/book/src/figures/session-authority.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/session-authority.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-authority.typ",
+          "path": "docs/book/src/figures/session-authority.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-code-path.layout.json",
+          "path": "docs/book/src/figures/session-code-path.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-code-path.svg",
+          "path": "docs/book/src/figures/session-code-path.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/session-code-path.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-code-path.typ",
+          "path": "docs/book/src/figures/session-code-path.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-outcomes.layout.json",
+          "path": "docs/book/src/figures/session-outcomes.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-outcomes.svg",
+          "path": "docs/book/src/figures/session-outcomes.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/session-outcomes.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/session-outcomes.typ",
+          "path": "docs/book/src/figures/session-outcomes.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/settled-exit-status.layout.json",
+          "path": "docs/book/src/figures/settled-exit-status.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/settled-exit-status.svg",
+          "path": "docs/book/src/figures/settled-exit-status.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/settled-exit-status.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/settled-exit-status.typ",
+          "path": "docs/book/src/figures/settled-exit-status.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/source-components.layout.json",
+          "path": "docs/book/src/figures/source-components.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/source-components.svg",
+          "path": "docs/book/src/figures/source-components.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/source-components.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/source-components.typ",
+          "path": "docs/book/src/figures/source-components.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/successful-session.layout.json",
+          "path": "docs/book/src/figures/successful-session.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/successful-session.svg",
+          "path": "docs/book/src/figures/successful-session.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/successful-session.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/successful-session.typ",
+          "path": "docs/book/src/figures/successful-session.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/supervision-cancellation.layout.json",
+          "path": "docs/book/src/figures/supervision-cancellation.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/supervision-cancellation.svg",
+          "path": "docs/book/src/figures/supervision-cancellation.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/supervision-cancellation.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/supervision-cancellation.typ",
+          "path": "docs/book/src/figures/supervision-cancellation.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/system-context.layout.json",
+          "path": "docs/book/src/figures/system-context.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/system-context.svg",
+          "path": "docs/book/src/figures/system-context.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/system-context.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/system-context.typ",
+          "path": "docs/book/src/figures/system-context.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/terminal-lending-recovery.layout.json",
+          "path": "docs/book/src/figures/terminal-lending-recovery.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/src/figures/terminal-lending-recovery.svg",
+          "path": "docs/book/src/figures/terminal-lending-recovery.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "docs/book/src/figures/terminal-lending-recovery.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "docs/book/src/figures/terminal-lending-recovery.typ",
+          "path": "docs/book/src/figures/terminal-lending-recovery.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/book/ste.md",
+          "path": "docs/book/ste.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/documentation-lessons.md",
+          "path": "docs/documentation-lessons.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/ravel-book-k311/inputs.json",
+          "path": "docs/evidence/ravel-book-k311/inputs.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-cli-inventory-k125/subjects.sha256",
+          "path": "docs/evidence/rhai-book-cli-inventory-k125/subjects.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-components-inventory-k128/README.md",
+          "path": "docs/evidence/rhai-book-components-inventory-k128/README.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-components-inventory-k128/inventory.json",
+          "path": "docs/evidence/rhai-book-components-inventory-k128/inventory.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-components-inventory-k128/source-scope.json",
+          "path": "docs/evidence/rhai-book-components-inventory-k128/source-scope.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-components-inventory-k128/subjects.sha256",
+          "path": "docs/evidence/rhai-book-components-inventory-k128/subjects.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-configuration-inventory-k126/inventory.json",
+          "path": "docs/evidence/rhai-book-configuration-inventory-k126/inventory.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-configuration-inventory-k126/subjects.sha256",
+          "path": "docs/evidence/rhai-book-configuration-inventory-k126/subjects.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-gates-k123/inputs-after.sha256",
+          "path": "docs/evidence/rhai-book-gates-k123/inputs-after.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-gates-k123/inputs-before.sha256",
+          "path": "docs/evidence/rhai-book-gates-k123/inputs-before.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-lifecycle-inventory-k127/inventory.json",
+          "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/inventory.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-lifecycle-inventory-k127/source-scope.json",
+          "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/source-scope.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/evidence/rhai-book-lifecycle-inventory-k127/subjects.sha256",
+          "path": "docs/evidence/rhai-book-lifecycle-inventory-k127/subjects.sha256",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/configuration-evaluation.md",
+          "path": "docs/specs/configuration-evaluation.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/release-channels-readiness.example.json",
+          "path": "docs/specs/release-channels-readiness.example.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/release-channels.md",
+          "path": "docs/specs/release-channels.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/result-job-completion.md",
+          "path": "docs/specs/result-job-completion.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/session-execution.md",
+          "path": "docs/specs/session-execution.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "docs/specs/skill-discovery.md",
+          "path": "docs/specs/skill-discovery.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "rust-toolchain.toml",
+          "path": "rust-toolchain.toml",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/book-bun.sh",
+          "path": "scripts/book-bun.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/book-bun.test.sh",
+          "path": "scripts/book-bun.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/book-integrity.test.sh",
+          "path": "scripts/book-integrity.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/book.sh",
+          "path": "scripts/book.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/breaks.sh",
+          "path": "scripts/breaks.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/breaks.test.sh",
+          "path": "scripts/breaks.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        }
+      ],
+      "scopes": [],
+      "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+    },
+    {
+      "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+      "signal": "best_effort",
+      "indexed_at": "2026-11-13T16:45:04Z",
+      "metadata": {
+        "generation": "2026-11-13T16:45:04Z",
+        "index_mode": "full",
+        "recorded_at": "2026-11-13T16:51:20Z",
+        "recording_status": "complete",
+        "ignored_files_stored": 27,
+        "ignored_files_total": 27,
+        "hash_records_complete": true,
+        "coverage_version": 3,
+        "generation_matches": true
+      },
+      "paths": [
+        {
+          "requested_path": "scripts/breaks.ts",
+          "path": "scripts/breaks.ts",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/check.sh",
+          "path": "scripts/check.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-extract.awk",
+          "path": "scripts/examples-extract.awk",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-fixtures/pages/cancel.md",
+          "path": "scripts/examples-fixtures/pages/cancel.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-fixtures/pages/leak.md",
+          "path": "scripts/examples-fixtures/pages/leak.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-fixtures/pages/pass.md",
+          "path": "scripts/examples-fixtures/pages/pass.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-fixtures/pages/shapes.md",
+          "path": "scripts/examples-fixtures/pages/shapes.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples-fixtures/pages/slow.md",
+          "path": "scripts/examples-fixtures/pages/slow.md",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples.sh",
+          "path": "scripts/examples.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/examples.test.sh",
+          "path": "scripts/examples.test.sh",
+          "status": "partial",
+          "freshness": "metadata_match",
+          "recommended_action": "read_ranges_and_verify_scope",
+          "coverage": [
+            {
+              "path": "scripts/examples.test.sh",
+              "kind": "parse_partial",
+              "detail": "1-779",
+              "match": "exact",
+              "ranges": [
+                {
+                  "start": 1,
+                  "end": 779
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "requested_path": "scripts/excerpts.sh",
+          "path": "scripts/excerpts.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/excerpts.test.sh",
+          "path": "scripts/excerpts.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+          "path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures-fixtures/figures/_draw.typ",
+          "path": "scripts/figures-fixtures/figures/_draw.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures-fixtures/figures/layers.layout.json",
+          "path": "scripts/figures-fixtures/figures/layers.layout.json",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures-fixtures/figures/layers.svg",
+          "path": "scripts/figures-fixtures/figures/layers.svg",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "scripts/figures-fixtures/figures/layers.svg",
+              "kind": "not_indexed_file",
+              "detail": "ignored-suffix",
+              "match": "exact"
+            }
+          ]
+        },
+        {
+          "requested_path": "scripts/figures-fixtures/figures/layers.typ",
+          "path": "scripts/figures-fixtures/figures/layers.typ",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures.sh",
+          "path": "scripts/figures.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/figures.test.sh",
+          "path": "scripts/figures.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/harness-smoke.sh",
+          "path": "scripts/harness-smoke.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/harness-smoke.test.sh",
+          "path": "scripts/harness-smoke.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/install.sh",
+          "path": "scripts/install.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/installed-check.sh",
+          "path": "scripts/installed-check.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/installed-pair-smoke.sh",
+          "path": "scripts/installed-pair-smoke.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/installed-record.sh",
+          "path": "scripts/installed-record.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/installed-record.test.sh",
+          "path": "scripts/installed-record.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/installed-smoke.sh",
+          "path": "scripts/installed-smoke.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux-qemu.sh",
+          "path": "scripts/native-linux-qemu.sh",
+          "status": "partial",
+          "freshness": "metadata_match",
+          "recommended_action": "read_ranges_and_verify_scope",
+          "coverage": [
+            {
+              "path": "scripts/native-linux-qemu.sh",
+              "kind": "parse_partial",
+              "detail": "116-116,116-116",
+              "match": "exact",
+              "ranges": [
+                {
+                  "start": 116,
+                  "end": 116
+                },
+                {
+                  "start": 116,
+                  "end": 116
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "requested_path": "scripts/native-linux.sh",
+          "path": "scripts/native-linux.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/Dockerfile",
+          "path": "scripts/native-linux/Dockerfile",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/emulation-probe.c",
+          "path": "scripts/native-linux/emulation-probe.c",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/measure.sh",
+          "path": "scripts/native-linux/measure.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/pivot-root.c",
+          "path": "scripts/native-linux/pivot-root.c",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/qemu-interpreter.c",
+          "path": "scripts/native-linux/qemu-interpreter.c",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/native-linux/signal-domain.c",
+          "path": "scripts/native-linux/signal-domain.c",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/notices.sh",
+          "path": "scripts/notices.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/notices.test.sh",
+          "path": "scripts/notices.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-archives.test.sh",
+          "path": "scripts/release-archives.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-book-version.sh",
+          "path": "scripts/release-book-version.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-book-version.test.sh",
+          "path": "scripts/release-book-version.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-book.sh",
+          "path": "scripts/release-book.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-book.test.sh",
+          "path": "scripts/release-book.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-build.sh",
+          "path": "scripts/release-build.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-build.test.sh",
+          "path": "scripts/release-build.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-channel.sh",
+          "path": "scripts/release-channel.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-channel.test.sh",
+          "path": "scripts/release-channel.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-check.sh",
+          "path": "scripts/release-check.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-common.sh",
+          "path": "scripts/release-common.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-doctor.sh",
+          "path": "scripts/release-doctor.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-doctor.test.sh",
+          "path": "scripts/release-doctor.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-evidence.sh",
+          "path": "scripts/release-evidence.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-formula.sh",
+          "path": "scripts/release-formula.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-formula.test.rb",
+          "path": "scripts/release-formula.test.rb",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-install.sh",
+          "path": "scripts/release-install.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-lifecycle.test.sh",
+          "path": "scripts/release-lifecycle.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-notes.sh",
+          "path": "scripts/release-notes.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-prepare.sh",
+          "path": "scripts/release-prepare.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-prepare.test.sh",
+          "path": "scripts/release-prepare.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-promote.sh",
+          "path": "scripts/release-promote.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-publish.sh",
+          "path": "scripts/release-publish.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-smoke-qemu.sh",
+          "path": "scripts/release-smoke-qemu.sh",
+          "status": "partial",
+          "freshness": "metadata_match",
+          "recommended_action": "read_ranges_and_verify_scope",
+          "coverage": [
+            {
+              "path": "scripts/release-smoke-qemu.sh",
+              "kind": "parse_partial",
+              "detail": "184-184,184-184",
+              "match": "exact",
+              "ranges": [
+                {
+                  "start": 184,
+                  "end": 184
+                },
+                {
+                  "start": 184,
+                  "end": 184
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "requested_path": "scripts/release-smoke-target.sh",
+          "path": "scripts/release-smoke-target.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release-smoke.sh",
+          "path": "scripts/release-smoke.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/release.test.sh",
+          "path": "scripts/release.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/rhai-upgrade-proof.sh",
+          "path": "scripts/rhai-upgrade-proof.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/ste.sh",
+          "path": "scripts/ste.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/ste.test.sh",
+          "path": "scripts/ste.test.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/ste.ts",
+          "path": "scripts/ste.ts",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/templates/notices.md.hbs",
+          "path": "scripts/templates/notices.md.hbs",
+          "status": "no_recorded_issue",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/templates/ravel.rb.tmpl",
+          "path": "scripts/templates/ravel.rb.tmpl",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "scripts/terminal-recovery-check.sh",
+          "path": "scripts/terminal-recovery-check.sh",
+          "status": "no_recorded_issue",
+          "freshness": "metadata_match",
+          "recommended_action": "use_graph_with_best_effort_caveat",
+          "coverage": []
+        },
+        {
+          "requested_path": "target/tools/bun",
+          "path": "target/tools/bun",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/bun-darwin-aarch64-1.4.2.tgz",
+          "path": "target/tools/bun-darwin-aarch64-1.4.2.tgz",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/cargo-about/.crates.toml",
+          "path": "target/tools/cargo-about/.crates.toml",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/cargo-about/.crates2.json",
+          "path": "target/tools/cargo-about/.crates2.json",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/cargo-about/bin/cargo-about",
+          "path": "target/tools/cargo-about/bin/cargo-about",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/cetz-0.4.2.tar.gz",
+          "path": "target/tools/cetz-0.4.2.tar.gz",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/dejavu-fonts-ttf-2.37.tar.bz2",
+          "path": "target/tools/dejavu-fonts-ttf-2.37.tar.bz2",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/fonts/dejavu-2.37/DejaVuSans-Bold.ttf",
+          "path": "target/tools/fonts/dejavu-2.37/DejaVuSans-Bold.ttf",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/fonts/dejavu-2.37/DejaVuSans.ttf",
+          "path": "target/tools/fonts/dejavu-2.37/DejaVuSans.ttf",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono-Bold.ttf",
+          "path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono-Bold.ttf",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono.ttf",
+          "path": "target/tools/fonts/dejavu-2.37/DejaVuSansMono.ttf",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/mdbook",
+          "path": "target/tools/mdbook",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/mdbook-v0.5.4-aarch64-apple-darwin.tar.gz",
+          "path": "target/tools/mdbook-v0.5.4-aarch64-apple-darwin.tar.gz",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/oxifmt-1.0.0.tar.gz",
+          "path": "target/tools/oxifmt-1.0.0.tar.gz",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst",
+          "path": "target/tools/typst",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-aarch64-apple-darwin.tar.xz",
+          "path": "target/tools/typst-aarch64-apple-darwin.tar.xz",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/LICENSE",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/LICENSE",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/README.md",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/README.md",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/cetz-core/cetz_core.wasm",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/cetz-core/cetz_core.wasm",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/aabb.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/aabb.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/anchor.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/anchor.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/bezier.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/bezier.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/canvas.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/canvas.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/complex.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/complex.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/coordinate.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/coordinate.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/deps.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/deps.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/grouping.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/grouping.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/projection.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/projection.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/shapes.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/shapes.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/styling.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/styling.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/transformations.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/transformations.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/util.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/draw/util.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/drawable.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/drawable.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/hobby.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/hobby.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/intersection.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/intersection.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/angle.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/angle.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/brace.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/brace.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/path.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/decorations/path.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/palette.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/palette.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/pin.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/pin.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/tree.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/lib/tree.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark-shapes.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark-shapes.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/mark.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/matrix.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/matrix.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/path-util.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/path-util.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/polygon.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/polygon.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        }
+      ],
+      "scopes": [],
+      "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+    },
+    {
+      "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+      "signal": "best_effort",
+      "indexed_at": "2026-11-13T16:45:04Z",
+      "metadata": {
+        "generation": "2026-11-13T16:45:04Z",
+        "index_mode": "full",
+        "recorded_at": "2026-11-13T16:51:20Z",
+        "recording_status": "complete",
+        "ignored_files_stored": 27,
+        "ignored_files_total": 27,
+        "hash_records_complete": true,
+        "coverage_version": 3,
+        "generation_matches": true
+      },
+      "paths": [
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/process.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/process.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/sorting.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/sorting.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/styles.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/styles.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/util.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/util.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/vector.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/vector.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/version.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/version.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/src/wasm.typ",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/src/wasm.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/cetz/0.4.2/typst.toml",
+          "path": "target/tools/typst-packages/preview/cetz/0.4.2/typst.toml",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-APACHE",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-APACHE",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-MIT",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/LICENSE-MIT",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/README.md",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/README.md",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/lib.typ",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/lib.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/oxifmt.typ",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/oxifmt.typ",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        },
+        {
+          "requested_path": "target/tools/typst-packages/preview/oxifmt/1.0.0/typst.toml",
+          "path": "target/tools/typst-packages/preview/oxifmt/1.0.0/typst.toml",
+          "status": "excluded",
+          "freshness": "not_tracked",
+          "recommended_action": "read_source_and_reindex",
+          "coverage": [
+            {
+              "path": "target",
+              "kind": "not_indexed_dir",
+              "detail": "excluded subtree",
+              "match": "ancestor"
+            }
+          ]
+        }
+      ],
+      "scopes": [],
+      "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable."
+    }
+  ]
+}

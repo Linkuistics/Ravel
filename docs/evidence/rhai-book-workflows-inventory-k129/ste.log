@@ -1,0 +1,4 @@
+task: [docs:ste] bash scripts/ste.sh --strict docs/book/src/10-develop-ravel.md docs/book/src/11-deliver-ravel.md
+ste: docs/book/src/10-develop-ravel.md: 0 problems
+ste: docs/book/src/11-deliver-ravel.md: 0 problems
+ste: 0 problems in 2 files

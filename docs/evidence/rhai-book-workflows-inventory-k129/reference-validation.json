@@ -1,0 +1,2020 @@
+{
+  "references": [
+    {
+      "path": "Taskfile.yml",
+      "start": 6,
+      "end": 12,
+      "valid": true,
+      "first_line": "  docs:result-job:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 13,
+      "end": 19,
+      "valid": true,
+      "first_line": "  docs:skills:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 20,
+      "end": 26,
+      "valid": true,
+      "first_line": "  docs:rhai-configuration:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 27,
+      "end": 34,
+      "valid": true,
+      "first_line": "  docs:book:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 35,
+      "end": 39,
+      "valid": true,
+      "first_line": "  docs:book:build:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 40,
+      "end": 44,
+      "valid": true,
+      "first_line": "  docs:figures:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 45,
+      "end": 49,
+      "valid": true,
+      "first_line": "  docs:figures:update:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 50,
+      "end": 55,
+      "valid": true,
+      "first_line": "  docs:figures:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 56,
+      "end": 61,
+      "valid": true,
+      "first_line": "  docs:examples:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 62,
+      "end": 68,
+      "valid": true,
+      "first_line": "  docs:examples:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 69,
+      "end": 75,
+      "valid": true,
+      "first_line": "  docs:examples:mutants:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 76,
+      "end": 80,
+      "valid": true,
+      "first_line": "  docs:excerpts:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 81,
+      "end": 87,
+      "valid": true,
+      "first_line": "  docs:excerpts:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 88,
+      "end": 92,
+      "valid": true,
+      "first_line": "  docs:ste:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 93,
+      "end": 99,
+      "valid": true,
+      "first_line": "  docs:ste:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 100,
+      "end": 104,
+      "valid": true,
+      "first_line": "  docs:breaks:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 105,
+      "end": 111,
+      "valid": true,
+      "first_line": "  docs:breaks:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 112,
+      "end": 117,
+      "valid": true,
+      "first_line": "  book:integrity:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 118,
+      "end": 123,
+      "valid": true,
+      "first_line": "  book:bun:integrity:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 124,
+      "end": 128,
+      "valid": true,
+      "first_line": "  notices:setup:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 129,
+      "end": 134,
+      "valid": true,
+      "first_line": "  notices:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 135,
+      "end": 140,
+      "valid": true,
+      "first_line": "  notices:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 141,
+      "end": 147,
+      "valid": true,
+      "first_line": "  setup:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 37,
+      "end": 101,
+      "valid": true,
+      "first_line": "## Prepare a checkout"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 148,
+      "end": 152,
+      "valid": true,
+      "first_line": "  test:cli:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 153,
+      "end": 157,
+      "valid": true,
+      "first_line": "  build:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 158,
+      "end": 162,
+      "valid": true,
+      "first_line": "  test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 163,
+      "end": 167,
+      "valid": true,
+      "first_line": "  test:session:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 168,
+      "end": 172,
+      "valid": true,
+      "first_line": "  test:list:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 173,
+      "end": 177,
+      "valid": true,
+      "first_line": "  test:terminal-recovery:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 262,
+      "end": 306,
+      "valid": true,
+      "first_line": "## Run the checks before handoff"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 178,
+      "end": 187,
+      "valid": true,
+      "first_line": "  native-entry:build:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 188,
+      "end": 196,
+      "valid": true,
+      "first_line": "  native-entry:front:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 197,
+      "end": 203,
+      "valid": true,
+      "first_line": "  native-entry:runner:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 204,
+      "end": 210,
+      "valid": true,
+      "first_line": "  native-entry:start:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 211,
+      "end": 218,
+      "valid": true,
+      "first_line": "  test:native-entry:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 219,
+      "end": 227,
+      "valid": true,
+      "first_line": "  native-linux:image:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 228,
+      "end": 237,
+      "valid": true,
+      "first_line": "  test:native-linux:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 238,
+      "end": 242,
+      "valid": true,
+      "first_line": "  test:runner:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 243,
+      "end": 248,
+      "valid": true,
+      "first_line": "  check:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 262,
+      "end": 306,
+      "valid": true,
+      "first_line": "## Run the checks before handoff"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 249,
+      "end": 253,
+      "valid": true,
+      "first_line": "  rhai:upgrade-proof:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 254,
+      "end": 258,
+      "valid": true,
+      "first_line": "  harness:smoke:claude:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 259,
+      "end": 263,
+      "valid": true,
+      "first_line": "  harness:smoke:codex:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 264,
+      "end": 268,
+      "valid": true,
+      "first_line": "  harness:smoke:test:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 269,
+      "end": 276,
+      "valid": true,
+      "first_line": "  install:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 277,
+      "end": 282,
+      "valid": true,
+      "first_line": "  smoke:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 283,
+      "end": 292,
+      "valid": true,
+      "first_line": "  smoke:pair:"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 293,
+      "end": 297,
+      "valid": true,
+      "first_line": "  release:archives:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 298,
+      "end": 305,
+      "valid": true,
+      "first_line": "  release:smoke:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 184,
+      "end": 224,
+      "valid": true,
+      "first_line": "## Test the installed archive"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 306,
+      "end": 311,
+      "valid": true,
+      "first_line": "  release:test:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 134,
+      "end": 183,
+      "valid": true,
+      "first_line": "## Check the archive contents"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 312,
+      "end": 317,
+      "valid": true,
+      "first_line": "  release:formula:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 362,
+      "end": 409,
+      "valid": true,
+      "first_line": "## Prepare and test the Homebrew formula"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 318,
+      "end": 323,
+      "valid": true,
+      "first_line": "  release:patch:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 531,
+      "end": 663,
+      "valid": true,
+      "first_line": "## Cut and deliver a release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 324,
+      "end": 329,
+      "valid": true,
+      "first_line": "  release:minor:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 531,
+      "end": 663,
+      "valid": true,
+      "first_line": "## Cut and deliver a release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 330,
+      "end": 335,
+      "valid": true,
+      "first_line": "  release:major:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 531,
+      "end": 663,
+      "valid": true,
+      "first_line": "## Cut and deliver a release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 336,
+      "end": 340,
+      "valid": true,
+      "first_line": "  release:doctor:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 341,
+      "end": 345,
+      "valid": true,
+      "first_line": "  release:notes:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 346,
+      "end": 363,
+      "valid": true,
+      "first_line": "  release:promote:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 664,
+      "end": 795,
+      "valid": true,
+      "first_line": "## Promote a versioned release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 364,
+      "end": 369,
+      "valid": true,
+      "first_line": "  release:lifecycle:test:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 370,
+      "end": 426,
+      "valid": true,
+      "first_line": "  release:"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 531,
+      "end": 663,
+      "valid": true,
+      "first_line": "## Cut and deliver a release"
+    },
+    {
+      "path": "scripts/book-bun.sh",
+      "start": 1,
+      "end": 77,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 37,
+      "end": 101,
+      "valid": true,
+      "first_line": "## Prepare a checkout"
+    },
+    {
+      "path": "scripts/book-bun.test.sh",
+      "start": 1,
+      "end": 78,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/book-integrity.test.sh",
+      "start": 1,
+      "end": 106,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/book.sh",
+      "start": 1,
+      "end": 155,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/breaks.sh",
+      "start": 1,
+      "end": 33,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/breaks.test.sh",
+      "start": 1,
+      "end": 163,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/breaks.ts",
+      "start": 1,
+      "end": 92,
+      "valid": true,
+      "first_line": "// Report each run of prose in the book that is longer than the limit of"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/check.sh",
+      "start": 1,
+      "end": 34,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 262,
+      "end": 306,
+      "valid": true,
+      "first_line": "## Run the checks before handoff"
+    },
+    {
+      "path": "scripts/examples-extract.awk",
+      "start": 1,
+      "end": 417,
+      "valid": true,
+      "first_line": "# Extract the book's complete examples and source excerpts from Markdown pages"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/cancel.md",
+      "start": 1,
+      "end": 106,
+      "valid": true,
+      "first_line": "# Fixture page: cancellation by a signal"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/leak.md",
+      "start": 1,
+      "end": 62,
+      "valid": true,
+      "first_line": "# Fixture page: the environment is cleared"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/pass.md",
+      "start": 1,
+      "end": 136,
+      "valid": true,
+      "first_line": "# Fixture page"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/shapes.md",
+      "start": 1,
+      "end": 81,
+      "valid": true,
+      "first_line": "# Fixture page: the shapes an example may take"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/slow.md",
+      "start": 1,
+      "end": 20,
+      "valid": true,
+      "first_line": "# Fixture page: a command that does not finish"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples.sh",
+      "start": 1,
+      "end": 264,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/examples.test.sh",
+      "start": 1,
+      "end": 778,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/excerpts.sh",
+      "start": 1,
+      "end": 222,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/excerpts.test.sh",
+      "start": 1,
+      "end": 567,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+      "start": 1,
+      "end": 10,
+      "valid": true,
+      "first_line": "// Refused fixture for scripts/figures.test.sh: a layout module that draws with"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/_draw.typ",
+      "start": 1,
+      "end": 34,
+      "valid": true,
+      "first_line": "// Fixture module for scripts/figures.test.sh: the smallest stand-in for the"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.layout.json",
+      "start": 1,
+      "end": 43,
+      "valid": true,
+      "first_line": "{"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.svg",
+      "start": 1,
+      "end": 1,
+      "valid": true,
+      "first_line": "<svg viewBox=\"0 0 332 52\" width=\"332pt\" height=\"52pt\" xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:h5=\"http://www.w3.org/1999/xhtml\"><path fill=\"#ffffff\" fill-rule=\"nonzero\" d=\"M 0 0v 52h 332v -52Z \"/><g transform=\"translate(6 6)\"><path fill=\"#e8edf2\" fill-rule=\"nonzero\" stroke=\"#64748b\" stroke-width=\"1.5\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"4\" d=\"M 0 0m 3 0c -1.655352 0 -3 1.344648 -3 3v 34c 0 1.655352 1.344648 3 3 3h 114c 1.655352 0 3 -1.344648 3 -3v -34c 0 -1.655352 -1.344648 -3 -3 -3h -114Z \"/><path fill=\"none\" transform=\"translate(17.572753906 14.582519531)\" d=\"M 0 0h 84.854492188v 10.834960938h -84.854492188v -10.834960938Z \"/><g transform=\"translate(17.572753905 14.58251953)\"><g transform=\"matrix(1 0 0 -1 0 10.63671875)\"><use xlink:href=\"#g3842D1AE4A37A0B31BAD8C0200CF023A\" x=\"0\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g28EA004DB2113A0DA1EC98EF07D433AB\" x=\"9.775390625\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gD7ECC5990B7E66B8540AF73289A180C6\" x=\"18.354492188\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gD7ECC5990B7E66B8540AF73289A180C6\" x=\"22.244140625\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g2C3E9010A0CA45332119A8893C18F9E8\" x=\"26.133789063\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gFC23A8DB50D320F539184E3AC53B118C\" x=\"34.747070313\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g137EA26AEE883BDF520B39E0967D58DF\" x=\"44.953125\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gDD8AF40C279E6053FF54966140D71E75\" x=\"52.247070313\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g28EA004DB2113A0DA1EC98EF07D433AB\" x=\"57.736328125\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gFC23A8DB50D320F539184E3AC53B118C\" x=\"66.315429688\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gDD8AF40C279E6053FF54966140D71E75\" x=\"72.071289063\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g137EA26AEE883BDF520B39E0967D58DF\" x=\"77.560546875\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/></g></g><path fill=\"#e8edf2\" fill-rule=\"nonzero\" stroke=\"#64748b\" stroke-width=\"1.5\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"4\" transform=\"translate(200)\" d=\"M 0 0m 3 0c -1.655352 0 -3 1.344648 -3 3v 34c 0 1.655352 1.344648 3 3 3h 114c 1.655352 0 3 -1.344648 3 -3v -34c 0 -1.655352 -1.344648 -3 -3 -3h -114Z \"/><path fill=\"none\" transform=\"translate(222.983398438 14.582519531)\" d=\"M 0 0h 74.033203125v 10.834960938h -74.033203125v -10.834960938Z \"/><g transform=\"translate(222.983398435 14.58251953)\"><g transform=\"matrix(1 0 0 -1 0 10.63671875)\"><use xlink:href=\"#gE4A15146FB9BEAD85B106BDC9119126A\" x=\"0\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g28EA004DB2113A0DA1EC98EF07D433AB\" x=\"9.419921875\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gB445F98621EE2000A3D1BF6E7628C8E8\" x=\"17.999023438\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g2C3E9010A0CA45332119A8893C18F9E8\" x=\"26.284179688\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gD7ECC5990B7E66B8540AF73289A180C6\" x=\"34.897460938\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#gFC23A8DB50D320F539184E3AC53B118C\" x=\"43.237304688\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g47E702C72A2BB01F7ABDFA7AE6FA2E75\" x=\"48.993164063\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g40F03BC273F9AA14FBF83BB987722D84\" x=\"57.866210938\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/><use xlink:href=\"#g137EA26AEE883BDF520B39E0967D58DF\" x=\"66.739257813\" y=\"0\" fill=\"#172b3a\" fill-rule=\"nonzero\"/></g></g><path fill=\"none\" stroke=\"#334155\" stroke-width=\"1.5\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"4\" transform=\"translate(120 20)\" d=\"M 0 0h 73.61203056\"/><path fill=\"#334155\" fill-rule=\"nonzero\" stroke=\"#334155\" stroke-width=\"1.5\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" stroke-miterlimit=\"4\" transform=\"translate(192.194707721 17.874015748)\" d=\"M 0 0m 5.669291339 2.125984252l -5.669291339 -2.125984252l 1.417322835 2.125984252l -1.417322835 2.125984252l 5.669291339 -2.125984252Z \"/></g><defs><symbol id=\"g3842D1AE4A37A0B31BAD8C0200CF023A\" overflow=\"visible\"><path d=\"M 0 0m 9.016601563 9.419921875v -1.456054688q -0.697265625 0.649414063 -1.486816406 0.970703125q -0.789550781 0.321289063 -1.678222656 0.321289063q -1.75 0 -2.6796875 -1.069824219q -0.9296875 -1.069824219 -0.9296875 -3.093261719q 0 -2.016601563 0.9296875 -3.086425781q 0.9296875 -1.069824219 2.6796875 -1.069824219q 0.888671875 0 1.678222656 0.321289063q 0.789550781 0.321289063 1.486816406 0.970703125v -1.442382813q -0.724609375 -0.4921875 -1.534667969 -0.73828125q -0.810058594 -0.24609375 -1.712402344 -0.24609375q -2.317382813 0 -3.650390625 1.418457031q -1.333007813 1.418457031 -1.333007813 3.872558594q 0 2.4609375 1.333007813 3.879394531q 1.333007813 1.418457031 3.650390625 1.418457031q 0.916015625 0 1.726074219 -0.242675781q 0.810058594 -0.242675781 1.520996094 -0.728027344Z \"/></symbol><symbol id=\"g28EA004DB2113A0DA1EC98EF07D433AB\" overflow=\"visible\"><path d=\"M 0 0m 4.798828125 3.848632813q -1.524414063 0 -2.112304688 -0.348632813q -0.587890625 -0.348632813 -0.587890625 -1.189453125q 0 -0.669921875 0.440917969 -1.062988281q 0.440917969 -0.393066406 1.199707031 -0.393066406q 1.045898438 0 1.678222656 0.741699219q 0.632324219 0.741699219 0.632324219 1.972167969v 0.280273438h -1.250976563Z m 2.508789063 0.51953125v -4.368164063h -1.2578125v 1.162109375q -0.430664063 -0.697265625 -1.073242188 -1.028808594q -0.642578125 -0.331542969 -1.572265625 -0.331542969q -1.17578125 0 -1.869628906 0.659667969q -0.693847656 0.659667969 -0.693847656 1.767089844q 0 1.291992188 0.864746094 1.948242188q 0.864746094 0.65625 2.580566406 0.65625h 1.763671875v 0.123046875q 0 0.868164063 -0.570800781 1.343261719q -0.570800781 0.475097656 -1.603027344 0.475097656q -0.65625 0 -1.278320313 -0.157226563q -0.622070313 -0.157226563 -1.196289063 -0.471679688v 1.162109375q 0.690429688 0.266601563 1.33984375 0.399902344q 0.649414063 0.133300781 1.264648438 0.133300781q 1.661132813 0 2.481445313 -0.861328125q 0.8203125 -0.861328125 0.8203125 -2.611328125Z \"/></symbol><symbol id=\"gD7ECC5990B7E66B8540AF73289A180C6\" overflow=\"visible\"><path d=\"M 0 0m 1.319335938 10.63671875h 1.2578125v -10.63671875h -1.2578125v 10.63671875Z \"/></symbol><symbol id=\"g2C3E9010A0CA45332119A8893C18F9E8\" overflow=\"visible\"><path d=\"M 0 0m 7.868164063 4.142578125v -0.615234375h -5.783203125q 0.08203125 -1.298828125 0.782714844 -1.979003906q 0.700683594 -0.680175781 1.951660156 -0.680175781q 0.724609375 0 1.404785156 0.177734375q 0.680175781 0.177734375 1.350097656 0.533203125v -1.189453125q -0.676757813 -0.287109375 -1.387695313 -0.4375q -0.7109375 -0.150390625 -1.442382813 -0.150390625q -1.83203125 0 -2.901855469 1.06640625q -1.069824219 1.06640625 -1.069824219 2.884765625q 0 1.879882813 1.015136719 2.983886719q 1.015136719 1.104003906 2.737792969 1.104003906q 1.544921875 0 2.443847656 -0.994628906q 0.898925781 -0.994628906 0.898925781 -2.703613281Z m -1.2578125 0.369140625q -0.013671875 1.032226563 -0.577636719 1.647460938q -0.563964844 0.615234375 -1.493652344 0.615234375q -1.052734375 0 -1.685058594 -0.594726563q -0.632324219 -0.594726563 -0.728027344 -1.674804688l 4.484375 0.006835938Z \"/></symbol><symbol id=\"gFC23A8DB50D320F539184E3AC53B118C\" overflow=\"visible\"><path d=\"M 0 0m 5.755859375 6.48046875q -0.211914063 0.123046875 -0.461425781 0.181152344q -0.249511719 0.058105469 -0.550292969 0.058105469q -1.06640625 0 -1.637207031 -0.693847656q -0.570800781 -0.693847656 -0.570800781 -1.992675781v -4.033203125h -1.264648438v 7.65625h 1.264648438v -1.189453125q 0.396484375 0.697265625 1.032226563 1.035644531q 0.635742188 0.338378906 1.544921875 0.338378906q 0.129882813 0 0.287109375 -0.017089844q 0.157226563 -0.017089844 0.348632813 -0.051269531l 0.006835938 -1.291992188Z \"/></symbol><symbol id=\"g137EA26AEE883BDF520B39E0967D58DF\" overflow=\"visible\"><path d=\"M 0 0m 6.200195313 7.430664063v -1.189453125q -0.533203125 0.2734375 -1.107421875 0.41015625q -0.57421875 0.13671875 -1.189453125 0.13671875q -0.936523438 0 -1.404785156 -0.287109375q -0.468261719 -0.287109375 -0.468261719 -0.861328125q 0 -0.4375 0.334960938 -0.687011719q 0.334960938 -0.249511719 1.346679688 -0.475097656l 0.430664063 -0.095703125q 1.33984375 -0.287109375 1.903808594 -0.810058594q 0.563964844 -0.522949219 0.563964844 -1.459472656q 0 -1.06640625 -0.844238281 -1.688476563q -0.844238281 -0.622070313 -2.320800781 -0.622070313q -0.615234375 0 -1.281738281 0.119628906q -0.666503906 0.119628906 -1.404785156 0.358886719v 1.298828125q 0.697265625 -0.362304688 1.374023438 -0.543457031q 0.676757813 -0.181152344 1.33984375 -0.181152344q 0.888671875 0 1.3671875 0.304199219q 0.478515625 0.304199219 0.478515625 0.857910156q 0 0.512695313 -0.345214844 0.786132813q -0.345214844 0.2734375 -1.514160156 0.526367188l -0.4375 0.102539063q -1.168945313 0.24609375 -1.688476563 0.755371094q -0.51953125 0.509277344 -0.51953125 1.397949219q 0 1.080078125 0.765625 1.66796875q 0.765625 0.587890625 2.173828125 0.587890625q 0.697265625 0 1.3125 -0.102539063q 0.615234375 -0.102539063 1.134765625 -0.307617188Z \"/></symbol><symbol id=\"gDD8AF40C279E6053FF54966140D71E75\" overflow=\"visible\"><path d=\"M 0 0m 2.563476563 9.830078125v -2.173828125h 2.590820313v -0.977539063h -2.590820313v -4.15625q 0 -0.936523438 0.256347656 -1.203125q 0.256347656 -0.266601563 1.042480469 -0.266601563h 1.291992188v -1.052734375h -1.291992188q -1.456054688 0 -2.009765625 0.543457031q -0.553710938 0.543457031 -0.553710938 1.979003906v 4.15625h -0.922851563v 0.977539063h 0.922851563v 2.173828125h 1.264648438Z \"/></symbol><symbol id=\"gE4A15146FB9BEAD85B106BDC9119126A\" overflow=\"visible\"><path d=\"M 0 0m 6.213867188 4.78515625q 0.444335938 -0.150390625 0.864746094 -0.642578125q 0.420410156 -0.4921875 0.844238281 -1.353515625l 1.401367188 -2.7890625h -1.483398438l -1.305664063 2.618164063q -0.505859375 1.025390625 -0.980957031 1.360351563q -0.475097656 0.334960938 -1.295410156 0.334960938h -1.50390625v -4.313476563h -1.380859375v 10.206054688h 3.1171875q 1.75 0 2.611328125 -0.731445313q 0.861328125 -0.731445313 0.861328125 -2.208007813q 0 -0.963867188 -0.447753906 -1.599609375q -0.447753906 -0.635742188 -1.302246094 -0.881835938Z m -3.458984375 4.286132813v -3.623046875h 1.736328125q 0.998046875 0 1.507324219 0.461425781q 0.509277344 0.461425781 0.509277344 1.356933594q 0 0.895507813 -0.509277344 1.350097656q -0.509277344 0.454589844 -1.507324219 0.454589844h -1.736328125Z \"/></symbol><symbol id=\"gB445F98621EE2000A3D1BF6E7628C8E8\" overflow=\"visible\"><path d=\"M 0 0m 0.416992188 7.65625h 1.333007813l 2.392578125 -6.42578125l 2.392578125 6.42578125h 1.333007813l -2.87109375 -7.65625h -1.708984375l -2.87109375 7.65625Z \"/></symbol><symbol id=\"g47E702C72A2BB01F7ABDFA7AE6FA2E75\" overflow=\"visible\"><path d=\"M 0 0m 1.189453125 3.021484375v 4.634765625h 1.2578125v -4.586914063q 0 -1.086914063 0.423828125 -1.630371094q 0.423828125 -0.543457031 1.271484375 -0.543457031q 1.018554688 0 1.609863281 0.649414063q 0.591308594 0.649414063 0.591308594 1.770507813v 4.340820313h 1.2578125v -7.65625h -1.2578125v 1.17578125q -0.458007813 -0.697265625 -1.062988281 -1.035644531q -0.604980469 -0.338378906 -1.404785156 -0.338378906q -1.319335938 0 -2.002929688 0.8203125q -0.68359375 0.8203125 -0.68359375 2.399414063Z m 3.165039063 4.819335938Z \"/></symbol><symbol id=\"g40F03BC273F9AA14FBF83BB987722D84\" overflow=\"visible\"><path d=\"M 0 0m 7.68359375 4.62109375v -4.62109375h -1.2578125v 4.580078125q 0 1.086914063 -0.423828125 1.626953125q -0.423828125 0.540039063 -1.271484375 0.540039063q -1.018554688 0 -1.606445313 -0.649414063q -0.587890625 -0.649414063 -0.587890625 -1.770507813v -4.327148438h -1.264648438v 7.65625h 1.264648438v -1.189453125q 0.451171875 0.690429688 1.062988281 1.032226563q 0.611816406 0.341796875 1.411621094 0.341796875q 1.319335938 0 1.99609375 -0.816894531q 0.676757813 -0.816894531 0.676757813 -2.402832031Z \"/></symbol></defs></svg>"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.typ",
+      "start": 1,
+      "end": 13,
+      "valid": true,
+      "first_line": "// Fixture figure: two boxes and an arrow, as a layout record drawn through the"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures.sh",
+      "start": 1,
+      "end": 501,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/figures.test.sh",
+      "start": 1,
+      "end": 693,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/harness-smoke.sh",
+      "start": 1,
+      "end": 270,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "scripts/harness-smoke.test.sh",
+      "start": 1,
+      "end": 208,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "scripts/install.sh",
+      "start": 1,
+      "end": 28,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "scripts/installed-check.sh",
+      "start": 1,
+      "end": 16,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "scripts/installed-pair-smoke.sh",
+      "start": 1,
+      "end": 181,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "scripts/installed-record.sh",
+      "start": 1,
+      "end": 16,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 362,
+      "end": 409,
+      "valid": true,
+      "first_line": "## Prepare and test the Homebrew formula"
+    },
+    {
+      "path": "scripts/installed-record.test.sh",
+      "start": 1,
+      "end": 43,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 262,
+      "end": 306,
+      "valid": true,
+      "first_line": "## Run the checks before handoff"
+    },
+    {
+      "path": "scripts/installed-smoke.sh",
+      "start": 1,
+      "end": 103,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 488,
+      "end": 568,
+      "valid": true,
+      "first_line": "## Install and test the installed files"
+    },
+    {
+      "path": "scripts/native-linux/Dockerfile",
+      "start": 1,
+      "end": 78,
+      "valid": true,
+      "first_line": "# The GNU/Linux environment for current Rust, Rhai and native-entry checks."
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux/emulation-probe.c",
+      "start": 1,
+      "end": 109,
+      "valid": true,
+      "first_line": "/* What user-mode emulation does and does not preserve, as one control."
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux/measure.sh",
+      "start": 1,
+      "end": 122,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux/pivot-root.c",
+      "start": 1,
+      "end": 49,
+      "valid": true,
+      "first_line": "/* Make a directory the root of this mount namespace and drop the old root."
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux/qemu-interpreter.c",
+      "start": 1,
+      "end": 41,
+      "valid": true,
+      "first_line": "/* The binfmt_misc interpreter for the emulated x86-64 campaign: it runs the"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux/signal-domain.c",
+      "start": 1,
+      "end": 58,
+      "valid": true,
+      "first_line": "/* The handled-signal domain, as the target's headers and the running kernel"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux-qemu.sh",
+      "start": 1,
+      "end": 142,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/native-linux.sh",
+      "start": 1,
+      "end": 298,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    },
+    {
+      "path": "scripts/notices.sh",
+      "start": 1,
+      "end": 51,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "scripts/notices.test.sh",
+      "start": 1,
+      "end": 130,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "scripts/release-archives.test.sh",
+      "start": 1,
+      "end": 153,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "scripts/release-book-version.sh",
+      "start": 1,
+      "end": 63,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 796,
+      "end": 920,
+      "valid": true,
+      "first_line": "## Keep the book with its release"
+    },
+    {
+      "path": "scripts/release-book-version.test.sh",
+      "start": 1,
+      "end": 91,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 796,
+      "end": 920,
+      "valid": true,
+      "first_line": "## Keep the book with its release"
+    },
+    {
+      "path": "scripts/release-book.sh",
+      "start": 1,
+      "end": 356,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 827,
+      "end": 920,
+      "valid": true,
+      "first_line": "### Build and deliver the tagged book"
+    },
+    {
+      "path": "scripts/release-book.test.sh",
+      "start": 1,
+      "end": 275,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 827,
+      "end": 920,
+      "valid": true,
+      "first_line": "### Build and deliver the tagged book"
+    },
+    {
+      "path": "scripts/release-build.sh",
+      "start": 1,
+      "end": 149,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "scripts/release-build.test.sh",
+      "start": 1,
+      "end": 71,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "scripts/release-channel.sh",
+      "start": 1,
+      "end": 214,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 277,
+      "end": 329,
+      "valid": true,
+      "first_line": "## Choose a formula channel"
+    },
+    {
+      "path": "scripts/release-channel.test.sh",
+      "start": 1,
+      "end": 960,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 277,
+      "end": 329,
+      "valid": true,
+      "first_line": "## Choose a formula channel"
+    },
+    {
+      "path": "scripts/release-check.sh",
+      "start": 1,
+      "end": 24,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 68,
+      "end": 133,
+      "valid": true,
+      "first_line": "## Build archives before a release"
+    },
+    {
+      "path": "scripts/release-common.sh",
+      "start": 1,
+      "end": 270,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 134,
+      "end": 183,
+      "valid": true,
+      "first_line": "## Check the archive contents"
+    },
+    {
+      "path": "scripts/release-doctor.sh",
+      "start": 1,
+      "end": 303,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-doctor.test.sh",
+      "start": 1,
+      "end": 77,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-evidence.sh",
+      "start": 1,
+      "end": 115,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 639,
+      "end": 663,
+      "valid": true,
+      "first_line": "### Check the installation and record the evidence"
+    },
+    {
+      "path": "scripts/release-formula.sh",
+      "start": 1,
+      "end": 95,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 362,
+      "end": 409,
+      "valid": true,
+      "first_line": "## Prepare and test the Homebrew formula"
+    },
+    {
+      "path": "scripts/release-formula.test.rb",
+      "start": 1,
+      "end": 100,
+      "valid": true,
+      "first_line": "# Run the production formula methods with Homebrew itself in a temporary prefix."
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 362,
+      "end": 409,
+      "valid": true,
+      "first_line": "## Prepare and test the Homebrew formula"
+    },
+    {
+      "path": "scripts/release-install.sh",
+      "start": 1,
+      "end": 178,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 639,
+      "end": 663,
+      "valid": true,
+      "first_line": "### Check the installation and record the evidence"
+    },
+    {
+      "path": "scripts/release-lifecycle.test.sh",
+      "start": 1,
+      "end": 12,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-notes.sh",
+      "start": 1,
+      "end": 83,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-prepare.sh",
+      "start": 1,
+      "end": 113,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-prepare.test.sh",
+      "start": 1,
+      "end": 219,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/release-promote.sh",
+      "start": 1,
+      "end": 352,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 664,
+      "end": 795,
+      "valid": true,
+      "first_line": "## Promote a versioned release"
+    },
+    {
+      "path": "scripts/release-publish.sh",
+      "start": 1,
+      "end": 223,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 531,
+      "end": 663,
+      "valid": true,
+      "first_line": "## Cut and deliver a release"
+    },
+    {
+      "path": "scripts/release-smoke-qemu.sh",
+      "start": 1,
+      "end": 225,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 225,
+      "end": 276,
+      "valid": true,
+      "first_line": "## Read the platform checks correctly"
+    },
+    {
+      "path": "scripts/release-smoke-target.sh",
+      "start": 1,
+      "end": 105,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 225,
+      "end": 276,
+      "valid": true,
+      "first_line": "## Read the platform checks correctly"
+    },
+    {
+      "path": "scripts/release-smoke.sh",
+      "start": 1,
+      "end": 451,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 225,
+      "end": 276,
+      "valid": true,
+      "first_line": "## Read the platform checks correctly"
+    },
+    {
+      "path": "scripts/release.test.sh",
+      "start": 1,
+      "end": 337,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 410,
+      "end": 530,
+      "valid": true,
+      "first_line": "## Prepare a version cut"
+    },
+    {
+      "path": "scripts/rhai-upgrade-proof.sh",
+      "start": 1,
+      "end": 138,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 173,
+      "end": 261,
+      "valid": true,
+      "first_line": "## Choose a test seam"
+    },
+    {
+      "path": "scripts/ste.sh",
+      "start": 1,
+      "end": 30,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/ste.test.sh",
+      "start": 1,
+      "end": 161,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/ste.ts",
+      "start": 1,
+      "end": 198,
+      "valid": true,
+      "first_line": "// Examine the book's text against the ASD-STE100 writing rules that a script"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 569,
+      "end": 665,
+      "valid": true,
+      "first_line": "## Check the book"
+    },
+    {
+      "path": "scripts/templates/notices.md.hbs",
+      "start": 1,
+      "end": 31,
+      "valid": true,
+      "first_line": "# Rust third-party notices"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 102,
+      "end": 142,
+      "valid": true,
+      "first_line": "## Build the executable"
+    },
+    {
+      "path": "scripts/templates/ravel.rb.tmpl",
+      "start": 1,
+      "end": 128,
+      "valid": true,
+      "first_line": "require \"json\""
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 362,
+      "end": 409,
+      "valid": true,
+      "first_line": "## Prepare and test the Homebrew formula"
+    },
+    {
+      "path": "scripts/terminal-recovery-check.sh",
+      "start": 1,
+      "end": 13,
+      "valid": true,
+      "first_line": "#!/usr/bin/env bash"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 262,
+      "end": 306,
+      "valid": true,
+      "first_line": "## Run the checks before handoff"
+    },
+    {
+      "path": "scripts/release-book.sh",
+      "start": 80,
+      "end": 356,
+      "valid": true,
+      "first_line": "build() {"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 827,
+      "end": 920,
+      "valid": true,
+      "first_line": "### Build and deliver the tagged book"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 886,
+      "end": 920,
+      "valid": true,
+      "first_line": "### Set up Pages for the first release"
+    },
+    {
+      "path": "Taskfile.yml",
+      "start": 370,
+      "end": 426,
+      "valid": true,
+      "first_line": "  release:"
+    },
+    {
+      "path": "scripts/release-publish.sh",
+      "start": 172,
+      "end": 223,
+      "valid": true,
+      "first_line": "main() {"
+    },
+    {
+      "path": "scripts/release-promote.sh",
+      "start": 198,
+      "end": 239,
+      "valid": true,
+      "first_line": "# Bring the tap to the promotion: keep it, push it or make it. DIR holds the"
+    },
+    {
+      "path": "scripts/release-install.sh",
+      "start": 93,
+      "end": 178,
+      "valid": true,
+      "first_line": "main() {"
+    },
+    {
+      "path": "docs/book/src/11-deliver-ravel.md",
+      "start": 921,
+      "end": 1147,
+      "valid": true,
+      "first_line": "## Recover a partial release without another bump"
+    },
+    {
+      "path": "scripts/native-linux.sh",
+      "start": 69,
+      "end": 298,
+      "valid": true,
+      "first_line": "  local arch=\"$1\" name flags=()"
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 708,
+      "end": 766,
+      "valid": true,
+      "first_line": "## Read the evidence for a change"
+    }
+  ],
+  "controls": [
+    {
+      "path": "Taskfile.yml",
+      "start": 1,
+      "end": 427,
+      "rejected": true
+    },
+    {
+      "path": "docs/book/src/10-develop-ravel.md",
+      "start": 0,
+      "end": 1,
+      "rejected": true
+    }
+  ]
+}

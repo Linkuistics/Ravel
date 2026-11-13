@@ -1,0 +1,66 @@
+[
+  {
+    "name": "ste",
+    "command": [
+      "mise",
+      "exec",
+      "--",
+      "task",
+      "docs:ste",
+      "--",
+      "--strict",
+      "docs/book/src/10-develop-ravel.md",
+      "docs/book/src/11-deliver-ravel.md"
+    ],
+    "started": "2026-11-13T16:58:20.593617+00:00",
+    "finished": "2026-11-13T16:58:20.692557+00:00",
+    "exit_status": 0,
+    "log": "ste.log"
+  },
+  {
+    "name": "breaks",
+    "command": [
+      "mise",
+      "exec",
+      "--",
+      "task",
+      "docs:breaks",
+      "--",
+      "--strict",
+      "docs/book/src/10-develop-ravel.md",
+      "docs/book/src/11-deliver-ravel.md"
+    ],
+    "started": "2026-11-13T16:58:20.692582+00:00",
+    "finished": "2026-11-13T16:58:20.751751+00:00",
+    "exit_status": 0,
+    "log": "breaks.log"
+  },
+  {
+    "name": "excerpts",
+    "command": [
+      "mise",
+      "exec",
+      "--",
+      "task",
+      "docs:excerpts"
+    ],
+    "started": "2026-11-13T16:58:20.751774+00:00",
+    "finished": "2026-11-13T16:58:21.776105+00:00",
+    "exit_status": 0,
+    "log": "excerpts.log"
+  },
+  {
+    "name": "book-build",
+    "command": [
+      "mise",
+      "exec",
+      "--",
+      "task",
+      "docs:book:build"
+    ],
+    "started": "2026-11-13T16:58:21.776127+00:00",
+    "finished": "2026-11-13T16:58:21.966070+00:00",
+    "exit_status": 0,
+    "log": "book-build.log"
+  }
+]

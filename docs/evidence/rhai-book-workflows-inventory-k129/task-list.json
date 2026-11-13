@@ -1,0 +1,509 @@
+{
+  "command": "mise exec -- task --list-all --json",
+  "tasks": [
+    {
+      "name": "build",
+      "description": "Build Ravel and the local runner",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 153,
+        "end": 153
+      }
+    },
+    {
+      "name": "check",
+      "description": "Check formatting, lint all targets and test the Rust workspace",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 243,
+        "end": 243
+      }
+    },
+    {
+      "name": "install",
+      "description": "Install and verify Ravel, Rhai examples and Rust notices under PREFIX (default ~/.local)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 269,
+        "end": 269
+      }
+    },
+    {
+      "name": "notices",
+      "description": "Generate Rust dependency notices from the locked release graph; refuse unapproved licences",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 129,
+        "end": 129
+      }
+    },
+    {
+      "name": "setup",
+      "description": "Fetch and verify the pinned checkout-local book tools (Bun, mdBook, Typst with CeTZ and figure fonts)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 141,
+        "end": 141
+      }
+    },
+    {
+      "name": "smoke",
+      "description": "Build, install and smoke-test a fresh temporary prefix, direct and symlinked",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 277,
+        "end": 277
+      }
+    },
+    {
+      "name": "test",
+      "description": "Run the runner and session-runtime suites with nextest",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 158,
+        "end": 158
+      }
+    },
+    {
+      "name": "book:bun:integrity",
+      "description": "Verify the checkout-local book Bun fetch, cache recovery and refusal of corrupt downloads offline",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 118,
+        "end": 118
+      }
+    },
+    {
+      "name": "book:integrity",
+      "description": "Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 112,
+        "end": 112
+      }
+    },
+    {
+      "name": "docs:book",
+      "description": "Build the book, then serve it on localhost and rebuild on change (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 27,
+        "end": 27
+      }
+    },
+    {
+      "name": "docs:book:build",
+      "description": "Build the book under target/book and fail on any mdBook error or warning (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 35,
+        "end": 35
+      }
+    },
+    {
+      "name": "docs:breaks",
+      "description": "Report each run of prose in a chapter of the book that is longer than 450 words (-- --strict FILE... fails on a long run; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 100,
+        "end": 100
+      }
+    },
+    {
+      "name": "docs:breaks:test",
+      "description": "Prove the prose-break check passes a run at the limit and fails a longer run, that a figure, table or code block breaks a run and a heading or list does not, and that each removed rule fails a control (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 105,
+        "end": 105
+      }
+    },
+    {
+      "name": "docs:examples",
+      "description": "Build Ravel, run every complete example under docs/book/src through the CLI test seam and compare output exactly (-- PAGE-OR-DIR... checks those instead; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 56,
+        "end": 56
+      }
+    },
+    {
+      "name": "docs:examples:mutants",
+      "description": "Remove one safeguard at a time from a copy of the example checker and show a control fail for each (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 69,
+        "end": 69
+      }
+    },
+    {
+      "name": "docs:examples:test",
+      "description": "Prove the example check passes the fixture pages and fails a changed output, status, stale build, unlabelled block and more (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 62,
+        "end": 62
+      }
+    },
+    {
+      "name": "docs:excerpts",
+      "description": "Check that every source excerpt in docs/book/src is whole lines that still occur in the tracked file it names (needs no build)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 76,
+        "end": 76
+      }
+    },
+    {
+      "name": "docs:excerpts:test",
+      "description": "Prove the excerpt check passes good excerpts and fails a changed excerpt or source, a bad path, a bad label or block and more, and that each removed safeguard fails a control",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 81,
+        "end": 81
+      }
+    },
+    {
+      "name": "docs:figures",
+      "description": "Regenerate every book figure into a scratch directory and fail on any difference from the committed SVG or its layout record (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 40,
+        "end": 40
+      }
+    },
+    {
+      "name": "docs:figures:test",
+      "description": "Prove the figure check passes unchanged fixtures and fails on a changed source, SVG, layout record, layout pin, Typst package or tool (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 50,
+        "end": 50
+      }
+    },
+    {
+      "name": "docs:figures:update",
+      "description": "Rewrite the committed book figure SVGs and their .layout.json records from the Typst sources with the pinned renderer (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 45,
+        "end": 45
+      }
+    },
+    {
+      "name": "docs:result-job",
+      "description": "Serve editable result-job completion and native-entry views on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 6,
+        "end": 6
+      }
+    },
+    {
+      "name": "docs:rhai-configuration",
+      "description": "Serve the editable Rhai configuration evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 20,
+        "end": 20
+      }
+    },
+    {
+      "name": "docs:skills",
+      "description": "Serve the editable skill directory delivery views of the 2.0.0 design on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 13,
+        "end": 13
+      }
+    },
+    {
+      "name": "docs:ste",
+      "description": "Report where the book's text breaks the STE rules that a script can check and the word decisions in docs/book/ste.md (-- --strict FILE... fails on a problem; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 88,
+        "end": 88
+      }
+    },
+    {
+      "name": "docs:ste:test",
+      "description": "Prove the STE check passes CONTEXT.md and SUMMARY.md and fails a planted problem for each rule, and that each removed rule fails a control (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 93,
+        "end": 93
+      }
+    },
+    {
+      "name": "harness:smoke:claude",
+      "description": "Opt-in, spends subscription usage: make one real LLM call through Claude Code with the owner's sign-in and check the route",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 254,
+        "end": 254
+      }
+    },
+    {
+      "name": "harness:smoke:codex",
+      "description": "Opt-in, spends subscription usage: make one real LLM call through Codex with the owner's sign-in and check the route",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 259,
+        "end": 259
+      }
+    },
+    {
+      "name": "harness:smoke:test",
+      "description": "Test the harness smoke script against fake harnesses (no real call, run by task check)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 264,
+        "end": 264
+      }
+    },
+    {
+      "name": "native-entry:build",
+      "description": "Build the private main-thread fixture executable for native checks",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 178,
+        "end": 178
+      }
+    },
+    {
+      "name": "native-entry:front",
+      "description": "Run the front's native-entry cases against the built private fixture",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 188,
+        "end": 188
+      }
+    },
+    {
+      "name": "native-entry:runner",
+      "description": "Run the runner's native-entry cases (library tests)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 197,
+        "end": 197
+      }
+    },
+    {
+      "name": "native-entry:start",
+      "description": "Run the public Started-check API cases",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 204,
+        "end": 204
+      }
+    },
+    {
+      "name": "native-linux:image",
+      "description": "Build the GNU/Linux subject image for PLATFORM (arm64 native, amd64 emulated)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 219,
+        "end": 219
+      }
+    },
+    {
+      "name": "notices:setup",
+      "description": "Install checkout-local cargo-about 0.8.4 and fetch locked Cargo sources for licence scanning",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 124,
+        "end": 124
+      }
+    },
+    {
+      "name": "notices:test",
+      "description": "Exercise real Cargo notice acceptance, refusal, atomic output and tool-version controls",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 135,
+        "end": 135
+      }
+    },
+    {
+      "name": "release:archives",
+      "description": "Build exact unreleased target archives (optional TARGETS), with no version cut",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 293,
+        "end": 293
+      }
+    },
+    {
+      "name": "release:doctor",
+      "description": "Check all release prerequisites without cutting or publishing",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 336,
+        "end": 336
+      }
+    },
+    {
+      "name": "release:formula",
+      "description": "Render both channels' unpublished formulae from the three unreleased archives and test each through Homebrew",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 312,
+        "end": 312
+      }
+    },
+    {
+      "name": "release:lifecycle:test",
+      "description": "Test independent release refusal, order, notes, dry cuts, the release channels and promotion with their mutants and the book's delivery in isolated fixtures (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 364,
+        "end": 364
+      }
+    },
+    {
+      "name": "release:major",
+      "description": "Publish and install the next major release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 330,
+        "end": 330
+      }
+    },
+    {
+      "name": "release:minor",
+      "description": "Publish and install the next minor release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 324,
+        "end": 324
+      }
+    },
+    {
+      "name": "release:notes",
+      "description": "Fill empty Unreleased notes from commit descriptions or explicit reviewed Markdown",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 341,
+        "end": 341
+      }
+    },
+    {
+      "name": "release:patch",
+      "description": "Publish and install the next patch release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 318,
+        "end": 318
+      }
+    },
+    {
+      "name": "release:promote",
+      "description": "Publish the complete ravel@2 release VERSION as unversioned ravel, with no cut, build, tag or book change (READINESS and EVIDENCE default to target/release-evidence)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 346,
+        "end": 346
+      }
+    },
+    {
+      "name": "release:smoke",
+      "description": "Rebuild and smoke unreleased archives on every selected target at its floors",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 298,
+        "end": 298
+      }
+    },
+    {
+      "name": "release:test",
+      "description": "Exercise exact archive manifest, omission/extra/type/mode controls",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 306,
+        "end": 306
+      }
+    },
+    {
+      "name": "rhai:upgrade-proof",
+      "description": "Prove a Rhai upgrade. Print the pin, run the rhai_* engine tests, then each hostile class in a fixed order, and fail on a missing or empty target",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 249,
+        "end": 249
+      }
+    },
+    {
+      "name": "smoke:pair",
+      "description": "macOS: run the installed Ravel 1.1 executable OLD and the installation under NEW at the same time, each under its own temporary HOME",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 283,
+        "end": 283
+      }
+    },
+    {
+      "name": "test:cli",
+      "description": "Run command-boundary tests (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 148,
+        "end": 148
+      }
+    },
+    {
+      "name": "test:list",
+      "description": "List nextest cases before selecting a run (optional package/filter arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 168,
+        "end": 168
+      }
+    },
+    {
+      "name": "test:native-entry",
+      "description": "Build the private main-thread fixture and run native development checks (qualification incomplete)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 211,
+        "end": 211
+      }
+    },
+    {
+      "name": "test:native-linux",
+      "description": "Run current Rust, Rhai and native-entry checks on a GNU/Linux target in Docker (OUT must not exist)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 228,
+        "end": 228
+      }
+    },
+    {
+      "name": "test:runner",
+      "description": "Run focused local-runner checks (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 238,
+        "end": 238
+      }
+    },
+    {
+      "name": "test:session",
+      "description": "Run focused session-runtime checks (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 163,
+        "end": 163
+      }
+    },
+    {
+      "name": "test:terminal-recovery",
+      "description": "Pair private real-PTY recovery receipts with actual front conversion/settlement",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 173,
+        "end": 173
+      }
+    }
+  ]
+}

@@ -131,6 +131,15 @@ through `task notices:setup`. It refuses a dependency whose licence is not on
 the approved list. `task install` and the release builds run it, because each
 installation carries the notice file.
 
+Run `task notices:test` when you change the notice script or its licence
+rules. Its temporary projects check that the notice file includes build
+dependencies and excludes dependencies used only by tests. They also check
+that separate notices remain separate, an unapproved licence stops generation,
+and the MPL exception applies only to `smartstring`. A failed run must keep
+the previous notice file. A missing lockfile or the wrong cargo-about version
+must stop the script before it generates notices. These controls need the
+real pinned cargo-about tool and its cached Rust dependencies.
+
 ## Find the source for a change
 
 The workspace has two Rust packages. `ravel` holds the CLI, the Rhai worker

@@ -1,0 +1,2959 @@
+{
+  "scope": "Current Taskfile public declarations plus internal release and every file under scripts/.",
+  "assessment": "Source read compared inputs, effects, order, refusal/recovery and limits with explanatory sections. Locations are sections, not just the task navigation table.",
+  "tasks": [
+    {
+      "name": "docs:result-job",
+      "visibility": "public",
+      "purpose": "Serve editable result-job completion and native-entry views on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 6,
+        "end": 12
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "docs:skills",
+      "visibility": "public",
+      "purpose": "Serve the editable skill directory delivery views of the 2.0.0 design on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 13,
+        "end": 19
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "docs:rhai-configuration",
+      "visibility": "public",
+      "purpose": "Serve the editable Rhai configuration evaluation views of the 2.0.0 design on localhost (Mermaid needs network access)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 20,
+        "end": 26
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "docs:book",
+      "visibility": "public",
+      "purpose": "Build the book, then serve it on localhost and rebuild on change (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 27,
+        "end": 34
+      },
+      "scripts_mentioned": [
+        "scripts/book.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:book:build",
+      "visibility": "public",
+      "purpose": "Build the book under target/book and fail on any mdBook error or warning (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 35,
+        "end": 39
+      },
+      "scripts_mentioned": [
+        "scripts/book.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:figures",
+      "visibility": "public",
+      "purpose": "Regenerate every book figure into a scratch directory and fail on any difference from the committed SVG or its layout record (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 40,
+        "end": 44
+      },
+      "scripts_mentioned": [
+        "scripts/figures.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:figures:update",
+      "visibility": "public",
+      "purpose": "Rewrite the committed book figure SVGs and their .layout.json records from the Typst sources with the pinned renderer (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 45,
+        "end": 49
+      },
+      "scripts_mentioned": [
+        "scripts/figures.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:figures:test",
+      "visibility": "public",
+      "purpose": "Prove the figure check passes unchanged fixtures and fails on a changed source, SVG, layout record, layout pin, Typst package or tool (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 50,
+        "end": 55
+      },
+      "scripts_mentioned": [
+        "scripts/figures.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:examples",
+      "visibility": "public",
+      "purpose": "Build Ravel, run every complete example under docs/book/src through the CLI test seam and compare output exactly (-- PAGE-OR-DIR... checks those instead; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 56,
+        "end": 61
+      },
+      "scripts_mentioned": [
+        "scripts/examples.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:examples:test",
+      "visibility": "public",
+      "purpose": "Prove the example check passes the fixture pages and fails a changed output, status, stale build, unlabelled block and more (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 62,
+        "end": 68
+      },
+      "scripts_mentioned": [
+        "scripts/examples.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:examples:mutants",
+      "visibility": "public",
+      "purpose": "Remove one safeguard at a time from a copy of the example checker and show a control fail for each (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 69,
+        "end": 75
+      },
+      "scripts_mentioned": [
+        "scripts/examples.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:excerpts",
+      "visibility": "public",
+      "purpose": "Check that every source excerpt in docs/book/src is whole lines that still occur in the tracked file it names (needs no build)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 76,
+        "end": 80
+      },
+      "scripts_mentioned": [
+        "scripts/excerpts.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:excerpts:test",
+      "visibility": "public",
+      "purpose": "Prove the excerpt check passes good excerpts and fails a changed excerpt or source, a bad path, a bad label or block and more, and that each removed safeguard fails a control",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 81,
+        "end": 87
+      },
+      "scripts_mentioned": [
+        "scripts/excerpts.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:ste",
+      "visibility": "public",
+      "purpose": "Report where the book's text breaks the STE rules that a script can check and the word decisions in docs/book/ste.md (-- --strict FILE... fails on a problem; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 88,
+        "end": 92
+      },
+      "scripts_mentioned": [
+        "scripts/ste.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:ste:test",
+      "visibility": "public",
+      "purpose": "Prove the STE check passes CONTEXT.md and SUMMARY.md and fails a planted problem for each rule, and that each removed rule fails a control (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 93,
+        "end": 99
+      },
+      "scripts_mentioned": [
+        "scripts/ste.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:breaks",
+      "visibility": "public",
+      "purpose": "Report each run of prose in a chapter of the book that is longer than 450 words (-- --strict FILE... fails on a long run; needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 100,
+        "end": 104
+      },
+      "scripts_mentioned": [
+        "scripts/breaks.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "docs:breaks:test",
+      "visibility": "public",
+      "purpose": "Prove the prose-break check passes a run at the limit and fails a longer run, that a figure, table or code block breaks a run and a heading or list does not, and that each removed rule fails a control (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 105,
+        "end": 111
+      },
+      "scripts_mentioned": [
+        "scripts/breaks.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "book:integrity",
+      "visibility": "public",
+      "purpose": "Verify the pinned mdBook fetch, cache reuse and refusal of a bad download offline",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 112,
+        "end": 117
+      },
+      "scripts_mentioned": [
+        "scripts/book-integrity.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "book:bun:integrity",
+      "visibility": "public",
+      "purpose": "Verify the checkout-local book Bun fetch, cache recovery and refusal of corrupt downloads offline",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 118,
+        "end": 123
+      },
+      "scripts_mentioned": [
+        "scripts/book-bun.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ],
+      "workflow_family": "book build, examples, excerpts and checker controls"
+    },
+    {
+      "name": "notices:setup",
+      "visibility": "public",
+      "purpose": "Install checkout-local cargo-about 0.8.4 and fetch locked Cargo sources for licence scanning",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 124,
+        "end": 128
+      },
+      "scripts_mentioned": [
+        "scripts/notices.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ],
+      "workflow_family": "build, dependency notices and upgrade proof"
+    },
+    {
+      "name": "notices",
+      "visibility": "public",
+      "purpose": "Generate Rust dependency notices from the locked release graph; refuse unapproved licences",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 129,
+        "end": 134
+      },
+      "scripts_mentioned": [
+        "scripts/notices.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ],
+      "workflow_family": "build, dependency notices and upgrade proof"
+    },
+    {
+      "name": "notices:test",
+      "visibility": "public",
+      "purpose": "Exercise real Cargo notice acceptance, refusal, atomic output and tool-version controls",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 135,
+        "end": 140
+      },
+      "scripts_mentioned": [
+        "scripts/notices.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ],
+      "workflow_family": "build, dependency notices and upgrade proof"
+    },
+    {
+      "name": "setup",
+      "visibility": "public",
+      "purpose": "Fetch and verify the pinned checkout-local book tools (Bun, mdBook, Typst with CeTZ and figure fonts)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 141,
+        "end": 147
+      },
+      "scripts_mentioned": [
+        "scripts/book-bun.sh",
+        "scripts/book.sh",
+        "scripts/figures.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 37,
+          "end": 101
+        }
+      ],
+      "workflow_family": "checkout setup"
+    },
+    {
+      "name": "test:cli",
+      "visibility": "public",
+      "purpose": "Run command-boundary tests (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 148,
+        "end": 152
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "build",
+      "visibility": "public",
+      "purpose": "Build Ravel and the local runner",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 153,
+        "end": 157
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ],
+      "workflow_family": "build, dependency notices and upgrade proof"
+    },
+    {
+      "name": "test",
+      "visibility": "public",
+      "purpose": "Run the runner and session-runtime suites with nextest",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 158,
+        "end": 162
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "test:session",
+      "visibility": "public",
+      "purpose": "Run focused session-runtime checks (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 163,
+        "end": 167
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "test:list",
+      "visibility": "public",
+      "purpose": "List nextest cases before selecting a run (optional package/filter arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 168,
+        "end": 172
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "test:terminal-recovery",
+      "visibility": "public",
+      "purpose": "Pair private real-PTY recovery receipts with actual front conversion/settlement",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 173,
+        "end": 177
+      },
+      "scripts_mentioned": [
+        "scripts/terminal-recovery-check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 262,
+          "end": 306
+        }
+      ],
+      "workflow_family": "handoff checks and PTY recovery"
+    },
+    {
+      "name": "native-entry:build",
+      "visibility": "public",
+      "purpose": "Build the private main-thread fixture executable for native checks",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 178,
+        "end": 187
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "native-entry:front",
+      "visibility": "public",
+      "purpose": "Run the front's native-entry cases against the built private fixture",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 188,
+        "end": 196
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "native-entry:runner",
+      "visibility": "public",
+      "purpose": "Run the runner's native-entry cases (library tests)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 197,
+        "end": 203
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "native-entry:start",
+      "visibility": "public",
+      "purpose": "Run the public Started-check API cases",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 204,
+        "end": 210
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "test:native-entry",
+      "visibility": "public",
+      "purpose": "Build the private main-thread fixture and run native development checks (qualification incomplete)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 211,
+        "end": 218
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "native-linux:image",
+      "visibility": "public",
+      "purpose": "Build the GNU/Linux subject image for PLATFORM (arm64 native, amd64 emulated)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 219,
+        "end": 227
+      },
+      "scripts_mentioned": [
+        "scripts/native-linux.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "test:native-linux",
+      "visibility": "public",
+      "purpose": "Run current Rust, Rhai and native-entry checks on a GNU/Linux target in Docker (OUT must not exist)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 228,
+        "end": 237
+      },
+      "scripts_mentioned": [
+        "scripts/native-linux.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "workflow_family": "design views and bounded platform evidence"
+    },
+    {
+      "name": "test:runner",
+      "visibility": "public",
+      "purpose": "Run focused local-runner checks (optional nextest arguments)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 238,
+        "end": 242
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "check",
+      "visibility": "public",
+      "purpose": "Check formatting, lint all targets and test the Rust workspace",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 243,
+        "end": 248
+      },
+      "scripts_mentioned": [
+        "scripts/check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 262,
+          "end": 306
+        }
+      ],
+      "workflow_family": "handoff checks and PTY recovery"
+    },
+    {
+      "name": "rhai:upgrade-proof",
+      "visibility": "public",
+      "purpose": "Prove a Rhai upgrade. Print the pin, run the rhai_* engine tests, then each hostile class in a fixed order, and fail on a missing or empty target",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 249,
+        "end": 253
+      },
+      "scripts_mentioned": [
+        "scripts/rhai-upgrade-proof.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        },
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "build, dependency notices and upgrade proof"
+    },
+    {
+      "name": "harness:smoke:claude",
+      "visibility": "public",
+      "purpose": "Opt-in, spends subscription usage: make one real LLM call through Claude Code with the owner's sign-in and check the route",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 254,
+        "end": 258
+      },
+      "scripts_mentioned": [
+        "scripts/harness-smoke.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "harness:smoke:codex",
+      "visibility": "public",
+      "purpose": "Opt-in, spends subscription usage: make one real LLM call through Codex with the owner's sign-in and check the route",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 259,
+        "end": 263
+      },
+      "scripts_mentioned": [
+        "scripts/harness-smoke.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "harness:smoke:test",
+      "visibility": "public",
+      "purpose": "Test the harness smoke script against fake harnesses (no real call, run by task check)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 264,
+        "end": 268
+      },
+      "scripts_mentioned": [
+        "scripts/harness-smoke.test.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ],
+      "workflow_family": "select a test seam"
+    },
+    {
+      "name": "install",
+      "visibility": "public",
+      "purpose": "Install and verify Ravel, Rhai examples and Rust notices under PREFIX (default ~/.local)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 269,
+        "end": 276
+      },
+      "scripts_mentioned": [
+        "scripts/install.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ],
+      "workflow_family": "local installation and installed smoke"
+    },
+    {
+      "name": "smoke",
+      "visibility": "public",
+      "purpose": "Build, install and smoke-test a fresh temporary prefix, direct and symlinked",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 277,
+        "end": 282
+      },
+      "scripts_mentioned": [
+        "scripts/installed-check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ],
+      "workflow_family": "local installation and installed smoke"
+    },
+    {
+      "name": "smoke:pair",
+      "visibility": "public",
+      "purpose": "macOS: run the installed Ravel 1.1 executable OLD and the installation under NEW at the same time, each under its own temporary HOME",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 283,
+        "end": 292
+      },
+      "scripts_mentioned": [
+        "scripts/installed-pair-smoke.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ],
+      "workflow_family": "local installation and installed smoke"
+    },
+    {
+      "name": "release:archives",
+      "visibility": "public",
+      "purpose": "Build exact unreleased target archives (optional TARGETS), with no version cut",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 293,
+        "end": 297
+      },
+      "scripts_mentioned": [
+        "scripts/release-build.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        }
+      ],
+      "workflow_family": "unreleased archives and controls"
+    },
+    {
+      "name": "release:smoke",
+      "visibility": "public",
+      "purpose": "Rebuild and smoke unreleased archives on every selected target at its floors",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 298,
+        "end": 305
+      },
+      "scripts_mentioned": [
+        "scripts/release-smoke.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        },
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 184,
+          "end": 224
+        }
+      ],
+      "workflow_family": "unreleased archives and controls"
+    },
+    {
+      "name": "release:test",
+      "visibility": "public",
+      "purpose": "Exercise exact archive manifest, omission/extra/type/mode controls",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 306,
+        "end": 311
+      },
+      "scripts_mentioned": [
+        "scripts/release-check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        },
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 134,
+          "end": 183
+        }
+      ],
+      "workflow_family": "unreleased archives and controls"
+    },
+    {
+      "name": "release:formula",
+      "visibility": "public",
+      "purpose": "Render both channels' unpublished formulae from the three unreleased archives and test each through Homebrew",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 312,
+        "end": 317
+      },
+      "scripts_mentioned": [
+        "scripts/release-check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        },
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 362,
+          "end": 409
+        }
+      ],
+      "workflow_family": "unreleased archives and controls"
+    },
+    {
+      "name": "release:patch",
+      "visibility": "public",
+      "purpose": "Publish and install the next patch release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 318,
+        "end": 323
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 531,
+          "end": 663
+        }
+      ],
+      "workflow_family": "cut and ordered delivery"
+    },
+    {
+      "name": "release:minor",
+      "visibility": "public",
+      "purpose": "Publish and install the next minor release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 324,
+        "end": 329
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 531,
+          "end": 663
+        }
+      ],
+      "workflow_family": "cut and ordered delivery"
+    },
+    {
+      "name": "release:major",
+      "visibility": "public",
+      "purpose": "Publish and install the next major release through CHANNEL=versioned-2 or CHANNEL=unversioned (required)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 330,
+        "end": 335
+      },
+      "scripts_mentioned": [],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 531,
+          "end": 663
+        }
+      ],
+      "workflow_family": "cut and ordered delivery"
+    },
+    {
+      "name": "release:doctor",
+      "visibility": "public",
+      "purpose": "Check all release prerequisites without cutting or publishing",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 336,
+        "end": 340
+      },
+      "scripts_mentioned": [
+        "scripts/release-doctor.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ],
+      "workflow_family": "preflight, reviewed notes and lifecycle controls"
+    },
+    {
+      "name": "release:notes",
+      "visibility": "public",
+      "purpose": "Fill empty Unreleased notes from commit descriptions or explicit reviewed Markdown",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 341,
+        "end": 345
+      },
+      "scripts_mentioned": [
+        "scripts/release-notes.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ],
+      "workflow_family": "preflight, reviewed notes and lifecycle controls"
+    },
+    {
+      "name": "release:promote",
+      "visibility": "public",
+      "purpose": "Publish the complete ravel@2 release VERSION as unversioned ravel, with no cut, build, tag or book change (READINESS and EVIDENCE default to target/release-evidence)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 346,
+        "end": 363
+      },
+      "scripts_mentioned": [
+        "scripts/release-promote.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 664,
+          "end": 795
+        }
+      ],
+      "workflow_family": "promotion of the existing release"
+    },
+    {
+      "name": "release:lifecycle:test",
+      "visibility": "public",
+      "purpose": "Test independent release refusal, order, notes, dry cuts, the release channels and promotion with their mutants and the book's delivery in isolated fixtures (needs task setup)",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 364,
+        "end": 369
+      },
+      "scripts_mentioned": [
+        "scripts/release-check.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ],
+      "workflow_family": "preflight, reviewed notes and lifecycle controls"
+    },
+    {
+      "name": "release",
+      "visibility": "internal",
+      "purpose": "Sequential cut/delivery implementation called by the patch/minor/major wrappers; LEVEL and CHANNEL required, default-workspace and lock guards.",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 370,
+        "end": 426
+      },
+      "scripts_mentioned": [
+        "scripts/release-book-version.sh",
+        "scripts/release-book.sh",
+        "scripts/release-build.sh",
+        "scripts/release-channel.sh",
+        "scripts/release-doctor.sh",
+        "scripts/release-evidence.sh",
+        "scripts/release-install.sh",
+        "scripts/release-prepare.sh",
+        "scripts/release-publish.sh",
+        "scripts/release-smoke.sh"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 531,
+          "end": 663
+        }
+      ],
+      "workflow_family": "cut and ordered delivery"
+    }
+  ],
+  "scripts": [
+    {
+      "path": "scripts/book-bun.sh",
+      "role": "implementation",
+      "purpose": "Pin/fetch/verify checkout-local Bun and mdBook; build-tree and local serving, with corrupt-cache/download controls.",
+      "source": {
+        "path": "scripts/book-bun.sh",
+        "start": 1,
+        "end": 77
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:book",
+        "docs:book:build",
+        "book:integrity",
+        "book:bun:integrity"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        },
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 37,
+          "end": 101
+        }
+      ]
+    },
+    {
+      "path": "scripts/book-bun.test.sh",
+      "role": "control",
+      "purpose": "Pin/fetch/verify checkout-local Bun and mdBook; build-tree and local serving, with corrupt-cache/download controls.",
+      "source": {
+        "path": "scripts/book-bun.test.sh",
+        "start": 1,
+        "end": 78
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:book",
+        "docs:book:build",
+        "book:integrity",
+        "book:bun:integrity"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/book-integrity.test.sh",
+      "role": "control",
+      "purpose": "Pin/fetch/verify checkout-local Bun and mdBook; build-tree and local serving, with corrupt-cache/download controls.",
+      "source": {
+        "path": "scripts/book-integrity.test.sh",
+        "start": 1,
+        "end": 106
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:book",
+        "docs:book:build",
+        "book:integrity",
+        "book:bun:integrity"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/book.sh",
+      "role": "implementation",
+      "purpose": "Pin/fetch/verify checkout-local Bun and mdBook; build-tree and local serving, with corrupt-cache/download controls.",
+      "source": {
+        "path": "scripts/book.sh",
+        "start": 1,
+        "end": 155
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:book",
+        "docs:book:build",
+        "book:integrity",
+        "book:bun:integrity"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/breaks.sh",
+      "role": "implementation",
+      "purpose": "Measure prose runs and test the boundaries and removed safeguards.",
+      "source": {
+        "path": "scripts/breaks.sh",
+        "start": 1,
+        "end": 33
+      },
+      "owning_tasks": [
+        "docs:breaks",
+        "docs:breaks:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/breaks.test.sh",
+      "role": "control",
+      "purpose": "Measure prose runs and test the boundaries and removed safeguards.",
+      "source": {
+        "path": "scripts/breaks.test.sh",
+        "start": 1,
+        "end": 163
+      },
+      "owning_tasks": [
+        "docs:breaks",
+        "docs:breaks:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/breaks.ts",
+      "role": "implementation",
+      "purpose": "Measure prose runs and test the boundaries and removed safeguards.",
+      "source": {
+        "path": "scripts/breaks.ts",
+        "start": 1,
+        "end": 92
+      },
+      "owning_tasks": [
+        "docs:breaks",
+        "docs:breaks:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/check.sh",
+      "role": "implementation",
+      "purpose": "Ordered handoff checks and private real-PTY receipt/settlement pairing.",
+      "source": {
+        "path": "scripts/check.sh",
+        "start": 1,
+        "end": 34
+      },
+      "owning_tasks": [
+        "check",
+        "test:terminal-recovery"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 262,
+          "end": 306
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-extract.awk",
+      "role": "implementation",
+      "purpose": "Extract labelled examples, execute through the isolated CLI seam and compare streams/status; refuse stale or malformed examples; exercise controls and mutants.",
+      "source": {
+        "path": "scripts/examples-extract.awk",
+        "start": 1,
+        "end": 417
+      },
+      "owning_tasks": [
+        "docs:examples",
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/cancel.md",
+      "role": "fixture",
+      "purpose": "Good, leaking, cancelling, slow and Markdown-shape example subjects for checker controls; not user workflows.",
+      "source": {
+        "path": "scripts/examples-fixtures/pages/cancel.md",
+        "start": 1,
+        "end": 106
+      },
+      "owning_tasks": [
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/leak.md",
+      "role": "fixture",
+      "purpose": "Good, leaking, cancelling, slow and Markdown-shape example subjects for checker controls; not user workflows.",
+      "source": {
+        "path": "scripts/examples-fixtures/pages/leak.md",
+        "start": 1,
+        "end": 62
+      },
+      "owning_tasks": [
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/pass.md",
+      "role": "fixture",
+      "purpose": "Good, leaking, cancelling, slow and Markdown-shape example subjects for checker controls; not user workflows.",
+      "source": {
+        "path": "scripts/examples-fixtures/pages/pass.md",
+        "start": 1,
+        "end": 136
+      },
+      "owning_tasks": [
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/shapes.md",
+      "role": "fixture",
+      "purpose": "Good, leaking, cancelling, slow and Markdown-shape example subjects for checker controls; not user workflows.",
+      "source": {
+        "path": "scripts/examples-fixtures/pages/shapes.md",
+        "start": 1,
+        "end": 81
+      },
+      "owning_tasks": [
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples-fixtures/pages/slow.md",
+      "role": "fixture",
+      "purpose": "Good, leaking, cancelling, slow and Markdown-shape example subjects for checker controls; not user workflows.",
+      "source": {
+        "path": "scripts/examples-fixtures/pages/slow.md",
+        "start": 1,
+        "end": 20
+      },
+      "owning_tasks": [
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples.sh",
+      "role": "implementation",
+      "purpose": "Extract labelled examples, execute through the isolated CLI seam and compare streams/status; refuse stale or malformed examples; exercise controls and mutants.",
+      "source": {
+        "path": "scripts/examples.sh",
+        "start": 1,
+        "end": 264
+      },
+      "owning_tasks": [
+        "docs:examples",
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/examples.test.sh",
+      "role": "control",
+      "purpose": "Extract labelled examples, execute through the isolated CLI seam and compare streams/status; refuse stale or malformed examples; exercise controls and mutants.",
+      "source": {
+        "path": "scripts/examples.test.sh",
+        "start": 1,
+        "end": 778
+      },
+      "owning_tasks": [
+        "docs:examples",
+        "docs:examples:test",
+        "docs:examples:mutants"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/excerpts.sh",
+      "role": "implementation",
+      "purpose": "Compare whole-line source excerpts to tracked files; reject malformed labels/paths and prove controls with mutants.",
+      "source": {
+        "path": "scripts/excerpts.sh",
+        "start": 1,
+        "end": 222
+      },
+      "owning_tasks": [
+        "docs:excerpts",
+        "docs:excerpts:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/excerpts.test.sh",
+      "role": "control",
+      "purpose": "Compare whole-line source excerpts to tracked files; reject malformed labels/paths and prove controls with mutants.",
+      "source": {
+        "path": "scripts/excerpts.test.sh",
+        "start": 1,
+        "end": 567
+      },
+      "owning_tasks": [
+        "docs:excerpts",
+        "docs:excerpts:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+      "role": "fixture",
+      "purpose": "Figure/layout/package subjects deliberately changed by renderer controls; not production book figures or user workflows.",
+      "source": {
+        "path": "scripts/figures-fixtures/cetz-in-layout/_layout.typ",
+        "start": 1,
+        "end": 10
+      },
+      "owning_tasks": [
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/_draw.typ",
+      "role": "fixture",
+      "purpose": "Figure/layout/package subjects deliberately changed by renderer controls; not production book figures or user workflows.",
+      "source": {
+        "path": "scripts/figures-fixtures/figures/_draw.typ",
+        "start": 1,
+        "end": 34
+      },
+      "owning_tasks": [
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.layout.json",
+      "role": "fixture",
+      "purpose": "Figure/layout/package subjects deliberately changed by renderer controls; not production book figures or user workflows.",
+      "source": {
+        "path": "scripts/figures-fixtures/figures/layers.layout.json",
+        "start": 1,
+        "end": 43
+      },
+      "owning_tasks": [
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.svg",
+      "role": "fixture",
+      "purpose": "Figure/layout/package subjects deliberately changed by renderer controls; not production book figures or user workflows.",
+      "source": {
+        "path": "scripts/figures-fixtures/figures/layers.svg",
+        "start": 1,
+        "end": 1
+      },
+      "owning_tasks": [
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures-fixtures/figures/layers.typ",
+      "role": "fixture",
+      "purpose": "Figure/layout/package subjects deliberately changed by renderer controls; not production book figures or user workflows.",
+      "source": {
+        "path": "scripts/figures-fixtures/figures/layers.typ",
+        "start": 1,
+        "end": 13
+      },
+      "owning_tasks": [
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures.sh",
+      "role": "implementation",
+      "purpose": "Pinned renderer/package/font setup and scratch regeneration against committed SVG/layout records; controls detect changed subjects.",
+      "source": {
+        "path": "scripts/figures.sh",
+        "start": 1,
+        "end": 501
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:figures",
+        "docs:figures:update",
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/figures.test.sh",
+      "role": "control",
+      "purpose": "Pinned renderer/package/font setup and scratch regeneration against committed SVG/layout records; controls detect changed subjects.",
+      "source": {
+        "path": "scripts/figures.test.sh",
+        "start": 1,
+        "end": 693
+      },
+      "owning_tasks": [
+        "setup",
+        "docs:figures",
+        "docs:figures:update",
+        "docs:figures:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/harness-smoke.sh",
+      "role": "implementation",
+      "purpose": "One explicitly opted-in real harness route check, or fake harness controls without a subscription call.",
+      "source": {
+        "path": "scripts/harness-smoke.sh",
+        "start": 1,
+        "end": 270
+      },
+      "owning_tasks": [
+        "harness:smoke:claude",
+        "harness:smoke:codex",
+        "harness:smoke:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ]
+    },
+    {
+      "path": "scripts/harness-smoke.test.sh",
+      "role": "control",
+      "purpose": "One explicitly opted-in real harness route check, or fake harness controls without a subscription call.",
+      "source": {
+        "path": "scripts/harness-smoke.test.sh",
+        "start": 1,
+        "end": 208
+      },
+      "owning_tasks": [
+        "harness:smoke:claude",
+        "harness:smoke:codex",
+        "harness:smoke:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ]
+    },
+    {
+      "path": "scripts/install.sh",
+      "role": "implementation",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/install.sh",
+        "start": 1,
+        "end": 28
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ]
+    },
+    {
+      "path": "scripts/installed-check.sh",
+      "role": "implementation",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/installed-check.sh",
+        "start": 1,
+        "end": 16
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ]
+    },
+    {
+      "path": "scripts/installed-pair-smoke.sh",
+      "role": "implementation",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/installed-pair-smoke.sh",
+        "start": 1,
+        "end": 181
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ]
+    },
+    {
+      "path": "scripts/installed-record.sh",
+      "role": "implementation",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/installed-record.sh",
+        "start": 1,
+        "end": 16
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        },
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 362,
+          "end": 409
+        }
+      ]
+    },
+    {
+      "path": "scripts/installed-record.test.sh",
+      "role": "control",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/installed-record.test.sh",
+        "start": 1,
+        "end": 43
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        },
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 262,
+          "end": 306
+        }
+      ]
+    },
+    {
+      "path": "scripts/installed-smoke.sh",
+      "role": "implementation",
+      "purpose": "Build/stage an installation, direct/symlink smoke and exact installed-record comparison; concurrent old/new installations and record controls.",
+      "source": {
+        "path": "scripts/installed-smoke.sh",
+        "start": 1,
+        "end": 103
+      },
+      "owning_tasks": [
+        "install",
+        "smoke",
+        "smoke:pair",
+        "check"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 488,
+          "end": 568
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/Dockerfile",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/Dockerfile",
+        "start": 1,
+        "end": 78
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/emulation-probe.c",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/emulation-probe.c",
+        "start": 1,
+        "end": 109
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/measure.sh",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/measure.sh",
+        "start": 1,
+        "end": 122
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/pivot-root.c",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/pivot-root.c",
+        "start": 1,
+        "end": 49
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/qemu-interpreter.c",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/qemu-interpreter.c",
+        "start": 1,
+        "end": 41
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux/signal-domain.c",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux/signal-domain.c",
+        "start": 1,
+        "end": 58
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux-qemu.sh",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux-qemu.sh",
+        "start": 1,
+        "end": 142
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/native-linux.sh",
+      "role": "evidence infrastructure",
+      "purpose": "Create/copy/measure a GNU/Linux subject and report native versus emulated conditions; QEMU and signal-domain helpers are evidence infrastructure, not native qualification.",
+      "source": {
+        "path": "scripts/native-linux.sh",
+        "start": 1,
+        "end": 298
+      },
+      "owning_tasks": [
+        "native-linux:image",
+        "test:native-linux"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ]
+    },
+    {
+      "path": "scripts/notices.sh",
+      "role": "implementation",
+      "purpose": "Pinned cargo-about setup, locked release-graph licence acceptance and atomic notice output; real-tool controls and unique notice-text template.",
+      "source": {
+        "path": "scripts/notices.sh",
+        "start": 1,
+        "end": 51
+      },
+      "owning_tasks": [
+        "notices:setup",
+        "notices",
+        "notices:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ]
+    },
+    {
+      "path": "scripts/notices.test.sh",
+      "role": "control",
+      "purpose": "Pinned cargo-about setup, locked release-graph licence acceptance and atomic notice output; real-tool controls and unique notice-text template.",
+      "source": {
+        "path": "scripts/notices.test.sh",
+        "start": 1,
+        "end": 130
+      },
+      "owning_tasks": [
+        "notices:setup",
+        "notices",
+        "notices:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-archives.test.sh",
+      "role": "control",
+      "purpose": "Dispatch archive/lifecycle/formula checks and exercise manifest omissions, extras, types and modes.",
+      "source": {
+        "path": "scripts/release-archives.test.sh",
+        "start": 1,
+        "end": 153
+      },
+      "owning_tasks": [
+        "release:test",
+        "release:lifecycle:test",
+        "release:formula"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-book-version.sh",
+      "role": "implementation",
+      "purpose": "Keep the source version line aligned with the version cut and tagged book; fixture refusal controls.",
+      "source": {
+        "path": "scripts/release-book-version.sh",
+        "start": 1,
+        "end": 63
+      },
+      "owning_tasks": [
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 796,
+          "end": 920
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-book-version.test.sh",
+      "role": "control",
+      "purpose": "Keep the source version line aligned with the version cut and tagged book; fixture refusal controls.",
+      "source": {
+        "path": "scripts/release-book-version.test.sh",
+        "start": 1,
+        "end": 91
+      },
+      "owning_tasks": [
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 796,
+          "end": 920
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-book.sh",
+      "role": "implementation",
+      "purpose": "Build from tag; stage identity; publish immutable version directory; compare Pages branch; check live HTTP content; isolated delivery controls.",
+      "source": {
+        "path": "scripts/release-book.sh",
+        "start": 1,
+        "end": 356
+      },
+      "owning_tasks": [
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 827,
+          "end": 920
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-book.test.sh",
+      "role": "control",
+      "purpose": "Build from tag; stage identity; publish immutable version directory; compare Pages branch; check live HTTP content; isolated delivery controls.",
+      "source": {
+        "path": "scripts/release-book.test.sh",
+        "start": 1,
+        "end": 275
+      },
+      "owning_tasks": [
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 827,
+          "end": 920
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-build.sh",
+      "role": "implementation",
+      "purpose": "Build exact target archives and digest manifests; test cut/unreleased admission and build inputs in fixtures.",
+      "source": {
+        "path": "scripts/release-build.sh",
+        "start": 1,
+        "end": 149
+      },
+      "owning_tasks": [
+        "release:archives",
+        "release:smoke",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-build.test.sh",
+      "role": "control",
+      "purpose": "Build exact target archives and digest manifests; test cut/unreleased admission and build inputs in fixtures.",
+      "source": {
+        "path": "scripts/release-build.test.sh",
+        "start": 1,
+        "end": 71
+      },
+      "owning_tasks": [
+        "release:archives",
+        "release:smoke",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-channel.sh",
+      "role": "implementation",
+      "purpose": "Sourced channel mapping/admission, formula classes and promotion deprecation; fixture and mutant controls.",
+      "source": {
+        "path": "scripts/release-channel.sh",
+        "start": 1,
+        "end": 214
+      },
+      "owning_tasks": [
+        "release",
+        "release:promote",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 277,
+          "end": 329
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-channel.test.sh",
+      "role": "control",
+      "purpose": "Sourced channel mapping/admission, formula classes and promotion deprecation; fixture and mutant controls.",
+      "source": {
+        "path": "scripts/release-channel.test.sh",
+        "start": 1,
+        "end": 960
+      },
+      "owning_tasks": [
+        "release",
+        "release:promote",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 277,
+          "end": 329
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-check.sh",
+      "role": "implementation",
+      "purpose": "Dispatch archive/lifecycle/formula checks and exercise manifest omissions, extras, types and modes.",
+      "source": {
+        "path": "scripts/release-check.sh",
+        "start": 1,
+        "end": 24
+      },
+      "owning_tasks": [
+        "release:test",
+        "release:lifecycle:test",
+        "release:formula"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 68,
+          "end": 133
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-common.sh",
+      "role": "implementation",
+      "purpose": "Shared target roster, staging, archive assertions, floor/tool checks and formula rendering; sourced implementation, not a standalone task.",
+      "source": {
+        "path": "scripts/release-common.sh",
+        "start": 1,
+        "end": 270
+      },
+      "owning_tasks": [
+        "release:archives",
+        "release:smoke",
+        "release:formula",
+        "release"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 134,
+          "end": 183
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-doctor.sh",
+      "role": "implementation",
+      "purpose": "Check prerequisites and fail before a cut; independently controlled preflight failures.",
+      "source": {
+        "path": "scripts/release-doctor.sh",
+        "start": 1,
+        "end": 303
+      },
+      "owning_tasks": [
+        "release:doctor",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-doctor.test.sh",
+      "role": "control",
+      "purpose": "Check prerequisites and fail before a cut; independently controlled preflight failures.",
+      "source": {
+        "path": "scripts/release-doctor.test.sh",
+        "start": 1,
+        "end": 77
+      },
+      "owning_tasks": [
+        "release:doctor",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-evidence.sh",
+      "role": "implementation",
+      "purpose": "Verify the selected channel installation while preserving old kegs, then write evidence binding local/public artifacts and installed record.",
+      "source": {
+        "path": "scripts/release-evidence.sh",
+        "start": 1,
+        "end": 115
+      },
+      "owning_tasks": [
+        "release",
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 639,
+          "end": 663
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-formula.sh",
+      "role": "implementation",
+      "purpose": "Render/test both unpublished formula channels in a temporary tap; formula payload and installed-layout checks.",
+      "source": {
+        "path": "scripts/release-formula.sh",
+        "start": 1,
+        "end": 95
+      },
+      "owning_tasks": [
+        "release:formula",
+        "release",
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 362,
+          "end": 409
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-formula.test.rb",
+      "role": "control",
+      "purpose": "Render/test both unpublished formula channels in a temporary tap; formula payload and installed-layout checks.",
+      "source": {
+        "path": "scripts/release-formula.test.rb",
+        "start": 1,
+        "end": 100
+      },
+      "owning_tasks": [
+        "release:formula",
+        "release",
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 362,
+          "end": 409
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-install.sh",
+      "role": "implementation",
+      "purpose": "Verify the selected channel installation while preserving old kegs, then write evidence binding local/public artifacts and installed record.",
+      "source": {
+        "path": "scripts/release-install.sh",
+        "start": 1,
+        "end": 178
+      },
+      "owning_tasks": [
+        "release",
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 639,
+          "end": 663
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-lifecycle.test.sh",
+      "role": "control",
+      "purpose": "Isolated release order/refusal/dry-cut/lifecycle orchestration and channel mutants; fixtures do not establish remote delivery.",
+      "source": {
+        "path": "scripts/release-lifecycle.test.sh",
+        "start": 1,
+        "end": 12
+      },
+      "owning_tasks": [
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-notes.sh",
+      "role": "implementation",
+      "purpose": "Review/fill Unreleased notes and commit preparatory state without a bump; controlled dry-cut/notes preparation.",
+      "source": {
+        "path": "scripts/release-notes.sh",
+        "start": 1,
+        "end": 83
+      },
+      "owning_tasks": [
+        "release:notes",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-prepare.sh",
+      "role": "implementation",
+      "purpose": "Review/fill Unreleased notes and commit preparatory state without a bump; controlled dry-cut/notes preparation.",
+      "source": {
+        "path": "scripts/release-prepare.sh",
+        "start": 1,
+        "end": 113
+      },
+      "owning_tasks": [
+        "release:notes",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-prepare.test.sh",
+      "role": "control",
+      "purpose": "Review/fill Unreleased notes and commit preparatory state without a bump; controlled dry-cut/notes preparation.",
+      "source": {
+        "path": "scripts/release-prepare.test.sh",
+        "start": 1,
+        "end": 219
+      },
+      "owning_tasks": [
+        "release:notes",
+        "release",
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-promote.sh",
+      "role": "implementation",
+      "purpose": "Verify cut/readiness/public asset/book/formula identity; publish matching promotion, install while preserving kegs and record receipt; retry idempotently.",
+      "source": {
+        "path": "scripts/release-promote.sh",
+        "start": 1,
+        "end": 352
+      },
+      "owning_tasks": [
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 664,
+          "end": 795
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-publish.sh",
+      "role": "implementation",
+      "purpose": "Check tap then publish GitHub Release, versioned book and selected formula in order; detect/resume partial publication.",
+      "source": {
+        "path": "scripts/release-publish.sh",
+        "start": 1,
+        "end": 223
+      },
+      "owning_tasks": [
+        "release"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 531,
+          "end": 663
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-smoke-qemu.sh",
+      "role": "implementation",
+      "purpose": "Check manifest and installed archives on target/floor runners; native and QEMU observations retain distinct limits.",
+      "source": {
+        "path": "scripts/release-smoke-qemu.sh",
+        "start": 1,
+        "end": 225
+      },
+      "owning_tasks": [
+        "release:smoke",
+        "release"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 225,
+          "end": 276
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-smoke-target.sh",
+      "role": "implementation",
+      "purpose": "Check manifest and installed archives on target/floor runners; native and QEMU observations retain distinct limits.",
+      "source": {
+        "path": "scripts/release-smoke-target.sh",
+        "start": 1,
+        "end": 105
+      },
+      "owning_tasks": [
+        "release:smoke",
+        "release"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 225,
+          "end": 276
+        }
+      ]
+    },
+    {
+      "path": "scripts/release-smoke.sh",
+      "role": "implementation",
+      "purpose": "Check manifest and installed archives on target/floor runners; native and QEMU observations retain distinct limits.",
+      "source": {
+        "path": "scripts/release-smoke.sh",
+        "start": 1,
+        "end": 451
+      },
+      "owning_tasks": [
+        "release:smoke",
+        "release"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 225,
+          "end": 276
+        }
+      ]
+    },
+    {
+      "path": "scripts/release.test.sh",
+      "role": "control",
+      "purpose": "Isolated release order/refusal/dry-cut/lifecycle orchestration and channel mutants; fixtures do not establish remote delivery.",
+      "source": {
+        "path": "scripts/release.test.sh",
+        "start": 1,
+        "end": 337
+      },
+      "owning_tasks": [
+        "release:lifecycle:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 410,
+          "end": 530
+        }
+      ]
+    },
+    {
+      "path": "scripts/rhai-upgrade-proof.sh",
+      "role": "implementation",
+      "purpose": "Print pinned versions and execute a fixed roster of engine and hostile classes, refusing missing/empty/ignored/failed targets.",
+      "source": {
+        "path": "scripts/rhai-upgrade-proof.sh",
+        "start": 1,
+        "end": 138
+      },
+      "owning_tasks": [
+        "rhai:upgrade-proof"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        },
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 173,
+          "end": 261
+        }
+      ]
+    },
+    {
+      "path": "scripts/ste.sh",
+      "role": "implementation",
+      "purpose": "Check the mechanically decidable STE rules and word decisions; positive/refusal and mutant controls.",
+      "source": {
+        "path": "scripts/ste.sh",
+        "start": 1,
+        "end": 30
+      },
+      "owning_tasks": [
+        "docs:ste",
+        "docs:ste:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/ste.test.sh",
+      "role": "control",
+      "purpose": "Check the mechanically decidable STE rules and word decisions; positive/refusal and mutant controls.",
+      "source": {
+        "path": "scripts/ste.test.sh",
+        "start": 1,
+        "end": 161
+      },
+      "owning_tasks": [
+        "docs:ste",
+        "docs:ste:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/ste.ts",
+      "role": "implementation",
+      "purpose": "Check the mechanically decidable STE rules and word decisions; positive/refusal and mutant controls.",
+      "source": {
+        "path": "scripts/ste.ts",
+        "start": 1,
+        "end": 198
+      },
+      "owning_tasks": [
+        "docs:ste",
+        "docs:ste:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 569,
+          "end": 665
+        }
+      ]
+    },
+    {
+      "path": "scripts/templates/notices.md.hbs",
+      "role": "template",
+      "purpose": "Pinned cargo-about setup, locked release-graph licence acceptance and atomic notice output; real-tool controls and unique notice-text template.",
+      "source": {
+        "path": "scripts/templates/notices.md.hbs",
+        "start": 1,
+        "end": 31
+      },
+      "owning_tasks": [
+        "notices:setup",
+        "notices",
+        "notices:test"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 102,
+          "end": 142
+        }
+      ]
+    },
+    {
+      "path": "scripts/templates/ravel.rb.tmpl",
+      "role": "template",
+      "purpose": "Render/test both unpublished formula channels in a temporary tap; formula payload and installed-layout checks.",
+      "source": {
+        "path": "scripts/templates/ravel.rb.tmpl",
+        "start": 1,
+        "end": 128
+      },
+      "owning_tasks": [
+        "release:formula",
+        "release",
+        "release:promote"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 362,
+          "end": 409
+        }
+      ]
+    },
+    {
+      "path": "scripts/terminal-recovery-check.sh",
+      "role": "implementation",
+      "purpose": "Ordered handoff checks and private real-PTY receipt/settlement pairing.",
+      "source": {
+        "path": "scripts/terminal-recovery-check.sh",
+        "start": 1,
+        "end": 13
+      },
+      "owning_tasks": [
+        "check",
+        "test:terminal-recovery"
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 262,
+          "end": 306
+        }
+      ]
+    }
+  ],
+  "script_only_workflow_details": [
+    {
+      "workflow": "Tagged book build, publish, branch comparison, live HTTP check and Pages admission",
+      "source": {
+        "path": "scripts/release-book.sh",
+        "start": 80,
+        "end": 356
+      },
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 827,
+          "end": 920
+        },
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 886,
+          "end": 920
+        }
+      ]
+    },
+    {
+      "workflow": "Resume the same version after a local cut, failed floor, push, public Release, Pages, tap, install or final HTTP/evidence stop; verify promotion before retry",
+      "source": {
+        "path": "Taskfile.yml",
+        "start": 370,
+        "end": 426
+      },
+      "additional_source": [
+        {
+          "path": "scripts/release-publish.sh",
+          "start": 172,
+          "end": 223
+        },
+        {
+          "path": "scripts/release-promote.sh",
+          "start": 198,
+          "end": 239
+        },
+        {
+          "path": "scripts/release-install.sh",
+          "start": 93,
+          "end": 178
+        }
+      ],
+      "teaching": [
+        {
+          "path": "docs/book/src/11-deliver-ravel.md",
+          "start": 921,
+          "end": 1147
+        }
+      ]
+    },
+    {
+      "workflow": "Linux subject image/up/sync/exec/pull/campaign/down helper modes",
+      "source": {
+        "path": "scripts/native-linux.sh",
+        "start": 69,
+        "end": 298
+      },
+      "teaching": [
+        {
+          "path": "docs/book/src/10-develop-ravel.md",
+          "start": 708,
+          "end": 766
+        }
+      ],
+      "limit": "Named evidence infrastructure only; not a promise that every helper mode is taught or native qualification."
+    }
+  ],
+  "limits": [
+    "No release, remote publication, installation replacement, real harness call or platform campaign was performed.",
+    "Fixtures/helpers are classified evidence or implementation, not extra supported tasks.",
+    "Coverage is traceability, not comprehension, exact-source reconstruction or native x86_64 Linux qualification.",
+    "Final whole-book proof, published rendering and owner Read 2 remain with k130."
+  ]
+}
