@@ -14,6 +14,24 @@ removes the Bun worker, and Ravel withdraws operating-system confinement.
 Ravel 2.0.0 also delivers skill directories to the session. Homebrew publishes
 2.0.0 first as the keg-only `ravel@2`, and unversioned `ravel` stays at 1.1.0.
 
+When Homebrew promotes 2.0.0 to unversioned `ravel`, upgrade Grove with Ravel.
+Run `brew upgrade` with no formula name, or run `brew upgrade grove` first. A
+lone `brew upgrade ravel` leaves Grove 22.8.0 or earlier. Homebrew upgrades a
+dependent only when the dependent and each of its dependencies have a bottle,
+and neither formula has one.
+
+That Grove refuses Ravel 2.0.0 before any launch. Its message names
+`brew upgrade ravel`, which is the wrong remedy after that upgrade. Run
+`brew upgrade grove` instead. The Grove task stays live, and the next `grove`
+run continues it.
+
+After the upgrade, each launch receives the skill sources that compatible
+Grove installs in the default skill directory, with no settings change. A
+native installation that remains still loads beside them. To keep only the
+native route, put the off value in `~/.config/ravel/settings.json`:
+`{"skills": {"schemaVersion": 1, "sources": []}}`. Ravel refuses a top-level
+`sources` key as `settings_invalid`, exit 2.
+
 - Change the configuration format to Rhai. Ravel reads
   `~/.config/ravel/config.rhai`, and it evaluates no TypeScript or
   JavaScript. When the default Rhai entry is absent and `policy.ts` exists,
@@ -57,8 +75,9 @@ Ravel 2.0.0 also delivers skill directories to the session. Homebrew publishes
   `share/ravel/installation.json` two levels above its canonical executable.
   The record names the default skill directory, and each entry there is a
   source, with the roots `skills` and `craft` where each exists. The sources
-  follow the byte order of their IDs. `sources` and `mandatory` are optional,
-  and `"sources": []` turns the default off. An absent record or directory
+  follow the byte order of their IDs. `sources` and `mandatory` are optional.
+  The off value `{"skills": {"schemaVersion": 1, "sources": []}}` turns the
+  default off. An absent record or directory
   supplies no source. A malformed record, or an entry that is not a source,
   refuses as `skill_directory_invalid`, stage `skills`, exit 3, and names the
   entry. The `skills` object of the JSON routing notice gains
