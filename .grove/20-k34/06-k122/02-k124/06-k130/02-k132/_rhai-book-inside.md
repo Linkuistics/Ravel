@@ -1,4 +1,4 @@
-# rhai-book-inside-k132
+# rhai-book-inside-k132 — brief
 
 ## Goal
 
@@ -59,3 +59,25 @@ work for any gap. Do not close a node with unmet criteria.
 The reference map does not replace any source inventory, gate or fresh chapter read.
 This proof has no normal successor editorial stage. Required Read 2 remains outside
 the editorial node after proof. No earlier task waived it.
+
+## Decisions (running log)
+
+- Keep the proof live while the required private STE source is unreadable.
+  A checksum attempt at the exact path stalled and timed out after 12 seconds.
+  The owner question requests access to that file. The owner authorised no replacement source.
+- Treat the current automated checks as measurement evidence only.
+  The fresh whole-book read, visual inspection and owner Read 2 remain open.
+  Evidence belongs in `docs/evidence/rhai-book-proof-k132/`.
+- The owner restored PDF access on 14 November 2026.
+  The exact file matches the required SHA-256 digest.
+  The evidence report records the writing-rule consultation and its limits.
+- Separate the completed measurements from the remaining whole-document proof.
+  The work exceeds one focused session. The first child preserves verifiable measurements.
+  The next child must freshly read all eleven chapters and retain every criterion above.
+  No chapter read in this session counts towards that whole-document read.
+
+## Decomposition
+
+The first child records the automated measurements, input reconciliation and restored private-source access.
+The second child completes the fresh whole-document proof, including visual and link checks, then arranges owner Read 2.
+This split does not waive any criterion or close the editorial node.

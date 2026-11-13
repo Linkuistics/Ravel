@@ -1,0 +1,60 @@
+diff --git a/docs/book/src/04-write-a-configuration-script.md b/docs/book/src/04-write-a-configuration-script.md
+index 6b608f66d2..edc3cf649c 100644
+--- a/docs/book/src/04-write-a-configuration-script.md
++++ b/docs/book/src/04-write-a-configuration-script.md
+@@ -426,7 +426,7 @@ ## Define a configuration script and read the request
+ script needs no change for them. A harness that reads only some directories
+ needs a read grant for the skill snapshots. Make that grant from
+ `request.skills`, for example one argument for each `snapshotRoot`. The
+-shipped example `harness-table.rhai` does this for its lead harness.
++repository example `harness-table.rhai` does this for its lead harness.
+ 
+ Excerpt from `crates/ravel/examples/harness-table.rhai`: the function that
+ lists the snapshot roots. The function `harness_args` puts each root after
+diff --git a/docs/book/src/06-reference.md b/docs/book/src/06-reference.md
+index 3e9dd43758..10c202af77 100644
+--- a/docs/book/src/06-reference.md
++++ b/docs/book/src/06-reference.md
+@@ -2276,7 +2276,7 @@ ### Engine and conversion bounds
+ | Worker evaluation stack | 64 MiB. A worker abort is an operational failure, not a successful selection. |
+ | Imported modules | 64 files besides the entry. A 65th distinct module gives `config_import_failed`. |
+ | Entry or module source | 1,048,576 bytes per file. Entry failure gives `config_unreadable`, and module failure gives `config_import_failed`. |
+-| Encoded host-read reply | 19,922,944 bytes (19 MiB), with JSON escapes and record fields. Excess throws catchable `source_unreadable` and consumes one source. |
++| Encoded host-read reply | 38,541,312 bytes, with JSON escapes and record fields. Excess throws catchable `source_unreadable` and consumes one source. |
+ | JSON conversion depth | 100 levels of arrays and maps. The boundary reports a data-conversion error at the value's location. |
+ | JSON Schema depth | 32 levels, with the root at level 1. Excess gives catchable `schema_invalid`. |
+ | Host calls at one time | One, because each host call is synchronous. |
+diff --git a/docs/book/src/08-follow-a-session-through-the-code.md b/docs/book/src/08-follow-a-session-through-the-code.md
+index 7816957644..659a2e54a2 100644
+--- a/docs/book/src/08-follow-a-session-through-the-code.md
++++ b/docs/book/src/08-follow-a-session-through-the-code.md
+@@ -437,7 +437,8 @@ ## Prepare the managed launch
+ process. Thus, a program that prints cannot write the result of the session.
+ 
+ Next, `SessionChannel::allocate` makes a fresh temporary directory and channel
+-path under `TMPDIR`. It keeps an open directory descriptor for the later read.
++path under `--exit-dir`, or under `TMPDIR` when that option is absent.
++It keeps an open directory descriptor for the later read.
+ Allocation makes no result file. The channel belongs to this launch alone.
+ 
+ Only now does `run` write the script's output and the routing notice.
+diff --git a/docs/book/src/10-develop-ravel.md b/docs/book/src/10-develop-ravel.md
+index 9f2470baf7..c315665b45 100644
+--- a/docs/book/src/10-develop-ravel.md
++++ b/docs/book/src/10-develop-ravel.md
+@@ -131,6 +131,15 @@ ## Build the executable
+ the approved list. `task install` and the release builds run it, because each
+ installation carries the notice file.
+ 
++Run `task notices:test` when you change the notice script or its licence
++rules. Its temporary projects check that the notice file includes build
++dependencies and excludes dependencies used only by tests. They also check
++that separate notices remain separate, an unapproved licence stops generation,
++and the MPL exception applies only to `smartstring`. A failed run must keep
++the previous notice file. A missing lockfile or the wrong cargo-about version
++must stop the script before it generates notices. These controls need the
++real pinned cargo-about tool and its cached Rust dependencies.
++
+ ## Find the source for a change
+ 
+ The workspace has two Rust packages. `ravel` holds the CLI, the Rhai worker
