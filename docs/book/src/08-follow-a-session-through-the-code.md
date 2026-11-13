@@ -920,6 +920,8 @@ the primary failure with `selection_cancelled`. The `worker_failed` text stays
 under “original failure:”. `run` launches nothing. In its final decision,
 `settle` writes that report, then returns `session_cancelled`.
 
+The sequence shows why cancellation stops the harness run before worker teardown.
+
 ![During selection, the Rhai worker requests a harness run and waits for data. The Ravel CLI starts the fake evaluation harness with its own result channel. The harness sends INT to the Ravel CLI. Ravel attempts harness group shutdown, reap and directory cleanup within the stop bound, then worker teardown and private-directory cleanup. It retains cleanup problems and reports cancellation. It launches no final managed process and returns no result to the caller.](figures/selection-cancellation.svg)
 
 [Open the selection cancellation sequence at full size](figures/selection-cancellation.svg).
@@ -1097,6 +1099,8 @@ exists. A later signal can also reach the Ravel CLI after that check.
 `Handlers::finalise` collects that observation before `settle` decides the
 outcome.
 
+The sequence shows why a sent result does not override cancellation.
+
 ![The managed process sends candidate, then sends INT to the Ravel CLI. The CLI attempts group cleanup, reap, terminal recovery and temporary cleanup. Cancellation returns no result to the caller, even when cleanup fails.](figures/supervision-cancellation.svg)
 
 [Open the supervision cancellation sequence at full size](figures/supervision-cancellation.svg).
@@ -1160,6 +1164,8 @@ cleanup outcomes as mask restoration, channel removal, output restoration,
 then the final signal-operation reports. `settle` reports every cleanup error
 and any group that stays. When cancellation overrides an original failure,
 it reports that failure too.
+
+The activity shows which outcome wins when several observations compete.
 
 ![After cleanup attempts, Ravel combines signal observations and reports failures. Cancellation wins, then an original failure, then a cleanup error, then a group that survives. Only success permits the result write and flush.](figures/outcome-precedence.svg)
 

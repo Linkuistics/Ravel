@@ -241,8 +241,8 @@ checkout.
 | Runner | `crates/keyed-launch/src/` | Inside the Ravel CLI | Runs `fake-advisor`, then `fake-agent` |
 | Result channel | `crates/ravel/src/completion.rs`, exported by `crates/ravel/src/lib.rs` | Inside the Ravel CLI and inside each `ravel end-session` process | Carries `advice` to the script and `finished` to the caller |
 
-The figure shows the same parts and their relations. The dashed outline is the
-Ravel CLI process.
+The figure shows that the runner lives in the Ravel CLI, while the worker is a
+separate process. The dashed outline is the Ravel CLI process.
 
 ![Source responsibilities: crates/ravel prepares skills and checks requests. Its reader thread and runtime control host calls and decide the final outcome. crates/keyed-launch supplies the runner inside that CLI process. A separate Rhai worker uses the same binary to evaluate the configuration script and request host capabilities. The runner supervises each evaluation harness run, whose data returns to the configuration script. Every host call and worker cleanup ends before the runner launches the final managed process.](figures/source-components.svg)
 
