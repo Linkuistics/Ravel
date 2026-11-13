@@ -1,0 +1,5 @@
+task: [docs:breaks] bash scripts/breaks.sh --strict docs/book/src/07-the-parts-of-ravel.md docs/book/src/08-follow-a-session-through-the-code.md docs/book/src/09-jobs-signals-and-the-terminal.md
+breaks: docs/book/src/07-the-parts-of-ravel.md: 0 runs longer than 450 words
+breaks: docs/book/src/08-follow-a-session-through-the-code.md: 0 runs longer than 450 words
+breaks: docs/book/src/09-jobs-signals-and-the-terminal.md: 0 runs longer than 450 words
+breaks: 0 runs longer than 450 words in 3 files

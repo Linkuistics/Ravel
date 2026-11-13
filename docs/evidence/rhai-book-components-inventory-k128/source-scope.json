@@ -1,0 +1,388 @@
+{
+  "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+  "tier": 2,
+  "generation": "2026-11-13T16:26:06Z",
+  "queries": [
+    {
+      "file_pattern": "crates/ravel/src/*",
+      "label": "File",
+      "total": 62,
+      "has_more": false
+    },
+    {
+      "file_pattern": "crates/keyed-launch/src/*",
+      "label": "File",
+      "total": 11,
+      "has_more": false
+    }
+  ],
+  "files": [
+    {
+      "path": "crates/keyed-launch/src/argv.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/capture.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/channel.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/error.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/lib.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/native_barrier.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/native_hooks.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/run.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_faults.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "runner"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/terminal_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "runner"
+    },
+    {
+      "path": "crates/ravel/src/authority.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/cancellation.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/cancellation/propagation_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/choice.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/cli.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/completion.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/completion_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/config.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/context.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/directory_control.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/environment.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/frame.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/harness_entries.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/inputs.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/lib.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/limits.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/main.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests/faults.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/partial_acquisition_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/private_directory.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/program.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/refusal.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/bridge.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/callbacks.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/convert.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/discovery.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/engine.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/fixtures.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/front.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/harness.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/heap.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/helpers.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/host.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/locate.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/mod.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/reader.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/resolver.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/role.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/serve.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "worker or CLI host bridge (process split recorded in inventory.json)"
+    },
+    {
+      "path": "crates/ravel/src/run.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/schema.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/settings.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/signal_state.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/skills/bounds.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/cache.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/command.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/default_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/dir.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/installed.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/launch.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/mod.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/preamble.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/publication_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/settings.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/snapshot.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/skills/watch.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI skill preparation"
+    },
+    {
+      "path": "crates/ravel/src/strict_json.rs",
+      "role": "supporting production module; enumerated for scope, not claimed as fully explained source",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/worker.rs",
+      "role": "direct component evidence; targeted production ranges compared",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/worker/native_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    },
+    {
+      "path": "crates/ravel/src/worker_admission_tests.rs",
+      "role": "test or private fixture; evidence-only, not production component coverage",
+      "component": "CLI coordination, input or result transport"
+    }
+  ],
+  "separateEvidence": "Tests and fixtures may exercise obligations but are not authoritative production coverage. Existing evidence records are provenance only; no runtime result is reused as a new measurement.",
+  "excluded": "Dependencies, generated target output and full source reconstruction are outside this orientation. No separate component embedding contract is claimed."
+}

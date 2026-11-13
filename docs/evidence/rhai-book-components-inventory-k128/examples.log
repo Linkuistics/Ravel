@@ -1,0 +1,10 @@
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+task: [docs:examples] bash scripts/examples.sh check docs/book/src/07-the-parts-of-ravel.md docs/book/src/08-follow-a-session-through-the-code.md docs/book/src/09-jobs-signals-and-the-terminal.md
+pass docs/book/src/07-the-parts-of-ravel.md:87
+pass docs/book/src/08-follow-a-session-through-the-code.md:698
+pass docs/book/src/08-follow-a-session-through-the-code.md:967
+pass docs/book/src/09-jobs-signals-and-the-terminal.md:97
+pass docs/book/src/09-jobs-signals-and-the-terminal.md:413
+pass docs/book/src/09-jobs-signals-and-the-terminal.md:550
+examples: 6 passed, 0 failed; 6 fragment(s) not run; 0 page error(s)

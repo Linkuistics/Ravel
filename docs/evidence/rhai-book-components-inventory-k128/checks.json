@@ -1,0 +1,94 @@
+{
+  "host": "darwin/arm64",
+  "checks": [
+    {
+      "name": "examples",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "task",
+        "docs:examples",
+        "--",
+        "docs/book/src/07-the-parts-of-ravel.md",
+        "docs/book/src/08-follow-a-session-through-the-code.md",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md"
+      ],
+      "started": "2026-11-13T16:41:49.891Z",
+      "finished": "2026-11-13T16:42:19.348Z",
+      "exitStatus": 0,
+      "log": "docs/evidence/rhai-book-components-inventory-k128/examples.log"
+    },
+    {
+      "name": "excerpts",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "task",
+        "docs:excerpts"
+      ],
+      "started": "2026-11-13T16:42:19.348Z",
+      "finished": "2026-11-13T16:42:20.570Z",
+      "exitStatus": 0,
+      "log": "docs/evidence/rhai-book-components-inventory-k128/excerpts.log"
+    },
+    {
+      "name": "ste",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "task",
+        "docs:ste",
+        "--",
+        "--strict",
+        "docs/book/src/07-the-parts-of-ravel.md",
+        "docs/book/src/08-follow-a-session-through-the-code.md",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md"
+      ],
+      "started": "2026-11-13T16:42:20.570Z",
+      "finished": "2026-11-13T16:42:21.370Z",
+      "exitStatus": 0,
+      "log": "docs/evidence/rhai-book-components-inventory-k128/ste.log"
+    },
+    {
+      "name": "breaks",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "task",
+        "docs:breaks",
+        "--",
+        "--strict",
+        "docs/book/src/07-the-parts-of-ravel.md",
+        "docs/book/src/08-follow-a-session-through-the-code.md",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md"
+      ],
+      "started": "2026-11-13T16:42:21.370Z",
+      "finished": "2026-11-13T16:42:21.504Z",
+      "exitStatus": 0,
+      "log": "docs/evidence/rhai-book-components-inventory-k128/breaks.log"
+    },
+    {
+      "name": "book",
+      "command": [
+        "mise",
+        "exec",
+        "--",
+        "task",
+        "docs:book:build"
+      ],
+      "started": "2026-11-13T16:42:21.504Z",
+      "finished": "2026-11-13T16:42:21.808Z",
+      "exitStatus": 0,
+      "log": "docs/evidence/rhai-book-components-inventory-k128/book.log"
+    }
+  ],
+  "toolVersions": {
+    "rustc": "1.99.1 (58cf8f9c3 2026-10-13)",
+    "checkoutBun": "1.4.2",
+    "checkoutMdBook": "0.5.4"
+  }
+}

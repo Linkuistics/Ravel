@@ -1,0 +1,273 @@
+{
+  "task": "rhai-book-components-inventory-k128",
+  "contract": "docs/book/contract.md:378",
+  "depth": "Component orientation and ten internal obligations, not complete source reconstruction or a supported embedding interface.",
+  "components": [
+    {
+      "name": "Ravel CLI",
+      "process": "ravel start-session",
+      "sources": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/choice.rs:61"
+      ],
+      "responsibility": "Caller input, owner authority, host effects, selection validation, launch/channel pairing and final outcome."
+    },
+    {
+      "name": "Rhai worker",
+      "process": "Separate process of the same executable during evaluation",
+      "sources": [
+        "crates/ravel/src/rhai_worker/role.rs:45",
+        "crates/ravel/src/rhai_worker/engine.rs:214",
+        "crates/ravel/src/rhai_worker/bridge.rs:1"
+      ],
+      "responsibility": "Compute the selection and request host capabilities over descriptor 3; no inherited completion authority."
+    },
+    {
+      "name": "Host bridge",
+      "process": "Runtime and reader threads within the Ravel CLI",
+      "sources": [
+        "crates/ravel/src/rhai_worker/front.rs:150",
+        "crates/ravel/src/rhai_worker/serve.rs:121",
+        "crates/ravel/src/rhai_worker/host.rs:475",
+        "crates/ravel/src/rhai_worker/reader.rs:1"
+      ],
+      "responsibility": "CLI performs reads and harness launches while watching worker, deadline and cancellation; settles active harness work before worker teardown."
+    },
+    {
+      "name": "Skill preparation",
+      "process": "Ravel CLI before worker launch",
+      "sources": [
+        "crates/ravel/src/choice.rs:61",
+        "crates/ravel/src/skills/launch.rs:92"
+      ],
+      "responsibility": "Resolve configured sources and prepare prompt delivery before evaluation; refusals launch no worker."
+    },
+    {
+      "name": "Runner",
+      "process": "Library code inside Ravel CLI, private keyed-launch package",
+      "sources": [
+        "crates/keyed-launch/Cargo.toml:1",
+        "crates/keyed-launch/src/lib.rs:1",
+        "crates/keyed-launch/src/run.rs:1256"
+      ],
+      "responsibility": "Direct argv launch, process groups, waits, escalation and terminal lease. It judges no owner semantics and restores no general persistent host contract."
+    },
+    {
+      "name": "Result channel",
+      "process": "Ravel CLI and each end-session process",
+      "sources": [
+        "crates/ravel/src/lib.rs:1",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/completion.rs:160"
+      ],
+      "responsibility": "First complete publication, checked result read and explicit directory cleanup. CLI supplies the matching launch outcome."
+    }
+  ],
+  "obligations": [
+    {
+      "id": "COMP-01",
+      "obligation": "Caller commands retain their meaning. The owner supplies a Rhai configuration script.",
+      "status": "covered",
+      "claim": "Kinds, task identity, parameters and prompt are caller data. The owner script selects a program and argument words; it decides whether and how to pass the prompt. The caller interprets the opaque result. Ravel accepts an ordinary executable without a provider-specific interface.",
+      "source": [
+        "crates/ravel/src/inputs.rs:1",
+        "crates/ravel/src/inputs.rs:123",
+        "crates/ravel/src/config.rs:8",
+        "crates/ravel/src/choice.rs:61",
+        "crates/ravel/src/run.rs:308"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:256",
+        "docs/book/src/07-the-parts-of-ravel.md:622",
+        "docs/book/src/08-follow-a-session-through-the-code.md:124"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "A program still needs a sent result and successful cleanup. A successful child exit alone is insufficient."
+    },
+    {
+      "id": "COMP-02",
+      "obligation": "Configuration script execution has no session-result authority. Ravel reaps its worker before the managed launch.",
+      "status": "covered",
+      "claim": "The CLI launches the worker with an empty environment, a private 0700 working directory and descriptors 0–3. Host capabilities run in the CLI; evaluation harness runs have their own channels. Worker success requires confirmed reap and successful directory removal before choice returns and the managed channel is allocated.",
+      "source": [
+        "crates/ravel/src/choice.rs:150",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:303",
+        "crates/ravel/src/worker.rs:404",
+        "crates/ravel/src/rhai_worker/host.rs:475",
+        "crates/ravel/src/run.rs:93"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:318",
+        "docs/book/src/07-the-parts-of-ravel.md:388",
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "The worker is killable computation, not a filesystem or hostile same-user security sandbox. Abandoned reads can remain until CLI exit; failed cleanup returns failure."
+    },
+    {
+      "id": "COMP-03",
+      "obligation": "Ravel judges configuration script output without fallback.",
+      "status": "covered",
+      "claim": "The CLI resolves exactly one owner entry, validates selected/refused result shape, then resolves that selection's program. Abstention, malformed data, refusal, worker failure or lookup failure stops this path. Neither another configuration entry nor a replacement command is selected.",
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/choice.rs:82",
+        "crates/ravel/src/choice.rs:132",
+        "crates/ravel/src/config.rs:36",
+        "crates/ravel/src/program.rs:51"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:463",
+        "docs/book/src/08-follow-a-session-through-the-code.md:124",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "PATH traversal can pass a nonexecutable candidate to find an executable of the selected name; this is lookup, not selection of another command. A checked path can still fail at spawn."
+    },
+    {
+      "id": "COMP-04",
+      "obligation": "The selected program runs directly in the caller's context.",
+      "status": "covered",
+      "claim": "The CLI supplies the resolved executable path and original selected arg0, with each argument one word. The runner uses Command directly without a shell, inherits cwd for cwd: None and inherits the environment with launch controls scrubbed before grants and the new completion channel. Entry signal state travels through a transparent launch.",
+      "source": [
+        "crates/ravel/src/run.rs:165",
+        "crates/ravel/src/run.rs:186",
+        "crates/ravel/src/environment.rs:84",
+        "crates/keyed-launch/src/argv.rs:14",
+        "crates/keyed-launch/src/run.rs:1282"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:41",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Caller context is subject to documented stdout routing, launch-control scrubbing, process-group/terminal handling and signal reinstatement. Captured harness runs use a different detached mode."
+    },
+    {
+      "id": "COMP-05",
+      "obligation": "Ravel keeps the first complete result that it receives, unchanged.",
+      "status": "covered",
+      "claim": "end-session writes and flushes a temporary file, then hard-links it to the completion name without replacement. Later sends validate the existing regular result. The channel distinguishes empty from absent, validates bounded UTF-8 contents and leaves the caller's text unchanged. CLI pairs it with its own launch's Ended.",
+      "source": [
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:245"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:580",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "No hostile same-user authentication. SessionChannel accepts an Ended from any launch at the type level; correct pairing is the CLI's responsibility. Publication winning does not guarantee final session success."
+    },
+    {
+      "id": "COMP-06",
+      "obligation": "Success requires reap and confirmed group cleanup.",
+      "status": "covered",
+      "claim": "The runner observes exit with waitid WNOWAIT, stops the group before releasing the child's PID, physically reaps, recovers the terminal and probes group absence. Only ESRCH confirms absence. CLI rejects a surviving group, missing/invalid result or required cleanup failure and explicitly closes its channel before output.",
+      "source": [
+        "crates/keyed-launch/src/run.rs:1796",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1910",
+        "crates/keyed-launch/src/run.rs:1966",
+        "crates/keyed-launch/src/run.rs:2031",
+        "crates/keyed-launch/src/run.rs:2330",
+        "crates/ravel/src/run.rs:275",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Descendants that leave the group, abrupt CLI death and remote service work lie outside cleanup guarantees. Bounded waits may leave cleanup unconfirmed. A numeric group probe after reap never authorizes another signal."
+    },
+    {
+      "id": "COMP-07",
+      "obligation": "Cancellation suppresses results.",
+      "status": "covered",
+      "claim": "Selection watches the CLI's latch and requests harness stop before worker teardown. Supervision checks cancellation before accepting observed exit and forwards to group and child. Finalise gathers front, runner and pending observations; settle selects cancellation ahead of a result while retaining cleanup reports.",
+      "source": [
+        "crates/ravel/src/rhai_worker/host.rs:475",
+        "crates/ravel/src/worker.rs:303",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Ignored and entry-blocked signals have distinct behavior. Final signal decision and output write are not atomic; a newly arriving signal after that decision is outside this suppression claim."
+    },
+    {
+      "id": "COMP-08",
+      "obligation": "Ravel recovers the terminal's foreground and modes.",
+      "status": "covered",
+      "claim": "The runner retains a terminal lease through failed spawn and supervision. It lends only from its own foreground ownership, records the attempted group before exec, and applies distinct normal-exit, signal-death and unknown-status holder rules. It restores saved modes only after confirming its own foreground ownership and retains query/handback/mode/SIGTTOU errors.",
+      "source": [
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:2031"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:548",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Failed-spawn and unknown-status handback require exclusive foreground authority and no unrelated reuse of the recorded group ID. PTY fixtures do not establish those assumptions for every caller. No-tty example checks do not exercise this recovery."
+    },
+    {
+      "id": "COMP-09",
+      "obligation": "Only result bytes reach stdout.",
+      "status": "covered",
+      "claim": "The CLI reserves stdout for the result, routes managed output and diagnostics to stderr, reads the matching channel after supervision and joins required cleanup/signal reports. Only after settle succeeds does write_all(result.as_bytes()) and flush emit the unchanged result, without a newline.",
+      "source": [
+        "crates/ravel/src/run.rs:90",
+        "crates/ravel/src/run.rs:275",
+        "crates/ravel/src/run.rs:308",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:256",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593",
+        "docs/book/src/08-follow-a-session-through-the-code.md:621"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Applies to start-session's result output. Other CLI verbs have their own output contract. A failed final write can leave a prefix; no atomic output/signal transaction is promised."
+    },
+    {
+      "id": "COMP-10",
+      "obligation": "Installed execution uses one binary for the Ravel CLI and its Rhai worker.",
+      "status": "covered",
+      "claim": "main dispatches the private worker role by arg0. The CLI selects its own executable, using /proc/self/exe on Linux and canonical current_exe on macOS, without worker PATH lookup. verify_hello compares protocol, package version, build ID and Rhai version before sending the evaluation request.",
+      "source": [
+        "crates/ravel/src/main.rs:45",
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:123",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/rhai_worker/role.rs:61"
+      ],
+      "teaching": [
+        "docs/book/src/07-the-parts-of-ravel.md:652",
+        "docs/book/src/08-follow-a-session-through-the-code.md:207"
+      ],
+      "method": "Compared production source and call boundaries with explanatory prose; complete fake-program examples checked separately.",
+      "limits": "Identity mismatch detection is not installation authentication against the owner. The worker is a separate process but not a separate package or installed executable."
+    }
+  ]
+}

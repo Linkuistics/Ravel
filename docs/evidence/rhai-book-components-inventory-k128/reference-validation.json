@@ -1,0 +1,635 @@
+{
+  "references": [
+    {
+      "id": "COMP-01",
+      "role": "source",
+      "reference": "crates/ravel/src/inputs.rs:1",
+      "line": "//! The caller's data inputs, read and checked once, before any configuration script runs"
+    },
+    {
+      "id": "COMP-01",
+      "role": "source",
+      "reference": "crates/ravel/src/inputs.rs:123",
+      "line": "        Ok(Inputs {"
+    },
+    {
+      "id": "COMP-01",
+      "role": "source",
+      "reference": "crates/ravel/src/config.rs:8",
+      "line": "/// The selected command: what `select` returned when it did not refuse. The"
+    },
+    {
+      "id": "COMP-01",
+      "role": "source",
+      "reference": "crates/ravel/src/choice.rs:61",
+      "line": "pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {"
+    },
+    {
+      "id": "COMP-01",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:308",
+      "line": "        &source,"
+    },
+    {
+      "id": "COMP-01",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:256",
+      "line": "## The Ravel CLI coordinates the session"
+    },
+    {
+      "id": "COMP-01",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:622",
+      "line": "## The program contract stays loose"
+    },
+    {
+      "id": "COMP-01",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:124",
+      "line": "## Prepare the request"
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/choice.rs:150",
+      "line": "                &caller.measured.name,"
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/worker.rs:89",
+      "line": "pub(crate) fn supervise<T>("
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/worker.rs:303",
+      "line": "        deadline,"
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/worker.rs:404",
+      "line": "        let failure = Failure::with_diagnostics(refusal, diagnostics);"
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/host.rs:475",
+      "line": "    pub(super) async fn settle(&mut self, conversation: Conversation) -> Conversation {"
+    },
+    {
+      "id": "COMP-02",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:93",
+      "line": "            SessionChannel::allocate(exit_dir.as_deref().unwrap_or(&temporary))"
+    },
+    {
+      "id": "COMP-02",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:318",
+      "line": "## The Rhai worker evaluates the script in its own process"
+    },
+    {
+      "id": "COMP-02",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:388",
+      "line": "## The host bridge carries each request to the Ravel CLI"
+    },
+    {
+      "id": "COMP-02",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:207",
+      "line": "## Start the Rhai worker"
+    },
+    {
+      "id": "COMP-02",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:337",
+      "line": "## Follow the harness run through the host bridge"
+    },
+    {
+      "id": "COMP-02",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:390",
+      "line": "## Check the selection and find the program"
+    },
+    {
+      "id": "COMP-03",
+      "role": "source",
+      "reference": "crates/ravel/src/authority.rs:66",
+      "line": "pub fn resolve("
+    },
+    {
+      "id": "COMP-03",
+      "role": "source",
+      "reference": "crates/ravel/src/choice.rs:82",
+      "line": "pub fn choose_prepared(prepared: Prepared, setup: &RunSetup) -> Result<Selected, Failure> {"
+    },
+    {
+      "id": "COMP-03",
+      "role": "source",
+      "reference": "crates/ravel/src/choice.rs:132",
+      "line": "fn evaluate_and_resolve_rhai("
+    },
+    {
+      "id": "COMP-03",
+      "role": "source",
+      "reference": "crates/ravel/src/config.rs:36",
+      "line": "    let shape = shape(source);"
+    },
+    {
+      "id": "COMP-03",
+      "role": "source",
+      "reference": "crates/ravel/src/program.rs:51",
+      "line": "pub fn resolve("
+    },
+    {
+      "id": "COMP-03",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:463",
+      "line": "## The configuration module defines the interface"
+    },
+    {
+      "id": "COMP-03",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:124",
+      "line": "## Prepare the request"
+    },
+    {
+      "id": "COMP-03",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:390",
+      "line": "## Check the selection and find the program"
+    },
+    {
+      "id": "COMP-03",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:675",
+      "line": "## Follow a refusal or launch failure"
+    },
+    {
+      "id": "COMP-04",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:165",
+      "line": "        };"
+    },
+    {
+      "id": "COMP-04",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:186",
+      "line": "        let launch = Launch {"
+    },
+    {
+      "id": "COMP-04",
+      "role": "source",
+      "reference": "crates/ravel/src/environment.rs:84",
+      "line": "    \"HARNESS_DISPATCH_STATE_DIR\","
+    },
+    {
+      "id": "COMP-04",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/argv.rs:14",
+      "line": "impl Argv {"
+    },
+    {
+      "id": "COMP-04",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1282",
+      "line": "    let mut command = Command::new(launch.argv.program());"
+    },
+    {
+      "id": "COMP-04",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:432",
+      "line": "## Prepare the managed launch"
+    },
+    {
+      "id": "COMP-04",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:41",
+      "line": "## Each program runs as a job"
+    },
+    {
+      "id": "COMP-04",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:868",
+      "line": "## Preserve the entry signal state"
+    },
+    {
+      "id": "COMP-05",
+      "role": "source",
+      "reference": "crates/ravel/src/completion.rs:96",
+      "line": "    pub fn result_after(&self, ended: &Ended) -> io::Result<Option<String>> {"
+    },
+    {
+      "id": "COMP-05",
+      "role": "source",
+      "reference": "crates/ravel/src/completion.rs:160",
+      "line": "pub fn end_session(result: &str) -> io::Result<()> {"
+    },
+    {
+      "id": "COMP-05",
+      "role": "source",
+      "reference": "crates/ravel/src/completion.rs:175",
+      "line": "pub fn publish_result(path: &Path, result: &str) -> io::Result<()> {"
+    },
+    {
+      "id": "COMP-05",
+      "role": "source",
+      "reference": "crates/ravel/src/completion.rs:222",
+      "line": "fn read_regular(file: File) -> io::Result<String> {"
+    },
+    {
+      "id": "COMP-05",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:245",
+      "line": "        crate::native_entry_tests::managed_ending(ending);"
+    },
+    {
+      "id": "COMP-05",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:580",
+      "line": "## The result channel carries the value"
+    },
+    {
+      "id": "COMP-05",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:505",
+      "line": "## Send the result"
+    },
+    {
+      "id": "COMP-05",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:593",
+      "line": "## Read the result"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1796",
+      "line": "    fn exited(&mut self) -> std::io::Result<bool> {"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1840",
+      "line": "    fn reap(&mut self) -> std::io::Result<ExitStatus> {"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1910",
+      "line": "    fn kill_group(&mut self) {"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1966",
+      "line": "fn confirm_gone(pgid: libc::pid_t) -> std::io::Result<Group> {"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:2031",
+      "line": "fn supervise_reported("
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:2330",
+      "line": "        } else {"
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:275",
+      "line": "    // then inspect both latches after dispositions have returned to entry."
+    },
+    {
+      "id": "COMP-06",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:374",
+      "line": "fn settle("
+    },
+    {
+      "id": "COMP-06",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:548",
+      "line": "## Finish the managed job"
+    },
+    {
+      "id": "COMP-06",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:621",
+      "line": "## Complete cleanup and write the result"
+    },
+    {
+      "id": "COMP-06",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:255",
+      "line": "## Stop the group before the reap"
+    },
+    {
+      "id": "COMP-06",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:982",
+      "line": "## Know the guarantees and their limits"
+    },
+    {
+      "id": "COMP-07",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/host.rs:475",
+      "line": "    pub(super) async fn settle(&mut self, conversation: Conversation) -> Conversation {"
+    },
+    {
+      "id": "COMP-07",
+      "role": "source",
+      "reference": "crates/ravel/src/worker.rs:303",
+      "line": "        deadline,"
+    },
+    {
+      "id": "COMP-07",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:2190",
+      "line": "fn watch("
+    },
+    {
+      "id": "COMP-07",
+      "role": "source",
+      "reference": "crates/ravel/src/cancellation.rs:281",
+      "line": "    pub fn finalise(&mut self, outcome: Option<Signal>) -> (Option<Signal>, Vec<io::Error>) {"
+    },
+    {
+      "id": "COMP-07",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:374",
+      "line": "fn settle("
+    },
+    {
+      "id": "COMP-07",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:898",
+      "line": "## Follow cancellation"
+    },
+    {
+      "id": "COMP-07",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+      "line": "## Choose the final outcome"
+    },
+    {
+      "id": "COMP-07",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:529",
+      "line": "## Let a signal win over the deadline"
+    },
+    {
+      "id": "COMP-07",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:678",
+      "line": "## Handle cancellation"
+    },
+    {
+      "id": "COMP-08",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:951",
+      "line": "    fn reclaim("
+    },
+    {
+      "id": "COMP-08",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:1256",
+      "line": "fn run_with_output("
+    },
+    {
+      "id": "COMP-08",
+      "role": "source",
+      "reference": "crates/keyed-launch/src/run.rs:2031",
+      "line": "fn supervise_reported("
+    },
+    {
+      "id": "COMP-08",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:548",
+      "line": "## Finish the managed job"
+    },
+    {
+      "id": "COMP-08",
+      "role": "teaching",
+      "reference": "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+      "line": "## Lend and recover the terminal"
+    },
+    {
+      "id": "COMP-09",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:90",
+      "line": "            Some(ResultOutput::reserve().map_err(|error| failed(\"output_unavailable\", error))?);"
+    },
+    {
+      "id": "COMP-09",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:275",
+      "line": "    // then inspect both latches after dispositions have returned to entry."
+    },
+    {
+      "id": "COMP-09",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:308",
+      "line": "        &source,"
+    },
+    {
+      "id": "COMP-09",
+      "role": "source",
+      "reference": "crates/ravel/src/run.rs:374",
+      "line": "fn settle("
+    },
+    {
+      "id": "COMP-09",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:256",
+      "line": "## The Ravel CLI coordinates the session"
+    },
+    {
+      "id": "COMP-09",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:593",
+      "line": "## Read the result"
+    },
+    {
+      "id": "COMP-09",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:621",
+      "line": "## Complete cleanup and write the result"
+    },
+    {
+      "id": "COMP-10",
+      "role": "source",
+      "reference": "crates/ravel/src/main.rs:45",
+      "line": "    // because it accepts no command-line input. It never parses a command."
+    },
+    {
+      "id": "COMP-10",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/front.rs:97",
+      "line": "pub fn executable() -> Result<PathBuf, Refusal> {"
+    },
+    {
+      "id": "COMP-10",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/front.rs:123",
+      "line": "pub fn launch(program: &Path, environment: Vec<(OsString, OsString)>) -> Launch<'_> {"
+    },
+    {
+      "id": "COMP-10",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/front.rs:276",
+      "line": "fn verify_hello(hello: &Value, program: &Path) -> Result<Identity, Refusal> {"
+    },
+    {
+      "id": "COMP-10",
+      "role": "source",
+      "reference": "crates/ravel/src/rhai_worker/role.rs:61",
+      "line": "fn serve() -> Result<(), Stop> {"
+    },
+    {
+      "id": "COMP-10",
+      "role": "teaching",
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:652",
+      "line": "## The installed executable supplies both roles"
+    },
+    {
+      "id": "COMP-10",
+      "role": "teaching",
+      "reference": "docs/book/src/08-follow-a-session-through-the-code.md:207",
+      "line": "## Start the Rhai worker"
+    },
+    {
+      "id": "contract",
+      "reference": "docs/book/contract.md:378",
+      "role": "contract",
+      "line": "**Component obligations.** The session specification authorises these ten"
+    },
+    {
+      "id": "Ravel CLI",
+      "reference": "crates/ravel/src/main.rs:38",
+      "role": "component source",
+      "line": "fn main() -> ExitCode {"
+    },
+    {
+      "id": "Ravel CLI",
+      "reference": "crates/ravel/src/run.rs:39",
+      "role": "component source",
+      "line": "pub fn run(args: &RunArgs) -> Result<(), Failure> {"
+    },
+    {
+      "id": "Ravel CLI",
+      "reference": "crates/ravel/src/choice.rs:61",
+      "role": "component source",
+      "line": "pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {"
+    },
+    {
+      "id": "Rhai worker",
+      "reference": "crates/ravel/src/rhai_worker/role.rs:45",
+      "role": "component source",
+      "line": "pub fn run() -> ExitCode {"
+    },
+    {
+      "id": "Rhai worker",
+      "reference": "crates/ravel/src/rhai_worker/engine.rs:214",
+      "role": "component source",
+      "line": "fn run("
+    },
+    {
+      "id": "Rhai worker",
+      "reference": "crates/ravel/src/rhai_worker/bridge.rs:1",
+      "role": "component source",
+      "line": "//! The worker's side of the bridge to the Ravel CLI"
+    },
+    {
+      "id": "Host bridge",
+      "reference": "crates/ravel/src/rhai_worker/front.rs:150",
+      "role": "component source",
+      "line": "pub fn evaluate("
+    },
+    {
+      "id": "Host bridge",
+      "reference": "crates/ravel/src/rhai_worker/serve.rs:121",
+      "role": "component source",
+      "line": "pub(super) async fn serve("
+    },
+    {
+      "id": "Host bridge",
+      "reference": "crates/ravel/src/rhai_worker/host.rs:475",
+      "role": "component source",
+      "line": "    pub(super) async fn settle(&mut self, conversation: Conversation) -> Conversation {"
+    },
+    {
+      "id": "Host bridge",
+      "reference": "crates/ravel/src/rhai_worker/reader.rs:1",
+      "role": "component source",
+      "line": "//! The reader thread: every filesystem call of the host functions"
+    },
+    {
+      "id": "Skill preparation",
+      "reference": "crates/ravel/src/choice.rs:61",
+      "role": "component source",
+      "line": "pub fn prepare(args: &SelectionArgs) -> Result<Prepared, Failure> {"
+    },
+    {
+      "id": "Skill preparation",
+      "reference": "crates/ravel/src/skills/launch.rs:92",
+      "role": "component source",
+      "line": "pub fn prepare("
+    },
+    {
+      "id": "Runner",
+      "reference": "crates/keyed-launch/Cargo.toml:1",
+      "role": "component source",
+      "line": "[package]"
+    },
+    {
+      "id": "Runner",
+      "reference": "crates/keyed-launch/src/lib.rs:1",
+      "role": "component source",
+      "line": "//! A program and its arguments, spawned as a **job** and supervised until it"
+    },
+    {
+      "id": "Runner",
+      "reference": "crates/keyed-launch/src/run.rs:1256",
+      "role": "component source",
+      "line": "fn run_with_output("
+    },
+    {
+      "id": "Result channel",
+      "reference": "crates/ravel/src/lib.rs:1",
+      "role": "component source",
+      "line": "//! The opaque-result transport used by Ravel's configuration script-routed command front."
+    },
+    {
+      "id": "Result channel",
+      "reference": "crates/ravel/src/completion.rs:96",
+      "role": "component source",
+      "line": "    pub fn result_after(&self, ended: &Ended) -> io::Result<Option<String>> {"
+    },
+    {
+      "id": "Result channel",
+      "reference": "crates/ravel/src/completion.rs:160",
+      "role": "component source",
+      "line": "pub fn end_session(result: &str) -> io::Result<()> {"
+    }
+  ],
+  "negativeControls": [
+    {
+      "reference": "crates/ravel/src/run.rs:0",
+      "rejected": true,
+      "error": "out-of-range reference: crates/ravel/src/run.rs:0"
+    },
+    {
+      "reference": "docs/book/src/07-the-parts-of-ravel.md:999999",
+      "rejected": true,
+      "error": "out-of-range reference: docs/book/src/07-the-parts-of-ravel.md:999999"
+    }
+  ],
+  "limit": "Resolves paths and line numbers; semantic comparison is recorded in inventory.json."
+}
