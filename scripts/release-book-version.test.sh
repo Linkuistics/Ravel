@@ -23,6 +23,10 @@ mkdir -p "$fixture/scripts" "$fixture/crates/ravel/src" "$fixture/docs/book/src"
 cp "$repo_root/scripts/release-book-version.sh" "$fixture/scripts/"
 cp "$repo_root/release.toml" "$fixture/"
 cp "$repo_root/$page" "$fixture/$page"
+# After a cut the page holds the last release's line. Start the fixture from
+# the placeholder, as the book stood before its first release.
+sed -i.bak -E 's/^ravel [0-9]+\.[0-9]+\.[0-9]+$/ravel @RAVEL_BOOK_VERSION@/' "$fixture/$page"
+rm "$fixture/$page.bak"
 printf '## Unreleased\n\n- Fixture change.\n' >"$fixture/CHANGELOG.md"
 printf '[workspace]\nmembers = ["crates/ravel"]\nresolver = "2"\n\n[workspace.package]\nversion = "1.0.0"\nedition = "2021"\n' >"$fixture/Cargo.toml"
 printf '[package]\nname = "ravel"\npublish = false\nversion.workspace = true\nedition.workspace = true\n' >"$fixture/crates/ravel/Cargo.toml"
@@ -76,7 +80,7 @@ grep -Fq "says 'ravel @RAVEL_BOOK_VERSION@', but the release is 'ravel 1.3.0'" "
 # Control: a page without the line, or with two, is refused before the cut.
 cp "$repo_root/$page" "$fixture/$page"
 "$check" ready >/dev/null
-sed -i.bak '/^ravel @RAVEL_BOOK_VERSION@$/d' "$fixture/$page"
+sed -i.bak -E '/^ravel (@RAVEL_BOOK_VERSION@|[0-9]+\.[0-9]+\.[0-9]+)$/d' "$fixture/$page"
 rm "$fixture/$page.bak"
 if "$check" ready >"$scratch/output" 2>&1; then fail 'ready accepted a page with no version line'; fi
 grep -Fq 'has 0 lines' "$scratch/output" || fail 'the missing-line refusal does not say 0'

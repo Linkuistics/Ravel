@@ -57,7 +57,12 @@ grep -Fq '✓ book on Pages: Pages serves branch gh-pages' "$scratch/served"
 printf '#!/bin/sh\nexit 70\n' >"$scratch/bin/gh"
 printf '#!/bin/sh\necho "mdbook v%s"\n' "$(bash "$root/scripts/book.sh" version)" >"$scratch/repo/target/tools/mdbook"
 # A book without the line the release replaces is a missing prerequisite.
-sed -i.bak '/^ravel @RAVEL_BOOK_VERSION@$/d' "$scratch/repo/$page"
+# After a cut the line is the last release's 'ravel X.Y.Z', so remove either form.
+sed -i.bak -E '/^ravel (@RAVEL_BOOK_VERSION@|[0-9]+\.[0-9]+\.[0-9]+)$/d' "$scratch/repo/$page"
+if cmp -s "$scratch/repo/$page" "$scratch/repo/$page.bak"; then
+  echo "FAIL: the fixture found no version line to remove in $page" >&2
+  exit 1
+fi
 if bash "$scratch/repo/scripts/release-doctor.sh" >"$scratch/no-line" 2>&1; then
   echo 'FAIL: doctor accepted a book without the version line' >&2
   exit 1
