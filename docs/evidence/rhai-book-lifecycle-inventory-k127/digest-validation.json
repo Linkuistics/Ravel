@@ -1,0 +1,7 @@
+{
+  "subjects": 369,
+  "identical": true,
+  "before": "subjects.sha256",
+  "after": "subjects-after.sha256",
+  "algorithm": "sha256"
+}

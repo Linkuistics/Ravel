@@ -1,0 +1,6 @@
+examples: 2 passed, 0 failed; 3 fragment(s) not run; 0 page error(s)
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+task: [docs:examples] bash scripts/examples.sh check docs/book/src/08-follow-a-session-through-the-code.md
+pass docs/book/src/08-follow-a-session-through-the-code.md:698
+pass docs/book/src/08-follow-a-session-through-the-code.md:967

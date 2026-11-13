@@ -1,0 +1,3697 @@
+{
+  "schemaVersion": 1,
+  "derivation": "Current session and result/job specifications, checked against implementation before mapping to book.",
+  "items": [
+    {
+      "id": "LIFE-001",
+      "contract": 1,
+      "category": "result",
+      "rule": "The first complete UTF-8 value reaches stdout unchanged after successful settlement.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-002",
+      "contract": 1,
+      "category": "result",
+      "rule": "An empty value is a result and differs from no result.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-003",
+      "contract": 1,
+      "category": "result",
+      "rule": "Multiline values retain their bytes and receive no added newline.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-004",
+      "contract": 1,
+      "category": "result",
+      "rule": "Unicode values retain their UTF-8 bytes.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-005",
+      "contract": 1,
+      "category": "result",
+      "rule": "Option-looking values remain opaque caller data.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-006",
+      "contract": 1,
+      "category": "result",
+      "rule": "A later nonzero child status does not invalidate a supplied result.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-007",
+      "contract": 1,
+      "category": "result",
+      "rule": "A result over 1 MiB is rejected.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-008",
+      "contract": 1,
+      "category": "result",
+      "rule": "A failed final write or flush is an error and can leave a written prefix.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222",
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/run.rs:374"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-009",
+      "contract": 2,
+      "category": "publication",
+      "rule": "Publication writes and flushes a temporary regular file before the hard link.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-010",
+      "contract": 2,
+      "category": "publication",
+      "rule": "The hard link cannot replace the published value.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-011",
+      "contract": 2,
+      "category": "publication",
+      "rule": "Repeated publication succeeds only after validating the existing regular result.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:505"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-012",
+      "contract": 3,
+      "category": "missing result",
+      "rule": "A natural exit without a result fails with status 1.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/run.rs:249"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:548"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-013",
+      "contract": 3,
+      "category": "missing result",
+      "rule": "Natural status 0 without a result still fails.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/run.rs:249"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:548"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-014",
+      "contract": 3,
+      "category": "missing result",
+      "rule": "A readable result alone cannot establish the matching launch outcome.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/run.rs:249"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:548"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-015",
+      "contract": 4,
+      "category": "result context",
+      "rule": "end-session reads inherited session context without configuration or a target.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-016",
+      "contract": 4,
+      "category": "result context",
+      "rule": "Missing session-result context refuses with status 1.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-017",
+      "contract": 4,
+      "category": "result context",
+      "rule": "Empty session-result context refuses with status 1.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-018",
+      "contract": 4,
+      "category": "result context",
+      "rule": "Stale session-result context refuses with status 1.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-019",
+      "contract": 4,
+      "category": "result context",
+      "rule": "The consumer reads through its held directory descriptor.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-020",
+      "contract": 4,
+      "category": "result context",
+      "rule": "Readers reject symlinks, FIFOs and other nonregular result entries.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-021",
+      "contract": 4,
+      "category": "result context",
+      "rule": "Invalid UTF-8 and oversized result entries cannot become successful results.",
+      "spec": [
+        "docs/specs/session-execution.md:65",
+        "docs/specs/result-job-completion.md:19"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:160",
+        "crates/ravel/src/completion.rs:121",
+        "crates/ravel/src/completion.rs:222"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:520",
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:548",
+        "docs/book/src/08-follow-a-session-through-the-code.md:593"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-022",
+      "contract": 5,
+      "category": "CLI and settings",
+      "rule": "Malformed command input fails with status 2.",
+      "spec": [
+        "docs/specs/session-execution.md:91"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:104",
+        "crates/ravel/src/settings.rs:55",
+        "crates/ravel/src/run.rs:433"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1450"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-023",
+      "contract": 5,
+      "category": "CLI and settings",
+      "rule": "Malformed owner settings fail before a managed launch.",
+      "spec": [
+        "docs/specs/session-execution.md:91"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:104",
+        "crates/ravel/src/settings.rs:55",
+        "crates/ravel/src/run.rs:433"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1450"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-024",
+      "contract": 5,
+      "category": "CLI and settings",
+      "rule": "An unusable exit directory fails with status 2.",
+      "spec": [
+        "docs/specs/session-execution.md:91"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:104",
+        "crates/ravel/src/settings.rs:55",
+        "crates/ravel/src/run.rs:433"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1450"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-025",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "A script refusal prevents launch and returns status 3.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-026",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "A missing or unreadable configuration file prevents launch.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-027",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "A refused configuration behaviour prevents launch without fallback.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-028",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "Invalid selection data prevents launch without fallback.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-029",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "Authority and script failures retain their stage and remedy.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-030",
+      "contract": 6,
+      "category": "configuration refusal",
+      "rule": "Engine resource limits produce named refusals rather than a managed result.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/authority.rs:66",
+        "crates/ravel/src/config.rs:35",
+        "crates/ravel/src/choice.rs:251",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1699",
+        "docs/book/src/06-reference.md:1726"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-031",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "A missing worker executable prevents selection.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-032",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "A stale or mismatched protocol, package, build or Rhai identity prevents selection.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-033",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker spawn and protocol failures prevent launch with status 5.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-034",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "A valid command is insufficient until actual worker reap and directory removal succeed.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-035",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker admission requires a successful stop, reap and removal.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-036",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker status need not be zero when all admission prerequisites hold.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-037",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker output overflow retains the original conversation report.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-038",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker teardown uses an absolute 2-second stop bound, including a 1-second grace.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-039",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Worker reader draining has its separate bounded wait.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-040",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "ECHILD or deadline expiry cannot invent a worker reap.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-041",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Supervision failure after spawn reports status 5.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-042",
+      "contract": 7,
+      "category": "worker and supervision",
+      "rule": "Fatal stop or recovery errors retain secondary operation reports.",
+      "spec": [
+        "docs/specs/result-job-completion.md:55",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/front.rs:97",
+        "crates/ravel/src/rhai_worker/front.rs:276",
+        "crates/ravel/src/worker.rs:89",
+        "crates/ravel/src/worker.rs:645",
+        "crates/ravel/src/run.rs:339"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1726",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:207",
+        "docs/book/src/08-follow-a-session-through-the-code.md:390",
+        "docs/book/src/08-follow-a-session-through-the-code.md:675"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-043",
+      "contract": 8,
+      "category": "selection deadline",
+      "rule": "The whole selection deadline stops evaluation and returns status 124.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/worker.rs:543",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:390",
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:350"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-044",
+      "contract": 8,
+      "category": "selection deadline",
+      "rule": "A skill-resolution deadline returns status 124.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/worker.rs:543",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:390",
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:350"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-045",
+      "contract": 8,
+      "category": "selection deadline",
+      "rule": "Cancellation remains distinct from a selection deadline.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/worker.rs:543",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:390",
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:350"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-046",
+      "contract": 8,
+      "category": "selection deadline",
+      "rule": "Deadline cleanup remains a prerequisite for any subsequent launch.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:159",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/worker.rs:543",
+        "crates/ravel/src/choice.rs:441"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:390",
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:675",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:350"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-047",
+      "contract": 9,
+      "category": "exec failure",
+      "rule": "A selected program that cannot be found fails with status 127.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:216"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:339",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:951"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-048",
+      "contract": 9,
+      "category": "exec failure",
+      "rule": "Another pre-start execution error fails with status 126.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:216"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:339",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:951"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-049",
+      "contract": 9,
+      "category": "exec failure",
+      "rule": "Started records reported spawn and does not prove successful exec.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:216"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:339",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:951"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-050",
+      "contract": 9,
+      "category": "exec failure",
+      "rule": "Failed exec retains the attempted group and terminal lease through recovery.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:216"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:339",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:951"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-051",
+      "contract": 9,
+      "category": "exec failure",
+      "rule": "Recovery reports remain secondary to the original exec error unless cancellation wins.",
+      "spec": [
+        "docs/specs/session-execution.md:91",
+        "docs/specs/result-job-completion.md:216"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:339",
+        "crates/keyed-launch/src/run.rs:1256",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:951"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:432",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-052",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "INT during selection suppresses launch and follows cleanup.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-053",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "TERM during selection suppresses launch and follows cleanup.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-054",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "HUP during selection suppresses launch and follows cleanup.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-055",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "INT during supervision suppresses result success.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-056",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "TERM during supervision suppresses result success.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-057",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "HUP during supervision suppresses result success.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-058",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "Cancellation after result publication still suppresses result success.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-059",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "The first observed cancellation is retained through settlement.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-060",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "Front, outcome, late, received and pending observations have an explicit priority.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-061",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "An already-cancelled skills failure retains its skills stage.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-062",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "Cancellation preserves reports of cleanup failures and surviving groups.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-063",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "The CLI restores dispositions and re-raises the signal after required cleanup attempts.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-064",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "An unknown pending-signal query cannot become a no-cancellation observation.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-065",
+      "contract": 10,
+      "category": "cancellation",
+      "rule": "A signal after the final decision follows restored entry handling.",
+      "spec": [
+        "docs/specs/session-execution.md:84",
+        "docs/specs/result-job-completion.md:136",
+        "docs/specs/result-job-completion.md:255",
+        "docs/specs/result-job-completion.md:289"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/cancellation.rs:281",
+        "crates/keyed-launch/src/run.rs:2190"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1600",
+        "docs/book/src/08-follow-a-session-through-the-code.md:898",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:678"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-066",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "A result requests 2 seconds of grace before TERM.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-067",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "TERM receives up to 5 seconds of kill-grace before KILL.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-068",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Descendant group cleanup precedes reap on result completion.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-069",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Descendant group cleanup precedes reap on natural exit.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-070",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Repeated pre-reap group kills preserve the leader identity until actual reap.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-071",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Only actual reap emits Reaped.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-072",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "The post-reap absence query is bounded and sends no numeric group signal.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-073",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Error settlement and post-KILL waits have absolute bounds.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-074",
+      "contract": 11,
+      "category": "escalation and reap",
+      "rule": "Deadline expiry releases ownership without inventing a status.",
+      "spec": [
+        "docs/specs/session-execution.md:75",
+        "docs/specs/result-job-completion.md:19",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:24",
+        "crates/keyed-launch/src/run.rs:2190",
+        "crates/keyed-launch/src/run.rs:1840",
+        "crates/keyed-launch/src/run.rs:1966"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:200",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-075",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "A surviving group prevents successful result output.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-076",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "A terminal recovery failure prevents successful result output.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-077",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "A private-channel cleanup failure prevents successful result output.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-078",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "The original failure precedes the first outer cleanup failure.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-079",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Every secondary cleanup report remains visible.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-080",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Without an earlier error, the first cleanup failure precedes a surviving group.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-081",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Result stdout is checked and reserved before launch.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-082",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Managed stdout is redirected to stderr before spawn.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-083",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Partial allocation retains ownership until explicit transfer.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-084",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Cleanup checks the private directory identity and preserves a replacement.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-085",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "A moved owned directory is reported for possible manual removal.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-086",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Explicit cleanup disarms destructor retry even when cleanup fails.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-087",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Mask, channel, output and final signal settlement join on every outer path.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-088",
+      "contract": 12,
+      "category": "settlement failures",
+      "rule": "Interrupted or unconfirmed group outcomes cannot authorise a result.",
+      "spec": [
+        "docs/specs/session-execution.md:71",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:182",
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:33",
+        "crates/ravel/src/completion.rs:96",
+        "crates/ravel/src/private_directory.rs:59",
+        "crates/ravel/src/run.rs:374",
+        "crates/ravel/src/run.rs:452"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013",
+        "docs/book/src/06-reference.md:1193"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:621",
+        "docs/book/src/08-follow-a-session-through-the-code.md:1119",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:255"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-089",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Each managed session gets a fresh private result channel.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-090",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "A nested session replaces result context only for its own child.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-091",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Six exact legacy and result controls are scrubbed before fresh context is supplied.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-092",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Other caller environment variables remain ordinary inherited data.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-093",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "RAVEL_CONFIG_RUN presence refuses start-session re-entry before configuration selection.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-094",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Each harness run uses a separate private channel and captured runner.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-095",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "A harness result is configuration data and has no managed-session result authority.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-096",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Harness output_limit, timed_out, signalled and exited outcomes have explicit precedence.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-097",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Missing harness result remains distinct from an empty result.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-098",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Harness group or cleanup failure prevents accepted result data.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-099",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "JSON routing notices and refusal documents go to stderr.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-100",
+      "contract": 13,
+      "category": "reports and nesting",
+      "rule": "Operation reports remain distinct from the successful opaque stdout result.",
+      "spec": [
+        "docs/specs/session-execution.md:43",
+        "docs/specs/session-execution.md:80",
+        "docs/specs/result-job-completion.md:55"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39",
+        "crates/ravel/src/run.rs:93",
+        "crates/ravel/src/environment.rs:97",
+        "crates/ravel/src/rhai_worker/harness.rs:236",
+        "crates/ravel/src/rhai_worker/harness.rs:347"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1083",
+        "docs/book/src/06-reference.md:1193",
+        "docs/book/src/06-reference.md:1306",
+        "docs/book/src/06-reference.md:2147"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:922",
+        "docs/book/src/05-running-sessions.md:1121",
+        "docs/book/src/05-running-sessions.md:1179",
+        "docs/book/src/08-follow-a-session-through-the-code.md:337"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-101",
+      "contract": 14,
+      "category": "withdrawn confinement",
+      "rule": "confine and runtime-read flags refuse with status 2 after parsing.",
+      "spec": [
+        "docs/specs/session-execution.md:98"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/cli.rs:120"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-102",
+      "contract": 14,
+      "category": "withdrawn confinement",
+      "rule": "Withdrawal refusal precedes settings, skills, worker and channel acquisition.",
+      "spec": [
+        "docs/specs/session-execution.md:98"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/cli.rs:120"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-103",
+      "contract": 14,
+      "category": "withdrawn confinement",
+      "rule": "Separate, combined, equals and positional flag forms follow the same rule.",
+      "spec": [
+        "docs/specs/session-execution.md:98"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/cli.rs:120"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-104",
+      "contract": 14,
+      "category": "withdrawn confinement",
+      "rule": "A token consumed as another flag's value remains caller data.",
+      "spec": [
+        "docs/specs/session-execution.md:98"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/cli.rs:120"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-105",
+      "contract": 14,
+      "category": "withdrawn confinement",
+      "rule": "The harness sandbox supplies the only confinement boundary in Ravel 2.0.0.",
+      "spec": [
+        "docs/specs/session-execution.md:98"
+      ],
+      "source": [
+        "crates/ravel/src/main.rs:38",
+        "crates/ravel/src/cli.rs:120"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:952"
+      ],
+      "teaching": [
+        "docs/book/src/05-running-sessions.md:1529",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:982"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-106",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "An interactive foreground CLI can lend the terminal to its managed group.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-107",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "A background CLI does not steal the terminal and can lend after later foreground admission.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-108",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Noninteractive launches do not lend or recover the terminal.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-109",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Captured harness runs do not consume the caller cancellation latch.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-110",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "The CLI saves terminal modes before the attempted spawn.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-111",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Recovery preserves an unrelated terminal holder after normal completion.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-112",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Signal death permits broader recovery subject to the documented holder exclusions.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-113",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "An unknown holder permits recovery only with exclusive authority and a stable recorded group.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-114",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Failed exec retains the terminal lease for recovery.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-115",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Entry ignored and blocked signal state is captured before runtime setup.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-116",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "The child reinstates captured entry state independently of host handling.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-117",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "SIGCHLD handling is repaired before worker creation.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-118",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Helper reader threads shield signals from the final join.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-119",
+      "contract": 15,
+      "category": "terminal and native entry",
+      "rule": "Ravel supports one launcher lifetime with exclusive signals and terminal authority.",
+      "spec": [
+        "docs/specs/result-job-completion.md:216",
+        "docs/specs/result-job-completion.md:289",
+        "docs/specs/result-job-completion.md:353"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:532",
+        "crates/keyed-launch/src/run.rs:754",
+        "crates/keyed-launch/src/run.rs:895",
+        "crates/keyed-launch/src/run.rs:951",
+        "crates/keyed-launch/src/run.rs:420",
+        "crates/ravel/src/signal_state.rs:103"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:717",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:758",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:868"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-120",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Same-user tampering is outside result-channel authentication guarantees.",
+      "spec": [
+        "docs/specs/session-execution.md:73"
+      ],
+      "source": [
+        "crates/ravel/src/completion.rs:175"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:992"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-121",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Directory identity comparison and pathname removal are not atomic under same-user races.",
+      "spec": [
+        "docs/specs/result-job-completion.md:182"
+      ],
+      "source": [
+        "crates/ravel/src/private_directory.rs:59"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:992"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-122",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Descendants that escape the managed process group are outside cleanup guarantees.",
+      "spec": [
+        "docs/specs/session-execution.md:76"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:1910"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:990"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-123",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Abrupt CLI death can interrupt cleanup and result delivery.",
+      "spec": [
+        "docs/specs/session-execution.md:131"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:39"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1353"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:991"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-124",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Bounded harness cancellation does not prove a remote service stopped.",
+      "spec": [
+        "docs/specs/result-job-completion.md:407"
+      ],
+      "source": [
+        "crates/ravel/src/rhai_worker/harness.rs:236"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:993"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-125",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "A reader may outlive its bounded wait without proving a reap.",
+      "spec": [
+        "docs/specs/result-job-completion.md:369"
+      ],
+      "source": [
+        "crates/ravel/src/worker.rs:645"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1524"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:957"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-126",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "The final signal decision and stdout write are not an atomic transaction.",
+      "spec": [
+        "docs/specs/result-job-completion.md:255"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:312",
+        "crates/ravel/src/cancellation.rs:281"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:1013"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:998"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-127",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "The private runner is not a supported embedding library.",
+      "spec": [
+        "docs/book/contract.md:403",
+        "docs/specs/result-job-completion.md:110"
+      ],
+      "source": [
+        "crates/keyed-launch/src/run.rs:1256"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:2383"
+      ],
+      "teaching": [
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:1008",
+        "docs/book/src/07-the-parts-of-ravel.md:576"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-128",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Native x86-64 Linux remains unqualified despite build, lint and emulation evidence.",
+      "spec": [
+        "docs/specs/result-job-completion.md:444"
+      ],
+      "source": [
+        "docs/book/contract.md:407"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:223"
+      ],
+      "teaching": [
+        "docs/book/src/01-what-ravel-is-for.md:739",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:1005"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-129",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Native arm64 macOS and arm64 Linux evidence does not qualify other platforms.",
+      "spec": [
+        "docs/specs/result-job-completion.md:440"
+      ],
+      "source": [
+        "docs/book/contract.md:407"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:223"
+      ],
+      "teaching": [
+        "docs/book/src/01-what-ravel-is-for.md:733",
+        "docs/book/src/09-jobs-signals-and-the-terminal.md:1002"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-130",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Novice comprehension remains unknown and owner stand-in reads do not establish it.",
+      "spec": [
+        "docs/book/contract.md:839"
+      ],
+      "source": [
+        "docs/book/contract.md:401"
+      ],
+      "lookup": [
+        "docs/book/src/01-what-ravel-is-for.md:757"
+      ],
+      "teaching": [
+        "docs/book/src/01-what-ravel-is-for.md:757"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-131",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Real harness flags are supported only by their dated version-specific checks.",
+      "spec": [
+        "docs/book/contract.md:409"
+      ],
+      "source": [
+        "docs/book/contract.md:409"
+      ],
+      "lookup": [
+        "docs/book/src/04-write-a-configuration-script.md:1798",
+        "docs/book/src/04-write-a-configuration-script.md:1998"
+      ],
+      "teaching": [
+        "docs/book/src/04-write-a-configuration-script.md:2250"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-132",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Published release rendering does not establish rendering of the current branch.",
+      "spec": [
+        "docs/book/contract.md:412"
+      ],
+      "source": [
+        "docs/book/contract.md:412"
+      ],
+      "lookup": [
+        "docs/book/src/01-what-ravel-is-for.md:762"
+      ],
+      "teaching": [
+        "docs/book/src/01-what-ravel-is-for.md:762"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-133",
+      "contract": 16,
+      "category": "accepted limits",
+      "rule": "Inventory coverage does not establish owner Read 2 or whole-book proof.",
+      "spec": [
+        "docs/specs/result-job-completion.md:526"
+      ],
+      "source": [
+        "docs/book/contract.md:415",
+        "docs/book/contract.md:848"
+      ],
+      "lookup": [
+        "docs/book/src/01-what-ravel-is-for.md:757"
+      ],
+      "teaching": [
+        "docs/book/src/01-what-ravel-is-for.md:757"
+      ],
+      "result": "covered"
+    },
+    {
+      "id": "LIFE-134",
+      "contract": 13,
+      "category": "channel location",
+      "rule": "The private result directory uses --exit-dir when supplied, otherwise TMPDIR.",
+      "spec": [
+        "docs/specs/session-execution.md:115"
+      ],
+      "source": [
+        "crates/ravel/src/run.rs:70",
+        "crates/ravel/src/run.rs:93"
+      ],
+      "lookup": [
+        "docs/book/src/06-reference.md:467"
+      ],
+      "teaching": [
+        "docs/book/src/08-follow-a-session-through-the-code.md:439"
+      ],
+      "result": "corrected",
+      "before": "Chapter 8 described TMPDIR without the --exit-dir override."
+    }
+  ],
+  "contractClasses": [
+    {
+      "index": 1,
+      "contract": "docs/book/contract.md:358",
+      "items": [
+        "LIFE-001",
+        "LIFE-002",
+        "LIFE-003",
+        "LIFE-004",
+        "LIFE-005",
+        "LIFE-006",
+        "LIFE-007",
+        "LIFE-008"
+      ]
+    },
+    {
+      "index": 2,
+      "contract": "docs/book/contract.md:361",
+      "items": [
+        "LIFE-009",
+        "LIFE-010",
+        "LIFE-011"
+      ]
+    },
+    {
+      "index": 3,
+      "contract": "docs/book/contract.md:362",
+      "items": [
+        "LIFE-012",
+        "LIFE-013",
+        "LIFE-014"
+      ]
+    },
+    {
+      "index": 4,
+      "contract": "docs/book/contract.md:363",
+      "items": [
+        "LIFE-015",
+        "LIFE-016",
+        "LIFE-017",
+        "LIFE-018",
+        "LIFE-019",
+        "LIFE-020",
+        "LIFE-021"
+      ]
+    },
+    {
+      "index": 5,
+      "contract": "docs/book/contract.md:364",
+      "items": [
+        "LIFE-022",
+        "LIFE-023",
+        "LIFE-024"
+      ]
+    },
+    {
+      "index": 6,
+      "contract": "docs/book/contract.md:365",
+      "items": [
+        "LIFE-025",
+        "LIFE-026",
+        "LIFE-027",
+        "LIFE-028",
+        "LIFE-029",
+        "LIFE-030"
+      ]
+    },
+    {
+      "index": 7,
+      "contract": "docs/book/contract.md:366",
+      "items": [
+        "LIFE-031",
+        "LIFE-032",
+        "LIFE-033",
+        "LIFE-034",
+        "LIFE-035",
+        "LIFE-036",
+        "LIFE-037",
+        "LIFE-038",
+        "LIFE-039",
+        "LIFE-040",
+        "LIFE-041",
+        "LIFE-042"
+      ]
+    },
+    {
+      "index": 8,
+      "contract": "docs/book/contract.md:367",
+      "items": [
+        "LIFE-043",
+        "LIFE-044",
+        "LIFE-045",
+        "LIFE-046"
+      ]
+    },
+    {
+      "index": 9,
+      "contract": "docs/book/contract.md:368",
+      "items": [
+        "LIFE-047",
+        "LIFE-048",
+        "LIFE-049",
+        "LIFE-050",
+        "LIFE-051"
+      ]
+    },
+    {
+      "index": 10,
+      "contract": "docs/book/contract.md:369",
+      "items": [
+        "LIFE-052",
+        "LIFE-053",
+        "LIFE-054",
+        "LIFE-055",
+        "LIFE-056",
+        "LIFE-057",
+        "LIFE-058",
+        "LIFE-059",
+        "LIFE-060",
+        "LIFE-061",
+        "LIFE-062",
+        "LIFE-063",
+        "LIFE-064",
+        "LIFE-065"
+      ]
+    },
+    {
+      "index": 11,
+      "contract": "docs/book/contract.md:371",
+      "items": [
+        "LIFE-066",
+        "LIFE-067",
+        "LIFE-068",
+        "LIFE-069",
+        "LIFE-070",
+        "LIFE-071",
+        "LIFE-072",
+        "LIFE-073",
+        "LIFE-074"
+      ]
+    },
+    {
+      "index": 12,
+      "contract": "docs/book/contract.md:372",
+      "items": [
+        "LIFE-075",
+        "LIFE-076",
+        "LIFE-077",
+        "LIFE-078",
+        "LIFE-079",
+        "LIFE-080",
+        "LIFE-081",
+        "LIFE-082",
+        "LIFE-083",
+        "LIFE-084",
+        "LIFE-085",
+        "LIFE-086",
+        "LIFE-087",
+        "LIFE-088"
+      ]
+    },
+    {
+      "index": 13,
+      "contract": "docs/book/contract.md:373",
+      "items": [
+        "LIFE-089",
+        "LIFE-090",
+        "LIFE-091",
+        "LIFE-092",
+        "LIFE-093",
+        "LIFE-094",
+        "LIFE-095",
+        "LIFE-096",
+        "LIFE-097",
+        "LIFE-098",
+        "LIFE-099",
+        "LIFE-100",
+        "LIFE-134"
+      ]
+    },
+    {
+      "index": 14,
+      "contract": "docs/book/contract.md:374",
+      "items": [
+        "LIFE-101",
+        "LIFE-102",
+        "LIFE-103",
+        "LIFE-104",
+        "LIFE-105"
+      ]
+    },
+    {
+      "index": 15,
+      "contract": "docs/book/contract.md:375",
+      "items": [
+        "LIFE-106",
+        "LIFE-107",
+        "LIFE-108",
+        "LIFE-109",
+        "LIFE-110",
+        "LIFE-111",
+        "LIFE-112",
+        "LIFE-113",
+        "LIFE-114",
+        "LIFE-115",
+        "LIFE-116",
+        "LIFE-117",
+        "LIFE-118",
+        "LIFE-119"
+      ]
+    },
+    {
+      "index": 16,
+      "contract": "docs/book/contract.md:376",
+      "items": [
+        "LIFE-120",
+        "LIFE-121",
+        "LIFE-122",
+        "LIFE-123",
+        "LIFE-124",
+        "LIFE-125",
+        "LIFE-126",
+        "LIFE-127",
+        "LIFE-128",
+        "LIFE-129",
+        "LIFE-130",
+        "LIFE-131",
+        "LIFE-132",
+        "LIFE-133"
+      ]
+    }
+  ]
+}

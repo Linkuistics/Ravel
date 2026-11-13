@@ -1,0 +1,3 @@
+ste: docs/book/src/08-follow-a-session-through-the-code.md: 0 problems
+ste: 0 problems in 1 files
+task: [docs:ste] bash scripts/ste.sh --strict docs/book/src/08-follow-a-session-through-the-code.md

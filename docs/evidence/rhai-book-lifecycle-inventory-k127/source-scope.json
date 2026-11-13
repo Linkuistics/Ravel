@@ -1,0 +1,312 @@
+{
+  "project": "Users-antony-Development-AgenticOrchestration-Ravel.gh-issue-2",
+  "tier": 2,
+  "queries": [
+    {
+      "file_pattern": "crates/ravel/src/*",
+      "label": "File",
+      "total": 62,
+      "has_more": false
+    },
+    {
+      "file_pattern": "crates/keyed-launch/src/*",
+      "label": "File",
+      "total": 11,
+      "has_more": false
+    }
+  ],
+  "files": [
+    {
+      "path": "crates/keyed-launch/src/argv.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/capture.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/channel.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/error.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/lib.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/native_barrier.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/native_hooks.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/run.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_faults.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/native_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/keyed-launch/src/run/terminal_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/authority.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/cancellation.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/cancellation/propagation_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/choice.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/cli.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/completion.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/completion_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/config.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/context.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/directory_control.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/environment.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/frame.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/harness_entries.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/inputs.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/lib.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/limits.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/main.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/native_entry_tests/faults.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/partial_acquisition_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/private_directory.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/program.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/refusal.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/bridge.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/callbacks.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/convert.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/discovery.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/engine.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/fixtures.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/front.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/harness.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/heap.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/helpers.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/host.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/locate.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/mod.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/pointer_calls.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/reader.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/resolver.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/role.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/rhai_worker/serve.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/run.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/schema.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/settings.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/signal_state.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/skills/bounds.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/cache.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/command.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/default_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/skills/dir.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/installed.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/launch.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/mod.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/preamble.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/publication_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/skills/settings.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/snapshot.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/skills/watch.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/strict_json.rs",
+      "role": "supporting module; configuration details belong to k126 or component inventory"
+    },
+    {
+      "path": "crates/ravel/src/worker.rs",
+      "role": "direct lifecycle evidence"
+    },
+    {
+      "path": "crates/ravel/src/worker/native_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    },
+    {
+      "path": "crates/ravel/src/worker_admission_tests.rs",
+      "role": "test or fixture; no new runtime claim"
+    }
+  ]
+}

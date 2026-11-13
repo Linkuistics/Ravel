@@ -437,7 +437,8 @@ standard error. The saved descriptor does not pass through exec to the managed
 process. Thus, a program that prints cannot write the result of the session.
 
 Next, `SessionChannel::allocate` makes a fresh temporary directory and channel
-path under `TMPDIR`. It keeps an open directory descriptor for the later read.
+path under `--exit-dir`, or under `TMPDIR` when that option is absent.
+It keeps an open directory descriptor for the later read.
 Allocation makes no result file. The channel belongs to this launch alone.
 
 Only now does `run` write the script's output and the routing notice.
