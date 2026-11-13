@@ -96,6 +96,16 @@ design needs the settled requirements.
 
 ## Notes
 
+- **Current reconciliation, 2026-11-14.** This workspace now descends from `main` at `d6d81765`, with its local stop note preserved.
+  The owner confirmed the Part II exercises. `rhai-book-use-k74` records fresh independent checks and completes Read 1.
+
+  The later grove already delivered the whole-book proof in `424af53d` and release `v2.0.0` in `ed6cedbf`.
+  Its proof record is `docs/evidence/ravel-book-k311/README.md`.
+
+  Compare the old book and release task contracts with those delivered artifacts before you repeat work.
+  Read 2 remains required. The owner's confirmation covered the Part II exercises, not that later checkpoint.
+  The notes below retain the earlier handover history.
+
 - The final Rust notice path is `share/ravel/notices/THIRD-PARTY-NOTICES.md`. `task notices` generates it as `target/notices/THIRD-PARTY-NOTICES.md`; delivery installs and archives it. `rhai-book-use-k96` reconciled chapter 6 and the shared installed-file figure. `rhai-book-inside-k34` retains the later narrative and whole-book checks.
 
 - The owner reached chapter 4's example-setup section and reported F17: its files and table lack context.

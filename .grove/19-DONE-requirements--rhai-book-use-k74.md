@@ -633,6 +633,122 @@ After reconfiguration, rerun `grove` from this working tree to resume the live c
 Refresh the local book and private reader shell before resuming chapter 4 at “Run the examples of this chapter”.
 Part I remains complete. No personal configuration change is part of this stop.
 
+**Owner question and rebase, 2026-11-13.**
+
+The owner said, “I think this may already be done!”
+They then noted that the work came from a separate grove and might need a rebase.
+
+`main` at `d6d81765` contains the later whole-book proof, `424af53d`, and the `v2.0.0` release, `ed6cedbf`.
+The proof's record is `docs/evidence/ravel-book-k311/README.md`.
+It explicitly preserves both owner reader checkpoints with this paused workstream and supplies no owner result.
+The original task files on `main` still leave this checkpoint live.
+
+The only local change above the common ancestor was the reconfiguration stop note in this file.
+`jj rebase -s ylpyxwvs -o main` moved that change and its empty descendant onto the current `main` without conflicts.
+The workspace had no changes after the rebase. Its difference from `main` was confined to the preserved stop note.
+No local source or book correction was lost, and no build or example check ran during that rebase.
+
+The book and release work in the other grove does not establish the owner's Part II results that were still due.
+Those results cover a fake-agent session, interpretation of refusal and cancellation, and one direct reference entry.
+The owner's completion question supplies no specific task result or instruction to drop the checkpoint.
+This leaf stays live for that clarification. Read 2 remains separate.
+
+**Owner confirmation and verification scope, 2026-11-13.**
+
+The session asked whether the owner completed the Part II exercises elsewhere.
+The question named the fake-agent session, refusal and cancellation interpretation, and direct reference lookup.
+The owner answered, “yes, but you should check things completely yourself to confirm”.
+
+This records the owner's reported completion of those tasks.
+The answer supplied no command transcript, individual outputs, new observation or detail about how the owner read the book.
+This session will independently check the current book, each acceptance condition and the executable examples before retirement.
+Those mechanical checks remain distinct from the owner's report. This read does not establish novice comprehension.
+Read 2 remains a separate requirement.
+
+**Independent verification and acceptance, 2026-11-14.**
+
+The owner's confirmation completes the reported practical tasks of Read 1.
+The session independently checked the current book and executable before it accepted this checkpoint.
+The subject is `main` at `d6d81765`, with the preserved stop note and this task record above it.
+
+The completed correction runs retain the dispositions and owners of F1–F18.
+This session checked their material changes against the current text:
+
+| Observation | Current evidence | Disposition and owner |
+|---|---|---|
+| F1 | Chapters 1 and 4 introduce Rhai, its characteristics, an example and its documentation. | Applied by draft. |
+| F2 | Chapter 1 explains the selection and routing notice with real values, a table and a figure. Chapter 5 runs both notice forms. | Applied by draft and art, checked by proof. |
+| F3 | Chapter 1 explains how the caller can extend or modify the prompt. | Applied by draft. |
+| F4 | Chapters 1 and 4 explain model-assisted choice and the harness-run recipes. | Applied by draft. |
+| F5 | Chapter 1 explains inherited `RAVEL_EXIT_FILE` paths and shows the nested paths in a figure. | Applied by draft and art. |
+| F6 | Chapters 1 and 5 follow the sent result through shutdown, cleanup and the caller's next action. | Applied by draft. |
+| F7 | Chapters 1, 2, 4 and 5 repeat definitions and the concrete review where the reader needs them. | Applied through the contract, draft and copy-edit. |
+| F8 | The current explanations address the reader and state the reason before the mechanism. | Applied by draft and copy-edit within the prose contract. |
+| F9 | Chapter 1 opens with named files, the complete review prompt, permitted results and the orchestrator's next action. | Applied through the contract and draft. |
+| F10 | The current book distinguishes configuration, configuration script, settings, Rhai worker and selection context. | Applied by draft and copy-edit. |
+| F11 | The explanations name JSON by purpose. Exact examples retain the required schema fields. | Applied by draft and copy-edit. |
+| F12 | Chapters 1 and 4 explain the second executable process, deadline, host requests, failure isolation and launch order. | Applied by draft and art. |
+| F13 | Chapter 1 links Grove to its repository at its introduction. | Applied by draft. Proof owns the link checks. |
+| F14 | Chapter 1 ends with “See what we tested and what remains unchecked”. | Applied by draft and copy-edit. |
+| F15 | Chapter 2 is “Who does what in a Ravel session”. | Applied by draft and copy-edit. |
+| F16 | Chapter 3 gives explicit `mkdir` and `cd` commands. | Applied by draft and copy-edit. |
+| F17 | Chapter 4 names `fixed-route`, its workspace, three saved files and their purposes before the complete command and command table. | Applied by the third correction draft, checked by copy-edit and proof. |
+| F18 | Current examples and CLI help use `config.rhai`, `--config` and `--config-env`. | Applied by `configuration-names-k92`, then the third correction run. |
+
+The later whole-book proof, `ravel-book-inside-k311`, supplies the broader editorial record at `docs/evidence/ravel-book-k311/README.md`.
+This session did not repeat that independent editorial review or claim another reader's comprehension result.
+
+The session manually saved the first chapter 4 example's three files and ran its setup and command in a private home.
+It returned exactly `Explain this change.`, without a newline, with status 0.
+A separate configuration refused the request. It returned no result, `config_refused` and status 3.
+
+The chapter 5 cancellation fake sent `candidate`, then INT. The caller received no result and `session_cancelled`.
+Its raw process return was `-2`, equivalent to shell status 130.
+Chapter 6's direct entry also correctly describes `end-session` outside a session: no result, the enclosing-session diagnostic and status 1.
+
+The first manual cancellation probe incorrectly expected numeric 130 from a process API.
+Its original captured status and diagnostics remain in the private evidence directory.
+A minimal signal control produced `-2` through the process API and 130 through a shell that collects the child status.
+The corrected probe retains both forms and checks the diagnostic and empty output independently.
+This was an error in the measurement, not a required product or book correction.
+
+Fresh checks passed through the project's Taskfile:
+
+| Check | Result |
+|---|---|
+| `mise exec -- task setup` and `task build` | Pinned book tools prepared. The Ravel 2.0.0 build passed. |
+| `task check` | The format, shell, tool, installation, lint and terminal checks passed. All 713 enabled Rust tests passed. `nextest` skipped 48 tests. |
+| `task docs:examples` | All 27 complete examples passed, with no page error. The 72 labelled fragments did not run. |
+| Installation-prefix example run | The same 27 cases passed in the same order. A valid default skill source resolved in the positive control. |
+| `task docs:excerpts` | All 22 excerpts matched. |
+| `task docs:figures` | All 21 SVGs and layout records matched their sources. |
+| `task docs:ste` and `task docs:breaks` | No prose problem in the default 35 files. No long run in eleven chapters. |
+| `task docs:book:build` | Passed. The build reported no error. |
+| Checker controls | Example, excerpt, figure, prose and break control tasks passed. Their declared mutation checks also passed. |
+| Local link and delivery check | All 1,162 local references passed. Eleven chapters and 21 figures returned their exact file bytes over local HTTP. |
+
+The link check rejected planted missing pages, anchors and figures. A missing HTTP figure returned 404.
+The source manifest covers all 3,665 tracked files outside `.grove/`. The set covers manifests, scripts, sources, fixtures and book inputs.
+Their SHA-256 digests were identical before and after verification. A deliberately changed manifest entry failed the equality control.
+
+The rendered book and the manual probe's subjects also remained unchanged during their checks.
+The two example runs were compared case by case, rather than only by total.
+
+Private evidence is in `/private/tmp/ravel-k74-verification-mx0mmj79`.
+It contains the before and after manifests, complete task logs, manual outputs, default-source control, example comparison and local-link results.
+All probes used private homes and fake programs. This session made no real model call.
+
+The refreshed graph reports a partial parse of `scripts/examples.test.sh`. Direct source inspection and executable controls cover that limitation here.
+SVGs are excluded from the graph. Regeneration, XML inspection and HTTP delivery supplied their evidence.
+
+The owner's report and these mechanical results remain separate evidence classes.
+The report adds no command transcript, display method or interpretation beyond the owner's confirmation.
+This read does not establish whether a developer new to Ravel can use the book.
+
+No new reader observation needs a correction stage. Read 1 can retire.
+Read 2 remains required under section 4 of `docs/book/contract.md` and the later book node's brief.
+The next book sessions must compare their old task contracts with the work already delivered on `main` before they repeat any draft.
+
 <!-- tc: off because this recap records the completed k87 proof before the owner's F17 and F18 findings -->
 
 ## Correction recap for the Part II read, 2026-10-28
