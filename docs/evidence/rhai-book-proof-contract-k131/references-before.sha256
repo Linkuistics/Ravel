@@ -1,0 +1,8 @@
+92e7ad835c74342ab3bb5e119462124b5da3e28baafad8847e4e67c38c9ebab2  docs/book/contract.md
+a3b484f6cd835702e1deeaf7dc54e9e1e96e93461362a49af49bd46d506b1b0e  docs/book/ste.md
+7e53612849dccc42395b08adc89a6a640802afe738e48288b0be01ab5103f2e2  docs/documentation-lessons.md
+917ae3e4ba82ef5dc08a72d4bd90c9e2cb293aa162cf6a3265473d382fe0583b  docs/adr/configuration-script-uses-rhai.md
+f95e52bc866f2c159bf669da16754ee75aa382db3b6751b5d39e9cbe83e7b8ba  docs/adr/configuration-evaluation-precedes-the-launch.md
+80d6b27aa22e8cf11573b26718a186b86098fcf6ef9fbf48da185ba6d121a24b  docs/adr/a-configuration-script-asks-a-model-through-a-harness-run.md
+37993fa72bf6a92382db262e694165db75b2003374cba7cb06b54dac327b0e58  docs/adr/ravel-supervises-the-session.md
+cdf29de84de84fda407287b81ca641e931460eff2977d9cd0d9049875188bacd  docs/adr/the-launched-child-is-a-job.md
