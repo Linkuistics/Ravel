@@ -1,0 +1,178 @@
+[
+  {
+    "figure": "figures/review-flow.svg",
+    "page": "01-what-ravel-is-for.html",
+    "screenshot": "target/k136-visual/review-flow.png",
+    "sha256": "951190b6108864d2596296c31ddda6d76ce02e955c38d00cf8f3062a777cb3e3",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/routing-notice.svg",
+    "page": "01-what-ravel-is-for.html",
+    "screenshot": "target/k136-visual/routing-notice.png",
+    "sha256": "4ee33d399d890efbea7b5b3de465b3ef80fa19368e0b6a2af2bb6e3c371ae043",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/inherited-result-path.svg",
+    "page": "01-what-ravel-is-for.html",
+    "screenshot": "target/k136-visual/inherited-result-path.png",
+    "sha256": "fa61d3373acc0a6146ad46dcee2dbe9aa966fc17858de836de13f16b04658a07",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/system-context.svg",
+    "page": "01-what-ravel-is-for.html",
+    "screenshot": "target/k136-visual/system-context.png",
+    "sha256": "2afd003a35ce148c813206d7c31088d2a6f3ae373810dd8a9dbc867052cc9858",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/process-authority.svg",
+    "page": "02-actors-and-words.html",
+    "screenshot": "target/k136-visual/process-authority.png",
+    "sha256": "e15b8de50b7497bc46ed4df7cd2ffceb8dc1f66df1a80f14eb055a2a6707e1ba",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/successful-session.svg",
+    "page": "03-a-complete-session.html",
+    "screenshot": "target/k136-visual/successful-session.png",
+    "sha256": "f725bf0dc36a346112af206e9945f72043bd173f6f4d557c5ff9c1677c40a363",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/session-outcomes.svg",
+    "page": "03-a-complete-session.html",
+    "screenshot": "target/k136-visual/session-outcomes.png",
+    "sha256": "93e4568ecf1cf3e3239fba46a60b8a26e022fc5b35a1968aaa8f2317fcae468a",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/evaluation-harness.svg",
+    "page": "04-write-a-configuration-script.html",
+    "screenshot": "target/k136-visual/evaluation-harness.png",
+    "sha256": "ddb4e2f8d1c36579a89a38b170479950a0920b1d16b4b7ad4941df8242c27c46",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/settled-exit-status.svg",
+    "page": "05-running-sessions.html",
+    "screenshot": "target/k136-visual/settled-exit-status.png",
+    "sha256": "242e6aaab8f58e5422aa6eea7a17f28c94845876991e6e86214dc003c929fa75",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/selection-cancellation.svg",
+    "page": "05-running-sessions.html",
+    "screenshot": "target/k136-visual/selection-cancellation.png",
+    "sha256": "8803eb0f8ea60d926523ce6546288f088001f5d510b5a550f719f93660121a74",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/supervision-cancellation.svg",
+    "page": "05-running-sessions.html",
+    "screenshot": "target/k136-visual/supervision-cancellation.png",
+    "sha256": "72c7cafbff8637807ff62a458fc761a1efaa32434a0f1160da22f4980cf758e2",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/source-components.svg",
+    "page": "06-reference.html",
+    "screenshot": "target/k136-visual/source-components.png",
+    "sha256": "76de3e325f303971793ac3c02d5b2c4b0a0e8b42a3d65f0266a30f6d8fd7e33f",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/installed-files.svg",
+    "page": "06-reference.html",
+    "screenshot": "target/k136-visual/installed-files.png",
+    "sha256": "cc219b4f1d6f6d09c8f50eeec8193f675e074cd5d0be6e26e319fdf85b3696b2",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/session-authority.svg",
+    "page": "07-the-parts-of-ravel.html",
+    "screenshot": "target/k136-visual/session-authority.png",
+    "sha256": "7ae54ca67f653f8e4ebf88abc7f38e88d9c3e8ee95ab05b998339d38f88cf30f",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/host-bridge.svg",
+    "page": "07-the-parts-of-ravel.html",
+    "screenshot": "target/k136-visual/host-bridge.png",
+    "sha256": "fe49674b1cf81c233f3d125f9bfc2038eccf6e94140bfece34f1aff5723889b2",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/session-code-path.svg",
+    "page": "08-follow-a-session-through-the-code.html",
+    "screenshot": "target/k136-visual/session-code-path.png",
+    "sha256": "e9dae268be9bae888153cbaa1f244acacc196405a5dabe78064d4f44a04a1169",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": [
+      "target/k136-visual/session-code-path-part1.png",
+      "target/k136-visual/session-code-path-part2.png",
+      "target/k136-visual/session-code-path-part3.png"
+    ]
+  },
+  {
+    "figure": "figures/outcome-precedence.svg",
+    "page": "08-follow-a-session-through-the-code.html",
+    "screenshot": "target/k136-visual/outcome-precedence.png",
+    "sha256": "b19b0d10245a415bd4bec5cdcb664bf40913400240af3e92c6db0b2644eb0cd1",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/escalation-timing.svg",
+    "page": "09-jobs-signals-and-the-terminal.html",
+    "screenshot": "target/k136-visual/escalation-timing.png",
+    "sha256": "f23bb788a48b5e5e930c19315bf1ffc95b6d14e54e7810f78908e4b87afddcdc",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/selection-deadline.svg",
+    "page": "09-jobs-signals-and-the-terminal.html",
+    "screenshot": "target/k136-visual/selection-deadline.png",
+    "sha256": "92c6a565894eb8f2d9aa4aefafa0a52ffe4f991e8999e7901a5c372636b89a88",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/terminal-lending-recovery.svg",
+    "page": "09-jobs-signals-and-the-terminal.html",
+    "screenshot": "target/k136-visual/terminal-lending-recovery.png",
+    "sha256": "87a7744223328664099fca9db44536a330ac2f70bd50ac0c05ad64c30c3b6ecd",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": []
+  },
+  {
+    "figure": "figures/release-delivery.svg",
+    "page": "11-deliver-ravel.html",
+    "screenshot": "target/k136-visual/release-delivery.png",
+    "sha256": "b6e77281abc8ccd629f2c8aa53c5566ce929a6e0c26f412354d500cbcff00f6c",
+    "observation": "Labels and connections readable at recorded chapter width; no overlap or clipped diagram content found.",
+    "detailViews": [
+      "target/k136-visual/release-delivery-part1.png",
+      "target/k136-visual/release-delivery-part2.png",
+      "target/k136-visual/release-delivery-part3.png"
+    ]
+  }
+]

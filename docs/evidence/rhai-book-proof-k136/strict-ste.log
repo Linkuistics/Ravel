@@ -1,0 +1,6 @@
+task: [docs:ste] bash scripts/ste.sh --strict docs/book/src/03-a-complete-session.md docs/book/src/10-develop-ravel.md
+docs/book/src/10-develop-ravel.md:163: Rule 6.6 paragraph of 7 sentences (limit 6): Chapter 7, “Find each part in the source” gives each part with the process where it run...
+ste: docs/book/src/03-a-complete-session.md: 0 problems
+ste: docs/book/src/10-develop-ravel.md: 1 problems
+ste: 1 problems in 2 files
+task: Failed to run task "docs:ste": exit status 1

@@ -1,0 +1,48 @@
+[
+  {
+    "url": "https://api.github.com/repos/Linkuistics/Ravel/releases/tags/v2.0.0",
+    "observedUtc": "2026-11-14T04:07:43.095007+00:00",
+    "status": 200,
+    "sha256": "602bfd3edb809fb2eaa6f90f576ed17e30cb9dd412e8b7c92d9327b686a30701",
+    "tag": "v2.0.0",
+    "draft": false,
+    "assets": [
+      "ravel-v2.0.0-aarch64-apple-darwin.tar.xz",
+      "ravel-v2.0.0-aarch64-unknown-linux-gnu.tar.xz",
+      "ravel-v2.0.0-x86_64-unknown-linux-gnu.tar.xz"
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Linkuistics/homebrew-taps/main/Formula/ravel.rb",
+    "observedUtc": "2026-11-14T04:07:43.449144+00:00",
+    "status": 200,
+    "sha256": "675cc0322036736337e0d485015dde7b0cda9bdc80357c9b63024cf4baae52fa",
+    "relevantLines": [
+      "# archives. Only the class and the keg_only line differ between channels.",
+      "version \"2.0.0\""
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Linkuistics/homebrew-taps/main/Formula/ravel@2.rb",
+    "observedUtc": "2026-11-14T04:07:43.748411+00:00",
+    "status": 200,
+    "sha256": "884612f38258209976bf56d74bd9b4f406e142c1a05f2ba9571bfe6782241ba4",
+    "relevantLines": [
+      "# archives. Only the class and the keg_only line differ between channels.",
+      "version \"2.0.0\"",
+      "keg_only :versioned_formula",
+      "deprecate! date: \"2026-11-11\", because: :versioned_formula, replacement_formula: \"ravel\""
+    ]
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Linkuistics/homebrew-taps/main/Formula/grove.rb",
+    "observedUtc": "2026-11-14T04:07:44.045156+00:00",
+    "status": 200,
+    "sha256": "2cb9d8d1a784ad48f4c1060f447964df16001c11316549e3a6c18e3235e31696",
+    "relevantLines": [
+      "version \"22.9.0\"",
+      "depends_on \"linkuistics/taps/ravel\"",
+      "# reads config.rhai and the Rhai assets. The dependency's version output"
+    ]
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "name": "session-code-path",
+    "part": 1,
+    "box": {
+      "top": 3587.875,
+      "height": 2881.78125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 3513,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/session-code-path-part1.png"
+  },
+  {
+    "name": "session-code-path",
+    "part": 2,
+    "box": {
+      "top": 3587.875,
+      "height": 2881.78125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 4513,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/session-code-path-part2.png"
+  },
+  {
+    "name": "session-code-path",
+    "part": 3,
+    "box": {
+      "top": 3587.875,
+      "height": 2881.78125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 5513,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/session-code-path-part3.png"
+  },
+  {
+    "name": "release-delivery",
+    "part": 1,
+    "box": {
+      "top": 14036.171875,
+      "height": 2995.328125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 13961,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/release-delivery-part1.png"
+  },
+  {
+    "name": "release-delivery",
+    "part": 2,
+    "box": {
+      "top": 14036.171875,
+      "height": 2995.328125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 14961,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/release-delivery-part2.png"
+  },
+  {
+    "name": "release-delivery",
+    "part": 3,
+    "box": {
+      "top": 14036.171875,
+      "height": 2995.328125,
+      "width": 749.984375
+    },
+    "actual": {
+      "scroll": 15961,
+      "width": 1200,
+      "height": 1200
+    },
+    "path": "target/k136-visual/release-delivery-part3.png"
+  }
+]

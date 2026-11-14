@@ -1,0 +1,344 @@
+{
+  "browser": "Google Chrome 157.0.8103.79",
+  "surface": "local built mdBook file URLs; full viewport captures after awaiting scrollIntoView; 750px figure width",
+  "visibleOccurrences": 31,
+  "hiddenDuplicatesExcluded": 31,
+  "captures": [
+    {
+      "page": "01-what-ravel-is-for.html",
+      "src": "figures/review-flow.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 902,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.671875,
+        "width": 749.984375,
+        "height": 601.125
+      },
+      "screenshot": "target/k136-visual/review-flow.png"
+    },
+    {
+      "page": "01-what-ravel-is-for.html",
+      "src": "figures/routing-notice.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 930,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.53125,
+        "width": 749.984375,
+        "height": 629.21875
+      },
+      "screenshot": "target/k136-visual/routing-notice.png"
+    },
+    {
+      "page": "01-what-ravel-is-for.html",
+      "src": "figures/inherited-result-path.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1613,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.0625,
+        "width": 749.984375,
+        "height": 1312.421875
+      },
+      "screenshot": "target/k136-visual/inherited-result-path.png"
+    },
+    {
+      "page": "01-what-ravel-is-for.html",
+      "src": "figures/system-context.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1008,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.90625,
+        "width": 749.984375,
+        "height": 707.546875
+      },
+      "screenshot": "target/k136-visual/system-context.png"
+    },
+    {
+      "page": "02-actors-and-words.html",
+      "src": "figures/process-authority.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1566,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.09375,
+        "width": 749.984375,
+        "height": 1265.25
+      },
+      "screenshot": "target/k136-visual/process-authority.png"
+    },
+    {
+      "page": "03-a-complete-session.html",
+      "src": "figures/successful-session.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1752,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.9375,
+        "width": 749.984375,
+        "height": 1451.796875
+      },
+      "screenshot": "target/k136-visual/successful-session.png"
+    },
+    {
+      "page": "03-a-complete-session.html",
+      "src": "figures/session-outcomes.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1068,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.9375,
+        "width": 749.984375,
+        "height": 767.28125
+      },
+      "screenshot": "target/k136-visual/session-outcomes.png"
+    },
+    {
+      "page": "04-write-a-configuration-script.html",
+      "src": "figures/evaluation-harness.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1017,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.6875,
+        "width": 749.984375,
+        "height": 717
+      },
+      "screenshot": "target/k136-visual/evaluation-harness.png"
+    },
+    {
+      "page": "05-running-sessions.html",
+      "src": "figures/settled-exit-status.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1188,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.859375,
+        "width": 749.984375,
+        "height": 887.171875
+      },
+      "screenshot": "target/k136-visual/settled-exit-status.png"
+    },
+    {
+      "page": "05-running-sessions.html",
+      "src": "figures/selection-cancellation.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1771,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150,
+        "width": 749.984375,
+        "height": 1470.21875
+      },
+      "screenshot": "target/k136-visual/selection-cancellation.png"
+    },
+    {
+      "page": "05-running-sessions.html",
+      "src": "figures/supervision-cancellation.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1430,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.9375,
+        "width": 749.984375,
+        "height": 1129.3125
+      },
+      "screenshot": "target/k136-visual/supervision-cancellation.png"
+    },
+    {
+      "page": "06-reference.html",
+      "src": "figures/source-components.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1298,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.625,
+        "width": 749.984375,
+        "height": 997.484375
+      },
+      "screenshot": "target/k136-visual/source-components.png"
+    },
+    {
+      "page": "06-reference.html",
+      "src": "figures/installed-files.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1557,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.125,
+        "width": 749.984375,
+        "height": 1256.421875
+      },
+      "screenshot": "target/k136-visual/installed-files.png"
+    },
+    {
+      "page": "07-the-parts-of-ravel.html",
+      "src": "figures/session-authority.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 908,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.03125,
+        "width": 749.984375,
+        "height": 607.140625
+      },
+      "screenshot": "target/k136-visual/session-authority.png"
+    },
+    {
+      "page": "07-the-parts-of-ravel.html",
+      "src": "figures/host-bridge.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 935,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.625,
+        "width": 749.984375,
+        "height": 634.328125
+      },
+      "screenshot": "target/k136-visual/host-bridge.png"
+    },
+    {
+      "page": "08-follow-a-session-through-the-code.html",
+      "src": "figures/session-code-path.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 3182,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 149.875,
+        "width": 749.984375,
+        "height": 2881.78125
+      },
+      "screenshot": "target/k136-visual/session-code-path.png"
+    },
+    {
+      "page": "08-follow-a-session-through-the-code.html",
+      "src": "figures/outcome-precedence.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1406,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.671875,
+        "width": 749.984375,
+        "height": 1105.21875
+      },
+      "screenshot": "target/k136-visual/outcome-precedence.png"
+    },
+    {
+      "page": "09-jobs-signals-and-the-terminal.html",
+      "src": "figures/escalation-timing.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1645,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.21875,
+        "width": 749.984375,
+        "height": 1344.921875
+      },
+      "screenshot": "target/k136-visual/escalation-timing.png"
+    },
+    {
+      "page": "09-jobs-signals-and-the-terminal.html",
+      "src": "figures/selection-deadline.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 1021,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.28125,
+        "width": 749.984375,
+        "height": 720.453125
+      },
+      "screenshot": "target/k136-visual/selection-deadline.png"
+    },
+    {
+      "page": "09-jobs-signals-and-the-terminal.html",
+      "src": "figures/terminal-lending-recovery.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 2297,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.265625,
+        "width": 749.984375,
+        "height": 1996.453125
+      },
+      "screenshot": "target/k136-visual/terminal-lending-recovery.png"
+    },
+    {
+      "page": "11-deliver-ravel.html",
+      "src": "figures/release-delivery.svg",
+      "viewport": {
+        "width": 1200,
+        "height": 3296,
+        "scale": 1
+      },
+      "rect": {
+        "x": 371.5,
+        "y": 150.171875,
+        "width": 749.984375,
+        "height": 2995.328125
+      },
+      "screenshot": "target/k136-visual/release-delivery.png"
+    }
+  ]
+}

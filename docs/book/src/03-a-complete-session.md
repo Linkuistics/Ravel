@@ -126,7 +126,7 @@ When you finish the steps, the directory holds these paths:
 ├── config.rhai        you save it
 ├── bin/               you make it
 │   └── fake-agent     you save it
-├── home/              the command makes it
+├── home/              you make it
 │   └── .config/ravel/settings.json  you save it
 └── tmp/               the command makes it
 ```
@@ -142,8 +142,8 @@ Each path has one purpose in the session:
 
 Do these steps in the shell where `ravel --version` succeeded:
 
-1. Make the example directory and its `bin` subdirectory, then `cd` into the
-   example directory. The fragment after these steps gives the two commands.
+1. Make the example directory, `bin` and `home/.config/ravel`. Then `cd` into
+   the example directory. The fragment after these steps gives the two commands.
 2. Save the three files of the complete example at their labelled paths. Each
    label is a path in `ravel-first-session`.
 3. Type the command of the complete example without its first `$ `, which

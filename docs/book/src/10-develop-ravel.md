@@ -164,8 +164,10 @@ table maps each kind of source and test to its directory.
 gives each part with the process where it runs. In the example of this
 chapter, the result goes through the
 [result channel](07-the-parts-of-ravel.md#the-result-channel-carries-the-value).
-`end-session` writes the complete result file in one atomic step, and the CLI
-reads it after cleanup. Tests with real subprocesses check nested
+
+`end-session` writes and flushes a private file. It then adds the result
+pathname through an atomic hard link. The CLI reads the result after job
+cleanup. Tests with real subprocesses check nested
 [session-result context](02-actors-and-words.md#three-different-kinds-of-information),
 cancellation, process cleanup, and empty and multiline results. Thus, a change
 to this boundary needs more than a test of a parser.

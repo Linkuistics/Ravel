@@ -1,0 +1,5 @@
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.12s
+task: [docs:examples] bash scripts/examples.sh check docs/book/src/03-a-complete-session.md docs/book/src/10-develop-ravel.md
+pass docs/book/src/03-a-complete-session.md:166
+examples: 1 passed, 0 failed; 14 fragment(s) not run; 0 page error(s)

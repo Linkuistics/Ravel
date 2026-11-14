@@ -1,0 +1,18 @@
+[
+  {
+    "path": "docs/book/src/03-a-complete-session.md",
+    "blocksBefore": 11,
+    "blocksAfter": 11,
+    "before": "7bbc923a361efaba69cbda3573c3445733b5d306aa5fba00849d3415dd62818b",
+    "after": "afdde10e85fbabd48f0d4130632b447d5610ca73fe116b8997e8f63b938f159d",
+    "identical": false
+  },
+  {
+    "path": "docs/book/src/10-develop-ravel.md",
+    "blocksBefore": 11,
+    "blocksAfter": 11,
+    "before": "f70bb254a37fa9a14f0fc63a1fa88cfa04ccf26652bfddd8408ae5963c5581b0",
+    "after": "f70bb254a37fa9a14f0fc63a1fa88cfa04ccf26652bfddd8408ae5963c5581b0",
+    "identical": true
+  }
+]

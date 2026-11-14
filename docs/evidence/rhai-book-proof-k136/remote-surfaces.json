@@ -1,0 +1,114 @@
+[
+  {
+    "name": "published-ch7",
+    "state": {
+      "url": "https://linkuistics.github.io/Ravel/v2.0.0/07-the-parts-of-ravel.html",
+      "title": "The parts of Ravel - The Ravel book",
+      "text": "Part I: Ravel and its session\n1. What Ravel is for\n2. Who does what in a Ravel session\n3. A complete session, end to end\nPart II: Use Ravel\n4. Write a configuration script\n5. Run sessions\n6. Reference\nPart III: Inside Ravel\n7. The parts of Ravel\nWatch the parts in one session\nFind each part in the source\nThe Ravel CLI coordinates the session\nThe Rhai worker evaluates the script in its own process\nThe host bridge carries each request to the Ravel CLI\nThe configuration module defines the interface\nThe Ravel CLI prepares skill directories before the worker starts\nThe runner owns the local job mechanics\nThe result channel carries the value\nThe program contract stays loose\nThe installed executable supplies both roles\n8. Follow a session through the code\n9. Jobs, signals and the terminal\nPart IV: Develop and deliver Ravel\n10. Develop Ravel\n11. Deliver Ravel\nThe Ravel book\n \nThe parts of Ravel\n\nDo you want to change Ravel, or find the part that caused a failure? Then you need to know where each part of Ravel lives and why it is a separate part. This chapter gives you that map. It starts with one session that makes each part visible in its output. Then it names the parts, gives their source locations and explains how they work together.\n\nIn chapter 3 you ran the first session in ~/ravel-first-session. Its configuration script selected fake-agent, and the caller received finished. That session used every part of Ravel, but its output showed only the routing notice and the result. The example of this chapter adds one harness run. Its fake programs then write down who started them and what they received.\n\nThese are the words that this chapter uses. Each row gives the value that the word has in the example of this chapter.\n\nWord\tWhat it names\tIn the example\nRavel CLI\tThe ravel command-line program. It checks the request, runs the programs and decides the outcome.\tThe process ravel start-session --kind demo …\nConfiguration script\tThe owner’s Rhai file that selects a program or r",
+      "images": [
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/session-authority.svg",
+          "complete": true,
+          "width": 949
+        },
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/session-authority.svg",
+          "complete": true,
+          "width": 949
+        },
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/source-components.svg",
+          "complete": true,
+          "width": 1204
+        },
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/source-components.svg",
+          "complete": true,
+          "width": 1204
+        },
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/host-bridge.svg",
+          "complete": true,
+          "width": 1093
+        },
+        {
+          "src": "https://linkuistics.github.io/Ravel/v2.0.0/figures/host-bridge.svg",
+          "complete": true,
+          "width": 1093
+        }
+      ]
+    },
+    "path": "target/k136-visual/published-ch7.png"
+  },
+  {
+    "name": "github-ch7",
+    "state": {
+      "url": "https://github.com/Linkuistics/Ravel/blob/main/docs/book/src/07-the-parts-of-ravel.md",
+      "title": "Ravel/docs/book/src/07-the-parts-of-ravel.md at main · Linkuistics/Ravel · GitHub",
+      "text": "Skip to content\nNavigation Menu\nProducts\nDevelopers\nBusinesses\nResources\nPricing\nSign in\nSign up\nLinkuistics\nRavel\nRepository navigation\nCode\nIssues\n3\n (3)\nPull requests\nActions\nProjects\nSecurity and quality\nInsights\nFiles\nmain\n.cargo\n.config\n.grove\ncrates\ndocs\nadr\nbook\nsrc\nfigures\n01-what-ravel-is-for.md\n02-actors-and-words.md\n03-a-complete-session.md\n04-write-a-configuration-script.md\n05-running-sessions.md\n06-reference.md\n07-the-parts-of-ravel.md\n08-follow-a-session-through-the-code.md\n09-jobs-signals-and-the-terminal.md\n10-develop-ravel.md\n11-deliver-ravel.md\nSUMMARY.md\nbook.toml\ncontract.md\nexamples.md\nexcerpts.md\nfigures.md\nste.md\ndesign\nevidence\nresearch\nspecs\narchive-evidence.md\ncaller-references.md\ncancellation-failure-transfer-checks.txt\ncompletion-failure-design-evidence.md\ncomponent-evidence.md\nconfiguration-handoff-2026-10-12.md\ndocumentation-lessons.md\nfailed-exec-terminal-recovery-checks.txt.gz\nnative-entry-campaign-plan.json\nnative-entry-cases.json\nnative-entry-development-evidence.md\nnative-entry-transition-design.md\npartial-acquisition-cleanup-checks.txt.gz\npublication-evidence.md\nrelease-lifecycle-evidence.md\nresult-job-source-evidence.md\nretired-project.md\nruntime-evidence.md\nskill-discovery-design-evidence.md\nworker-reap-admission-checks.txt\nscripts\n.gitignore\nCHANGELOG.md\nCONTEXT.md\nCargo.lock\nCargo.toml\nLICENSE\nREADME.md\nTaskfile.yml\nabout.toml\nrelease.toml\nrust-toolchain.toml\nBreadcrumbs\nRavel/docs/book/src\n/07-the-parts-of-ravel.md\nLatest commit\nAntonyBlakey\nComplete the Ravel book proof (ravel-book-inside-k311)\n424af53\n · \nHistory\nHistory\nFile metadata and controls\nPreview\nCode\nBlame\n680 lines (540 loc) · 38.4 KB\nRaw\nThe parts of Ravel\n\nDo you want to change Ravel, or find the part that caused a failure? Then you need to know where each part of Ravel lives and why it is a separate part. This chapter gives you that map. It starts with one session that makes each part visible in its output. Then it names the parts, gives their source location",
+      "images": [
+        {
+          "src": "https://github.githubassets.com/assets/platform-4ce65ae0bf273ce2.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/platform-dark-ac89fbf373737ed3.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/copilot-e2b89335a66dba00.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/copilot-dark-2b28403b6080e898.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/changelog-fd687bff072883b0.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/changelog-dark-b1c25ae971bd641b.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/universe-a98cd54821b27569.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://github.githubassets.com/assets/universe-a98cd54821b27569.png",
+          "complete": true,
+          "width": 480
+        },
+        {
+          "src": "https://avatars.githubusercontent.com/u/12131?v=4&size=40",
+          "complete": true,
+          "width": 40
+        },
+        {
+          "src": "https://github.com/Linkuistics/Ravel/raw/main/docs/book/src/figures/session-authority.svg",
+          "complete": true,
+          "width": 949
+        },
+        {
+          "src": "https://github.com/Linkuistics/Ravel/raw/main/docs/book/src/figures/source-components.svg",
+          "complete": true,
+          "width": 1204
+        },
+        {
+          "src": "https://github.com/Linkuistics/Ravel/raw/main/docs/book/src/figures/host-bridge.svg",
+          "complete": true,
+          "width": 1093
+        }
+      ]
+    },
+    "path": "target/k136-visual/github-ch7.png"
+  }
+]

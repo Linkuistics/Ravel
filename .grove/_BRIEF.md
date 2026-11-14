@@ -240,3 +240,21 @@ design needs the settled requirements.
   That trial does not establish novice comprehension or the owner's practical results.
   The existing `rhai-book-use-k74` resumes at chapter 4, “Run the examples of this chapter”, after refreshing the local book and private shell.
   Part I need not be repeated. Release-version substitution, the later whole-book proof and Read 2 remain required.
+
+- Whole-book proof `rhai-book-inside-k136` completed the fresh eleven-chapter
+  read, semantic reconciliation of all five source inventories, current local
+  link and figure inspection, and release/promotion reconciliation. It clarified
+  chapter 3's reader-created home directory and chapter 10's write/flush versus
+  atomic hard-link publication. Evidence and explicit limits are in
+  `docs/evidence/rhai-book-proof-k136/README.md`. Applicable gates and controls
+  pass; all 437 measured subjects agree before and after. Historical k311
+  evidence and ancestor `out.err` remain unchanged. The proof closes k134,
+  k132, k130, k124, k122 and editorial k34; no Handed forward entry survives.
+  Owner Read 2 is still required, outside that editorial node, in live
+  `rhai-book-read2-k137`. It asks the owner to explain the separate worker and
+  two Rust packages, trace final cancellation, then build and test a checkout.
+  It preserves their words, locations, progress and unreached material and
+  stops at the first comprehension failure. Neither proof nor model review
+  establishes that owner result or novice comprehension. Read 2 precedes the
+  remaining root release/upgrade/conversion tasks; those tasks were only
+  renumbered, not executed by this proof.

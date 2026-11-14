@@ -79,3 +79,45 @@ incomplete. Consult the restored private STE PDF directly as needed.
 
 After the final proof, create the required owner Read 2 requirements leaf outside
 the editorial node. The proof must not substitute model responses for the owner.
+
+## Decisions (running log)
+
+The fresh read of all eleven chapters is complete. The read covered the whole
+document across bounded outputs, with clipped passages recovered explicitly.
+It does not establish owner comprehension or published rendering.
+
+Corrected chapter 3's setup instructions and directory attribution: the reader
+creates `home/.config/ravel` before saving settings. Corrected chapter 10's
+atomic-write description against `completion::publish_result`: private write
+and flush precede the atomic hard link, and result reading follows job cleanup.
+No executable block changed. The chapter 3 distinction between selection
+validation and executable resolution is retained for source verification.
+
+Spent the one fresh reviewer allowance on an adversarial semantic comparison
+of the five inventories with the current book and implementation. No second
+reviewer is authorised by this allowance. The review is read-only; the proof
+producer owns classification and repairs.
+
+2026-11-14: Source verification confirms that chapter 3's selected-command
+validation and later executable resolution describe distinct checks, so retain
+that wording. The inventory reviewer read all five inventories and found no
+additional actionable defect; its bounded semantic probes and coverage limits
+are recorded in `docs/evidence/rhai-book-proof-k136/README.md`.
+
+2026-11-14: Final build, excerpts, strict STE, strict prose-break and affected
+example checks pass. Applicable checker controls pass and all 30 example mutants
+are killed. All 437 frozen subjects match after measurement; 435 match k135,
+with only chapter 3 and chapter 10 prose changed. Existing unchanged measurements
+retain their own dates and limits. All 21 local figures were visually inspected
+at chapter width, including overlapping views of the long diagrams. Local links
+and built destinations pass three dirty controls. A representative chapter 7
+figure was also viewed on GitHub and the published 2.0.0 site; those remote
+surfaces do not contain these unpushed corrections.
+
+2026-11-14: The final proof has no unresolved Handed forward entry and needs no
+editorial re-run. Existing lessons cover the two corrections. Cut required owner
+Read 2 as `rhai-book-read2-k137`, outside editorial k34 and before the remaining
+root work. It requires the owner's own explanations and checkout results, stops
+at the first comprehension failure and records unreached material. No owner
+Read 2 outcome is claimed here. The known root siblings were renumbered only;
+no unrelated release, upgrade or conversion work was executed.
