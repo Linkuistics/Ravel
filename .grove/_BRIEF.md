@@ -11,9 +11,10 @@ The owner wants to consolidate some of the separate repositories in
 AgenticOrchestration before changing Ravel's configuration language to Lua.
 That migration is a separate workstream in
 <https://github.com/Linkuistics/Ravel/issues/5>, not new work in this tree.
-Stop this Grove sequence rather than continue automatically into the historical
-release/upgrade/conversion tail below. If resumed, reconcile those live tasks
-with the already-delivered 2.0.0 artifacts before repeating any work.
+The owner resumed this Grove to complete it and publish useful work before issue 5.
+Reconcile the historical release/upgrade/conversion tail with the delivered 2.0.0 artifacts before repeating any work.
+In `release-ravel-2-0-0-k37`, the owner approved advancing `main` directly to the checked documentation and evidence.
+They chose corrected source on GitHub and retention of the fixed 2.0.0 Pages book, without another release.
 
 The obsolete `coordinated-release-design` and `skill-directory-delivery`
 workspaces were removed with the owner's authorisation. Keep this workspace:
