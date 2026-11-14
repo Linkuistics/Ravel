@@ -1,0 +1,95 @@
+Owner Read 2 preparation — 14 November 2026
+Attribution: assistant mechanical preparation only; no owner attempt yet.
+Platform: local Darwin arm64 checkout, configured mise environment.
+Source baseline: b18d7f8356ead43a874792c8349abba2b688fa8a
+Initial empty working copy: 72af4789dfc6311e4c3daa1ca7af0b597d9ec867
+Surface: local mdBook HTTP server at http://127.0.0.1:8775/
+Entry: http://127.0.0.1:8775/07-the-parts-of-ravel.html
+
+Command: mise exec -- task docs:book:build
+Exit: 0
+task: [docs:book:build] bash scripts/book.sh build
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/AgenticOrchestration/Ravel.gh-issue-2/docs/book/../../target/book`
+
+Command: mise exec -- task docs:book
+State: running in tool session 84134; this is a server, not a completed command.
+task: [docs:book] bash scripts/book.sh build
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/AgenticOrchestration/Ravel.gh-issue-2/docs/book/../../target/book`
+task: [docs:book] bash scripts/book.sh serve 8775
+ INFO Book building has started
+ INFO Running the html backend
+ INFO HTML book written to `/Users/antony/Development/AgenticOrchestration/Ravel.gh-issue-2/docs/book/../../target/book`
+ INFO Serving on: http://127.0.0.1:8775
+ INFO Watching for changes...
+
+Before HTTP GET measurements:
+shasum -a 256 target/book/*.html target/book/figures/*.svg > /tmp/ravel-read2-k137-subjects-before.sha256
+Exit: 0
+
+Command:
+curl -fSs --fail-early -o /dev/null -w '%{url_effective} %{http_code} %{content_type} %{size_download}\n' 'http://127.0.0.1:8775/{01-what-ravel-is-for,02-actors-and-words,03-a-complete-session,04-write-a-configuration-script,05-running-sessions,06-reference,07-the-parts-of-ravel,08-follow-a-session-through-the-code,09-jobs-signals-and-the-terminal,10-develop-ravel,11-deliver-ravel}.html'
+Exit: 0
+http://127.0.0.1:8775/01-what-ravel-is-for.html 200 text/html 77043
+http://127.0.0.1:8775/02-actors-and-words.html 200 text/html 53836
+http://127.0.0.1:8775/03-a-complete-session.html 200 text/html 62547
+http://127.0.0.1:8775/04-write-a-configuration-script.html 200 text/html 151640
+http://127.0.0.1:8775/05-running-sessions.html 200 text/html 144792
+http://127.0.0.1:8775/06-reference.html 200 text/html 250200
+http://127.0.0.1:8775/07-the-parts-of-ravel.html 200 text/html 74432
+http://127.0.0.1:8775/08-follow-a-session-through-the-code.html 200 text/html 103207
+http://127.0.0.1:8775/09-jobs-signals-and-the-terminal.html 200 text/html 88915
+http://127.0.0.1:8775/10-develop-ravel.html 200 text/html 79159
+http://127.0.0.1:8775/11-deliver-ravel.html 200 text/html 98591
+
+Command:
+curl -fSs --fail-early -o /dev/null -w '%{url_effective} %{http_code} %{content_type} %{size_download}\n' 'http://127.0.0.1:8775/figures/{session-authority,source-components,host-bridge,session-code-path,selection-cancellation,supervision-cancellation,outcome-precedence,escalation-timing,selection-deadline,terminal-lending-recovery}.svg'
+Exit: 0
+http://127.0.0.1:8775/figures/session-authority.svg 200 image/svg+xml 121983
+http://127.0.0.1:8775/figures/source-components.svg 200 image/svg+xml 276072
+http://127.0.0.1:8775/figures/host-bridge.svg 200 image/svg+xml 107812
+http://127.0.0.1:8775/figures/session-code-path.svg 200 image/svg+xml 303129
+http://127.0.0.1:8775/figures/selection-cancellation.svg 200 image/svg+xml 217006
+http://127.0.0.1:8775/figures/supervision-cancellation.svg 200 image/svg+xml 202648
+http://127.0.0.1:8775/figures/outcome-precedence.svg 200 image/svg+xml 211845
+http://127.0.0.1:8775/figures/escalation-timing.svg 200 image/svg+xml 304611
+http://127.0.0.1:8775/figures/selection-deadline.svg 200 image/svg+xml 121464
+http://127.0.0.1:8775/figures/terminal-lending-recovery.svg 200 image/svg+xml 367430
+
+Command:
+curl -fSs --fail-early -o /dev/null -w '%{url_effective} %{http_code} %{content_type} %{size_download}\n' 'http://127.0.0.1:8775/figures/{review-flow,routing-notice,inherited-result-path,system-context,process-authority,successful-session,evaluation-harness,session-outcomes,settled-exit-status,installed-files,release-delivery}.svg'
+Exit: 0
+http://127.0.0.1:8775/figures/review-flow.svg 200 image/svg+xml 99590
+http://127.0.0.1:8775/figures/routing-notice.svg 200 image/svg+xml 109498
+http://127.0.0.1:8775/figures/inherited-result-path.svg 200 image/svg+xml 179113
+http://127.0.0.1:8775/figures/system-context.svg 200 image/svg+xml 160152
+http://127.0.0.1:8775/figures/process-authority.svg 200 image/svg+xml 287836
+http://127.0.0.1:8775/figures/successful-session.svg 200 image/svg+xml 221140
+http://127.0.0.1:8775/figures/evaluation-harness.svg 200 image/svg+xml 150421
+http://127.0.0.1:8775/figures/session-outcomes.svg 200 image/svg+xml 182780
+http://127.0.0.1:8775/figures/settled-exit-status.svg 200 image/svg+xml 206161
+http://127.0.0.1:8775/figures/installed-files.svg 200 image/svg+xml 174518
+http://127.0.0.1:8775/figures/release-delivery.svg 200 image/svg+xml 380863
+
+After HTTP measurements:
+shasum -a 256 target/book/*.html target/book/figures/*.svg > /tmp/ravel-read2-k137-subjects-after.sha256
+cmp /tmp/ravel-read2-k137-subjects-before.sha256 /tmp/ravel-read2-k137-subjects-after.sha256
+Exit: 0; no differences.
+Subjects: 36 generated HTML/SVG files, enumerated in subjects-before.sha256 and subjects-after.sha256.
+Manifest SHA-256: dfc1594badd9e0d15ad78eed0977a6075c5a7c19e5f14cf66a72b021cbf9248d
+Scope limit: the freeze covers the HTTP measurement, not the earlier build invocation.
+
+Optional headless-browser initialisation through the Node REPL:
+var read2Playwright = await import('playwright'); nodeRepl.write({chromiumAvailable: !!read2Playwright.chromium});
+Tool result: isError=true
+The requested module './index.js' does not provide an export named 'default'
+No browser was initialised. No fresh browser decoding or visual-quality claim follows.
+
+Limits: successful asset GETs establish local HTTP availability and content types.
+They do not establish owner comprehension, owner task performance, fresh visual
+inspection or a new Rust build/test result. Previous whole-book visual proof is
+recorded separately under docs/evidence/rhai-book-proof-k136/ with its own limits.
+The owner must stop before reading if a figure does not display in their browser.

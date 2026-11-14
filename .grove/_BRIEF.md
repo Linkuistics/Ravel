@@ -1,5 +1,26 @@
 # Ravel.gh-issue-2 — brief
 
+## Current direction, 14 November 2026
+
+The owner ended the remaining Rhai-specific Read 2 in `rhai-book-read2-k137`.
+Its evidence is partial, not a completed checkpoint. Preserve the explanations,
+instruction clarification and unreached tasks in
+`docs/evidence/rhai-book-read2-k137/README.md`.
+
+The owner wants to consolidate some of the separate repositories in
+AgenticOrchestration before changing Ravel's configuration language to Lua.
+That migration is a separate workstream in
+<https://github.com/Linkuistics/Ravel/issues/5>, not new work in this tree.
+Stop this Grove sequence rather than continue automatically into the historical
+release/upgrade/conversion tail below. If resumed, reconcile those live tasks
+with the already-delivered 2.0.0 artifacts before repeating any work.
+
+The obsolete `coordinated-release-design` and `skill-directory-delivery`
+workspaces were removed with the owner's authorisation. Keep this workspace:
+its later Read 1, book corrections/proof and partial Read 2 evidence are still
+outside `main`. Keep the shared repository in the main `Ravel` directory.
+The original charter and handover history follow.
+
 ## Goal
 
 Replace Ravel's TypeScript configuration scripts with embedded Rhai scripts, as GitHub
