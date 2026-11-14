@@ -1,0 +1,277 @@
+[
+  {
+    "example": "fixed-route",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "9da84649b389dc15f8a1a90402b49388df35c173ad8bff00aea68da385c2580d",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "refusals",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "c7db1e1df80e9b9395c22ea92c5c916948272eda456a261ebe6b9963b180c15c",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "print-and-parse",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "7fe59eab6e3b9bcf7c7ef598165421ab9dc97af479a4391ce8cb4cf4230b2f42",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "broken.rhai",
+        "sha256": "7483b7e95db04027701fb87656b543446cfbfdc39d2459680ff0d800a910cff8",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "route-table",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "fd51b7d3fda99d8d73db2e5b64b0965f5e90b5f2d32d6a767dd8e7a5060d0a4d",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "ecd3b65bae0c450bba5e2450292468adfb6d62434e3811d63d4c8c82cf25669a",
+        "comparison_with_fixed_route": "different"
+      }
+    ]
+  },
+  {
+    "example": "imports",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "d0e147f4e251f5fade9b0725aa43357bb6852da354cc2785fcef6bb8f6a621c9",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "routes.rhai",
+        "sha256": "e8f2fcb89d2a66ca0fe48f9a4c23b1712556a3cdaf779f5047a7d69f8f8f744d",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "ecd3b65bae0c450bba5e2450292468adfb6d62434e3811d63d4c8c82cf25669a",
+        "comparison_with_fixed_route": "different"
+      }
+    ]
+  },
+  {
+    "example": "checkout-choice",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "3d436f05c1cd09892fa52c2d63f899c6ee9a194b4586f1286a8edbe694464f96",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "selection-context",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "7ce2fe62a6a0037d9397982e0fd90853bfce520deb1a742bf40dbfd33e241347",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "task.json",
+        "sha256": "4913a908b672cbe3eacd21bb85a97a0cc37523c2f2aec3aa1ece1e7341ccbca4",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "eb58cb4b190a1266d259164dc9bf99db6b89c95696153370b20432b2fd9f48cd",
+        "comparison_with_fixed_route": "different"
+      }
+    ]
+  },
+  {
+    "example": "data-helpers",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "c875ffbd416fd13b0509a619cb51526f637f02ab30e10751170ad61b3c555941",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "settings-grants",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "cb9f106e6fb24c4410e33c6cf8ece8755344066fc89fd4cade97632322171a79",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "179a7d205f7b59213b2ffd0014e5b6d819fae2ca3d5eaec646f5442519897fc6",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "eb58cb4b190a1266d259164dc9bf99db6b89c95696153370b20432b2fd9f48cd",
+        "comparison_with_fixed_route": "different"
+      }
+    ]
+  },
+  {
+    "example": "claude-question",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "253ecb7a3b156b67316c907cbb690be7850cd6211d0bad6d5fd7c84dce41dd19",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "392e590617fd9d5e88d52e6028ba41ecd5f7e7641885ca8c8faf37d411fa5854",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/claude",
+        "sha256": "39a5f041cbffddbcc0594b1a29466d5f3a96fe5aa1624a0e7ab3c7bedd21f511",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "codex-question",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "8c7106332ef0211725e900392edc367c447a794d5e3344433f72f014f716274a",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "answer-schema.json",
+        "sha256": "65dd62eeea767b6d7732edf495ae78b654750b646d894e4dfccf59f0deb6b867",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "0151d22cc3d99f86d3df2099a6dd80905b4308d5843df3c56e08b18f69868813",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/codex",
+        "sha256": "7b0da5f2126647b6bacda3484e10839fa1c3a2846cc3a33cc0af26c3d7da84df",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/fake-agent",
+        "sha256": "f26e873613ddbaf11bf649ddf964726af80bdd85cb9f92fc3e45f3c15f81585d",
+        "comparison_with_fixed_route": "same"
+      }
+    ]
+  },
+  {
+    "example": "interactive-routes",
+    "files": [
+      {
+        "path": "settings.json",
+        "sha256": "6a8fb8cf976bc83815a174f42b1249f424b68a7f8209e507bde01b48ae20dcfe",
+        "comparison_with_fixed_route": "same"
+      },
+      {
+        "path": "config.rhai",
+        "sha256": "a3e400121892efffdc5bd39092c17a22e79a2681fddc063d98c1e79f968a0ec0",
+        "comparison_with_fixed_route": "different"
+      },
+      {
+        "path": "bin/claude",
+        "sha256": "c11d295599632b462561e11fc2820b125ec9850a84bb1d4f26aad776b78e22ab",
+        "comparison_with_fixed_route": "additional"
+      },
+      {
+        "path": "bin/codex",
+        "sha256": "c11d295599632b462561e11fc2820b125ec9850a84bb1d4f26aad776b78e22ab",
+        "comparison_with_fixed_route": "additional"
+      }
+    ]
+  }
+]

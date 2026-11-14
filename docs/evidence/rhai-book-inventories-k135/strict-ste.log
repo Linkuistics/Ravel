@@ -1,0 +1,3 @@
+task: [docs:ste] bash scripts/ste.sh --strict docs/book/src/04-write-a-configuration-script.md
+ste: docs/book/src/04-write-a-configuration-script.md: 0 problems
+ste: 0 problems in 1 files

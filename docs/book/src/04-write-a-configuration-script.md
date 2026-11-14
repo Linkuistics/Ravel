@@ -523,9 +523,11 @@ No managed process starts, and Ravel tries no other route.
 The caller receives no result.
 
 The next example is `refusals`. Make its directory as for `fixed-route`:
-`~/ravel-chapter-4/refusals`, with a `bin` subdirectory. It has the same two
-file paths. `bin/fake-agent` has the same contents, but `config.rhai` is
-different. The example has three command blocks. Run them in order:
+`~/ravel-chapter-4/refusals`, with a `bin` subdirectory. It has the same three
+file paths. `settings.json` and `bin/fake-agent` have the same contents.
+`config.rhai` is different.
+
+The example has three command blocks. Run them in order:
 
 - The first block makes `home` and `tmp`, then asks with the kind `question`.
 - The second block asks with the kind `unknown`.
@@ -702,7 +704,7 @@ sends that result with `end-session`. With `--json`, the JSON routing notice
 holds the captured text in its `diagnostics` member.
 
 The next example is `print-and-parse`, in `~/ravel-chapter-4/print-and-parse`
-with a `bin` subdirectory. It has a third file, `broken.rhai`, beside
+with a `bin` subdirectory. It has a fourth file, `broken.rhai`, beside
 `config.rhai`. `broken.rhai` is a second configuration script with a syntax
 error. `bin/fake-agent` is the same as in `fixed-route`. The second command
 block selects `broken.rhai` with `--config broken.rhai`.
@@ -852,8 +854,9 @@ A function reads a top-level constant through `global::`, as the next example
 shows. `let` declares a local variable that the script can change.
 
 The next example is `route-table`, in `~/ravel-chapter-4/route-table` with a
-`bin` subdirectory. It has the same two file paths as `fixed-route`, but both
-files are different. This `bin/fake-agent` sends its first two arguments,
+`bin` subdirectory. It has the same three file paths as `fixed-route`.
+`settings.json` has the same contents. The other two files are different.
+This `bin/fake-agent` sends its first two arguments,
 joined by `|`. The three command blocks ask with the kinds `question`,
 `feature` and `other`.
 
@@ -993,7 +996,7 @@ Ravel embeds no Rhai module of its own. Imports name files, which can be
 copies of the shipped examples.
 
 The next example is `imports`, in `~/ravel-chapter-4/imports` with a `bin`
-subdirectory. It has a third file, `routes.rhai`, beside `config.rhai`.
+subdirectory. It has a fourth file, `routes.rhai`, beside `config.rhai`.
 `routes.rhai` is the module that `config.rhai` imports. `bin/fake-agent` is
 the same as in `route-table`. The command is the same as in `fixed-route`,
 with the prompt `hello`.
@@ -1087,9 +1090,9 @@ Rhai string operations. No special choice-file API is necessary.
 The next example uses a smaller choice rule so you can test every branch.
 
 The next example is `checkout-choice`, in `~/ravel-chapter-4/checkout-choice`
-with a `bin` subdirectory. It has the same two file paths as `fixed-route`.
-`bin/fake-agent` has the same contents, but `config.rhai` is different. The
-example directory stands for the caller's repository. Do not save a
+with a `bin` subdirectory. It has the same three file paths as `fixed-route`.
+`settings.json` and `bin/fake-agent` have the same contents. `config.rhai` is different.
+The example directory stands for the caller's repository. Do not save a
 `.ravel-choice` file:
 
 - The first command block runs without `.ravel-choice`.
@@ -1284,7 +1287,7 @@ Attributed `sources` describe claims. `measured` records the bytes Ravel read.
 Neither measurement establishes that a claim is true.
 
 The next example is `selection-context`, in
-`~/ravel-chapter-4/selection-context` with a `bin` subdirectory. It has a third
+`~/ravel-chapter-4/selection-context` with a `bin` subdirectory. It has a fourth
 file, `task.json`, beside `config.rhai`. `task.json` holds the task data that
 the loader reads from the caller's working directory. This `bin/fake-agent`
 sends its first three arguments, joined by `|`. The command uses the kind
@@ -1409,9 +1412,9 @@ Ravel also refuses non-finite numbers. Arrays and maps nest at most 100 levels.
 A JSON integer outside the signed 64-bit range becomes a float.
 
 The next example is `data-helpers`, in `~/ravel-chapter-4/data-helpers` with a
-`bin` subdirectory. It has the same two file paths as `fixed-route`.
-`bin/fake-agent` has the same contents, but `config.rhai` is different. The
-command is the same as in `fixed-route`, with the prompt `hello`.
+`bin` subdirectory. It has the same three file paths as `fixed-route`.
+`settings.json` and `bin/fake-agent` have the same contents. `config.rhai` is different.
+The command is the same as in `fixed-route`, with the prompt `hello`.
 
 Complete example: check data, handle a failed check, and encode the result.
 
@@ -1563,8 +1566,8 @@ An ungranted name throws `env_not_granted`, even if it is unset.
 A value outside UTF-8 throws `env_not_utf8`.
 
 The next example is `settings-grants`, in `~/ravel-chapter-4/settings-grants`
-with a `bin` subdirectory. It has a third file, `settings.json`, at the top
-of the example directory. This `bin/fake-agent` sends its first three
+with a `bin` subdirectory. It has the same three file paths as `fixed-route`.
+All three files have different contents. This `bin/fake-agent` sends its first three
 arguments, joined by `|`. The command block has three lines:
 
 - The first line prepares the directories and executable files.
@@ -2258,8 +2261,8 @@ Ravel supervises the selected process group. A process that leaves that group
 is outside its cleanup.
 
 The next example is `interactive-routes`, in
-`~/ravel-chapter-4/interactive-routes` with a `bin` subdirectory. It has three
-files: `config.rhai`, a fake Claude Code at `bin/claude` and a fake Codex at
+`~/ravel-chapter-4/interactive-routes` with a `bin` subdirectory. It has four
+files: `settings.json`, `config.rhai`, a fake Claude Code at `bin/claude` and a fake Codex at
 `bin/codex`. `bin` comes first on the search path, so neither real harness
 runs. Each fake sends all its arguments as the result, one per line, each in
 `<` and `>`.

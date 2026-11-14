@@ -1,4 +1,4 @@
-# rhai-book-inside-k134
+# rhai-book-inside-k136
 
 
 ## Goal
@@ -61,3 +61,21 @@ This is the whole-document proof left after the completed measurement child, not
 It has no normal successor editorial stage.
 The owner Read 2 leaf belongs outside the editorial node after proof.
 No earlier task waived it. Preserve the ancestor's `out.err`.
+
+## Preparation now available
+
+The bounded k135 repair corrected chapter 4 saved-file inventories. Read
+`docs/evidence/rhai-book-inventories-k135/README.md` and its per-item records.
+Its final 437-input manifest differs from k132 only in chapter 4. All fenced
+chapter 4 blocks are unchanged. New build/example/excerpt/figure/STE/break checks
+and applicable controls passed with matching before/after digests.
+
+This is the first completed child of the decomposed proof, not a completed
+whole-document proof or another editorial correction run. No parent criterion
+was waived. Read all eleven chapters freshly together; the interrupted partial
+read of chapters 1–4 and chapter 5 through line 1450 is not completion evidence.
+Re-read the full contract, lessons and cited ADRs: earlier combined reads were
+incomplete. Consult the restored private STE PDF directly as needed.
+
+After the final proof, create the required owner Read 2 requirements leaf outside
+the editorial node. The proof must not substitute model responses for the owner.

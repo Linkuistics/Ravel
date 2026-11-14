@@ -1,0 +1,191 @@
+ste-test: ok: unchanged CONTEXT.md and SUMMARY.md pass
+ste-test: ok: long-sentence fails (Rule 6.3)
+ste-test: ok: sentence-at-limit passes
+ste-test: ok: long-step fails (Rule 5.1)
+ste-test: ok: long-paragraph fails (Rule 6.6)
+ste-test: ok: semicolon fails (Rule 8.1)
+ste-test: ok: contraction fails (Rule 4.2)
+ste-test: ok: normative fails (normative keyword)
+ste-test: ok: ing-word fails (Rule 3.5)
+ste-test: ok: decided-word fails (does not use)
+ste-test: ok: kept-phrase-part fails (Rule 3.5)
+ste-test: ok: kept-phrase passes
+ste-test: ok: code-span passes
+ste-test: ok: code-block passes
+ste-test: ok: avoid-line passes
+ste-test: ok: avoid-line-ing passes
+ste-test: ok: ing-word-beside-avoid fails (Rule 3.5)
+ste-test: ok: figure keys are not text
+ste-test: ok: figure text fails (Rule 8.1, Rule 3.5, a decided word)
+ste-test: ok: a removed decision row fails CONTEXT.md
+ste-test: ok: a decisions file with no tables is refused
+ste-test: ok: the report run exits 0 and counts the problem
+ste-test: ok: the default run reports a long sentence in chapter 07
+ste-test: ok: the old pattern 0[1-6] does not report chapter 07
+ste-test: ok: mutant no sentence limit: a control fails (long-sentence: the strict run passed)
+ste-test: ok: mutant no paragraph limit: a control fails (long-paragraph: the strict run passed)
+ste-test: ok: mutant no semicolon check: a control fails (semicolon: the strict run passed)
+ste-test: ok: mutant no contraction check: a control fails (contraction: the strict run passed)
+ste-test: ok: mutant no normative check: a control fails (normative: the strict run passed)
+ste-test: ok: mutant no -ing check: a control fails (ing-word: the strict run passed)
+ste-test: ok: mutant no decided words: a control fails (decided-word: the strict run passed)
+ste-test: ok: mutant no kept phrases: a control fails (unchanged CONTEXT.md and SUMMARY.md fail: /Users/antony/Development/AgenticOrche)
+ste-test: ok: mutant no code removal: a control fails (unchanged CONTEXT.md and SUMMARY.md fail: /Users/antony/Development/AgenticOrche)
+ste-test: ok: mutant no step limit: a control fails (long-step: the strict run passed)
+ste-test: ok: mutant no fence removal: a control fails (code-block: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000g)
+ste-test: ok: mutant no avoid lines: a control fails (unchanged CONTEXT.md and SUMMARY.md fail: /Users/antony/Development/AgenticOrche)
+breaks-test: ok: at-limit passes
+breaks-test: ok: over-limit fails
+breaks-test: ok: the report names the file, the lines, the count and the headings
+breaks-test: ok: the report names every heading in the run
+breaks-test: ok: no-break fails
+breaks-test: ok: figure-breaks passes
+breaks-test: ok: table-breaks passes
+breaks-test: ok: code-breaks passes
+breaks-test: ok: tilde-code-breaks passes
+breaks-test: ok: code-words-not-counted passes
+breaks-test: ok: a line in a code block is not a heading
+breaks-test: ok: heading-keeps fails
+breaks-test: ok: list-keeps fails
+breaks-test: ok: numbered-list-keeps fails
+breaks-test: ok: runs-count-apart passes
+breaks-test: ok: list-markers-not-words passes
+breaks-test: ok: numbered-markers-not-words passes
+breaks-test: ok: quote-markers-not-words passes
+breaks-test: ok: heading-text-not-words passes
+breaks-test: ok: list-words-count fails
+breaks-test: ok: quote-words-count fails
+breaks-test: ok: link-target-not-words passes
+breaks-test: ok: reference-definition-not-words passes
+breaks-test: ok: link-text-counts fails
+breaks-test: ok: comment-not-words passes
+breaks-test: ok: comment-lines-not-words passes
+breaks-test: ok: text-beside-comment-counts fails
+breaks-test: ok: a count for each file
+breaks-test: ok: only-headings passes
+breaks-test: ok: the report run exits 0 and names the run
+breaks-test: ok: the default run examines each of the 11 chapters
+breaks-test: ok: mutant no limit: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant limit one more: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant limit one less: a control fails (at-limit: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000)
+breaks-test: ok: mutant figure does not break: a control fails (figure-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2d)
+breaks-test: ok: mutant table does not break: a control fails (table-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw)
+breaks-test: ok: mutant code block does not break: a control fails (code-breaks: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0)
+breaks-test: ok: mutant heading breaks: a control fails (two-headings: the strict run passed)
+breaks-test: ok: mutant list breaks: a control fails (list-keeps: the strict run passed)
+breaks-test: ok: mutant blank line breaks: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant list and quote markers counted: a control fails (list-markers-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs)
+breaks-test: ok: mutant heading text counted: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.NIwtvZVkdf/pos)
+breaks-test: ok: mutant link targets counted: a control fails (link-target-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4)
+breaks-test: ok: mutant reference definitions counted: a control fails (reference-definition-not-words: the strict run failed: /var/folders/z1/nw_wk3)
+breaks-test: ok: mutant comments counted: a control fails (comment-not-words: the strict run failed: /var/folders/z1/nw_wk3gj3hqchs4_73x)
+breaks-test: ok: mutant no strict exit: a control fails (over-limit: the strict run passed)
+breaks-test: ok: mutant no headings in the report: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.OjCPy0w4iR/pos)
+breaks-test: ok: mutant no line numbers: a control fails (position: /var/folders/z1/nw_wk3gj3hqchs4_73xrf2dw0000gn/T/tmp.99JE6FvPkP/pos)
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+examples-test: ok: pass
+examples-test: ok: stdout_changed
+examples-test: ok: status_changed
+examples-test: ok: no_expected_output
+examples-test: ok: no_exit_status
+examples-test: ok: missing_fake_program
+examples-test: ok: without_worker
+examples-test: ok: missing_front
+examples-test: ok: unlabelled_runnable_block
+examples-test: ok: unlabelled_block_in_example
+examples-test: ok: unknown_label
+examples-test: ok: stderr_changed
+examples-test: ok: stderr_partial_is_not_exact
+examples-test: ok: stderr_includes_absent
+examples-test: ok: newline_mode
+examples-test: ok: only_the_scratch_root_is_normalised
+examples-test: ok: a_directive_fails
+examples-test: ok: file_after_command
+examples-test: ok: path_escape
+examples-test: ok: duplicate_file
+examples-test: ok: timeout
+examples-test: ok: environment_is_cleared
+examples-test: ok: nothing_personal_is_read
+examples-test: ok: empty_home_and_fakes_only
+examples-test: ok: directory_and_two_pages
+examples-test: ok: a_page_with_no_examples
+examples-test: ok: shapes_are_read
+examples-test: ok: fragment_covers_one_block
+examples-test: ok: prose_between_label_and_block
+examples-test: ok: unknown_and_bare_languages
+examples-test: ok: list_item_fences
+examples-test: ok: crlf_is_refused
+examples-test: ok: duplicate_result_blocks
+examples-test: ok: excerpt_blocks_agree
+examples-test: ok: excerpt_does_not_unlock_other_blocks
+examples-test: ok: empty_includes
+examples-test: ok: commands_run_in_numeric_order
+examples-test: ok: a_label_cannot_run_a_command
+examples-test: ok: stale_source
+examples-test: ok: cancellation_is_deterministic
+examples-test: ok: seam_matches_the_cli_tests
+examples-test: ok: seam_drift_is_noticed
+task: [build] cargo build --locked --workspace
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
+examples-test: mutant killed: status-ignored by control status_changed
+    control status_changed: the checker passed a wrong subject
+examples-test: mutant killed: stdout-ignored by control stdout_changed
+    control stdout_changed: the checker passed a wrong subject
+examples-test: mutant killed: includes-always by control stderr_includes_absent
+    control stderr_includes_absent: the checker passed a wrong subject
+examples-test: mutant killed: stale-source-accepted by control stale_source
+    control stale_source (crates/ravel/src/main.rs): the checker passed a wrong subject
+examples-test: mutant killed: rust-source-ignored by control stale_source
+    control stale_source (crates/ravel/src/main.rs): the checker passed a wrong subject
+examples-test: mutant killed: integration-tests-make-binary-stale by control stale_source
+    control fresh_source: the checker failed a good subject:
+examples-test: mutant killed: unlabelled-allowed by control unknown_and_bare_languages
+    control language_shell-session: the checker passed a wrong subject
+examples-test: mutant killed: rust-and-toml-allowed-bare by control unknown_and_bare_languages
+    control language_rust: the checker passed a wrong subject
+examples-test: mutant killed: excerpt-block-is-an-example by control excerpt_blocks_agree
+    control excerpt_page_examples: the checker failed a good subject:
+examples-test: mutant killed: excerpt-label-unlocks-every-block by control excerpt_does_not_unlock_other_blocks
+    control excerpt_then_bare_ts: failed, but not for the expected reason (wanted /a ts block sits outside a labelled example/):
+examples-test: mutant killed: bare-fence-allowed by control unknown_and_bare_languages
+    control language_bare: failed, but not for the expected reason (wanted /a fenced block has no language tag/):
+examples-test: mutant killed: environment-inherited by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: home-removed by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: tmpdir-removed by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: stdin-inherited by control environment_is_cleared
+    control environment_is_cleared: the seam leaked the caller's environment or standard input:
+examples-test: mutant killed: directive-ignored by control a_directive_fails
+    control a_directive_fails: the checker passed a wrong subject
+examples-test: mutant killed: no-timeout by control timeout
+    control timeout: the checker passed a wrong subject
+examples-test: mutant killed: page-errors-ignored by control unlabelled_runnable_block
+    control unlabelled_runnable_block: the checker passed a wrong subject
+examples-test: mutant killed: normalisation-disabled by control pass
+    control pass: the checker failed a good subject:
+examples-test: mutant killed: lexical-run-order by control commands_run_in_numeric_order
+    control commands_run_in_numeric_order: the checker failed a good subject:
+examples-test: mutant killed: fragment-covers-every-block by control fragment_covers_one_block
+    control fragment_covers_one_block: the checker passed a wrong subject
+examples-test: mutant killed: prose-keeps-label by control prose_between_label_and_block
+    control prose_between_label_and_block: the checker passed a wrong subject
+examples-test: mutant killed: blockquote-ignored by control shapes_are_read
+    control shapes_are_read: passed, but the summary lacks /^examples: 3 passed, 0 failed; 1 fragment/:
+examples-test: mutant killed: quote-depth-not-kept by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: tilde-fence-ignored by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: closer-length-ignored by control shapes_are_read
+    control shapes_are_read: the checker failed a good subject:
+examples-test: mutant killed: list-fence-allowed by control list_item_fences
+    control list_item_fences: failed, but not for the expected reason (wanted /a fence opened on a list-item line/):
+examples-test: mutant killed: duplicate-status-allowed by control duplicate_result_blocks
+    control duplicate_exit_status: the checker passed a wrong subject
+examples-test: mutant killed: crlf-allowed by control crlf_is_refused
+    control crlf_is_refused: the checker passed a wrong subject
+examples-test: mutant killed: label-path-unchecked by control a_label_cannot_run_a_command
+    control a_label_cannot_run_a_command: failed, but not for the expected reason (wanted /is not a plain relative path/):
+examples-test: 30 of 30 mutants killed
