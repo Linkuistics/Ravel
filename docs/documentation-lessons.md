@@ -1586,3 +1586,17 @@ L61 and L62 preserve those general lessons, with the Ravel corrections as exampl
 
 The owner then said, “I would like you to apply all the lessons before I proceed to Part II.”
 That instruction replaces the earlier timing choice. L42 records the current sequence: correct chapters 1–6, then resume the Part II read.
+
+## On the horizon
+
+On 2026-10-28, the owner proposed notebook-like tutorials and runnable examples.
+Such a tutorial might use only a formal structure.
+Explore readable steps with executable blocks and explicit prerequisites.
+Also explore shared state between steps, reset rules, and expected outputs or state checks.
+The existing Markdown example checker, `scripts/examples.sh`, is a starting point. No format is selected yet.
+
+Mechanical execution and the reader assessment are separate questions.
+The TestSubject lesson above states the owner's intended use of an LLM reader.
+Chapter 4 is the proposed first case. TestSubject is still pre-development in its own repository.
+
+**Source:** The root brief of this grove, “On the horizon”, promoted by `finish-k138` on 2026-11-14 before the grove was removed.
