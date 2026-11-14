@@ -1,0 +1,1090 @@
+{
+  "binary": "/opt/homebrew/Cellar/ravel/2.0.0/bin/ravel",
+  "config_sha256": "dae11e833f51a9a568446c64c436f3b6e88bd57c6cd52c70ccb5defd687a398a",
+  "subjects_before": {
+    "/Users/antony/.config/ravel": "d0c4ff8b0c9e7dc6a6416b83ee882db396e73d4f4e26a52f1640ff5bcf9dc0f7",
+    "/opt/homebrew/Cellar/ravel/2.0.0": "c2afa021b4d097a70f0bb9b9c833eef6eeb0edf25846a5b63ba7abb0979541f6",
+    "/opt/homebrew/Cellar/ravel/1.1.0": "54fa4ccc5d9bba48c6aeaef2dab403e9ebf596c5f156cdadda6542c08a85f6fc"
+  },
+  "subjects_after": {
+    "/Users/antony/.config/ravel": "d0c4ff8b0c9e7dc6a6416b83ee882db396e73d4f4e26a52f1640ff5bcf9dc0f7",
+    "/opt/homebrew/Cellar/ravel/2.0.0": "c2afa021b4d097a70f0bb9b9c833eef6eeb0edf25846a5b63ba7abb0979541f6",
+    "/opt/homebrew/Cellar/ravel/1.1.0": "54fa4ccc5d9bba48c6aeaef2dab403e9ebf596c5f156cdadda6542c08a85f6fc"
+  },
+  "rows": [
+    {
+      "case": "plain",
+      "kind": "requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46101 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46101 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "review-requirements",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46193 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46193 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "integrate-review-requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46271 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46271 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46536 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46536 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "review-design",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46572 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46572 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "integrate-review-design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46655 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46655 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46733 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46733 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "review-planning",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46805 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46805 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "integrate-review-planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46874 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46874 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46914 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46914 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "review-prototype",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -46992 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -46992 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "integrate-review-prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47101 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47101 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47170 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47170 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "review-impl",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47279 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47279 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "integrate-review-impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47351 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47351 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "research-a",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47482 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47482 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "research-b",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47594 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47594 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "combine-research",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47640 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47640 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "draft",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47711 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47711 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "copy-edit",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47809 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47809 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "art",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47863 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47863 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "proof",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -47927 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -47927 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "finish",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48145 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48145 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "plain",
+      "kind": "release-notes",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48184 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48184 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48281 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48281 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "review-requirements",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48343 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48343 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "integrate-review-requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48440 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48440 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48523 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48523 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "review-design",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48701 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48701 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "integrate-review-design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48745 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48745 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48838 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48838 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "review-planning",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48939 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48939 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "integrate-review-planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -48993 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -48993 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49065 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49065 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "review-prototype",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49211 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49211 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "integrate-review-prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49284 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49284 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49330 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49330 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "review-impl",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49408 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49408 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "integrate-review-impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49498 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49498 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "research-a",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49553 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49553 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "research-b",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49720 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49720 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "combine-research",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49891 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49891 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "draft",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -49959 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -49959 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "copy-edit",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50029 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50029 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "art",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50097 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50097 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "proof",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50179 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50179 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "finish",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50217 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50217 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "primary",
+      "kind": "release-notes",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50320 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50320 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50392 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50392 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "review-requirements",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50462 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50462 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "integrate-review-requirements",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "max",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50559 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50559 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50631 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50631 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "review-design",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50730 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50730 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "integrate-review-design",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50852 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50852 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -50951 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -50951 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "review-planning",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51054 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51054 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "integrate-review-planning",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51098 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51098 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51198 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51198 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "review-prototype",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51328 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51328 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "integrate-review-prototype",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51561 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51561 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51630 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51630 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "review-impl",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51746 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51746 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "integrate-review-impl",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51817 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51817 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "research-a",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -51904 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -51904 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "research-b",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52011 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52011 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "combine-research",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "xhigh",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52149 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52149 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "draft",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52228 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52228 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "copy-edit",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52288 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52288 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "art",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-terra",
+      "effort": "high",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52366 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52366 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "proof",
+      "program": "bili",
+      "harness": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52444 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52444 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "finish",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52531 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52531 signal 9: Operation not permitted (os error 1)"
+      ]
+    },
+    {
+      "case": "secondary",
+      "kind": "release-notes",
+      "program": "bili",
+      "harness": "claude",
+      "model": "claude-sonnet-5-5",
+      "effort": "medium",
+      "arguments": "exact match",
+      "prompt": "skill preamble plus exact caller block",
+      "stop_diagnostics": [
+        "stop attempt 1 target -52597 signal 9: Operation not permitted (os error 1)",
+        "stop attempt 2 target -52597 signal 9: Operation not permitted (os error 1)"
+      ]
+    }
+  ],
+  "skill_sources": [
+    {
+      "disposition": "captured",
+      "id": "design",
+      "resourceDigest": "d8ad3a2af1b5029bc0de93747f4d7297038651180f6877fbd738d94fcbf6aa14",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "engineering",
+      "resourceDigest": "7e70b280e7a932489a048d108d4dae2bc63b387cf8fc6b37298663336e0fcc66",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "grove-core",
+      "resourceDigest": "45e466d4a594f729d78e30f67b2f81fad42ee096dd12505d175aa8a6813e27f5",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "personal",
+      "resourceDigest": "dc1f26eafe9b7db6f750c95db38a7876beb29b067d829eaf63203323b89d61b6",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "quint",
+      "resourceDigest": "0a8b945fbc6732d5b7b3041a966d26cdf718ca884bd5f3fb8435297d7258edef",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "requirements",
+      "resourceDigest": "07b2d25e8bd20259c71f7419092329368d8ae48bec6ca973343a601a8ec515c8",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "research",
+      "resourceDigest": "7fb3d473f66feafb49afd8846fd94cf3e1fb7b01c584d4ad5f0e54814a8b3fdb",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "superpowers",
+      "resourceDigest": "be1ce6e3c25064b83ba2999b37972deb7f73ce88a5f5dbbba990d88037b17230",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "testanyware",
+      "resourceDigest": "3e9d7929eddd8988a6bebd9433b7f343a19e673993b3c81e8a1ce9ba913b72c6",
+      "type": "local"
+    },
+    {
+      "disposition": "captured",
+      "id": "writing",
+      "resourceDigest": "56bcd07b87f46a7b9ff92eed5a5a128f10d3ce64be2f7d934be898e058782212",
+      "type": "local"
+    }
+  ],
+  "sandbox_control": "real-home read denied; network denied by profile",
+  "unknown_kind": "status 3 incomplete_mapping; no fake launched",
+  "old_with_copied_settings": "status 2 settings_invalid; no fake launched",
+  "historical_comparison": "unavailable: original policy.ts absent"
+}

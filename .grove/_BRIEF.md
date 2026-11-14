@@ -118,6 +118,16 @@ design needs the settled requirements.
 
 ## Notes
 
+- `owner-policy-conversion-k39` verified the already-installed Rhai configuration
+  on 14 November 2026. All 72 fake-harness routing checks passed, including the
+  secondary jj workspace grant; the live configuration and both installed kegs
+  remained unchanged. The original `policy.ts` was absent, and 1.1.0 refused the
+  copied current settings. The owner accepted the current verification and
+  waived the unavailable historical comparison. The evidence and remaining
+  optional cleanup/settings choices are in
+  `docs/evidence/owner-policy-conversion-k39/README.md`; L87 records the reporting
+  lesson. No live installation or settings write remains for this leaf.
+
 - **Current reconciliation, 2026-11-14.** This workspace now descends from `main` at `d6d81765`, with its local stop note preserved.
   The owner confirmed the Part II exercises. `rhai-book-use-k74` records fresh independent checks and completes Read 1.
 

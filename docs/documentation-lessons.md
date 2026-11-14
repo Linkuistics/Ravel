@@ -1378,6 +1378,29 @@ Chapter 3 now names that copy and the old step. It tells the reader to remove th
 **Check:** List each fixed copy that the current text replaces, such as each published release of the document. Compare its instructions with the current text.
 For each difference that an external change caused, find the sentence in the current text that tells the old copy's reader what to do.
 
+### L87. Separate evidence of current behavior from evidence of a transition
+
+A check of the current system can pass after its earlier form has disappeared.
+That result establishes what works now. It cannot establish that a conversion
+preserved the earlier behavior, or that an earlier file was kept unchanged.
+When reporting a completed transition, name which claims require the earlier
+input and say whether that input was available. Keep those claims open until
+the input is recovered or the owner accepts a narrower completion criterion.
+
+**Source:** Session evidence, `owner-policy-conversion-k39`, 2026-11-14.
+
+**Ravel application:** The conversion task expected to compare `policy.ts`
+under 1.1.0 with a candidate Rhai file under 2.0.0. The live directory already
+contained the Rhai file and no TypeScript file. All 72 current routing checks
+passed, including the secondary jj directory grant. The evidence report
+separates those results from the unavailable old/new comparison. The owner
+accepted the current verification and waived the historical comparison before
+the task was closed.
+
+**Check:** For each preservation or equivalence claim in a transition report,
+name both compared inputs and the comparison result. If either input is
+missing, state the narrower claim that the available check supports.
+
 ### Disposition of the task's candidate readings
 
 These dispositions concern session analysis recorded in the task mandate. They are not additional owner decisions.
