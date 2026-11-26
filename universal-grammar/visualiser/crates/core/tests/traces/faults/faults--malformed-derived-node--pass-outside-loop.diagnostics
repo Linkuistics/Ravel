@@ -1,0 +1,2 @@
+error malformed-derived-node 123..127 "pass"
+    A `pass` is a child of a `loop` only.

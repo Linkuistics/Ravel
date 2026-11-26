@@ -1,0 +1,2 @@
+error node-out-of-order 65..73 "sequence"
+    The node `sequence` is out of order. The children of `trace` are one `sequence`, then the `prefix` nodes, then at most one `failure-point`, then the `reading` nodes.

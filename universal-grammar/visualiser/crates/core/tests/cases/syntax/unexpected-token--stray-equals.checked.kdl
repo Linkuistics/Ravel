@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=fb73afb56cd2745fbfbed6196368b68bb2d4539fb153c418ba10b9b6f9dd4819 {
+    start-rule name=a start=123 end=124
+    rule name=a start=127 end=128 {
+        sequence start=131 end=140 {
+            symbol value=x start=131 end=134
+            symbol value=y start=137 end=140
+        }
+    }
+    symbol value=x {
+        use rule=a start=131 end=134
+    }
+    symbol value=y {
+        use rule=a start=137 end=140
+    }
+    diagnostic severity=error code=unexpected-token message="unexpected `=`: expected a rule name, a symbol, `(`, an operator, `|` or `;`" start=135 end=136 line=4 column=9
+}

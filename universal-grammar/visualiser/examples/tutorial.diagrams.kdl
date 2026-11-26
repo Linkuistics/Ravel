@@ -1,0 +1,227 @@
+diagrams format-version=1 grammar-sha256="59de628ef10155e40c7695aff3aa161c188df78a83ac7c8263caa954ad0d70dc" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=tutorial width=886 height=128 {
+        start-event x=16 y=56 size=24
+        reference start=409 end=417 rule=overview x=64 y=50 width=84 height=36 one-step=#true {
+            label overview
+        }
+        reference start=418 end=423 rule=setup x=172 y=44 width=64 height=48 one-step=#false {
+            label setup
+        }
+        gateway role=loop-join start=424 end=431 x=260 y=56 size=24
+        reference start=424 end=430 rule=lesson x=308 y=44 width=68 height=48 one-step=#false {
+            label lesson
+        }
+        gateway role=loop-split start=424 end=431 x=400 y=56 size=24
+        reference start=432 end=441 rule=summarise x=448 y=50 width=92 height=36 one-step=#true {
+            label summarise
+        }
+        gateway role=option-split start=442 end=461 x=564 y=56 size=24
+        reference start=442 end=460 rule=suggest_next_steps x=612 y=50 width=162 height=36 one-step=#true {
+            label suggest_next_steps
+        }
+        gateway role=option-join start=442 end=461 x=798 y=56 size=24
+        end-event x=846 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 148 68 172 68 role=sequence
+        flow 236 68 260 68 role=sequence
+        flow 284 68 308 68 role=sequence
+        flow 376 68 400 68 role=sequence
+        flow 412 80 412 110 272 110 272 80 role=back start=424 end=431
+        flow 424 68 448 68 role=sequence
+        flow 540 68 564 68 role=sequence
+        flow 588 68 612 68 role=sequence
+        flow 576 56 576 16 810 16 810 56 role=skip start=442 end=461
+        flow 774 68 798 68 role=sequence
+        flow 822 68 846 68 role=sequence
+    }
+    diagram rule=setup width=512 height=122 {
+        start-event x=16 y=56 size=24
+        gateway role=loop-join start=546 end=554 x=64 y=56 size=24
+        reference start=546 end=553 rule=install x=112 y=50 width=76 height=36 one-step=#true {
+            label install
+        }
+        gateway role=loop-split start=546 end=554 x=212 y=56 size=24
+        gateway role=option-split start=555 end=565 x=260 y=56 size=24
+        reference start=555 end=564 rule=configure x=308 y=50 width=92 height=36 one-step=#true {
+            label configure
+        }
+        gateway role=option-join start=555 end=565 x=424 y=56 size=24
+        end-event x=472 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 112 68 role=sequence
+        flow 188 68 212 68 role=sequence
+        flow 224 80 224 104 76 104 76 80 role=back start=546 end=554
+        flow 236 68 260 68 role=sequence
+        flow 284 68 308 68 role=sequence
+        flow 272 56 272 16 436 16 436 56 role=skip start=555 end=565
+        flow 400 68 424 68 role=sequence
+        flow 448 68 472 68 role=sequence
+    }
+    diagram rule=lesson width=1030 height=135 {
+        start-event x=16 y=62 size=24
+        reference start=644 end=661 rule=introduce_concept x=64 y=56 width=154 height=36 one-step=#true {
+            label introduce_concept
+        }
+        gateway role=loop-join start=662 end=679 x=242 y=62 size=24
+        reference start=662 end=674 rule=show_example x=290 y=56 width=114 height=36 one-step=#true {
+            label show_example
+        }
+        gateway role=loop-split start=662 end=679 x=428 y=62 size=24
+        gateway role=skip-split start=680 end=689 x=476 y=62 size=24
+        gateway role=loop-join start=680 end=689 x=510 y=62 size=24
+        reference start=680 end=688 rule=practice x=558 y=50 width=84 height=48 one-step=#false {
+            label practice
+        }
+        gateway role=loop-split start=680 end=689 x=666 y=62 size=24
+        gateway role=skip-join start=680 end=689 x=700 y=62 size=24
+        gateway role=option-split start=690 end=710 x=748 y=62 size=24
+        reference start=690 end=709 rule=check_understanding x=796 y=50 width=122 height=48 one-step=#true {
+            label check_ understanding
+        }
+        gateway role=option-join start=690 end=710 x=942 y=62 size=24
+        end-event x=990 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 218 74 242 74 role=sequence
+        flow 266 74 290 74 role=sequence
+        flow 404 74 428 74 role=sequence
+        flow 440 86 440 110 254 110 254 86 role=back start=662 end=679 label="↻ 1–3" label-x=347 label-y=110
+        flow 452 74 476 74 role=sequence
+        flow 500 74 510 74 role=sequence
+        flow 534 74 558 74 role=sequence
+        flow 642 74 666 74 role=sequence
+        flow 678 86 678 116 522 116 522 86 role=back start=680 end=689
+        flow 690 74 700 74 role=sequence
+        flow 488 62 488 16 712 16 712 62 role=skip start=680 end=689
+        flow 724 74 748 74 role=sequence
+        flow 772 74 796 74 role=sequence
+        flow 760 62 760 16 954 16 954 62 role=skip start=690 end=710
+        flow 918 74 942 74 role=sequence
+        flow 966 74 990 74 role=sequence
+    }
+    diagram rule=practice width=668 height=122 {
+        start-event x=16 y=56 size=24
+        reference start=778 end=790 rule=set_exercise x=64 y=50 width=114 height=36 one-step=#true {
+            label set_exercise
+        }
+        gateway role=skip-split start=791 end=801 x=202 y=56 size=24
+        gateway role=loop-join start=791 end=801 x=236 y=56 size=24
+        reference start=791 end=800 rule=give_hint x=284 y=50 width=92 height=36 one-step=#true {
+            label give_hint
+        }
+        gateway role=loop-split start=791 end=801 x=400 y=56 size=24
+        gateway role=skip-join start=791 end=801 x=434 y=56 size=24
+        reference start=802 end=815 rule=show_solution x=482 y=50 width=122 height=36 one-step=#true {
+            label show_solution
+        }
+        end-event x=628 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 178 68 202 68 role=sequence
+        flow 226 68 236 68 role=sequence
+        flow 260 68 284 68 role=sequence
+        flow 376 68 400 68 role=sequence
+        flow 412 80 412 104 248 104 248 80 role=back start=791 end=801
+        flow 424 68 434 68 role=sequence
+        flow 214 56 214 16 446 16 446 56 role=skip start=791 end=801
+        flow 458 68 482 68 role=sequence
+        flow 604 68 628 68 role=sequence
+    }
+    diagram rule=overview width=212 height=90 {
+        start-event x=16 y=44 size=24
+        task start=917 end=927 symbol=overview x=64 y=38 width=84 height=36 {
+            label overview
+        }
+        end-event x=172 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 148 56 172 56 role=sequence
+    }
+    diagram rule=install width=204 height=90 {
+        start-event x=16 y=44 size=24
+        task start=988 end=997 symbol=install x=64 y=38 width=76 height=36 {
+            label install
+        }
+        end-event x=164 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 140 56 164 56 role=sequence
+    }
+    diagram rule=configure width=220 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1125 end=1136 symbol=configure x=64 y=38 width=92 height=36 {
+            label configure
+        }
+        end-event x=180 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 156 56 180 56 role=sequence
+    }
+    diagram rule=introduce_concept width=282 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1208 end=1227 symbol=introduce_concept x=64 y=38 width=154 height=36 {
+            label introduce_concept
+        }
+        end-event x=242 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 218 56 242 56 role=sequence
+    }
+    diagram rule=show_example width=242 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1296 end=1310 symbol=show_example x=64 y=38 width=114 height=36 {
+            label show_example
+        }
+        end-event x=202 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 178 56 202 56 role=sequence
+    }
+    diagram rule=set_exercise width=242 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1427 end=1441 symbol=set_exercise x=64 y=38 width=114 height=36 {
+            label set_exercise
+        }
+        end-event x=202 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 178 56 202 56 role=sequence
+    }
+    diagram rule=give_hint width=220 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1503 end=1514 symbol=give_hint x=64 y=38 width=92 height=36 {
+            label give_hint
+        }
+        end-event x=180 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 156 56 180 56 role=sequence
+    }
+    diagram rule=show_solution width=250 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1599 end=1614 symbol=show_solution x=64 y=38 width=122 height=36 {
+            label show_solution
+        }
+        end-event x=210 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 186 56 210 56 role=sequence
+    }
+    diagram rule=check_understanding width=250 height=102 {
+        start-event x=16 y=50 size=24
+        task start=1697 end=1718 symbol=check_understanding x=64 y=38 width=122 height=48 {
+            label check_ understanding
+        }
+        end-event x=210 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 186 62 210 62 role=sequence
+    }
+    diagram rule=summarise width=220 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1772 end=1783 symbol=summarise x=64 y=38 width=92 height=36 {
+            label summarise
+        }
+        end-event x=180 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 156 56 180 56 role=sequence
+    }
+    diagram rule=suggest_next_steps width=290 height=90 {
+        start-event x=16 y=44 size=24
+        task start=1852 end=1872 symbol=suggest_next_steps x=64 y=38 width=162 height=36 {
+            label suggest_next_steps
+        }
+        end-event x=250 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 226 56 250 56 role=sequence
+    }
+}

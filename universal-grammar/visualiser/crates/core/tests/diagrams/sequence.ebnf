@@ -1,0 +1,3 @@
+// A sequence: the items in a row, joined by flows.
+%start r ;
+r = "submit_order" "check_order" "ship" ;

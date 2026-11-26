@@ -1,0 +1,83 @@
+trace format-version=1 grammar-sha256=ac6ff8f28d0abaa315d2ed6ee7f18ba1fd9c50a109143c6e8b9f04c13d4234da reading-cap=10 {
+    sequence {
+        step opens
+        step asks
+        step answers
+        step asks
+        step answers
+        step asks
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=opens
+        next symbol=starts
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=asks
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=answers
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=asks
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=answers
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=asks
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=answers
+    }
+    reading parent=1 can-end=#false {
+        next symbol=answers {
+            occurrence start=102 end=111
+        }
+        rule name=dialogue {
+            step number=1 symbol=opens {
+                origin start=29 end=36
+            }
+            loop kind=tail-references pass-rule=question {
+                origin start=37 end=45
+                pass number=1 {
+                    rule name=question {
+                        origin start=37 end=45
+                        step number=2 symbol=asks {
+                            origin start=77 end=83
+                        }
+                        rule name=answer {
+                            origin start=84 end=90
+                            step number=3 symbol=answers {
+                                origin start=102 end=111
+                            }
+                        }
+                    }
+                }
+                pass number=2 {
+                    origin start=112 end=120
+                    rule name=question {
+                        origin start=112 end=120
+                        step number=4 symbol=asks {
+                            origin start=77 end=83
+                        }
+                        rule name=answer {
+                            origin start=84 end=90
+                            step number=5 symbol=answers {
+                                origin start=102 end=111
+                            }
+                        }
+                    }
+                }
+                pass number=3 {
+                    origin start=112 end=120
+                    rule name=question {
+                        origin start=112 end=120
+                        step number=6 symbol=asks {
+                            origin start=77 end=83
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

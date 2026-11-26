@@ -1,0 +1,2 @@
+error step-argument 53..59 "(tag)x"
+    The argument of a step is its symbol, as a KDL string without a type annotation.

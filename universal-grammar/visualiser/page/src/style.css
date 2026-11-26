@@ -1,0 +1,877 @@
+/*
+ * The font of the diagram labels: IBM Plex Mono Regular, under the SIL Open
+ * Font License 1.1 (fonts/IBMPlexMono-LICENSE.txt). The file is the complete
+ * face of the npm package @ibm/plex-mono 2.5.0. The rule names no local()
+ * source, because an installed copy can have other metrics.
+ */
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("./fonts/IBMPlexMono-Regular.woff2") format("woff2");
+}
+
+:root {
+  color-scheme: light dark;
+  --text: #1d2228;
+  --muted: #5d6670;
+  --surface: #ffffff;
+  --panel: #f4f6f8;
+  --line: #d5dae0;
+  --error: #b42318;
+  --warning: #9a6700;
+  --accent: #1f5fbf;
+  --shape: #ffffff;
+  --shape-line: #5f6878;
+  /* The colour of the reading markers and the next-option marks, as in the mock-ups. */
+  --mark: #0e7c66;
+  --mark-surface: #e3f4ef;
+  --on-mark: #ffffff;
+  /* The colour of a selection in both views: amber, distinct from the marks. */
+  --select: #b45309;
+  --select-surface: #fdf1e1;
+  font-family: system-ui, sans-serif;
+  line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e6e9ed;
+    --muted: #9aa4af;
+    --surface: #16191d;
+    --panel: #1f2328;
+    --line: #353b42;
+    --error: #ff7b72;
+    --warning: #e3b341;
+    --accent: #79b8ff;
+    --shape: #1f232b;
+    --shape-line: #9aa3b3;
+    --mark: #4fd1b5;
+    --mark-surface: #173a33;
+    --on-mark: #10231f;
+    --select: #f0a64a;
+    --select-surface: #3a2a14;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--surface);
+  color: var(--text);
+}
+
+header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+h3 {
+  margin: 1rem 0 0.25rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 800px) {
+  main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.editor {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  height: 28rem;
+  overflow: hidden;
+}
+
+.editor .cm-editor {
+  height: 100%;
+}
+
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  font-family: ui-monospace, monospace;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--line);
+}
+
+ul,
+ol {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.diagnostics li[data-severity="error"] {
+  color: var(--error);
+}
+
+.diagnostics li[data-severity="warning"] {
+  color: var(--warning);
+}
+
+.diagnostics button {
+  all: unset;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.diagnostics .place,
+.diagnostics .code {
+  font-family: ui-monospace, monospace;
+}
+
+.rules li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+
+.rule-name {
+  font-family: ui-monospace, monospace;
+}
+
+.start-mark,
+.badge {
+  white-space: nowrap;
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  color: var(--muted);
+}
+
+.badge.may-need-a-stack {
+  color: var(--warning);
+}
+
+.source {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.steps li {
+  font-family: ui-monospace, monospace;
+  /* A symbol can start or end with spaces. */
+  white-space: pre;
+}
+
+.steps li[data-state="unread"] {
+  color: var(--muted);
+}
+
+.steps li[data-state="rejected"] {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.grammar {
+  grid-row: span 2;
+}
+
+.output-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-bottom: 0.25rem;
+}
+
+.output-status {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.output-notes {
+  color: var(--warning);
+  font-size: 0.9rem;
+}
+
+.outline {
+  list-style: none;
+  padding: 0;
+  max-height: 32rem;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.outline .row {
+  display: flex;
+  gap: 0.25rem;
+  align-items: baseline;
+  /* Attributes and chips never change the height of a row. */
+  min-height: 1.6rem;
+  padding-right: 0.5rem;
+  border-left: 3px solid transparent;
+}
+
+.outline .row:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.outline .row[data-path] {
+  border-left-color: var(--accent);
+}
+
+.outline .gutter {
+  flex: none;
+  width: 3.5rem;
+  text-align: right;
+  padding-right: 0.5rem;
+  color: var(--muted);
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+}
+
+.outline .twisty {
+  all: unset;
+  flex: none;
+  width: 1rem;
+  margin-left: calc(var(--indent, 0) * 1.25rem);
+  cursor: pointer;
+  color: var(--muted);
+  text-align: center;
+}
+
+.outline .twisty[hidden] {
+  display: inline-block;
+  visibility: hidden;
+}
+
+.outline .twisty:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.outline .label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: baseline;
+  min-width: 0;
+}
+
+.outline .part.rule,
+.outline .part.loop,
+.outline .part.step {
+  font-family: ui-monospace, monospace;
+  white-space: pre;
+}
+
+.outline .part.loop {
+  color: var(--accent);
+}
+
+.outline .part.pass,
+.outline .part.note {
+  color: var(--muted);
+}
+
+.outline .row[data-kind~="rejected"] .part.step {
+  color: var(--error);
+  font-weight: 600;
+}
+
+.outline .right {
+  margin-left: auto;
+  padding-left: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.outline .chip {
+  font: inherit;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  cursor: pointer;
+}
+
+.outline .chip[data-allowed="other-readings"] {
+  border-style: dashed;
+  border-color: var(--muted);
+}
+
+.outline .row[data-last] .part.step {
+  font-weight: 600;
+}
+
+.outline .row {
+  cursor: default;
+}
+
+.outline .row[data-selected] {
+  background: var(--select-surface);
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+
+/* A fold row that holds selected rows stays folded, and it counts them. */
+.outline .row[data-selected-inside] {
+  box-shadow: inset 3px 0 0 var(--select);
+}
+
+/* The attribute chips of a step. They stay on one line, so a row keeps its height. */
+.outline .attribute {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  white-space: nowrap;
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.outline .attribute[data-reference="file"],
+.outline .attribute[data-reference="web"] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* The details panel under the output view. */
+
+.details {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.details h3 {
+  margin-top: 0;
+}
+
+.details .detail + .detail {
+  border-top: 1px solid var(--line);
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+}
+
+.details .detail-title {
+  margin: 0 0 0.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.95rem;
+}
+
+.details .detail-note,
+.details .details-empty {
+  margin: 0.25rem 0;
+  color: var(--muted);
+}
+
+.details .doc {
+  margin: 0.25rem 0;
+  white-space: pre-wrap;
+}
+
+.details .attributes {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.15rem 0.75rem;
+  margin: 0.25rem 0;
+}
+
+.details .attribute-item {
+  display: contents;
+}
+
+.details dt {
+  font-family: ui-monospace, monospace;
+  color: var(--muted);
+}
+
+.details dd {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  overflow-wrap: anywhere;
+}
+
+.details .annotation {
+  color: var(--muted);
+}
+
+.details .status {
+  margin-left: 0.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  color: var(--warning);
+}
+
+.details .reference-link {
+  color: var(--accent);
+}
+
+.details .folder {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+  color: var(--muted);
+}
+
+.details .folder[hidden] {
+  display: none;
+}
+
+/* The grammar view. */
+
+.grammar-view {
+  grid-column: 1 / -1;
+}
+
+.grammar-view-body {
+  display: grid;
+  grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 800px) {
+  .grammar-view-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.rule-index h3 {
+  margin-top: 0;
+}
+
+.rules button.rule-name {
+  all: unset;
+  cursor: pointer;
+  font-family: ui-monospace, monospace;
+  white-space: pre;
+}
+
+.rules button.rule-name:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.rules button.rule-name[aria-current] {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.view-note {
+  margin: 0 0 0.5rem;
+  color: var(--warning);
+}
+
+.breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: ui-monospace, monospace;
+}
+
+.breadcrumbs li + li::before {
+  content: "›";
+  padding: 0 0.4rem;
+  color: var(--muted);
+}
+
+.breadcrumbs button.crumb {
+  all: unset;
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.breadcrumbs button.crumb:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.breadcrumbs li[aria-current] .crumb {
+  font-weight: 700;
+}
+
+.diagram-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-top: 0.25rem;
+}
+
+.diagram-header h3 {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.zoom-controls {
+  margin-left: auto;
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.rule-doc p,
+.rule-doc details {
+  margin: 0.25rem 0;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.rule-doc summary {
+  cursor: pointer;
+}
+
+.diagram-frame {
+  margin-top: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+svg.diagram {
+  display: block;
+  width: 100%;
+  cursor: grab;
+}
+
+svg.diagram:focus {
+  outline: none;
+}
+
+/*
+ * Every label uses the bundled font at 13 px, without ligatures: the section
+ * "Labels and the font" of docs/specs/rule-diagrams.md. A label keeps its
+ * spaces, because symbols that differ only by spaces get different labels.
+ */
+svg.diagram text {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-variant-ligatures: none;
+  font-kerning: none;
+  white-space: pre;
+  fill: var(--text);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+svg.diagram .box .frame {
+  fill: var(--shape);
+  stroke: var(--shape-line);
+  stroke-width: 1.4;
+}
+
+svg.diagram .box.reference .frame {
+  stroke-width: 3.2;
+}
+
+/* A click on a box, a gateway of a repetition or a back flow selects it. */
+svg.diagram .box,
+svg.diagram .selectable {
+  cursor: pointer;
+}
+
+svg.diagram .box:focus {
+  outline: none;
+}
+
+svg.diagram .box:focus-visible .frame {
+  stroke: var(--accent);
+}
+
+svg.diagram .drill-down {
+  cursor: pointer;
+}
+
+svg.diagram .drill-down rect {
+  fill: var(--shape);
+  stroke: var(--shape-line);
+  stroke-width: 1.2;
+}
+
+svg.diagram .drill-down path {
+  stroke: var(--shape-line);
+  stroke-width: 1.8;
+}
+
+svg.diagram .loop-sign {
+  font-size: 11px;
+  text-anchor: start;
+  dominant-baseline: alphabetic;
+  fill: var(--muted);
+}
+
+svg.diagram .gateway,
+svg.diagram .start-event,
+svg.diagram .end-event {
+  fill: var(--shape);
+  stroke: var(--shape-line);
+  stroke-width: 1.4;
+}
+
+svg.diagram .end-event {
+  stroke-width: 3.6;
+}
+
+svg.diagram .flow .line {
+  fill: none;
+  stroke: var(--shape-line);
+  stroke-width: 1.4;
+}
+
+svg.diagram .arrowhead {
+  fill: var(--shape-line);
+}
+
+svg.diagram .flow-label {
+  fill: var(--muted);
+}
+
+svg.diagram .flow-label-background {
+  fill: var(--surface);
+}
+
+/* After an error in the grammar text, the diagrams of the last text without errors stay, dimmed. */
+.grammar-view[data-stale="true"] .breadcrumbs,
+.grammar-view[data-stale="true"] .diagram-header h3,
+.grammar-view[data-stale="true"] .rule-doc,
+.grammar-view[data-stale="true"] .diagram-frame,
+.grammar-view[data-stale="true"] .rule-index ul {
+  opacity: 0.45;
+}
+
+/*
+ * The marks of a trace: docs/specs/rule-diagrams.md, section "Marks of a
+ * trace". A next-option mark is solid for the reading on view, and dashed for
+ * a next option that only other readings allow.
+ */
+.breadcrumbs .crumb-pass {
+  color: var(--mark);
+  font-weight: 600;
+}
+
+.failure-banner {
+  margin: 0.5rem 0 0;
+  padding: 0.4rem 0.6rem;
+  border-left: 3px solid var(--error);
+  background: var(--panel);
+  color: var(--text);
+}
+
+.trace-note {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+}
+
+.trace-note .unlisted-option,
+.option-popover .popover-option {
+  font: inherit;
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--mark);
+  border-radius: 999px;
+  padding: 0 0.5rem;
+  cursor: pointer;
+}
+
+.option-popover .popover-option[data-style="dashed"] {
+  border-style: dashed;
+}
+
+.option-popover {
+  position: fixed;
+  z-index: 10;
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.18);
+}
+
+.option-popover .popover-heading {
+  margin: 0 0 0.3rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.option-popover .option-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.option-popover .popover-end {
+  font-family: ui-monospace, monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* The selection: an amber outline, distinct from the marks. */
+svg.diagram .selection {
+  fill: none;
+  stroke: var(--select);
+  stroke-width: 2.6;
+}
+
+svg.diagram .selection-line {
+  fill: none;
+  stroke: var(--select);
+  stroke-width: 5;
+  opacity: 0.55;
+}
+
+/* A wide path without paint takes the clicks near a thin flow. */
+svg.diagram .flow .hit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 10;
+  pointer-events: stroke;
+}
+
+/* The data object of the step in focus, joined to its box by a dotted association. */
+svg.diagram .data-object {
+  cursor: pointer;
+}
+
+svg.diagram .data-object .page,
+svg.diagram .data-object .page-fold {
+  fill: var(--shape);
+  stroke: var(--shape-line);
+  stroke-width: 1.2;
+}
+
+svg.diagram .data-object .association {
+  fill: none;
+  stroke: var(--shape-line);
+  stroke-width: 1.2;
+  stroke-dasharray: 2 3;
+}
+
+svg.diagram .data-object .data-count {
+  font-size: 11px;
+  fill: var(--muted);
+  dominant-baseline: middle;
+}
+
+svg.diagram .option-mark {
+  fill: var(--mark-surface);
+  stroke: var(--mark);
+  stroke-width: 2;
+}
+
+svg.diagram .option-mark[data-style="dashed"] {
+  fill: none;
+  stroke-dasharray: 4 3;
+}
+
+svg.diagram .flow[data-option] .line {
+  stroke: var(--mark);
+  stroke-width: 2.4;
+}
+
+svg.diagram .flow[data-option="dashed"] .line {
+  stroke-dasharray: 4 3;
+}
+
+svg.diagram .pass-label {
+  fill: var(--mark);
+  font-weight: 600;
+}
+
+svg.diagram .marker-tab .tab-shape {
+  fill: var(--surface);
+  stroke: var(--mark);
+  stroke-width: 1.4;
+}
+
+svg.diagram .marker-tab[data-filled="true"] .tab-shape {
+  fill: var(--mark);
+}
+
+svg.diagram .marker-tab .tab-number {
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--mark);
+}
+
+svg.diagram .marker-tab[data-filled="true"] .tab-number {
+  fill: var(--on-mark);
+}
+
+svg.diagram .next-button {
+  cursor: pointer;
+}
+
+svg.diagram .next-button rect {
+  fill: var(--mark);
+}
+
+svg.diagram .next-button[data-style="dashed"] rect {
+  fill: var(--surface);
+  stroke: var(--mark);
+  stroke-dasharray: 2 2;
+}
+
+svg.diagram .next-button text {
+  font-size: 9px;
+  fill: var(--on-mark);
+}
+
+svg.diagram .next-button[data-style="dashed"] text {
+  fill: var(--mark);
+}
+
+svg.diagram .event:focus {
+  outline: none;
+}
+
+svg.diagram .event:focus-visible circle {
+  stroke: var(--accent);
+}

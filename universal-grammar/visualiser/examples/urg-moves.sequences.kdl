@@ -1,0 +1,11 @@
+/- kdl-version 2
+// Sequences for urg-moves.ebnf. Each argument is one step.
+// failure-point counts steps from 1. The tracer design sets the final fixture format.
+
+accepted "states the problem" "shows the simplest case" "adds a complication" "shows a failing case" "gives a remedy"
+accepted "refers back" "states the problem" "proposes a solution" "identifies a gap" "revises the solution" "identifies a gap" "revises the solution" "gives an example" "gives an example" "generalises the example" "names the new concept"
+
+// The development starts with the simplest case or with a first solution.
+rejected "states the problem" "adds a complication" failure-point=2
+// Evidence against the hypothesis: one example before the generalisation.
+rejected "states the problem" "shows the simplest case" "gives an example" "generalises the example" failure-point=4

@@ -1,0 +1,3 @@
+trace format-version=1 colour=red {
+    sequence
+}

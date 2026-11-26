@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256=f1696f3aa4ab6fddb760d566e1b50c22d96e735bbda08292d4aca1df880d0dc0 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        doc text=doc start=13 end=22
+        symbol value=x start=25 end=28
+    }
+    symbol value=x {
+        use rule=a start=25 end=28
+    }
+    diagnostic severity=error code=malformed-string message="a multi-line string starts with a line break after its opening `\"\"\"`; write a one-line string as `\"…\"`" start=13 end=22 line=2 column=3
+}

@@ -1,0 +1,12 @@
+%doc "A tutorial in three parts." ;
+
+%start tutorial ;
+
+tutorial "The whole tutorial."
+    = install+ "configure"? lesson{1,5} ;
+
+install "Tell the reader how to install one tool."
+    = "install" ;
+
+lesson "Teach one concept with an example."
+    = "introduce_concept" "show_example" ;

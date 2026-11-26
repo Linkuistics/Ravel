@@ -1,0 +1,89 @@
+trace format-version=1 grammar-sha256=fc81d201957e875e354a57b34359b2bc7c606114308e2a809d4b7190144af31a reading-cap=10 {
+    sequence {
+        step y
+        step z
+        step x
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+    }
+    prefix steps=3 reading-count=2 cap-reached=#false can-end=#true {
+        next symbol=x
+    }
+    reading parent=1 can-end=#true {
+        next symbol=x {
+            occurrence start=18 end=21
+        }
+        loop kind=head-references pass-rule=a {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=y {
+                        origin start=24 end=27
+                    }
+                    loop kind=head-references pass-rule=a {
+                        origin start=28 end=29
+                        pass number=1 {
+                            rule name=a {
+                                origin start=28 end=29
+                                step number=2 symbol=z {
+                                    origin start=32 end=35
+                                }
+                            }
+                        }
+                        pass number=2 {
+                            origin start=16 end=17
+                            rule name=a {
+                                origin start=16 end=17
+                                step number=3 symbol=x {
+                                    origin start=18 end=21
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    reading parent=1 can-end=#true {
+        next symbol=x {
+            occurrence start=18 end=21
+        }
+        loop kind=head-references pass-rule=a {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=y {
+                        origin start=24 end=27
+                    }
+                    loop kind=head-references pass-rule=a {
+                        origin start=28 end=29
+                        pass number=1 {
+                            rule name=a {
+                                origin start=28 end=29
+                                step number=2 symbol=z {
+                                    origin start=32 end=35
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            pass number=2 {
+                origin start=16 end=17
+                rule name=a {
+                    origin start=16 end=17
+                    step number=3 symbol=x {
+                        origin start=18 end=21
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,27 @@
+checked-grammar format-version=2 grammar-sha256="1026b6b627a3f2b19c059cb92d727656d914707d3adcd9ee79460c113596a38f" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=46 {
+            symbol value="+.1" start=15 end=20
+            symbol value="-.5" start=21 end=26
+            symbol value="0x10" start=27 end=33
+            symbol value="true" start=34 end=40
+            symbol value="a=b" start=41 end=46
+        }
+    }
+    symbol value="+.1" {
+        use rule=a start=15 end=20
+    }
+    symbol value="-.5" {
+        use rule=a start=21 end=26
+    }
+    symbol value="0x10" {
+        use rule=a start=27 end=33
+    }
+    symbol value="true" {
+        use rule=a start=34 end=40
+    }
+    symbol value="a=b" {
+        use rule=a start=41 end=46
+    }
+}

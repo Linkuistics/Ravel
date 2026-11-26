@@ -1,0 +1,20 @@
+diagrams format-version=1 grammar-sha256="02377588b0bb83997cfdbe95376e56c0285ded44367ce7a3d91b742cc6e1d911" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=392 height=102 {
+        start-event x=16 y=56 size=24
+        gateway role=option-split start=64 end=73 x=64 y=56 size=24
+        task start=64 end=72 symbol=remind x=112 y=50 width=68 height=36 {
+            label remind
+        }
+        gateway role=option-join start=64 end=73 x=204 y=56 size=24
+        task start=74 end=83 symbol=approve x=252 y=50 width=76 height=36 {
+            label approve
+        }
+        end-event x=352 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 112 68 role=sequence
+        flow 76 56 76 16 216 16 216 56 role=skip start=64 end=73
+        flow 180 68 204 68 role=sequence
+        flow 228 68 252 68 role=sequence
+        flow 328 68 352 68 role=sequence
+    }
+}

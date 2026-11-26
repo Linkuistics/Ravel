@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="584" viewBox="0 0 1240 584">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--r:#1f4fa3;--s:#8a4500;--l:#6b3fa0;--fold:#eef0fb;--cur:#0e7c66;--curbg:#e3f4ef;
+--sel:#e0a800;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;--link:#0b5fc0;--note:#2b3445;
+--box:#ffffff;--boxl:#8d96a6;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--r:#8fb4ff;--s:#f0b37e;--l:#c9a8f7;--fold:#272b3e;
+--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;
+--link:#7cb7ff;--note:#d5dae3;--box:#1f232b;--boxl:#6c7484;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.t{fill:var(--t)} .m{fill:var(--m)} .r{fill:var(--r);font-weight:600} .s{fill:var(--s)}
+.l{fill:var(--l);font-weight:600} .p{fill:var(--cur);font-weight:600} .e{fill:var(--e);font-weight:600}
+.lk{fill:var(--link)} .b{font-weight:700} .i{font-style:italic} .sm{font-size:11px}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)} .rule{stroke:var(--line)}
+.fold{fill:var(--fold)} .curbar{fill:var(--cur)} .curbg{fill:var(--curbg)} .errbg{fill:var(--ebg)}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.5} .chip{fill:var(--chip)}
+.next{fill:var(--curbg);stroke:var(--cur)} .nexto{fill:none;stroke:var(--m);stroke-dasharray:3 3}
+.tw{fill:var(--m)} .call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .code{fill:var(--code);stroke:var(--line)}
+.box{fill:var(--box);stroke:var(--boxl);stroke-width:1.3} .flow{stroke:var(--boxl);stroke-width:1.3;fill:none}
+.back{stroke:var(--boxl);stroke-width:1.3;fill:none;stroke-dasharray:5 3}
+.marker{fill:var(--cur)} .nextmark{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.ah{fill:var(--boxl)} .data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.btn{fill:var(--hdr);stroke:var(--line)}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="24.0" y="32.0" class="h1" text-anchor="start" xml:space="preserve">The output view during a run of the tutorial grammar</text>
+<text x="24.0" y="52.0" class="m" text-anchor="start" xml:space="preserve">Agreed. 15 steps so far. The last step is step 15, in the second lesson.</text>
+<rect x="24.0" y="70.0" width="760.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">Output view</text>
+<rect x="134.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="145.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">‹</text>
+<rect x="160.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="171.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">›</text>
+<text x="190.3" y="94.0" class="t" text-anchor="start" xml:space="preserve">Reading 1 of 1</text>
+<text x="772.0" y="94.0" class="m sm" text-anchor="end" xml:space="preserve">15 steps  ·  cannot end yet</text>
+<rect x="80.0" y="114.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M90 123 L99 123 L94.5 128.5z" class="tw"/>
+<text x="104.0" y="131.0" xml:space="preserve"><tspan class="r">tutorial</tspan></text>
+<text x="72.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">1</text>
+<text x="108.0" y="157.0" xml:space="preserve"><tspan class="r">overview</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"overview"</tspan></text>
+<text x="72.0" y="183.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M108 175 L117 175 L112.5 180.5z" class="tw"/>
+<text x="122.0" y="183.0" xml:space="preserve"><tspan class="r">setup</tspan></text>
+<rect x="122.0" y="194.0" width="654.0" height="22.0" rx="5" class="fold"/>
+<text x="72.0" y="209.0" class="m mono sm" text-anchor="end" xml:space="preserve">2–3</text>
+<path d="M127 199 L132.5 203.5 L127 208z" class="tw"/>
+<text x="140.0" y="209.0" xml:space="preserve"><tspan class="l">install+</tspan><tspan class="m">  ·  </tspan><tspan class="m">2 passes  ·  2 steps</tspan></text>
+<text x="72.0" y="235.0" class="m mono sm" text-anchor="end" xml:space="preserve">4</text>
+<text x="126.0" y="235.0" xml:space="preserve"><tspan class="r">configure</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"configure"</tspan></text>
+<rect x="80.0" y="244.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="261.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M108 253 L117 253 L112.5 258.5z" class="tw"/>
+<text x="122.0" y="261.0" xml:space="preserve"><tspan class="l">lesson+</tspan></text>
+<text x="750.0" y="261.0" class="m sm" text-anchor="end" xml:space="preserve">pass 2  ·  1 or more passes</text>
+<rect x="122.0" y="272.0" width="654.0" height="22.0" rx="5" class="fold"/>
+<text x="72.0" y="287.0" class="m mono sm" text-anchor="end" xml:space="preserve">5–12</text>
+<path d="M127 277 L132.5 281.5 L127 286z" class="tw"/>
+<text x="140.0" y="287.0" xml:space="preserve"><tspan class="p">completed</tspan><tspan class="m">  ·  </tspan><tspan class="m">1 pass  ·  8 steps  ·  1 file</tspan></text>
+<rect x="80.0" y="296.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="313.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M126 305 L135 305 L130.5 310.5z" class="tw"/>
+<text x="140.0" y="313.0" xml:space="preserve"><tspan class="p">pass 2</tspan><tspan class="m">  ·  </tspan><tspan class="r">lesson</tspan></text>
+<text x="72.0" y="339.0" class="m mono sm" text-anchor="end" xml:space="preserve">13</text>
+<text x="144.0" y="339.0" xml:space="preserve"><tspan class="r">introduce_concept</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"introduce_concept"</tspan></text>
+<rect x="140.0" y="350.0" width="636.0" height="22.0" rx="5" class="fold"/>
+<text x="72.0" y="365.0" class="m mono sm" text-anchor="end" xml:space="preserve">14</text>
+<path d="M145 355 L150.5 359.5 L145 364z" class="tw"/>
+<text x="158.0" y="365.0" xml:space="preserve"><tspan class="l">show_example{1,3}</tspan><tspan class="m">  ·  </tspan><tspan class="m">1 pass  ·  1 step  ·  1 link</tspan></text>
+<rect x="80.0" y="374.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="391.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M144 383 L153 383 L148.5 388.5z" class="tw"/>
+<text x="158.0" y="391.0" xml:space="preserve"><tspan class="l">practice*</tspan></text>
+<text x="772.0" y="391.0" class="m sm" text-anchor="end" xml:space="preserve">pass 1  ·  0 or more passes</text>
+<rect x="80.0" y="400.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="417.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M162 409 L171 409 L166.5 414.5z" class="tw"/>
+<text x="176.0" y="417.0" xml:space="preserve"><tspan class="p">pass 1</tspan><tspan class="m">  ·  </tspan><tspan class="r">practice</tspan></text>
+<rect x="176.0" y="428.0" width="600.0" height="22.0" rx="5" class="curbg"/>
+<rect x="80.0" y="426.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="443.0" class="m mono sm" text-anchor="end" xml:space="preserve">15</text>
+<text x="180.0" y="443.0" xml:space="preserve"><tspan class="r">set_exercise</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"set_exercise"</tspan></text>
+<rect x="412.1" y="430.0" width="174.1" height="18.0" rx="9" class="chip"/>
+<text x="419.1" y="443.0" class="lk mono sm" text-anchor="start" xml:space="preserve">▤ exercises/recursion.py</text>
+<line x1="32.0" y1="454.0" x2="776.0" y2="454.0" class="rule"/>
+<text x="72.0" y="471.0" class="m mono sm" text-anchor="end" xml:space="preserve">16</text>
+<text x="88.0" y="471.0" xml:space="preserve"><tspan class="m">next</tspan></text>
+<rect x="124.4" y="458.0" width="95.8" height="20.0" rx="10" class="next"/>
+<text x="132.4" y="472.0" class="s mono" text-anchor="start" xml:space="preserve">"give_hint"</text>
+<rect x="226.2" y="458.0" width="124.8" height="20.0" rx="10" class="next"/>
+<text x="234.2" y="472.0" class="s mono" text-anchor="start" xml:space="preserve">"show_solution"</text>
+<line x1="24.0" y1="490.0" x2="784.0" y2="490.0" class="rule"/>
+<text x="36.0" y="510.0" class="h2" text-anchor="start" xml:space="preserve">DETAILS</text>
+<text x="100.0" y="510.0" class="t" text-anchor="start" xml:space="preserve">Step 15  ·  set_exercise  ·  pass 1 of practice*, pass 2 of lesson+</text>
+<text x="48.0" y="536.0" class="mono" text-anchor="start" xml:space="preserve">file</text>
+<text x="134.0" y="536.0" class="m mono sm" text-anchor="start" xml:space="preserve">(url-reference)</text>
+<text x="260.0" y="536.0" xml:space="preserve"><tspan class="lk mono">exercises/recursion.py</tspan></text>
+<rect x="429.5" y="522.0" width="97.2" height="20.0" rx="4" class="btn"/>
+<text x="438.5" y="536.0" class="t sm" text-anchor="start" xml:space="preserve">Open folder…</text>
+<rect x="24" y="70" width="760" height="480.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="768.0" cy="153.0" r="9" class="call"/>
+<text x="768.0" y="157.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<circle cx="768.0" cy="205.0" r="9" class="call"/>
+<text x="768.0" y="209.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<circle cx="768.0" cy="257.0" r="9" class="call"/>
+<text x="768.0" y="261.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<circle cx="768.0" cy="283.0" r="9" class="call"/>
+<text x="768.0" y="287.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<circle cx="768.0" cy="309.0" r="9" class="call"/>
+<text x="768.0" y="313.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<circle cx="768.0" cy="439.0" r="9" class="call"/>
+<text x="768.0" y="443.0" class="callt" text-anchor="middle" xml:space="preserve">7</text>
+<circle cx="768.0" cy="467.0" r="9" class="call"/>
+<text x="768.0" y="471.0" class="callt" text-anchor="middle" xml:space="preserve">8</text>
+<circle cx="768.0" cy="506.0" r="9" class="call"/>
+<text x="768.0" y="510.0" class="callt" text-anchor="middle" xml:space="preserve">9</text>
+<text x="812.0" y="84.0" class="h2" text-anchor="start" xml:space="preserve">READING THE MOCK-UP</text>
+<circle cx="821.0" cy="102.0" r="9" class="call"/>
+<text x="821.0" y="106.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<text x="838.0" y="106.0" class="note" text-anchor="start" xml:space="preserve">The gutter numbers each step from 1. A fold shows its range</text>
+<text x="838.0" y="123.0" class="note" text-anchor="start" xml:space="preserve">of steps, so a step keeps its number.</text>
+<circle cx="821.0" cy="146.0" r="9" class="call"/>
+<text x="821.0" y="150.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<text x="838.0" y="150.0" class="note" text-anchor="start" xml:space="preserve">A loop that the reading has left folds into one row: the</text>
+<text x="838.0" y="167.0" class="note" text-anchor="start" xml:space="preserve">repetition as written, the count of passes, and the count of</text>
+<text x="838.0" y="184.0" class="note" text-anchor="start" xml:space="preserve">steps.</text>
+<circle cx="821.0" cy="207.0" r="9" class="call"/>
+<text x="821.0" y="211.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<text x="838.0" y="211.0" class="note" text-anchor="start" xml:space="preserve">The row of an open loop names the repetition as written in</text>
+<text x="838.0" y="228.0" class="note" text-anchor="start" xml:space="preserve">its rule. It shows the current pass and the bound.</text>
+<circle cx="821.0" cy="251.0" r="9" class="call"/>
+<text x="821.0" y="255.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<text x="838.0" y="255.0" class="note" text-anchor="start" xml:space="preserve">Completed passes fold into one row. Each count says what it</text>
+<text x="838.0" y="272.0" class="note" text-anchor="start" xml:space="preserve">counts: passes, steps, files.</text>
+<circle cx="821.0" cy="295.0" r="9" class="call"/>
+<text x="821.0" y="299.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<text x="838.0" y="299.0" class="note" text-anchor="start" xml:space="preserve">The current pass stays open. The teal bar marks the path from</text>
+<text x="838.0" y="316.0" class="note" text-anchor="start" xml:space="preserve">the start rule to the last step.</text>
+<circle cx="821.0" cy="339.0" r="9" class="call"/>
+<text x="821.0" y="343.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<text x="838.0" y="343.0" class="note" text-anchor="start" xml:space="preserve">A rule for one step shares a row with its step. A rule that</text>
+<text x="838.0" y="360.0" class="note" text-anchor="start" xml:space="preserve">can hold more steps never shares.</text>
+<circle cx="821.0" cy="383.0" r="9" class="call"/>
+<text x="821.0" y="387.0" class="callt" text-anchor="middle" xml:space="preserve">7</text>
+<text x="838.0" y="387.0" class="note" text-anchor="start" xml:space="preserve">Attributes show as chips on the step row. References come</text>
+<text x="838.0" y="404.0" class="note" text-anchor="start" xml:space="preserve">first. The row keeps its height.</text>
+<circle cx="821.0" cy="427.0" r="9" class="call"/>
+<text x="821.0" y="431.0" class="callt" text-anchor="middle" xml:space="preserve">8</text>
+<text x="838.0" y="431.0" class="note" text-anchor="start" xml:space="preserve">The next options of the state. A click appends that symbol,</text>
+<text x="838.0" y="448.0" class="note" text-anchor="start" xml:space="preserve">as in the grammar view.</text>
+<circle cx="821.0" cy="471.0" r="9" class="call"/>
+<text x="821.0" y="475.0" class="callt" text-anchor="middle" xml:space="preserve">9</text>
+<text x="838.0" y="475.0" class="note" text-anchor="start" xml:space="preserve">The details panel shows the row in focus: the selected row,</text>
+<text x="838.0" y="492.0" class="note" text-anchor="start" xml:space="preserve">or else the row of the last step.</text>
+<circle cx="40.0" cy="231.0" r="9" class="call"/>
+<text x="40.0" y="235.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+</svg>

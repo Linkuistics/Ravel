@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="68c29be0cba4c801fe5b5a432a04699b264bcf41486b8660353bab3953d61ebc" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        symbol value=submit start=23 end=31
+    }
+    rule name=order start=34 end=39 {
+        symbol value=cancel start=42 end=50
+    }
+    symbol value=submit {
+        use rule=order start=23 end=31
+    }
+    symbol value=cancel {
+        use rule=order start=42 end=50
+    }
+    diagnostic severity=error code=duplicate-rule message="The rule `order` is defined more than once. Join its bodies into one rule with `|`." start=34 end=39 line=3 column=1
+}

@@ -1,0 +1,27 @@
+flowchart TB
+  G["Start here: grammar text"]:::start --> P["parser and rule checks"]
+  P --> CG["checked grammar<br/>spans name the grammar elements"]
+  CG --> A["one position automaton per rule<br/>pass counts in the states<br/>loop events on the edges"]
+  A --> E["Earley sets<br/>one set per step read"]
+  E --> NX["next options, can end,<br/>failure point: exact"]
+  E --> F["shared packed forest<br/>method of Scott (2008)"]
+  F --> O["open layer<br/>every partial derivation<br/>of the steps read"]
+  O --> PR["projection<br/>by the tree rules"]
+  PR --> L["capped lists in one order<br/>first C+1 distinct trees"]
+  L --> R["readings<br/>up to the cap of 10"]
+  subgraph file["Trace file: KDL text"]
+    TW["sequence<br/>any program writes it"]:::written
+    TD["derived nodes<br/>only the core writes them"]:::derived
+  end
+  TW --> E
+  NX --> TD
+  R --> TD
+  subgraph boundary["WebAssembly boundary: typed objects"]
+    S["session operations<br/>open, read, back, insert,<br/>state, tree, save"]
+  end
+  NX --> S
+  R --> S
+  S --> PG["workbench page<br/>never parses KDL"]
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef written fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  classDef derived fill:#e8eefc,stroke:#3557b7,color:#1f3470

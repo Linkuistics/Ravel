@@ -1,0 +1,11 @@
+diagrams format-version=1 grammar-sha256=edc3827ff4520135878fe2b14746abc2de7a60ba8bde35d850bae38ceb3a9072 font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=242 height=90 {
+        start-event x=16 y=44 size=24
+        task start=83 end=97 symbol=submit_order x=64 y=38 width=114 height=36 {
+            label submit_order
+        }
+        end-event x=202 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 178 56 202 56 role=sequence
+    }
+}

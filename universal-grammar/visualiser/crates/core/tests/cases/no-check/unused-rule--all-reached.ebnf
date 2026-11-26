@@ -1,0 +1,4 @@
+%start order ;
+order = "submit" outcome ;
+outcome = "ship" | cancel ;
+cancel = "cancel" ;

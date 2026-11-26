@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="612" viewBox="0 0 1240 612">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--r:#1f4fa3;--s:#8a4500;--l:#6b3fa0;--fold:#eef0fb;--cur:#0e7c66;--curbg:#e3f4ef;
+--sel:#e0a800;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;--link:#0b5fc0;--note:#2b3445;
+--box:#ffffff;--boxl:#8d96a6;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--r:#8fb4ff;--s:#f0b37e;--l:#c9a8f7;--fold:#272b3e;
+--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;
+--link:#7cb7ff;--note:#d5dae3;--box:#1f232b;--boxl:#6c7484;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.t{fill:var(--t)} .m{fill:var(--m)} .r{fill:var(--r);font-weight:600} .s{fill:var(--s)}
+.l{fill:var(--l);font-weight:600} .p{fill:var(--cur);font-weight:600} .e{fill:var(--e);font-weight:600}
+.lk{fill:var(--link)} .b{font-weight:700} .i{font-style:italic} .sm{font-size:11px}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)} .rule{stroke:var(--line)}
+.fold{fill:var(--fold)} .curbar{fill:var(--cur)} .curbg{fill:var(--curbg)} .errbg{fill:var(--ebg)}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.5} .chip{fill:var(--chip)}
+.next{fill:var(--curbg);stroke:var(--cur)} .nexto{fill:none;stroke:var(--m);stroke-dasharray:3 3}
+.tw{fill:var(--m)} .call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .code{fill:var(--code);stroke:var(--line)}
+.box{fill:var(--box);stroke:var(--boxl);stroke-width:1.3} .flow{stroke:var(--boxl);stroke-width:1.3;fill:none}
+.back{stroke:var(--boxl);stroke-width:1.3;fill:none;stroke-dasharray:5 3}
+.marker{fill:var(--cur)} .nextmark{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.ah{fill:var(--boxl)} .data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.btn{fill:var(--hdr);stroke:var(--line)}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="24.0" y="32.0" class="h1" text-anchor="start" xml:space="preserve">Step attributes and file references</text>
+<text x="24.0" y="52.0" class="m" text-anchor="start" xml:space="preserve">Agreed. The output view shows chips and a details panel. The grammar view shows a data object.</text>
+<rect x="24.0" y="70.0" width="600.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">Before the folder is open</text>
+<text x="72.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve">14</text>
+<text x="90.0" y="131.0" xml:space="preserve"><tspan class="r">show_example</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"show_example"</tspan></text>
+<rect x="322.1" y="118.0" width="187.4" height="18.0" rx="9" class="chip"/>
+<text x="329.1" y="131.0" class="lk mono sm" text-anchor="start" xml:space="preserve">↗ doc.rust-lang.org/book/…</text>
+<rect x="515.5" y="118.0" width="60.7" height="18.0" rx="9" class="chip"/>
+<text x="522.5" y="131.0" class="m mono sm" text-anchor="start" xml:space="preserve">level=2</text>
+<rect x="86.0" y="142.0" width="530.0" height="22.0" rx="5" class="curbg"/>
+<rect x="80.0" y="140.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<rect x="84.0" y="141.0" width="532.0" height="24.0" rx="6" class="sel"/>
+<text x="72.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">15</text>
+<text x="90.0" y="157.0" xml:space="preserve"><tspan class="r">set_exercise</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"set_exercise"</tspan></text>
+<rect x="322.1" y="144.0" width="174.1" height="18.0" rx="9" class="chip"/>
+<text x="329.1" y="157.0" class="lk mono sm" text-anchor="start" xml:space="preserve">▤ exercises/recursion.py</text>
+<rect x="502.2" y="144.0" width="27.3" height="18.0" rx="9" class="chip"/>
+<text x="509.2" y="157.0" class="m m sm" text-anchor="start" xml:space="preserve">+2</text>
+<line x1="24.0" y1="172.0" x2="624.0" y2="172.0" class="rule"/>
+<text x="36.0" y="192.0" class="h2" text-anchor="start" xml:space="preserve">DETAILS</text>
+<text x="100.0" y="192.0" class="t" text-anchor="start" xml:space="preserve">Step 15  ·  set_exercise  ·  3 attributes</text>
+<text x="48.0" y="218.0" class="mono" text-anchor="start" xml:space="preserve">file</text>
+<text x="134.0" y="218.0" class="m mono sm" text-anchor="start" xml:space="preserve">(url-reference)</text>
+<text x="260.0" y="218.0" xml:space="preserve"><tspan class="lk mono">exercises/recursion.py</tspan></text>
+<rect x="429.5" y="204.0" width="97.2" height="20.0" rx="4" class="btn"/>
+<text x="438.5" y="218.0" class="t sm" text-anchor="start" xml:space="preserve">Open folder…</text>
+<text x="48.0" y="242.0" class="mono" text-anchor="start" xml:space="preserve">minutes</text>
+<text x="134.0" y="242.0" class="m mono sm" text-anchor="start" xml:space="preserve"></text>
+<text x="260.0" y="242.0" xml:space="preserve"><tspan class="t mono">20</tspan></text>
+<text x="48.0" y="266.0" class="mono" text-anchor="start" xml:space="preserve">solution</text>
+<text x="134.0" y="266.0" class="m mono sm" text-anchor="start" xml:space="preserve">(url-reference)</text>
+<text x="260.0" y="266.0" xml:space="preserve"><tspan class="t mono">/home/ann/solutions/r.py</tspan></text>
+<rect x="24" y="70" width="600" height="210.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="608.0" cy="127.0" r="9" class="call"/>
+<text x="608.0" y="131.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<circle cx="608.0" cy="153.0" r="9" class="call"/>
+<text x="608.0" y="157.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<circle cx="608.0" cy="188.0" r="9" class="call"/>
+<text x="608.0" y="192.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<rect x="636.0" y="70.0" width="580.0" height="38.0" rx="0" class="hdr"/>
+<text x="648.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">After the folder is open</text>
+<text x="684.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve">14</text>
+<text x="702.0" y="131.0" xml:space="preserve"><tspan class="r">show_example</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"show_example"</tspan></text>
+<rect x="934.1" y="118.0" width="187.4" height="18.0" rx="9" class="chip"/>
+<text x="941.1" y="131.0" class="lk mono sm" text-anchor="start" xml:space="preserve">↗ doc.rust-lang.org/book/…</text>
+<rect x="1127.5" y="118.0" width="60.7" height="18.0" rx="9" class="chip"/>
+<text x="1134.5" y="131.0" class="m mono sm" text-anchor="start" xml:space="preserve">level=2</text>
+<rect x="698.0" y="142.0" width="510.0" height="22.0" rx="5" class="curbg"/>
+<rect x="692.0" y="140.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<rect x="696.0" y="141.0" width="512.0" height="24.0" rx="6" class="sel"/>
+<text x="684.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">15</text>
+<text x="702.0" y="157.0" xml:space="preserve"><tspan class="r">set_exercise</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"set_exercise"</tspan></text>
+<rect x="934.1" y="144.0" width="174.1" height="18.0" rx="9" class="chip"/>
+<text x="941.1" y="157.0" class="lk mono sm" text-anchor="start" xml:space="preserve">▤ exercises/recursion.py</text>
+<rect x="1114.2" y="144.0" width="27.3" height="18.0" rx="9" class="chip"/>
+<text x="1121.2" y="157.0" class="m m sm" text-anchor="start" xml:space="preserve">+2</text>
+<line x1="636.0" y1="172.0" x2="1216.0" y2="172.0" class="rule"/>
+<text x="648.0" y="192.0" class="h2" text-anchor="start" xml:space="preserve">DETAILS</text>
+<text x="712.0" y="192.0" class="t" text-anchor="start" xml:space="preserve">Step 15  ·  set_exercise  ·  folder "tutorial-run" open</text>
+<text x="660.0" y="218.0" class="mono" text-anchor="start" xml:space="preserve">file</text>
+<text x="746.0" y="218.0" class="m mono sm" text-anchor="start" xml:space="preserve">(url-reference)</text>
+<text x="872.0" y="218.0" xml:space="preserve"><tspan class="lk mono">exercises/recursion.py</tspan></text>
+<rect x="1041.5" y="204.0" width="44.4" height="20.0" rx="4" class="btn"/>
+<text x="1050.5" y="218.0" class="t sm" text-anchor="start" xml:space="preserve">Open</text>
+<text x="660.0" y="242.0" class="mono" text-anchor="start" xml:space="preserve">minutes</text>
+<text x="746.0" y="242.0" class="m mono sm" text-anchor="start" xml:space="preserve"></text>
+<text x="872.0" y="242.0" xml:space="preserve"><tspan class="t mono">20</tspan></text>
+<text x="660.0" y="266.0" class="mono" text-anchor="start" xml:space="preserve">solution</text>
+<text x="746.0" y="266.0" class="m mono sm" text-anchor="start" xml:space="preserve">(url-reference)</text>
+<text x="872.0" y="266.0" xml:space="preserve"><tspan class="t mono">/home/ann/solutions/r.py</tspan></text>
+<rect x="636" y="70" width="580" height="210.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="1200.0" cy="188.0" r="9" class="call"/>
+<text x="1200.0" y="192.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<text x="648.0" y="298.0" class="m sm" text-anchor="start" xml:space="preserve">solution: a path that starts with / stays text. The page opens only</text>
+<text x="648.0" y="314.0" class="m sm" text-anchor="start" xml:space="preserve">web addresses and paths relative to the opened folder.</text>
+<circle cx="1200.0" cy="302.0" r="9" class="call"/>
+<text x="1200.0" y="306.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<rect x="24.0" y="336.0" width="600.0" height="170.0" rx="6" class="panel"/>
+<rect x="24.0" y="336.0" width="600.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="360.0" class="b" text-anchor="start" xml:space="preserve">Grammar view</text>
+<text x="144.0" y="360.0" class="m" text-anchor="start" xml:space="preserve">… › practice (pass 1)</text>
+<text x="612.0" y="496.0" class="m sm i" text-anchor="end" xml:space="preserve">sketch: the rule-diagram design sets the drawing</text>
+<circle cx="54" cy="452" r="9" class="box"/>
+<path d="M63.0 452.0 L94.0 452.0" class="flow" marker-end="url(#ah)"/>
+<rect x="96.0" y="432.0" width="140.0" height="40.0" rx="7" class="box"/>
+<text x="166.0" y="457.0" class="s mono" text-anchor="middle" xml:space="preserve">set_exercise</text>
+<path d="M159 418 L173 418 L173 426 L166 431 L159 426z" class="marker"/>
+<rect x="91.0" y="427.0" width="150.0" height="50.0" rx="9" class="sel"/>
+<path d="M274 386 L300 386 L308 394 L308 422 L274 422z" class="data"/>
+<path d="M300 386 L300 394 L308 394" class="assoc"/>
+<text x="291.0" y="410.0" class="m sm b" text-anchor="middle" xml:space="preserve">3</text>
+<path d="M274 412 L236 434" class="assoc"/>
+<text x="318.0" y="408.0" class="m sm" text-anchor="start" xml:space="preserve">3 attributes of step 15</text>
+<path d="M236.0 452.0 L274.0 452.0" class="flow" marker-end="url(#ah)"/>
+<text x="284.0" y="456.0" class="m" text-anchor="start" xml:space="preserve">…</text>
+<circle cx="608.0" cy="388.0" r="9" class="call"/>
+<text x="608.0" y="392.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<text x="652.0" y="340.0" class="h2" text-anchor="start" xml:space="preserve">READING THE MOCK-UP</text>
+<circle cx="661.0" cy="358.0" r="9" class="call"/>
+<text x="661.0" y="362.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<text x="678.0" y="362.0" class="note" text-anchor="start" xml:space="preserve">A web address shows its host and path. A click opens it in a new tab.</text>
+<circle cx="661.0" cy="385.0" r="9" class="call"/>
+<text x="661.0" y="389.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<text x="678.0" y="389.0" class="note" text-anchor="start" xml:space="preserve">A relative file reference shows its path. Other attributes follow as key=value chips</text>
+<text x="678.0" y="406.0" class="note" text-anchor="start" xml:space="preserve">while they fit, and "+2" counts the rest.</text>
+<circle cx="661.0" cy="429.0" r="9" class="call"/>
+<text x="661.0" y="433.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<text x="678.0" y="433.0" class="note" text-anchor="start" xml:space="preserve">Before any folder is open, the page cannot read the file. The panel offers the folder</text>
+<text x="678.0" y="450.0" class="note" text-anchor="start" xml:space="preserve">picker.</text>
+<circle cx="661.0" cy="473.0" r="9" class="call"/>
+<text x="661.0" y="477.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<text x="678.0" y="477.0" class="note" text-anchor="start" xml:space="preserve">After the person opens the folder of the trace file, the page resolves each relative</text>
+<text x="678.0" y="494.0" class="note" text-anchor="start" xml:space="preserve">reference against it.</text>
+<circle cx="661.0" cy="517.0" r="9" class="call"/>
+<text x="661.0" y="521.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<text x="678.0" y="521.0" class="note" text-anchor="start" xml:space="preserve">Other forms stay text, and the page never runs a value as a script.</text>
+<circle cx="661.0" cy="544.0" r="9" class="call"/>
+<text x="661.0" y="548.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<text x="678.0" y="548.0" class="note" text-anchor="start" xml:space="preserve">The grammar view draws a data object beside the task box of the step in focus, with</text>
+<text x="678.0" y="565.0" class="note" text-anchor="start" xml:space="preserve">the attribute count. It never moves a box.</text>
+</svg>

@@ -1,0 +1,24 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef lost fill:#fbeaea,stroke:#b42318,color:#7a1712
+  classDef kept fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  R["Start here: the one reading after seed,<br/>in the family of depth d with 2d + 1 rules"]:::start
+  subgraph list["Rejected: a list of every successor"]
+    direction TB
+    N["2^d successors through next:<br/>each level picks ri or ti"]
+    T["Depth 16: 65,536 successors,<br/>15.5 s for one uncapped step"]:::lost
+    N --> T
+  end
+  subgraph cut["Proposed: cut successors"]
+    direction TB
+    C["Cut below the first two new nodes,<br/>except the rules of the open path"]
+    O1["Open path s: 4 cut successors,<br/>marks r0 and t0"]:::kept
+    O2["Open path s › r0 › … › r63:<br/>66 cut successors, marks the box next of r63"]:::kept
+    M["Depth 64: at most 4.4 ms and<br/>503 projections visited"]:::kept
+    C --> O1
+    C --> O2
+    O1 --> M
+    O2 --> M
+  end
+  R -->|"1"| list
+  R -->|"2"| cut

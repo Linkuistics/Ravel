@@ -1,0 +1,128 @@
+trace format-version=1 grammar-sha256="3042d3dfdedb2ebc2959217716094b171b8e27578a088e43cc030fc364716358" reading-cap=10 {
+    sequence {
+        step submit_order
+        step check_order
+        step request_changes
+        step revise_order
+        step escalate
+        step remind
+        step escalate
+        step reject
+        step hand_back
+        step hand_back
+        step notify_rejection
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=submit_order
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=check_order
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=revise_order
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=5 reading-count=2 cap-reached=#false can-end=#false {
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=6 reading-count=2 cap-reached=#false can-end=#false {
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=7 reading-count=2 cap-reached=#false can-end=#false {
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=8 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=hand_back
+    }
+    prefix steps=9 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=hand_back
+    }
+    prefix steps=10 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=notify_rejection
+    }
+    prefix steps=11 reading-count=1 cap-reached=#false can-end=#true
+    reading parent=1 can-end=#true {
+        rule name=order {
+            step number=1 symbol=submit_order {
+                origin start=464 end=478
+            }
+            step number=2 symbol=check_order {
+                origin start=479 end=492
+            }
+            loop kind=repetition {
+                origin start=493 end=506
+                pass number=1 {
+                    rule name=revision {
+                        origin start=493 end=501
+                        step number=3 symbol=request_changes {
+                            origin start=646 end=663
+                        }
+                        step number=4 symbol=revise_order {
+                            origin start=664 end=678
+                        }
+                    }
+                }
+            }
+            rule name=outcome {
+                origin start=507 end=514
+                rule name=rejection {
+                    origin start=818 end=827
+                    step number=5 symbol=escalate {
+                        origin start=1353 end=1363
+                    }
+                    rule name=rejection {
+                        origin start=1364 end=1373
+                        loop kind=repetition {
+                            origin start=1327 end=1340
+                            pass number=1 {
+                                step number=6 symbol=remind {
+                                    origin start=1327 end=1335
+                                }
+                            }
+                        }
+                        step number=7 symbol=escalate {
+                            origin start=1353 end=1363
+                        }
+                        rule name=rejection {
+                            origin start=1364 end=1373
+                            step number=8 symbol=reject {
+                                origin start=1342 end=1350
+                            }
+                        }
+                        step number=9 symbol=hand_back {
+                            origin start=1374 end=1385
+                        }
+                    }
+                    step number=10 symbol=hand_back {
+                        origin start=1374 end=1385
+                    }
+                }
+                step number=11 symbol=notify_rejection {
+                    origin start=828 end=846
+                }
+            }
+        }
+    }
+}

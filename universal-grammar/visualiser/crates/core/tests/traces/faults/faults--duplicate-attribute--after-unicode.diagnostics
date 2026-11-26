@@ -1,0 +1,2 @@
+error duplicate-attribute 79..85 "file=b"
+    The step has a second attribute with the key "file".

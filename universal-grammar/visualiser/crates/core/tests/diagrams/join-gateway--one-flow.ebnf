@@ -1,0 +1,3 @@
+// A join gateway that receives only one flow is not drawn: the flow passes through its place.
+%start menu ;
+menu = "show_menu" ("quit" | "choose_item" menu) ;

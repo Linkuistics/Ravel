@@ -1,0 +1,4 @@
+%start a ;
+a = Rule_2 r ;
+Rule_2 = "x" ;
+r = "y" ;

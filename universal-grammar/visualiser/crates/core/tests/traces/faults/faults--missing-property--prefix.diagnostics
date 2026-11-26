@@ -1,0 +1,2 @@
+error missing-property 42..48 "prefix"
+    A `prefix` node needs the property `can-end`.

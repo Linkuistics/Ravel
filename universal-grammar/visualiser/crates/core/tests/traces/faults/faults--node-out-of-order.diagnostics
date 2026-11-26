@@ -1,0 +1,2 @@
+error node-out-of-order 29..35 "prefix"
+    The node `prefix` is out of order. The children of `trace` are one `sequence`, then the `prefix` nodes, then at most one `failure-point`, then the `reading` nodes.

@@ -1,0 +1,24 @@
+checked-grammar format-version=2 grammar-sha256="7d863ad2e80e1229dcbab86838b384735a46f5f75928336ea577b227a8317f70" {
+    start-rule name=order start=77 end=82
+    rule name=order start=85 end=90 {
+        sequence start=93 end=114 {
+            symbol value=submit_order start=93 end=107
+            reference name=decide start=108 end=114
+        }
+    }
+    rule name=decide start=117 end=123 {
+        choice start=126 end=146 {
+            symbol value=approve start=126 end=135
+            symbol value=reject start=138 end=146
+        }
+    }
+    symbol value=submit_order {
+        use rule=order start=93 end=107
+    }
+    symbol value=approve {
+        use rule=decide start=126 end=135
+    }
+    symbol value=reject {
+        use rule=decide start=138 end=146
+    }
+}

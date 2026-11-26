@@ -1,0 +1,2 @@
+error empty-symbol 53..55 "\"\""
+    The symbol of a step is empty.

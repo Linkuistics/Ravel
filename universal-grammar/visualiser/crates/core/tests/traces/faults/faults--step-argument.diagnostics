@@ -1,0 +1,2 @@
+error step-argument 48..52 "step"
+    A step takes exactly one argument, its symbol. This step has 0.

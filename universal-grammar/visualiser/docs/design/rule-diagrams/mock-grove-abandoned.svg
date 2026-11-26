@@ -1,0 +1,207 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1441" height="859" viewBox="0 0 1441 859">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--cur:#0e7c66;--curbg:#e3f4ef;--sel:#d99a00;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;
+--note:#2b3445;--box:#ffffff;--boxl:#5f6878;--gw:#ffffff;--ref:#1f4fa3;--frame:#c9ced8;
+--tok:#2f6fd6;--lbl:#f4f5f7;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;
+--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;--note:#d5dae3;--box:#1f232b;--boxl:#9aa3b3;
+--gw:#1f232b;--ref:#8fb4ff;--frame:#3a404c;--tok:#6ea8ff;--lbl:#232731;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;fill:var(--t)}
+.lab{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--t)}
+.labp{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.m{fill:var(--m)} .b{font-weight:700} .sm{font-size:11px} .e{fill:var(--e);font-weight:600}
+.cur{fill:var(--cur);font-weight:600} .refc{fill:var(--ref);font-weight:600}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)}
+.task{fill:var(--box);stroke:var(--boxl);stroke-width:1.4}
+.refbox{fill:var(--box);stroke:var(--boxl);stroke-width:3.2}
+.gw{fill:var(--gw);stroke:var(--boxl);stroke-width:1.4} .gwx{stroke:var(--boxl);stroke-width:1.8}
+.ev{fill:var(--box);stroke:var(--boxl);stroke-width:1.4} .evend{fill:var(--box);stroke:var(--boxl);stroke-width:3.6}
+.flow{stroke:var(--boxl);stroke-width:1.4;fill:none}
+.ah{fill:var(--boxl)} .drill{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.lblbg{fill:var(--bg)} .lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--m)}
+.tab{fill:var(--cur);stroke:var(--cur);stroke-width:1.2} .tabo{fill:var(--bg);stroke:var(--cur);stroke-width:1.4}
+.tabt{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--bg)} .tabto{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--cur)}
+.nextmark{fill:none;stroke:var(--cur);stroke-width:2} .nextmarko{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.nextbtn{fill:var(--cur)} .nextbtnt{font-size:10px;font-weight:700;fill:var(--bg)}
+.passbg{fill:var(--curbg);stroke:var(--cur);stroke-width:1} .passt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur);font-weight:600}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.6} .selflow{fill:none;stroke:var(--sel);stroke-width:5;opacity:.55}
+.backmark{fill:none;stroke:var(--cur);stroke-width:4;opacity:.45}
+.data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2} .assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.badge{fill:var(--chip)} .chip{fill:var(--curbg);stroke:var(--cur)} .chipt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur)}
+.pop{fill:var(--bg);stroke:var(--line)} .banner{fill:var(--ebg);stroke:var(--e)}
+.call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .nest{fill:none;stroke:var(--m);stroke-width:1;stroke-dasharray:3 3}
+.nestt{font-size:10px;fill:var(--m)} .tok{fill:var(--tok)} .tokt{font-size:10px;font-weight:700;fill:#fff}
+.code{fill:var(--code);stroke:var(--line)} .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.crumb{fill:var(--ref)} .rejbox{fill:none;stroke:var(--e);stroke-width:2;stroke-dasharray:4 3}
+.strike{fill:none;stroke:var(--m);stroke-width:1.3}
+.loopbar{fill:none;stroke:var(--cur);stroke-width:2.5;stroke-linecap:round}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="16" y="26" class="h1">Sketch: abandoned work as a withdrawn step</text>
+<text x="16" y="46" class="m">A leaf that the human abandoned stays in the sequence as a withdrawn step. The views show it, and the tracer does not read it, so the grammar needs no rule for</text>
+<text x="16" y="63" class="m">abandonment. Withdrawn steps wait until after the slice.</text>
+<text x="16" y="86" class="b">A real case: one node of the BookScanBuilder grove</text>
+<rect x="16" y="108" width="600" height="240" rx="8" class="panel"/>
+<text x="28" y="102" class="m sm">Output view, roughly: the node level-music-paper-arms-angular-costs, with its folds open</text>
+<text x="60" y="134" class="lbl" text-anchor="end">1</text>
+<text x="72" y="134" class="mono">impl · "impl"</text>
+<rect x="175.6" y="122" width="152.6" height="17" rx="8" class="chip"/>
+<text x="182.6" y="134" class="chipt">stream-inventory-k387</text>
+<circle cx="30.0" cy="130.0" r="9" class="call"/>
+<text x="30.0" y="134.0" class="callt" text-anchor="middle">1</text>
+<text x="60" y="156" class="lbl" text-anchor="end">2</text>
+<text x="72" y="156" class="mono">impl · "impl"</text>
+<rect x="175.6" y="144" width="126.2" height="17" rx="8" class="chip"/>
+<text x="182.6" y="156" class="chipt">availability-k388</text>
+<text x="60" y="178" class="lbl" text-anchor="end">3</text>
+<text x="72" y="178" class="mono">impl · "impl"</text>
+<rect x="175.6" y="166" width="93.2" height="17" rx="8" class="chip"/>
+<text x="182.6" y="178" class="chipt">readers-k391</text>
+<text x="60" y="200" class="lbl" text-anchor="end">4</text>
+<text x="72" y="200" class="mono">impl · "impl"</text>
+<rect x="175.6" y="188" width="93.2" height="17" rx="8" class="chip"/>
+<text x="182.6" y="200" class="chipt">checker-k392</text>
+<text x="60" y="222" class="lbl" text-anchor="end">5</text>
+<text x="72" y="222" class="mono m">"impl"</text>
+<path d="M72 218 h43.2" class="strike"/>
+<rect x="125.2" y="210" width="159.2" height="17" rx="8" class="chip"/>
+<text x="132.2" y="222" class="chipt">semantic-controls-k389</text>
+<text x="604" y="222" class="cur sm" text-anchor="end">withdrawn</text>
+<circle cx="30.0" cy="218.0" r="9" class="call"/>
+<text x="30.0" y="222.0" class="callt" text-anchor="middle">2</text>
+<text x="72" y="244" class="mono b">impl</text>
+<text x="60" y="266" class="lbl" text-anchor="end">6</text>
+<text x="88" y="266" class="mono">"impl"</text>
+<rect x="141.2" y="254" width="132.8" height="17" rx="8" class="chip"/>
+<text x="148.2" y="266" class="chipt">angular-costs-k390</text>
+<text x="88" y="288" class="mono">("review-impl" "integrate-review-impl")*</text>
+<text x="604" y="288" class="lbl" text-anchor="end">pass 1</text>
+<text x="60" y="310" class="lbl" text-anchor="end">7</text>
+<text x="104" y="310" class="mono">"review-impl"</text>
+<rect x="207.6" y="298" width="132.8" height="17" rx="8" class="chip"/>
+<text x="214.6" y="310" class="chipt">angular-costs-k393</text>
+<text x="60" y="332" class="lbl" text-anchor="end">8</text>
+<text x="104" y="332" class="mono">"integrate-review-impl"</text>
+<rect x="279.6" y="320" width="132.8" height="17" rx="8" class="chip"/>
+<text x="286.6" y="332" class="chipt">angular-costs-k394</text>
+<circle cx="639.0" cy="121.0" r="9" class="call"/>
+<text x="639.0" y="125.0" class="callt" text-anchor="middle">1</text>
+<text x="656" y="125" class="note">Each chip is the leaf of the step, an attribute</text>
+<text x="656" y="141" class="note">that the grammar never reads. The rows number</text>
+<text x="656" y="157" class="note">the steps from the start of the node, and the</text>
+<text x="656" y="173" class="note">leaf names drop the prefix of the node.</text>
+<circle cx="639.0" cy="195.0" r="9" class="call"/>
+<text x="639.0" y="199.0" class="callt" text-anchor="middle">2</text>
+<text x="656" y="199" class="note">The node holds nine leaves in this order. The</text>
+<text x="656" y="215" class="note">human abandoned the fifth, semantic-controls,</text>
+<text x="656" y="231" class="note">and the sixth, angular-costs, took its place</text>
+<text x="656" y="247" class="note">with a review.</text>
+<text x="16" y="382" class="b">A review that a review with changed content replaces</text>
+<rect x="16" y="404" width="600" height="218" rx="8" class="panel"/>
+<text x="28" y="398" class="m sm">Output view, roughly: this grove, if the human abandons the review of this design</text>
+<text x="72" y="430" class="mono">work*</text>
+<text x="604" y="430" class="lbl" text-anchor="end">pass 12</text>
+<text x="60" y="452" class="lbl" text-anchor="end">2–31</text>
+<text x="88" y="452" class="mono m">completed · 11 passes · 30 steps</text>
+<text x="88" y="474" class="mono m">pass 12</text>
+<text x="104" y="496" class="mono b">design</text>
+<text x="60" y="518" class="lbl" text-anchor="end">32</text>
+<text x="120" y="518" class="mono">"design"</text>
+<rect x="187.6" y="506" width="165.8" height="17" rx="8" class="chip"/>
+<text x="194.6" y="518" class="chipt">rule-diagram-design-k12</text>
+<text x="60" y="540" class="lbl" text-anchor="end">33</text>
+<text x="120" y="540" class="mono m">"review-design"</text>
+<path d="M120 536 h108.0" class="strike"/>
+<rect x="238.0" y="528" width="165.8" height="17" rx="8" class="chip"/>
+<text x="245.0" y="540" class="chipt">rule-diagram-design-k37</text>
+<text x="604" y="540" class="cur sm" text-anchor="end">withdrawn</text>
+<circle cx="30.0" cy="536.0" r="9" class="call"/>
+<text x="30.0" y="540.0" class="callt" text-anchor="middle">3</text>
+<text x="120" y="562" class="mono">("review-design" "integrate-review-design")*</text>
+<text x="604" y="562" class="lbl" text-anchor="end">pass 1</text>
+<text x="60" y="584" class="lbl" text-anchor="end">34</text>
+<text x="136" y="584" class="mono">"review-design"</text>
+<rect x="254.0" y="572" width="165.8" height="17" rx="8" class="chip"/>
+<text x="261.0" y="584" class="chipt">rule-diagram-design-k38</text>
+<circle cx="30.0" cy="580.0" r="9" class="call"/>
+<text x="30.0" y="584.0" class="callt" text-anchor="middle">4</text>
+<text x="60" y="606" class="lbl" text-anchor="end">35</text>
+<text x="136" y="606" class="mono">"integrate-review-design"</text>
+<rect x="326.0" y="594" width="165.8" height="17" rx="8" class="chip"/>
+<text x="333.0" y="606" class="chipt">rule-diagram-design-k39</text>
+<circle cx="639.0" cy="417.0" r="9" class="call"/>
+<text x="639.0" y="421.0" class="callt" text-anchor="middle">3</text>
+<text x="656" y="421" class="note">Step 33 keeps its number and its place, struck</text>
+<text x="656" y="437" class="note">through. It belongs to no node, as the rejected</text>
+<text x="656" y="453" class="note">step at a failure point does.</text>
+<circle cx="639.0" cy="475.0" r="9" class="call"/>
+<text x="639.0" y="479.0" class="callt" text-anchor="middle">4</text>
+<text x="656" y="479" class="note">The replacement review, step 34, fits the</text>
+<text x="656" y="495" class="note">grammar, so the tree stays well formed. A click</text>
+<text x="656" y="511" class="note">on row 33 outlines the boxes that it matched in</text>
+<text x="656" y="527" class="note">the state before it.</text>
+<rect x="16" y="644" width="1095.45" height="189.0" rx="8" class="panel"/>
+<text x="28" y="664" class="crumb">grove</text>
+<text x="68.375" y="664" class="m">›</text>
+<text x="82.375" y="664" class="crumb">work</text>
+<text x="115.875" y="664" class="m">›</text>
+<text x="129.875" y="664" class="b">design</text>
+<text x="28" y="682" class="m sm">The grammar view of the same state, after step 35.</text>
+<g transform="translate(28,691)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="56.0" width="68" height="36" rx="9" class="task"/>
+<text x="98.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">design</text>
+<path d="M132.0 74.0 L156.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M156 74.0 L168.0 62.0 L180 74.0 L168.0 86.0z" class="gw"/>
+<path d="M180.0 74.0 L190.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M190 74.0 L202.0 62.0 L214 74.0 L202.0 86.0z" class="gw"/>
+<path d="M214.0 74.0 L238.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="238" y="56.0" width="122" height="36" rx="9" class="task"/>
+<text x="299.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">review-design</text>
+<path d="M360.0 74.0 L384.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="384" y="50.0" width="122" height="48" rx="9" class="task"/>
+<text x="445.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">integrate-</text>
+<text x="445.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">review-design</text>
+<path d="M506.0 74.0 L530.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M530 74.0 L542.0 62.0 L554 74.0 L542.0 86.0z" class="gw"/>
+<path d="M542.0 86.0 L542.0 110.0 Q542.0 116.0 536.0 116.0 L208.0 116.0 Q202.0 116.0 202.0 110.0 L202.0 86.0" class="flow" marker-end="url(#ah)"/>
+<path d="M554.0 74.0 L564.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M564 74.0 L576.0 62.0 L588 74.0 L576.0 86.0z" class="gw"/>
+<path d="M168.0 62.0 L168.0 22.0 Q168.0 16.0 174.0 16.0 L570.0 16.0 Q576.0 16.0 576.0 22.0 L576.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M588.0 74.0 L612.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M612 74.0 L624.0 62.0 L636 74.0 L624.0 86.0z" class="gw"/>
+<path d="M636.0 74.0 L660.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="660" y="56.0" width="122" height="36" rx="9" class="task"/>
+<text x="721.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">review-design</text>
+<path d="M624.0 62.0 L624.0 28.0 Q624.0 22.0 630.0 22.0 L812.0 22.0 Q818.0 22.0 818.0 28.0 L818.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M782.0 74.0 L806.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M806 74.0 L818.0 62.0 L830 74.0 L818.0 86.0z" class="gw"/>
+<path d="M830.0 74.0 L854.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="866.0" cy="74.0" r="10.8" class="evend"/>
+<path d="M542.0 86.0 L542.0 110.0 Q542.0 116.0 536.0 116.0 L208.0 116.0 Q202.0 116.0 202.0 110.0 L202.0 86.0" class="backmark"/>
+<rect x="346.2" y="107.0" width="51.6" height="18" rx="9" class="passbg"/>
+<text x="372.0" y="120.0" class="passt" text-anchor="middle">pass 1</text>
+<rect x="234" y="52.0" width="130" height="44" rx="12" class="nextmark"/>
+<rect x="656" y="52.0" width="130" height="44" rx="12" class="nextmark"/>
+<rect x="768" y="47.0" width="18" height="15" rx="4" class="nextbtn"/>
+<text x="777" y="58.0" class="nextbtnt" text-anchor="middle">▸</text>
+<circle cx="866.0" cy="74.0" r="17.0" class="nextmark"/>
+<rect x="872.0" y="52.0" width="18" height="15" rx="4" class="nextbtn"/>
+<text x="881.0" y="63.0" class="nextbtnt" text-anchor="middle">▸</text>
+<text x="888.0" y="78.0" class="cur sm">then the next work, or finish</text>
+<circle cx="366.0" cy="46.0" r="9" class="call"/>
+<text x="366.0" y="50.0" class="callt" text-anchor="middle">5</text>
+<path d="M390 39.0 h20 v13 l-10 5 l-10 -5z" class="tab"/>
+<text x="400" y="50.5" class="tabt" text-anchor="middle">1</text></g>
+<circle cx="1134.5" cy="657.0" r="9" class="call"/>
+<text x="1134.5" y="661.0" class="callt" text-anchor="middle">5</text>
+<text x="1151.45" y="661" class="note">The grammar view shows the state of the</text>
+<text x="1151.45" y="677" class="note">steps that stand. The withdrawn review</text>
+<text x="1151.45" y="693" class="note">leaves no mark here.</text>
+</svg>

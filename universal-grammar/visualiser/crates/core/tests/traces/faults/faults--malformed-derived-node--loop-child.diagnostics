@@ -1,0 +1,2 @@
+error malformed-derived-node 212..216 "step"
+    A `loop` holds its `origin` nodes, then `pass` nodes only.

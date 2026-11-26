@@ -1,0 +1,41 @@
+checked-grammar format-version=2 grammar-sha256="3ef1a7fd5ff78f7a7b75bcba7e8f556653f00295cb32032580ede7f4b154e2d6" {
+    grammar-doc text="A tutorial in three parts." start=5 end=33
+    start-rule name=tutorial start=44 end=52
+    rule name=tutorial start=56 end=64 {
+        doc text="The whole tutorial." start=65 end=86
+        sequence start=93 end=126 {
+            repetition min=1 start=93 end=101 {
+                reference name=install start=93 end=100
+            }
+            optional start=102 end=114 {
+                symbol value=configure start=102 end=113
+            }
+            repetition min=1 max=5 start=115 end=126 {
+                reference name=lesson start=115 end=121
+            }
+        }
+    }
+    rule name=install start=130 end=137 {
+        doc text="Tell the reader how to install one tool." start=138 end=180
+        symbol value=install start=187 end=196
+    }
+    rule name=lesson start=200 end=206 {
+        doc text="Teach one concept with an example." start=207 end=243
+        sequence start=250 end=284 {
+            symbol value=introduce_concept start=250 end=269
+            symbol value=show_example start=270 end=284
+        }
+    }
+    symbol value=configure {
+        use rule=tutorial start=102 end=113
+    }
+    symbol value=install {
+        use rule=install start=187 end=196
+    }
+    symbol value=introduce_concept {
+        use rule=lesson start=250 end=269
+    }
+    symbol value=show_example {
+        use rule=lesson start=270 end=284
+    }
+}

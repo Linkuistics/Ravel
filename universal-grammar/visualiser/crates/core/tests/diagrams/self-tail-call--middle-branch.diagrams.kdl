@@ -1,0 +1,35 @@
+diagrams format-version=1 grammar-sha256=f46a751dfde467f4d40a334793f6af318daa0a03ab9d130309714208cee0ed4a font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=menu width=544 height=278 {
+        start-event x=16 y=76 size=24
+        gateway role=back-edge-join start=104 end=108 x=64 y=76 size=24
+        task start=111 end=122 symbol=show_menu x=112 y=70 width=92 height=36 {
+            label show_menu
+        }
+        gateway role=choice-split start=124 end=167 x=228 y=76 size=24
+        task start=124 end=137 symbol=choose_item x=276 y=70 width=106 height=36 {
+            label choose_item
+        }
+        task start=145 end=153 symbol=search x=276 y=148 width=68 height=36 {
+            label search
+        }
+        reference start=154 end=158 rule=menu x=368 y=142 width=64 height=48 one-step=#false loop-link=tail-references {
+            label menu
+        }
+        task start=161 end=167 symbol=quit x=276 y=226 width=64 height=36 {
+            label quit
+        }
+        gateway role=choice-join start=124 end=167 x=456 y=76 size=24
+        end-event x=504 y=76 size=24
+        flow 40 88 64 88 role=sequence
+        flow 88 88 112 88 role=sequence
+        flow 204 88 228 88 role=sequence
+        flow 252 88 276 88 role=sequence
+        flow 240 100 240 166 276 166 role=sequence
+        flow 344 166 368 166 role=sequence
+        flow 432 166 468 166 468 100 role=sequence
+        flow 240 100 240 244 276 244 role=sequence
+        flow 340 244 468 244 468 100 role=sequence
+        flow 480 88 504 88 role=sequence
+        flow 382 88 406 88 406 24 76 24 76 76 role=back-edge start=138 end=142 label="↻ menu" label-x=241 label-y=24
+    }
+}

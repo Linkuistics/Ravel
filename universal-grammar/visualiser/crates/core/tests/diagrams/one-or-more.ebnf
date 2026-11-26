@@ -1,0 +1,3 @@
+// x+: a join gateway, the item and a split gateway, with a back flow below the item.
+%start r ;
+r = "install"+ ;

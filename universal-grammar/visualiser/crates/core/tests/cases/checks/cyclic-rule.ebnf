@@ -1,0 +1,4 @@
+// The example of the spec.
+%start a ;
+a = b ;
+b = a | "x" ;

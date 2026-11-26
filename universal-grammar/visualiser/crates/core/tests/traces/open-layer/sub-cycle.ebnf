@@ -1,0 +1,4 @@
+%start a ;
+
+a = b "x" | "z" ;
+b = a "y" | b "z" | "x" ;

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="12e6581b3ec8c2e9ccc01880c5387a0d783d53cd0da578ccf85c5c03db26d38c" {
+    grammar-doc text="One.\nTwo." start=5 end=37
+    start-rule name=a start=48 end=49
+    rule name=a start=52 end=53 {
+        symbol value=x start=56 end=59
+    }
+    symbol value=x {
+        use rule=a start=56 end=59
+    }
+}

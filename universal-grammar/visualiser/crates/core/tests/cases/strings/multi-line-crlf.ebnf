@@ -1,0 +1,6 @@
+%doc """
+    One.
+    Two.
+    """ ;
+%start a ;
+a = "x" ;

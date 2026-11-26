@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="899e1b47f5c4c266b5e820933fcd0f91f984b40c518e392a842e204709ad522b" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=16 end=19
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    diagnostic severity=error code=slip-equals message="write `=` after a rule name, not `->`" start=13 end=15 line=2 column=3
+}

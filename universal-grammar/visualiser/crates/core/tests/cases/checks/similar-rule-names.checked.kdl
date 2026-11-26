@@ -1,0 +1,13 @@
+checked-grammar format-version=2 grammar-sha256="8928bf577eb88c5d6c25e70af2a66b4884f945c6a1eff43c03faf61293e3c6df" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        reference name=Order start=23 end=28
+    }
+    rule name=Order start=31 end=36 {
+        symbol value=submit start=39 end=47
+    }
+    symbol value=submit {
+        use rule=Order start=39 end=47
+    }
+    diagnostic severity=warning code=similar-rule-names message="The rule name `Order` differs from the rule name `order` only by case." start=31 end=36 line=3 column=1
+}

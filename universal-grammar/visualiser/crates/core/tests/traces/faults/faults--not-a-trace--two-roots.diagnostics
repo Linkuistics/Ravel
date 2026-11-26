@@ -1,0 +1,2 @@
+error not-a-trace 40..45 "trace"
+    The document has a second root node. A trace file has one root node, `trace`.

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=fc5d3c876c5454725fedf6a599c27af9746183dd2ae3e443fc96752005b144ab {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=xy start=15 end=21
+    }
+    symbol value=xy {
+        use rule=a start=15 end=21
+    }
+    diagnostic severity=error code=unknown-character message="`!` is outside the notation" start=22 end=23 line=3 column=4
+}

@@ -1,0 +1,55 @@
+trace format-version=1 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" reading-cap=10 {
+    sequence {
+        step "states the problem"
+        step "shows the simplest case"
+        step "gives an example"
+        step "generalises the example"
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="refers back"
+        next symbol="states the problem"
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="proposes a solution"
+        next symbol="shows the simplest case"
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="adds a complication"
+        next symbol="shows a failing case"
+        next symbol="gives an example"
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="gives an example"
+    }
+    failure-point step=4
+    reading parent=1 can-end=#false {
+        next symbol="gives an example" {
+            occurrence start=1238 end=1256
+        }
+        rule name=episode {
+            step number=1 symbol="states the problem" {
+                origin start=478 end=498
+            }
+            rule name=development {
+                origin start=499 end=510
+                rule name=progression {
+                    origin start=655 end=666
+                    step number=2 symbol="shows the simplest case" {
+                        origin start=790 end=815
+                    }
+                }
+            }
+            rule name=generalisation {
+                origin start=511 end=525
+                loop kind=repetition {
+                    origin start=1238 end=1260
+                    pass number=1 {
+                        step number=3 symbol="gives an example" {
+                            origin start=1238 end=1256
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

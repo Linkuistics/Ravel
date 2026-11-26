@@ -1,0 +1,4 @@
+%doc "An order process." ;
+%doc "It has one rule." ;
+%start order ;
+order = "submit" ;

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=bb7f5d7643de66e3fbd0b1ce904e5d93c9cfdf1a245fffc47c870013217bfefc {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=20
+    }
+    symbol value=x {
+        use rule=a start=15 end=20
+    }
+    diagnostic severity=error code=invalid-escape message="`\\q` is not an escape; the escapes are `\\n`, `\\r`, `\\t`, `\\\\`, `\\\"`, `\\b`, `\\f`, `\\s` and `\\u{…}`" start=17 end=19 line=2 column=7
+}

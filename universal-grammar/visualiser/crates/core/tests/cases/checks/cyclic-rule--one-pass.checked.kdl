@@ -1,0 +1,22 @@
+checked-grammar format-version=2 grammar-sha256=d7f41cf01a71d96a9adb707d4105e5c2f1f630c11e774ca816261c6bd293173e {
+    start-rule name=a start=62 end=63
+    rule name=a start=66 end=67 {
+        repetition min=1 start=70 end=72 {
+            reference name=b start=70 end=71
+        }
+    }
+    rule name=b start=75 end=76 {
+        choice start=79 end=86 {
+            reference name=a start=79 end=80
+            symbol value=x start=83 end=86
+        }
+    }
+    symbol value=x {
+        use rule=b start=83 end=86
+    }
+    recursive-group badge=may-need-a-stack {
+        member rule=a
+        member rule=b
+    }
+    diagnostic severity=error code=cyclic-rule message="The rule `a` can derive itself with no step: `a` → `b` → `a`. So one sequence can have infinitely many trees. Make one rule of the cycle take a step." start=70 end=71 line=3 column=5
+}

@@ -1,0 +1,15 @@
+checked-grammar format-version=2 grammar-sha256=b1c6e90d718b50a9e5c614ab0e8ee2b259b70fde9e428ae1d7bea13ac695773e {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=37 {
+            symbol value=café start=23 end=30
+            symbol value=cafe start=31 end=37
+        }
+    }
+    symbol value=café {
+        use rule=order start=23 end=30
+    }
+    symbol value=cafe {
+        use rule=order start=31 end=37
+    }
+}

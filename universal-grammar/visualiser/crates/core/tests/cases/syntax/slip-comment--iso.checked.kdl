@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=c23a7fb3ed37b543eac3f695f1f506fd6f877a414998fed052f499f7fb548dd0 {
+    start-rule name=a start=50 end=51
+    rule name=a start=54 end=55 {
+        symbol value=x start=58 end=61
+    }
+    symbol value=x {
+        use rule=a start=58 end=61
+    }
+    diagnostic severity=error code=slip-comment message="the notation has no `(* … *)` comments; start each comment line with `//`" start=0 end=2 line=1 column=1
+}

@@ -1,0 +1,21 @@
+checked-grammar format-version=2 grammar-sha256="0373f38da55c9dc33354c786dced39b95f043853c31df54ec79ee2d01ebd624e" {
+    start-rule name=a start=102 end=103
+    rule name=a start=106 end=107 {
+        repetition min=2 max=2 start=110 end=114 {
+            reference name=b start=110 end=111
+        }
+    }
+    rule name=b start=117 end=118 {
+        choice start=121 end=128 {
+            reference name=a start=121 end=122
+            symbol value=x start=125 end=128
+        }
+    }
+    symbol value=x {
+        use rule=b start=125 end=128
+    }
+    recursive-group badge=may-need-a-stack {
+        member rule=a
+        member rule=b
+    }
+}

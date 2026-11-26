@@ -1,0 +1,4 @@
+// An optional part whose item ends with a self tail call: the join gateway receives only the
+// skip flow, so it is not drawn.
+%start r ;
+r = "a" ("b" r)? ;

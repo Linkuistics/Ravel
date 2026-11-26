@@ -1,0 +1,14 @@
+trace format-version=1 {
+    sequence {
+        step x
+        step y
+    }
+    reading can-end=#true {
+        rule name=a {
+            step number=1 symbol=x
+            loop kind=repetition {
+                step number=2 symbol=y
+            }
+        }
+    }
+}

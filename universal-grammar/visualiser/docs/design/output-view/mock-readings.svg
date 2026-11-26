@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="646" viewBox="0 0 1240 646">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--r:#1f4fa3;--s:#8a4500;--l:#6b3fa0;--fold:#eef0fb;--cur:#0e7c66;--curbg:#e3f4ef;
+--sel:#e0a800;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;--link:#0b5fc0;--note:#2b3445;
+--box:#ffffff;--boxl:#8d96a6;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--r:#8fb4ff;--s:#f0b37e;--l:#c9a8f7;--fold:#272b3e;
+--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;
+--link:#7cb7ff;--note:#d5dae3;--box:#1f232b;--boxl:#6c7484;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.t{fill:var(--t)} .m{fill:var(--m)} .r{fill:var(--r);font-weight:600} .s{fill:var(--s)}
+.l{fill:var(--l);font-weight:600} .p{fill:var(--cur);font-weight:600} .e{fill:var(--e);font-weight:600}
+.lk{fill:var(--link)} .b{font-weight:700} .i{font-style:italic} .sm{font-size:11px}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)} .rule{stroke:var(--line)}
+.fold{fill:var(--fold)} .curbar{fill:var(--cur)} .curbg{fill:var(--curbg)} .errbg{fill:var(--ebg)}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.5} .chip{fill:var(--chip)}
+.next{fill:var(--curbg);stroke:var(--cur)} .nexto{fill:none;stroke:var(--m);stroke-dasharray:3 3}
+.tw{fill:var(--m)} .call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .code{fill:var(--code);stroke:var(--line)}
+.box{fill:var(--box);stroke:var(--boxl);stroke-width:1.3} .flow{stroke:var(--boxl);stroke-width:1.3;fill:none}
+.back{stroke:var(--boxl);stroke-width:1.3;fill:none;stroke-dasharray:5 3}
+.marker{fill:var(--cur)} .nextmark{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.ah{fill:var(--boxl)} .data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.btn{fill:var(--hdr);stroke:var(--line)}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="24.0" y="32.0" class="h1" text-anchor="start" xml:space="preserve">Two readings of five steps of the order-approval grammar</text>
+<text x="24.0" y="52.0" class="m" text-anchor="start" xml:space="preserve">Agreed. The grammar is unambiguous, but step 5 "escalate" opens both an approval and a rejection.</text>
+<rect x="24.0" y="70.0" width="580.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">Output view</text>
+<rect x="134.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="145.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">‹</text>
+<rect x="160.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="171.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">›</text>
+<text x="190.3" y="94.0" class="t" text-anchor="start" xml:space="preserve">Reading 1 of 2</text>
+<text x="592.0" y="94.0" class="m sm" text-anchor="end" xml:space="preserve">5 steps  ·  cannot end yet</text>
+<rect x="80.0" y="114.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M90 123 L99 123 L94.5 128.5z" class="tw"/>
+<text x="104.0" y="131.0" xml:space="preserve"><tspan class="r">order</tspan></text>
+<text x="72.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">1</text>
+<text x="108.0" y="157.0" xml:space="preserve"><tspan class="s mono">"submit_order"</tspan></text>
+<text x="72.0" y="183.0" class="m mono sm" text-anchor="end" xml:space="preserve">2</text>
+<text x="108.0" y="183.0" xml:space="preserve"><tspan class="s mono">"check_order"</tspan></text>
+<rect x="104.0" y="194.0" width="492.0" height="22.0" rx="5" class="fold"/>
+<text x="72.0" y="209.0" class="m mono sm" text-anchor="end" xml:space="preserve">3–4</text>
+<path d="M109 199 L114.5 203.5 L109 208z" class="tw"/>
+<text x="122.0" y="209.0" xml:space="preserve"><tspan class="l">revision{0,3}</tspan><tspan class="m">  ·  </tspan><tspan class="m">1 pass  ·  2 steps</tspan></text>
+<rect x="80.0" y="218.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="235.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M108 227 L117 227 L112.5 232.5z" class="tw"/>
+<text x="122.0" y="235.0" xml:space="preserve"><tspan class="r">outcome</tspan></text>
+<rect x="80.0" y="244.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="261.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M126 253 L135 253 L130.5 258.5z" class="tw"/>
+<text x="140.0" y="261.0" xml:space="preserve"><tspan class="r">approval</tspan></text>
+<rect x="140.0" y="272.0" width="456.0" height="22.0" rx="5" class="curbg"/>
+<rect x="80.0" y="270.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="287.0" class="m mono sm" text-anchor="end" xml:space="preserve">5</text>
+<text x="144.0" y="287.0" xml:space="preserve"><tspan class="s mono">"escalate"</tspan></text>
+<line x1="32.0" y1="298.0" x2="596.0" y2="298.0" class="rule"/>
+<text x="72.0" y="315.0" class="m mono sm" text-anchor="end" xml:space="preserve">6</text>
+<text x="88.0" y="315.0" xml:space="preserve"><tspan class="m">next</tspan></text>
+<rect x="124.4" y="302.0" width="74.0" height="20.0" rx="10" class="next"/>
+<text x="132.4" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"remind"</text>
+<rect x="204.4" y="302.0" width="88.5" height="20.0" rx="10" class="next"/>
+<text x="212.4" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"escalate"</text>
+<rect x="298.9" y="302.0" width="81.2" height="20.0" rx="10" class="next"/>
+<text x="306.9" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"approve"</text>
+<rect x="386.1" y="302.0" width="74.0" height="20.0" rx="10" class="nexto"/>
+<text x="394.1" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"reject"</text>
+<rect x="24" y="70" width="580" height="258.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="588.0" cy="179.0" r="9" class="call"/>
+<text x="588.0" y="183.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<circle cx="588.0" cy="257.0" r="9" class="call"/>
+<text x="588.0" y="261.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<circle cx="588.0" cy="311.0" r="9" class="call"/>
+<text x="588.0" y="315.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<rect x="636.0" y="70.0" width="580.0" height="38.0" rx="0" class="hdr"/>
+<text x="648.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">Output view</text>
+<rect x="746.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="757.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">‹</text>
+<rect x="772.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="783.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">›</text>
+<text x="802.3" y="94.0" class="t" text-anchor="start" xml:space="preserve">Reading 2 of 2</text>
+<text x="1204.0" y="94.0" class="m sm" text-anchor="end" xml:space="preserve">5 steps  ·  cannot end yet</text>
+<rect x="692.0" y="114.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="684.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M702 123 L711 123 L706.5 128.5z" class="tw"/>
+<text x="716.0" y="131.0" xml:space="preserve"><tspan class="r">order</tspan></text>
+<text x="684.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">1</text>
+<text x="720.0" y="157.0" xml:space="preserve"><tspan class="s mono">"submit_order"</tspan></text>
+<text x="684.0" y="183.0" class="m mono sm" text-anchor="end" xml:space="preserve">2</text>
+<text x="720.0" y="183.0" xml:space="preserve"><tspan class="s mono">"check_order"</tspan></text>
+<rect x="716.0" y="194.0" width="492.0" height="22.0" rx="5" class="fold"/>
+<text x="684.0" y="209.0" class="m mono sm" text-anchor="end" xml:space="preserve">3–4</text>
+<path d="M721 199 L726.5 203.5 L721 208z" class="tw"/>
+<text x="734.0" y="209.0" xml:space="preserve"><tspan class="l">revision{0,3}</tspan><tspan class="m">  ·  </tspan><tspan class="m">1 pass  ·  2 steps</tspan></text>
+<rect x="692.0" y="218.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="684.0" y="235.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M720 227 L729 227 L724.5 232.5z" class="tw"/>
+<text x="734.0" y="235.0" xml:space="preserve"><tspan class="r">outcome</tspan></text>
+<rect x="692.0" y="244.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="684.0" y="261.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M738 253 L747 253 L742.5 258.5z" class="tw"/>
+<text x="752.0" y="261.0" xml:space="preserve"><tspan class="r">rejection</tspan></text>
+<rect x="752.0" y="272.0" width="456.0" height="22.0" rx="5" class="curbg"/>
+<rect x="692.0" y="270.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="684.0" y="287.0" class="m mono sm" text-anchor="end" xml:space="preserve">5</text>
+<text x="756.0" y="287.0" xml:space="preserve"><tspan class="s mono">"escalate"</tspan></text>
+<line x1="644.0" y1="298.0" x2="1208.0" y2="298.0" class="rule"/>
+<text x="684.0" y="315.0" class="m mono sm" text-anchor="end" xml:space="preserve">6</text>
+<text x="700.0" y="315.0" xml:space="preserve"><tspan class="m">next</tspan></text>
+<rect x="736.4" y="302.0" width="74.0" height="20.0" rx="10" class="next"/>
+<text x="744.4" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"remind"</text>
+<rect x="816.4" y="302.0" width="88.5" height="20.0" rx="10" class="next"/>
+<text x="824.4" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"escalate"</text>
+<rect x="910.9" y="302.0" width="74.0" height="20.0" rx="10" class="next"/>
+<text x="918.9" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"reject"</text>
+<rect x="990.9" y="302.0" width="81.2" height="20.0" rx="10" class="nexto"/>
+<text x="998.9" y="316.0" class="s mono" text-anchor="start" xml:space="preserve">"approve"</text>
+<rect x="636" y="70" width="580" height="258.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="324.0" cy="89.0" r="9" class="call"/>
+<text x="324.0" y="93.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<circle cx="148.0" cy="111.0" r="9" class="call"/>
+<text x="148.0" y="115.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<rect x="24.0" y="354.0" width="580.0" height="81.0" rx="6" class="code"/>
+<text x="36.0" y="373.0" class="h2" text-anchor="start" xml:space="preserve">THE RULES IN PLAY</text>
+<text x="36.0" y="394.0" class="mono" text-anchor="start" xml:space="preserve">outcome  = approval "ship" | rejection "notify_rejection" ;</text>
+<text x="36.0" y="411.0" class="mono" text-anchor="start" xml:space="preserve">approval  = "remind"{0,2} ("approve" | "escalate" approval "hand_back") ;</text>
+<text x="36.0" y="428.0" class="mono" text-anchor="start" xml:space="preserve">rejection = "remind"{0,2} ("reject" | "escalate" rejection "hand_back") ;</text>
+<rect x="636.0" y="354.0" width="580.0" height="58.0" rx="6" class="hdr"/>
+<text x="648.0" y="378.0" class="m" text-anchor="start" xml:space="preserve">At the reading cap, the count reads</text>
+<text x="648.0" y="400.0" class="t" text-anchor="start" xml:space="preserve">Reading 1 of 50+  ·  the tracer stopped at the reading cap</text>
+<text x="24.0" y="469.0" class="h2" text-anchor="start" xml:space="preserve">READING THE MOCK-UP</text>
+<circle cx="33.0" cy="487.0" r="9" class="call"/>
+<text x="33.0" y="491.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<text x="50.0" y="491.0" class="note" text-anchor="start" xml:space="preserve">The count says what it counts: the readings of the steps so far. Each reading is one distinct tree.</text>
+<circle cx="33.0" cy="514.0" r="9" class="call"/>
+<text x="33.0" y="518.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<text x="50.0" y="518.0" class="note" text-anchor="start" xml:space="preserve">The switch shows one reading at a time. A new step keeps the reading that extends the one on view.</text>
+<circle cx="33.0" cy="541.0" r="9" class="call"/>
+<text x="33.0" y="545.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<text x="50.0" y="545.0" class="note" text-anchor="start" xml:space="preserve">Here the readings differ in one rule node. A later step decides: "approve" keeps reading 1, and "reject" keeps reading 2.</text>
+<circle cx="33.0" cy="568.0" r="9" class="call"/>
+<text x="33.0" y="572.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<text x="50.0" y="572.0" class="note" text-anchor="start" xml:space="preserve">A solid option belongs to the reading on view. A dashed option belongs only to other readings. Both stay clickable.</text>
+<circle cx="33.0" cy="595.0" r="9" class="call"/>
+<text x="33.0" y="599.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<text x="50.0" y="599.0" class="note" text-anchor="start" xml:space="preserve">Every reading numbers the same steps in the same way, so a person can compare two readings row by row.</text>
+</svg>

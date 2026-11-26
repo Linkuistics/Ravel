@@ -1,0 +1,25 @@
+diagrams format-version=1 grammar-sha256=ed67474558d9ec100b97d821666fe22e597843e9a510c7033f54bdb5218222cf font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=308 height=234 {
+        start-event x=16 y=44 size=24
+        gateway role=choice-split start=102 end=135 x=64 y=44 size=24
+        task start=102 end=111 symbol=approve x=112 y=38 width=76 height=36 {
+            label approve
+        }
+        task start=114 end=124 symbol=escalate x=112 y=110 width=84 height=36 {
+            label escalate
+        }
+        task start=127 end=135 symbol=reject x=112 y=182 width=68 height=36 {
+            label reject
+        }
+        gateway role=choice-join start=102 end=135 x=220 y=44 size=24
+        end-event x=268 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 188 56 220 56 role=sequence
+        flow 76 68 76 128 112 128 role=sequence
+        flow 196 128 232 128 232 68 role=sequence
+        flow 76 68 76 200 112 200 role=sequence
+        flow 180 200 232 200 232 68 role=sequence
+        flow 244 56 268 56 role=sequence
+    }
+}

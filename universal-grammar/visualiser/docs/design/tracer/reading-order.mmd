@@ -1,0 +1,16 @@
+flowchart LR
+  subgraph after2["After step 2"]
+    direction TB
+    R21["Start here: 1 · [a a]"]:::start
+    R22["2 · [a] [a]"]
+  end
+  subgraph after3["After step 3"]
+    direction TB
+    R31["1 · [a a] [a]"]
+    R32["2 · [a] [a a]"]
+    R33["3 · [a] [a] [a]"]
+  end
+  R21 -->|"parent 1"| R31
+  R22 -->|"parent 2"| R32
+  R22 -->|"parent 2"| R33
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330

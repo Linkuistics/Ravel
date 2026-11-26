@@ -1,0 +1,9 @@
+checked-grammar format-version=2 grammar-sha256="04b92d3978be2a6cc268bb82b2cd53cc23ee7e75e496f12b9c590ddc90ca89b3" {
+    start-rule name=a start=54 end=55
+    rule name=a start=58 end=59 {
+        symbol value=x start=62 end=65
+    }
+    symbol value=x {
+        use rule=a start=62 end=65
+    }
+}

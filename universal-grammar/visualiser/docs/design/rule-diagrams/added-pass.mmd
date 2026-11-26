@@ -1,0 +1,18 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef lost fill:#fbeaea,stroke:#b42318,color:#7a1712
+  classDef kept fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  R["Start here: a = a 'x' | b 'x' | 'y' ; b = a ;<br/>the one reading after y: loop › pass 1 › a › y"]:::start
+  A1["Route 1: the link a in a,<br/>then the first x"]
+  A2["Route 2: the link a in b,<br/>then the second x. b makes no node"]
+  S["One successor: loop › pass 2 › a › x.<br/>Pass 2 joins both links, x joins both boxes"]
+  J["Rule 2 in the diagram of a: the joined pass<br/>holds the link a. Marks: link a, both boxes x"]:::kept
+  U["Rejected: the union of each route.<br/>Route 2 alone gives rule 3: the end event"]:::lost
+  K["The cut keeps the chain of links and the first<br/>two new nodes, so equal cut successors join<br/>the pass over the routes of each successor"]:::kept
+  R -->|"1"| A1
+  R -->|"2"| A2
+  A1 --> S
+  A2 --> S
+  S -->|"3"| J
+  S -.-> U
+  J -->|"4"| K

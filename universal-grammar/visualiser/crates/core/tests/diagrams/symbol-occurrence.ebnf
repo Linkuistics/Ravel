@@ -1,0 +1,3 @@
+// A symbol occurrence: a task box with the symbol, without quotes.
+%start r ;
+r = "submit_order" ;

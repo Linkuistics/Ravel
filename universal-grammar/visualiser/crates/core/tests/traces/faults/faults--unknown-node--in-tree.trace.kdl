@@ -1,0 +1,10 @@
+trace format-version=1 {
+    sequence {
+        step x
+    }
+    reading can-end=#true {
+        rule name=s {
+            twig
+        }
+    }
+}

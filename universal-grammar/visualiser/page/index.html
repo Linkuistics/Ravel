@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Grammar workbench</title>
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Grammar workbench</h1>
+      <p id="status" role="status"></p>
+    </header>
+    <main>
+      <section class="grammar" aria-labelledby="grammar-heading">
+        <h2 id="grammar-heading">Grammar</h2>
+        <div class="controls">
+          <label>Example <select id="example"><option value="">(none)</option></select></label>
+          <label>Grammar file <input id="grammar-file" type="file" accept=".ebnf,text/plain" /></label>
+        </div>
+        <div id="editor" class="editor"></div>
+        <h3>Diagnostics</h3>
+        <ul id="diagnostics" class="diagnostics"></ul>
+      </section>
+      <section class="trace" aria-labelledby="trace-heading">
+        <h2 id="trace-heading">Sequence</h2>
+        <label for="sequence">Symbols, one on each line</label>
+        <textarea id="sequence" rows="8" spellcheck="false"></textarea>
+        <div class="controls">
+          <label>Trace file <input id="trace-file" type="file" accept=".kdl,text/plain" /></label>
+          <button id="save" type="button" disabled>Save trace file</button>
+        </div>
+        <p id="source" class="source"></p>
+        <h3>Result</h3>
+        <p id="acceptance" data-testid="acceptance"></p>
+        <p id="readings" data-testid="readings"></p>
+        <p id="next-options" data-testid="next-options"></p>
+        <ol id="steps" class="steps"></ol>
+        <ul id="trace-messages" class="diagnostics"></ul>
+      </section>
+      <section class="output" aria-labelledby="output-heading">
+        <h2 id="output-heading">Output</h2>
+        <div class="output-header">
+          <button id="reading-previous" type="button" aria-label="Previous reading" disabled>‹</button>
+          <span id="reading-count" data-testid="reading-count">no reading</span>
+          <button id="reading-next" type="button" aria-label="Next reading" disabled>›</button>
+          <span id="output-status" class="output-status" data-testid="output-status"></span>
+        </div>
+        <ul id="output-notes" class="output-notes"></ul>
+        <div class="controls">
+          <button id="step-back" type="button" disabled>Step back</button>
+          <button id="step-forward" type="button" disabled>Step forward</button>
+        </div>
+        <div id="outline" class="outline" role="tree" aria-labelledby="output-heading"></div>
+        <section id="details" class="details" aria-labelledby="details-heading">
+          <h3 id="details-heading">Details</h3>
+          <div id="details-body" class="details-body" aria-live="polite"></div>
+          <div id="folder" class="folder" hidden>
+            <span id="folder-status" class="folder-status"></span>
+            <button id="folder-open" type="button">Open folder</button>
+            <input id="reference-folder" type="file" webkitdirectory hidden />
+          </div>
+        </section>
+      </section>
+      <section id="grammar-view" class="grammar-view" aria-labelledby="grammar-view-heading">
+        <h2 id="grammar-view-heading">Grammar view</h2>
+        <div class="grammar-view-body">
+          <nav class="rule-index" aria-labelledby="rule-index-heading">
+            <h3 id="rule-index-heading">Rules</h3>
+            <ul id="rule-index" class="rules"></ul>
+          </nav>
+          <div class="open-diagram">
+            <p id="grammar-view-note" class="view-note" role="status" hidden></p>
+            <nav aria-label="Open path">
+              <ol id="breadcrumbs" class="breadcrumbs"></ol>
+            </nav>
+            <div class="diagram-header">
+              <h3 id="open-rule" class="open-rule">No rule</h3>
+              <span id="open-rule-badge" class="badge" hidden></span>
+              <span class="zoom-controls">
+                <button id="zoom-out" type="button" aria-label="Zoom out" disabled>−</button>
+                <button id="zoom-in" type="button" aria-label="Zoom in" disabled>+</button>
+                <button id="zoom-fit" type="button" disabled>Fit</button>
+              </span>
+            </div>
+            <div id="open-rule-doc" class="rule-doc"></div>
+            <p id="grammar-view-banner" class="failure-banner" role="status" hidden></p>
+            <p id="readings-outside" class="trace-note" hidden></p>
+            <p id="unlisted-options" class="trace-note" hidden></p>
+            <div id="diagram-frame" class="diagram-frame"></div>
+            <div id="option-popover" class="option-popover" role="dialog" hidden></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

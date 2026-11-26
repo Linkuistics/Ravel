@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="5ae78373c94d1371403f27b47fa6c8304eb17626ba693e029968254e2d32acdf" {
+    start-rule name=a start=41 end=42
+    rule name=a start=45 end=46 {
+        symbol value=x start=49 end=52
+    }
+    symbol value=x {
+        use rule=a start=49 end=52
+    }
+    diagnostic severity=error code=slip-comment message="`#` does not start a comment; start a comment with `//`" start=0 end=1 line=1 column=1
+}

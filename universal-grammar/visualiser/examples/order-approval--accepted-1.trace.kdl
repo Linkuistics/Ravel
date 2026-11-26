@@ -1,0 +1,47 @@
+trace format-version=1 grammar-sha256="3042d3dfdedb2ebc2959217716094b171b8e27578a088e43cc030fc364716358" reading-cap=10 {
+    sequence {
+        step submit_order
+        step check_order
+        step approve
+        step ship
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=submit_order
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=check_order
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=ship
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#true
+    reading parent=1 can-end=#true {
+        rule name=order {
+            step number=1 symbol=submit_order {
+                origin start=464 end=478
+            }
+            step number=2 symbol=check_order {
+                origin start=479 end=492
+            }
+            rule name=outcome {
+                origin start=507 end=514
+                rule name=approval {
+                    origin start=796 end=804
+                    step number=3 symbol=approve {
+                        origin start=1073 end=1082
+                    }
+                }
+                step number=4 symbol=ship {
+                    origin start=805 end=811
+                }
+            }
+        }
+    }
+}

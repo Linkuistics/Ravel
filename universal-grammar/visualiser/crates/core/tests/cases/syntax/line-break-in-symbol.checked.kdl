@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=ba8e7b671d6487d1a0ef2a1eb954022e8c6ff479ed45595ab3c5f120aff80872 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value="x\ny" start=15 end=21
+    }
+    symbol value="x\ny" {
+        use rule=a start=15 end=21
+    }
+    diagnostic severity=error code=line-break-in-symbol message="the value of a symbol cannot hold a line break; to break the line in the text, end it with `\\`" start=15 end=21 line=2 column=5
+}

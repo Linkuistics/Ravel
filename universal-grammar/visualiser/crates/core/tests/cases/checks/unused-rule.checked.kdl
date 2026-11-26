@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=d86e4d443b0014cb0437de63b0d6f349da2ddcd3ec523719725214280fdc9ad0 {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        symbol value=submit start=23 end=31
+    }
+    rule name=cancel start=34 end=40 {
+        symbol value=cancel start=43 end=51
+    }
+    symbol value=submit {
+        use rule=order start=23 end=31
+    }
+    symbol value=cancel {
+        use rule=cancel start=43 end=51
+    }
+    diagnostic severity=warning code=unused-rule message="The start rule `order` does not reach the rule `cancel`." start=34 end=40 line=3 column=1
+}

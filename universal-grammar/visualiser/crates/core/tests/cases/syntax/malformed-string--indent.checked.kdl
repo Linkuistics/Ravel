@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256=d8b0ea2135bd874e3b41a042011d41e01ef747370d000b0009ca7b38380294a3 {
+    grammar-doc text="The first line.\n  The second line." start=5 end=55
+    start-rule name=a start=65 end=66
+    rule name=a start=69 end=70 {
+        symbol value=x start=73 end=76
+    }
+    symbol value=x {
+        use rule=a start=73 end=76
+    }
+    diagnostic severity=error code=malformed-string message="each line of a multi-line string starts with the white space before its closing `\"\"\"`" start=5 end=55 line=1 column=6
+}

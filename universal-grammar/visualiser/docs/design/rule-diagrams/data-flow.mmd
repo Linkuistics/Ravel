@@ -1,0 +1,23 @@
+flowchart LR
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  text["Start here: grammar text"]:::start
+  check["Core: check<br/>checked grammar"]
+  lay["Core: Diagrams<br/>one diagram for each rule"]
+  session["Core: trace session"]
+  state["State on view<br/>readings, positions,<br/>follow paths"]
+  open["Page: open path<br/>follow path, drill-down,<br/>breadcrumb or rule index"]
+  marks["Core: Marks<br/>cut successors along the routes,<br/>for the open path"]
+  routes["Core: alternatives<br/>of the open layer,<br/>for each state"]
+  view["Page: grammar view<br/>draws shapes, flows and marks"]
+  text -->|"1"| check
+  text -->|"2 when no error"| lay
+  text -->|"3"| session
+  session -->|"4 after each operation"| state
+  state -->|"5"| open
+  open -->|"6 open path, step in focus"| marks
+  session -->|"after each operation"| routes
+  routes -->|"routes of each listed reading"| marks
+  lay -->|"coordinates"| view
+  marks -->|"elements by span"| view
+  check -->|"badges, doc strings"| view
+  view -->|"7 ▸ button: Insert, then Read"| session

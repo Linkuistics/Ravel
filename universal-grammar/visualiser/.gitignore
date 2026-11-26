@@ -1,0 +1,8 @@
+/target
+/page/node_modules
+/page/generated
+/page/dist
+/page/test-results
+/page/playwright-report
+/.task
+/page/.task

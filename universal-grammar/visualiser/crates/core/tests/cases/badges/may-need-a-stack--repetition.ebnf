@@ -1,0 +1,4 @@
+// Other passes of the repetition stand on both sides of the reference.
+// The language is regular, but the badge says only that a stack may be needed.
+%start a ;
+a = "x" ("y" a)* ;

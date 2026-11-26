@@ -1,0 +1,5 @@
+// Choice rule: a row of the first table comes before a general syntax error.
+// So this fault is a missing `;`, not an unexpected `=`.
+%start c ;
+c = a b ;
+a = "x" b = "y" ;

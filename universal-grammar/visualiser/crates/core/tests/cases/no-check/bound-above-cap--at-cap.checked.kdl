@@ -1,0 +1,34 @@
+checked-grammar format-version=2 grammar-sha256="17694e0099edfa6808439f5dcf70630b3f93b176c27002e88ab7ea70e153e4ac" {
+    start-rule name=a start=83 end=84
+    rule name=a start=87 end=88 {
+        sequence start=91 end=122 {
+            repetition min=10 max=10 start=91 end=104 {
+                repetition min=10 max=10 start=92 end=99 {
+                    symbol value=x start=92 end=95
+                }
+            }
+            repetition min=0 start=105 end=115 {
+                repetition min=50 max=50 start=106 end=113 {
+                    symbol value=y start=106 end=109
+                }
+            }
+            repetition min=100 max=100 start=116 end=122 {
+                reference name=b start=116 end=117
+            }
+        }
+    }
+    rule name=b start=125 end=126 {
+        repetition min=100 max=100 start=129 end=137 {
+            symbol value=z start=129 end=132
+        }
+    }
+    symbol value=x {
+        use rule=a start=92 end=95
+    }
+    symbol value=y {
+        use rule=a start=106 end=109
+    }
+    symbol value=z {
+        use rule=b start=129 end=132
+    }
+}

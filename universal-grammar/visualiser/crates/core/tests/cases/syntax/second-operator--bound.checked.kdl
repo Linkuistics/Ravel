@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256=edb8102b69e4ffd56eba59dd13bfea30f85d4368fd727e0726f2e98a4c65eec0 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=1 start=15 end=22 {
+            symbol value=x start=15 end=18
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=second-operator message="an item takes one operator at most; put the item and its first operator in parentheses, as in `(x{2})*`" start=19 end=22 line=2 column=9
+}

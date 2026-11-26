@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="8f28c0eb24640e04cb1f5da61ed109a34c6be30ee580800c591212a41edaf025" {
+    grammar-doc text="An order process.\nIt has one rule." start=5 end=59
+    start-rule name=order start=69 end=74
+    rule name=order start=77 end=82 {
+        symbol value=submit start=85 end=93
+    }
+    symbol value=submit {
+        use rule=order start=85 end=93
+    }
+}

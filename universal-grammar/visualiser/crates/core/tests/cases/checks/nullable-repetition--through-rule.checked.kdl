@@ -1,0 +1,31 @@
+checked-grammar format-version=2 grammar-sha256="0015a2a366629e80c41efd37af1c3b6cc22dd4ec6a30cf602e9e17f2dea7f280" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=39 {
+            repetition min=1 start=23 end=30 {
+                reference name=review start=23 end=29
+            }
+            symbol value=decide start=31 end=39
+        }
+    }
+    rule name=review start=42 end=48 {
+        sequence start=51 end=71 {
+            optional start=51 end=60 {
+                symbol value=remind start=51 end=59
+            }
+            repetition min=0 start=61 end=71 {
+                symbol value=comment start=61 end=70
+            }
+        }
+    }
+    symbol value=decide {
+        use rule=order start=31 end=39
+    }
+    symbol value=remind {
+        use rule=review start=51 end=59
+    }
+    symbol value=comment {
+        use rule=review start=61 end=70
+    }
+    diagnostic severity=error code=nullable-repetition message="In the rule `order`, the body of this repetition can match the empty sequence. So one sequence can have infinitely many trees. Make each pass take at least one step." start=23 end=30 line=2 column=9
+}

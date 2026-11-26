@@ -1,0 +1,4 @@
+// Choice rule: a string, `=` and more in a rule body is a stray `=`, not the
+// head of a rule with a quoted name.
+%start a ;
+a = "x" = "y" ;

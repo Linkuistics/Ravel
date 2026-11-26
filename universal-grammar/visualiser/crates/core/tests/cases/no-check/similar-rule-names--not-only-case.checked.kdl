@@ -1,0 +1,15 @@
+checked-grammar format-version=2 grammar-sha256=a23cc776a7b6bb432a776911aa243a8d437a83a6fe51a33254a11ac044249c49 {
+    start-rule name=order start=87 end=92
+    rule name=order start=95 end=100 {
+        reference name=orderLine start=103 end=112
+    }
+    rule name=orderLine start=115 end=124 {
+        reference name=order_line start=127 end=137
+    }
+    rule name=order_line start=140 end=150 {
+        symbol value=add_line start=153 end=163
+    }
+    symbol value=add_line {
+        use rule=order_line start=153 end=163
+    }
+}

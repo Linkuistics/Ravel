@@ -1,0 +1,2 @@
+error unknown-property 23..33 "colour=red"
+    `colour` is not a property of a `trace` node.

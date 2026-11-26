@@ -1,0 +1,5 @@
+trace format-version=1 {
+    sequence {
+        step file=a
+    }
+}

@@ -1,0 +1,124 @@
+trace format-version=1 grammar-sha256="59de628ef10155e40c7695aff3aa161c188df78a83ac7c8263caa954ad0d70dc" reading-cap=10 {
+    sequence {
+        step overview
+        step install
+        step introduce_concept
+        step show_example
+        step show_example
+        step show_example
+        step show_example
+        step summarise
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=overview
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=install
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=install
+        next symbol=configure
+        next symbol=introduce_concept
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=show_example
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=introduce_concept
+        next symbol=show_example
+        next symbol=set_exercise
+        next symbol=check_understanding
+        next symbol=summarise
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=introduce_concept
+        next symbol=show_example
+        next symbol=set_exercise
+        next symbol=check_understanding
+        next symbol=summarise
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=introduce_concept
+        next symbol=set_exercise
+        next symbol=check_understanding
+        next symbol=summarise
+    }
+    failure-point step=7
+    reading parent=1 can-end=#false {
+        next symbol=introduce_concept {
+            occurrence start=1208 end=1227
+        }
+        next symbol=set_exercise {
+            occurrence start=1427 end=1441
+        }
+        next symbol=check_understanding {
+            occurrence start=1697 end=1718
+        }
+        next symbol=summarise {
+            occurrence start=1772 end=1783
+        }
+        rule name=tutorial {
+            rule name=overview {
+                origin start=409 end=417
+                step number=1 symbol=overview {
+                    origin start=917 end=927
+                }
+            }
+            rule name=setup {
+                origin start=418 end=423
+                loop kind=repetition {
+                    origin start=546 end=554
+                    pass number=1 {
+                        rule name=install {
+                            origin start=546 end=553
+                            step number=2 symbol=install {
+                                origin start=988 end=997
+                            }
+                        }
+                    }
+                }
+            }
+            loop kind=repetition {
+                origin start=424 end=431
+                pass number=1 {
+                    rule name=lesson {
+                        origin start=424 end=430
+                        rule name=introduce_concept {
+                            origin start=644 end=661
+                            step number=3 symbol=introduce_concept {
+                                origin start=1208 end=1227
+                            }
+                        }
+                        loop kind=repetition {
+                            origin start=662 end=679
+                            pass number=1 {
+                                rule name=show_example {
+                                    origin start=662 end=674
+                                    step number=4 symbol=show_example {
+                                        origin start=1296 end=1310
+                                    }
+                                }
+                            }
+                            pass number=2 {
+                                rule name=show_example {
+                                    origin start=662 end=674
+                                    step number=5 symbol=show_example {
+                                        origin start=1296 end=1310
+                                    }
+                                }
+                            }
+                            pass number=3 {
+                                rule name=show_example {
+                                    origin start=662 end=674
+                                    step number=6 symbol=show_example {
+                                        origin start=1296 end=1310
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=ee14c486186b3053f3bf6b9c0cb6c1f27506af9811b280de555953f0ad77e93f {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=18
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=empty-alternative message="an alternative is empty; each alternative holds at least one item, and `?` makes an optional part" start=19 end=20 line=2 column=9
+}

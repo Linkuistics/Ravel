@@ -1,0 +1,22 @@
+checked-grammar format-version=2 grammar-sha256="7aec30e05dcc7ff4add39cf238a97c8e655aa509be13b13df471258fd92a36f0" {
+    start-rule name=c start=143 end=144
+    rule name=c start=147 end=148 {
+        sequence start=151 end=154 {
+            reference name=a start=151 end=152
+            reference name=b start=153 end=154
+        }
+    }
+    rule name=a start=157 end=158 {
+        symbol value=x start=161 end=164
+    }
+    rule name=b start=165 end=166 {
+        symbol value=y start=169 end=172
+    }
+    symbol value=x {
+        use rule=a start=161 end=164
+    }
+    symbol value=y {
+        use rule=b start=169 end=172
+    }
+    diagnostic severity=error code=missing-semicolon message="missing `;` at the end of the rule `a`" start=164 end=164 line=5 column=8
+}

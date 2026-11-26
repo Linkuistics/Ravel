@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="1f9ddd12fdde3e81bf5465d339cfcfb5d0b21d41883f15f65bdc2acecf1e1b49" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=16 end=19
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    diagnostic severity=error code=unknown-character message="the character U+00A0 is outside the notation" start=14 end=16 line=2 column=4
+}

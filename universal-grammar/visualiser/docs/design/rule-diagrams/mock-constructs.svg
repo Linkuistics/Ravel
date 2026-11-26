@@ -1,0 +1,350 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1932" viewBox="0 0 1180 1932">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--cur:#0e7c66;--curbg:#e3f4ef;--sel:#d99a00;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;
+--note:#2b3445;--box:#ffffff;--boxl:#5f6878;--gw:#ffffff;--ref:#1f4fa3;--frame:#c9ced8;
+--tok:#2f6fd6;--lbl:#f4f5f7;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;
+--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;--note:#d5dae3;--box:#1f232b;--boxl:#9aa3b3;
+--gw:#1f232b;--ref:#8fb4ff;--frame:#3a404c;--tok:#6ea8ff;--lbl:#232731;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;fill:var(--t)}
+.lab{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--t)}
+.labp{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.m{fill:var(--m)} .b{font-weight:700} .sm{font-size:11px} .e{fill:var(--e);font-weight:600}
+.cur{fill:var(--cur);font-weight:600} .refc{fill:var(--ref);font-weight:600}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)}
+.task{fill:var(--box);stroke:var(--boxl);stroke-width:1.4}
+.refbox{fill:var(--box);stroke:var(--boxl);stroke-width:3.2}
+.gw{fill:var(--gw);stroke:var(--boxl);stroke-width:1.4} .gwx{stroke:var(--boxl);stroke-width:1.8}
+.ev{fill:var(--box);stroke:var(--boxl);stroke-width:1.4} .evend{fill:var(--box);stroke:var(--boxl);stroke-width:3.6}
+.flow{stroke:var(--boxl);stroke-width:1.4;fill:none}
+.ah{fill:var(--boxl)} .drill{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.lblbg{fill:var(--bg)} .lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--m)}
+.tab{fill:var(--cur);stroke:var(--cur);stroke-width:1.2} .tabo{fill:var(--bg);stroke:var(--cur);stroke-width:1.4}
+.tabt{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--bg)} .tabto{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--cur)}
+.nextmark{fill:none;stroke:var(--cur);stroke-width:2} .nextmarko{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.nextbtn{fill:var(--cur)} .nextbtnt{font-size:10px;font-weight:700;fill:var(--bg)}
+.passbg{fill:var(--curbg);stroke:var(--cur);stroke-width:1} .passt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur);font-weight:600}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.6} .selflow{fill:none;stroke:var(--sel);stroke-width:5;opacity:.55}
+.backmark{fill:none;stroke:var(--cur);stroke-width:4;opacity:.45}
+.data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2} .assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.badge{fill:var(--chip)} .chip{fill:var(--curbg);stroke:var(--cur)} .chipt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur)}
+.pop{fill:var(--bg);stroke:var(--line)} .banner{fill:var(--ebg);stroke:var(--e)}
+.call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .nest{fill:none;stroke:var(--m);stroke-width:1;stroke-dasharray:3 3}
+.nestt{font-size:10px;fill:var(--m)} .tok{fill:var(--tok)} .tokt{font-size:10px;font-weight:700;fill:#fff}
+.code{fill:var(--code);stroke:var(--line)} .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.crumb{fill:var(--ref)} .rejbox{fill:none;stroke:var(--e);stroke-width:2;stroke-dasharray:4 3}
+.strike{fill:none;stroke:var(--m);stroke-width:1.3}
+.loopbar{fill:none;stroke:var(--cur);stroke-width:2.5;stroke-linecap:round}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="16" y="26" class="h1">One drawing for each construct</text>
+<text x="16" y="46" class="m">Each panel shows one rule and its text. Flows run from left to right. The first alternative stays on the main line, skip flows run above an item and back flows below it.</text>
+<text x="16" y="63" class="m">Agreed on 2026-11-20.</text>
+<text x="16" y="86" class="b">Symbol and sequence: task boxes in a row</text>
+<text x="16" y="104" class="mono m">r = "submit_order" "check_order" "ship" ;</text>
+<rect x="16" y="111" width="484" height="128.0" rx="8" class="panel"/>
+<text x="28" y="131" class="b">r</text>
+<g transform="translate(28,141)"><circle cx="28.0" cy="56.0" r="12.0" class="ev"/>
+<path d="M40.0 56.0 L64.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="38.0" width="114" height="36" rx="9" class="task"/>
+<text x="121.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">submit_order</text>
+<path d="M178.0 56.0 L202.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="202" y="38.0" width="106" height="36" rx="9" class="task"/>
+<text x="255.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">check_order</text>
+<path d="M308.0 56.0 L332.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="332" y="38.0" width="64" height="36" rx="9" class="task"/>
+<text x="364.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">ship</text>
+<path d="M396.0 56.0 L420.0 56.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="432.0" cy="56.0" r="10.8" class="evend"/></g>
+<text x="524" y="86" class="b">Choice: a pair of exclusive gateways</text>
+<text x="524" y="104" class="mono m">r = "approve" | "escalate" | "reject" ;</text>
+<rect x="524" y="111" width="332" height="272.0" rx="8" class="panel"/>
+<text x="536" y="131" class="b">r</text>
+<g transform="translate(536,141)"><circle cx="28.0" cy="56.0" r="12.0" class="ev"/>
+<path d="M40.0 56.0 L64.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 56.0 L76.0 44.0 L88 56.0 L76.0 68.0z" class="gw"/>
+<rect x="112" y="38.0" width="76" height="36" rx="9" class="task"/>
+<text x="150.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">approve</text>
+<path d="M88.0 56.0 L112.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M188.0 56.0 L220.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="110.0" width="84" height="36" rx="9" class="task"/>
+<text x="154.0" y="132.0" class="lab" text-anchor="middle" xml:space="preserve">escalate</text>
+<path d="M76.0 68.0 L76.0 122.0 Q76.0 128.0 82.0 128.0 L112.0 128.0" class="flow" marker-end="url(#ah)"/>
+<path d="M196.0 128.0 L226.0 128.0 Q232.0 128.0 232.0 122.0 L232.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="182.0" width="68" height="36" rx="9" class="task"/>
+<text x="146.0" y="204.0" class="lab" text-anchor="middle" xml:space="preserve">reject</text>
+<path d="M76.0 68.0 L76.0 194.0 Q76.0 200.0 82.0 200.0 L112.0 200.0" class="flow" marker-end="url(#ah)"/>
+<path d="M180.0 200.0 L226.0 200.0 Q232.0 200.0 232.0 194.0 L232.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M220 56.0 L232.0 44.0 L244 56.0 L232.0 68.0z" class="gw"/>
+<path d="M244.0 56.0 L268.0 56.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="280.0" cy="56.0" r="10.8" class="evend"/></g>
+<text x="16" y="417.0" class="b">Optional part: a skip flow above the item</text>
+<text x="16" y="435.0" class="mono m">r = "remind"? "approve" ;</text>
+<rect x="16" y="442.0" width="416" height="140.0" rx="8" class="panel"/>
+<text x="28" y="462.0" class="b">r</text>
+<g transform="translate(28,472.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 68.0 L76.0 56.0 L88 68.0 L76.0 80.0z" class="gw"/>
+<path d="M88.0 68.0 L112.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="50.0" width="68" height="36" rx="9" class="task"/>
+<text x="146.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">remind</text>
+<path d="M76.0 56.0 L76.0 22.0 Q76.0 16.0 82.0 16.0 L210.0 16.0 Q216.0 16.0 216.0 22.0 L216.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M180.0 68.0 L204.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M204 68.0 L216.0 56.0 L228 68.0 L216.0 80.0z" class="gw"/>
+<path d="M228.0 68.0 L252.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="252" y="50.0" width="76" height="36" rx="9" class="task"/>
+<text x="290.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">approve</text>
+<path d="M328.0 68.0 L352.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="364.0" cy="68.0" r="10.8" class="evend"/></g>
+<text x="456" y="417.0" class="b">One or more: a back flow below the item</text>
+<text x="456" y="435.0" class="mono m">r = "install"+ ;</text>
+<rect x="456" y="442.0" width="324" height="148.0" rx="8" class="panel"/>
+<text x="468" y="462.0" class="b">r</text>
+<g transform="translate(468,472.0)"><circle cx="28.0" cy="56.0" r="12.0" class="ev"/>
+<path d="M40.0 56.0 L64.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 56.0 L76.0 44.0 L88 56.0 L76.0 68.0z" class="gw"/>
+<path d="M88.0 56.0 L112.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="38.0" width="76" height="36" rx="9" class="task"/>
+<text x="150.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">install</text>
+<path d="M188.0 56.0 L212.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M212 56.0 L224.0 44.0 L236 56.0 L224.0 68.0z" class="gw"/>
+<path d="M224.0 68.0 L224.0 86.0 Q224.0 92.0 218.0 92.0 L82.0 92.0 Q76.0 92.0 76.0 86.0 L76.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M236.0 56.0 L260.0 56.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="272.0" cy="56.0" r="10.8" class="evend"/></g>
+<text x="16" y="624.0" class="b">Zero or more: a skip flow and a back flow</text>
+<text x="16" y="642.0" class="mono m">r = "set_exercise" "give_hint"* "show_solution" ;</text>
+<rect x="16" y="649.0" width="692" height="160.0" rx="8" class="panel"/>
+<text x="28" y="669.0" class="b">r</text>
+<g transform="translate(28,679.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="50.0" width="114" height="36" rx="9" class="task"/>
+<text x="121.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">set_exercise</text>
+<path d="M178.0 68.0 L202.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M202 68.0 L214.0 56.0 L226 68.0 L214.0 80.0z" class="gw"/>
+<path d="M226.0 68.0 L236.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M236 68.0 L248.0 56.0 L260 68.0 L248.0 80.0z" class="gw"/>
+<path d="M260.0 68.0 L284.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="284" y="50.0" width="92" height="36" rx="9" class="task"/>
+<text x="330.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">give_hint</text>
+<path d="M376.0 68.0 L400.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M400 68.0 L412.0 56.0 L424 68.0 L412.0 80.0z" class="gw"/>
+<path d="M412.0 80.0 L412.0 98.0 Q412.0 104.0 406.0 104.0 L254.0 104.0 Q248.0 104.0 248.0 98.0 L248.0 80.0" class="flow" marker-end="url(#ah)"/>
+<path d="M424.0 68.0 L434.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M434 68.0 L446.0 56.0 L458 68.0 L446.0 80.0z" class="gw"/>
+<path d="M214.0 56.0 L214.0 22.0 Q214.0 16.0 220.0 16.0 L440.0 16.0 Q446.0 16.0 446.0 22.0 L446.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M458.0 68.0 L482.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="482" y="50.0" width="122" height="36" rx="9" class="task"/>
+<text x="543.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">show_solution</text>
+<path d="M604.0 68.0 L628.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="640.0" cy="68.0" r="10.8" class="evend"/></g>
+<text x="732" y="624.0" class="b">Bound: the loop marker with its numbers</text>
+<text x="732" y="642.0" class="mono m">r = "show_example"{1,3} ;</text>
+<rect x="732" y="649.0" width="362" height="155.0" rx="8" class="panel"/>
+<text x="744" y="669.0" class="b">r</text>
+<g transform="translate(744,679.0)"><circle cx="28.0" cy="56.0" r="12.0" class="ev"/>
+<path d="M40.0 56.0 L64.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 56.0 L76.0 44.0 L88 56.0 L76.0 68.0z" class="gw"/>
+<path d="M88.0 56.0 L112.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="38.0" width="114" height="36" rx="9" class="task"/>
+<text x="169.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">show_example</text>
+<path d="M226.0 56.0 L250.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M250 56.0 L262.0 44.0 L274 56.0 L262.0 68.0z" class="gw"/>
+<path d="M262.0 68.0 L262.0 86.0 Q262.0 92.0 256.0 92.0 L82.0 92.0 Q76.0 92.0 76.0 86.0 L76.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="148.5" y="84.0" width="41.0" height="16" rx="3" class="lblbg"/>
+<text x="169.0" y="96.0" class="lbl" text-anchor="middle">↻ 1–3</text>
+<path d="M274.0 56.0 L298.0 56.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="310.0" cy="56.0" r="10.8" class="evend"/></g>
+<text x="16" y="843.0" class="b">Bound from 0: the skip flow and the numbers</text>
+<text x="16" y="861.0" class="mono m">r = "remind"{0,2} "approve" ;</text>
+<rect x="16" y="868.0" width="484" height="167.0" rx="8" class="panel"/>
+<text x="28" y="888.0" class="b">r</text>
+<g transform="translate(28,898.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 68.0 L76.0 56.0 L88 68.0 L76.0 80.0z" class="gw"/>
+<path d="M88.0 68.0 L98.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M98 68.0 L110.0 56.0 L122 68.0 L110.0 80.0z" class="gw"/>
+<path d="M122.0 68.0 L146.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="146" y="50.0" width="68" height="36" rx="9" class="task"/>
+<text x="180.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">remind</text>
+<path d="M214.0 68.0 L238.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M238 68.0 L250.0 56.0 L262 68.0 L250.0 80.0z" class="gw"/>
+<path d="M250.0 80.0 L250.0 98.0 Q250.0 104.0 244.0 104.0 L116.0 104.0 Q110.0 104.0 110.0 98.0 L110.0 80.0" class="flow" marker-end="url(#ah)"/>
+<path d="M262.0 68.0 L272.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M272 68.0 L284.0 56.0 L296 68.0 L284.0 80.0z" class="gw"/>
+<path d="M76.0 56.0 L76.0 22.0 Q76.0 16.0 82.0 16.0 L278.0 16.0 Q284.0 16.0 284.0 22.0 L284.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="159.5" y="96.0" width="41.0" height="16" rx="3" class="lblbg"/>
+<text x="180.0" y="108.0" class="lbl" text-anchor="middle">↻ 0–2</text>
+<path d="M296.0 68.0 L320.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="320" y="50.0" width="76" height="36" rx="9" class="task"/>
+<text x="358.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">approve</text>
+<path d="M396.0 68.0 L420.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="432.0" cy="68.0" r="10.8" class="evend"/></g>
+<text x="524" y="843.0" class="b">Reference: a thick box with a drill-down marker</text>
+<text x="524" y="861.0" class="mono m">r = "submit_order" revision "ship" ;</text>
+<text x="524" y="876.0" class="mono m">revision = "request_changes" "revise_order" ;</text>
+<rect x="524" y="883.0" width="462" height="140.0" rx="8" class="panel"/>
+<text x="536" y="903.0" class="b">r</text>
+<g transform="translate(536,913.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="44.0" width="114" height="36" rx="9" class="task"/>
+<text x="121.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">submit_order</text>
+<path d="M178.0 62.0 L202.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="202" y="38.0" width="84" height="48" rx="9" class="refbox"/>
+<text x="244.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">revision</text>
+<rect x="238.0" y="71.0" width="12" height="12" class="drill"/>
+<path d="M241.0 77.0 L247.0 77.0 M244.0 74.0 L244.0 80.0" class="gwx"/>
+<path d="M286.0 62.0 L310.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="310" y="44.0" width="64" height="36" rx="9" class="task"/>
+<text x="342.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">ship</text>
+<path d="M374.0 62.0 L398.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="410.0" cy="62.0" r="10.8" class="evend"/></g>
+<text x="16" y="1069.0" class="b">Reference to a rule for one step: a thick task box</text>
+<text x="16" y="1087.0" class="mono m">r = overview lesson ;</text>
+<text x="16" y="1102.0" class="mono m">overview = "overview" ;</text>
+<text x="16" y="1117.0" class="mono m">lesson = "introduce_concept" "show_example" ;</text>
+<rect x="16" y="1124.0" width="328.5" height="140.0" rx="8" class="panel"/>
+<text x="28" y="1144.0" class="b">r</text>
+<g transform="translate(28,1154.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="44.0" width="84" height="36" rx="9" class="refbox"/>
+<text x="106.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">overview</text>
+<path d="M148.0 62.0 L172.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="172" y="38.0" width="68" height="48" rx="9" class="refbox"/>
+<text x="206.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">lesson</text>
+<rect x="200.0" y="71.0" width="12" height="12" class="drill"/>
+<path d="M203.0 77.0 L209.0 77.0 M206.0 74.0 L206.0 80.0" class="gwx"/>
+<path d="M240.0 62.0 L264.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="276.0" cy="62.0" r="10.8" class="evend"/></g>
+<text x="368.5" y="1069.0" class="b">Self tail call: a back edge to the start</text>
+<text x="368.5" y="1087.0" class="mono m">refinement = "identifies a gap" "revises the solution" refinement? ;</text>
+<rect x="368.5" y="1094.0" width="524" height="172.0" rx="8" class="panel"/>
+<text x="380.5" y="1114.0" class="b">refinement</text>
+<g transform="translate(380.5,1124.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 62.0 L76.0 50.0 L88 62.0 L76.0 74.0z" class="gw"/>
+<path d="M88.0 62.0 L112.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="44.0" width="146" height="36" rx="9" class="task"/>
+<text x="185.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">identifies a gap</text>
+<path d="M258.0 62.0 L282.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="282" y="38.0" width="106" height="48" rx="9" class="task"/>
+<text x="335.0" y="58.0" class="lab" text-anchor="middle" xml:space="preserve">revises the</text>
+<text x="335.0" y="74.0" class="lab" text-anchor="middle" xml:space="preserve">solution</text>
+<path d="M388.0 62.0 L412.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M412 62.0 L424.0 50.0 L436 62.0 L424.0 74.0z" class="gw"/>
+<path d="M436.0 62.0 L460.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="472.0" cy="62.0" r="10.8" class="evend"/>
+<path d="M424.0 74.0 L424.0 104.0 Q424.0 110.0 418.0 110.0 L82.0 110.0 Q76.0 110.0 76.0 104.0 L76.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="206.4" y="102.0" width="87.2" height="16" rx="3" class="lblbg"/>
+<text x="250.0" y="114.0" class="lbl" text-anchor="middle">↻ refinement</text></g>
+<text x="16" y="1300.0" class="b">Self tail call in a choice</text>
+<text x="16" y="1318.0" class="mono m">menu = "show_menu" ("choose_item" menu | "quit") ;</text>
+<rect x="16" y="1325.0" width="542" height="232.0" rx="8" class="panel"/>
+<text x="28" y="1345.0" class="b">menu</text>
+<g transform="translate(28,1355.0)"><circle cx="28.0" cy="88.0" r="12.0" class="ev"/>
+<path d="M40.0 88.0 L64.0 88.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 88.0 L76.0 76.0 L88 88.0 L76.0 100.0z" class="gw"/>
+<path d="M88.0 88.0 L112.0 88.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="70.0" width="92" height="36" rx="9" class="task"/>
+<text x="158.0" y="92.0" class="lab" text-anchor="middle" xml:space="preserve">show_menu</text>
+<path d="M204.0 88.0 L228.0 88.0" class="flow" marker-end="url(#ah)"/>
+<path d="M228 88.0 L240.0 76.0 L252 88.0 L240.0 100.0z" class="gw"/>
+<rect x="276" y="70.0" width="106" height="36" rx="9" class="task"/>
+<text x="329.0" y="92.0" class="lab" text-anchor="middle" xml:space="preserve">choose_item</text>
+<path d="M252.0 88.0 L276.0 88.0" class="flow" marker-end="url(#ah)"/>
+<rect x="276" y="142.0" width="64" height="36" rx="9" class="task"/>
+<text x="308.0" y="164.0" class="lab" text-anchor="middle" xml:space="preserve">quit</text>
+<path d="M240.0 100.0 L240.0 154.0 Q240.0 160.0 246.0 160.0 L276.0 160.0" class="flow" marker-end="url(#ah)"/>
+<path d="M340.0 160.0 L436.0 160.0 Q442.0 160.0 442.0 154.0 L442.0 94.0 Q442.0 88.0 448.0 88.0 L454.0 88.0" class="flow"/>
+<path d="M454.0 88.0 L478.0 88.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="490.0" cy="88.0" r="10.8" class="evend"/>
+<path d="M382.0 88.0 L400.0 88.0 Q406.0 88.0 406.0 82.0 L406.0 30.0 Q406.0 24.0 400.0 24.0 L82.0 24.0 Q76.0 24.0 76.0 30.0 L76.0 76.0" class="flow" marker-end="url(#ah)"/>
+<rect x="217.2" y="16.0" width="47.6" height="16" rx="3" class="lblbg"/>
+<text x="241.0" y="28.0" class="lbl" text-anchor="middle">↻ menu</text></g>
+<text x="582" y="1300.0" class="b">Self tail call in a middle branch: a link with the loop sign</text>
+<text x="582" y="1318.0" class="mono m">menu = "show_menu" ("choose_item" menu | "search" menu | "quit") ;</text>
+<rect x="582" y="1325.0" width="568" height="316.0" rx="8" class="panel"/>
+<text x="594" y="1345.0" class="b">menu</text>
+<g transform="translate(594,1355.0)"><circle cx="28.0" cy="88.0" r="12.0" class="ev"/>
+<path d="M40.0 88.0 L64.0 88.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 88.0 L76.0 76.0 L88 88.0 L76.0 100.0z" class="gw"/>
+<path d="M88.0 88.0 L112.0 88.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="70.0" width="92" height="36" rx="9" class="task"/>
+<text x="158.0" y="92.0" class="lab" text-anchor="middle" xml:space="preserve">show_menu</text>
+<path d="M204.0 88.0 L228.0 88.0" class="flow" marker-end="url(#ah)"/>
+<path d="M228 88.0 L240.0 76.0 L252 88.0 L240.0 100.0z" class="gw"/>
+<rect x="276" y="70.0" width="106" height="36" rx="9" class="task"/>
+<text x="329.0" y="92.0" class="lab" text-anchor="middle" xml:space="preserve">choose_item</text>
+<path d="M252.0 88.0 L276.0 88.0" class="flow" marker-end="url(#ah)"/>
+<rect x="276" y="148.0" width="68" height="36" rx="9" class="task"/>
+<text x="310.0" y="170.0" class="lab" text-anchor="middle" xml:space="preserve">search</text>
+<path d="M344.0 166.0 L368.0 166.0" class="flow" marker-end="url(#ah)"/>
+<rect x="368" y="142.0" width="64" height="48" rx="9" class="refbox"/>
+<text x="400.0" y="164.0" class="lab" text-anchor="middle" xml:space="preserve">menu</text>
+<rect x="394.0" y="175.0" width="12" height="12" class="drill"/>
+<path d="M397.0 181.0 L403.0 181.0 M400.0 178.0 L400.0 184.0" class="gwx"/>
+<text x="375.0" y="184.0" class="lbl">↻</text>
+<path d="M240.0 100.0 L240.0 160.0 Q240.0 166.0 246.0 166.0 L276.0 166.0" class="flow" marker-end="url(#ah)"/>
+<path d="M432.0 166.0 L462.0 166.0 Q468.0 166.0 468.0 160.0 L468.0 100.0" class="flow" marker-end="url(#ah)"/>
+<rect x="276" y="226.0" width="64" height="36" rx="9" class="task"/>
+<text x="308.0" y="248.0" class="lab" text-anchor="middle" xml:space="preserve">quit</text>
+<path d="M240.0 100.0 L240.0 238.0 Q240.0 244.0 246.0 244.0 L276.0 244.0" class="flow" marker-end="url(#ah)"/>
+<path d="M340.0 244.0 L462.0 244.0 Q468.0 244.0 468.0 238.0 L468.0 100.0" class="flow" marker-end="url(#ah)"/>
+<path d="M456 88.0 L468.0 76.0 L480 88.0 L468.0 100.0z" class="gw"/>
+<path d="M480.0 88.0 L504.0 88.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="516.0" cy="88.0" r="10.8" class="evend"/>
+<path d="M382.0 88.0 L400.0 88.0 Q406.0 88.0 406.0 82.0 L406.0 30.0 Q406.0 24.0 400.0 24.0 L82.0 24.0 Q76.0 24.0 76.0 30.0 L76.0 76.0" class="flow" marker-end="url(#ah)"/>
+<rect x="217.2" y="16.0" width="47.6" height="16" rx="3" class="lblbg"/>
+<text x="241.0" y="28.0" class="lbl" text-anchor="middle">↻ menu</text></g>
+<text x="16" y="1675.0" class="b">Loop through two rules: a link with the loop sign</text>
+<text x="16" y="1693.0" class="mono m">question = "asks" answer ;</text>
+<text x="16" y="1708.0" class="mono m">answer = "answers" question? ;</text>
+<rect x="16" y="1715.0" width="432" height="152.0" rx="8" class="panel"/>
+<text x="28" y="1735.0" class="b">answer</text>
+<g transform="translate(28,1745.0)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="56.0" width="76" height="36" rx="9" class="task"/>
+<text x="102.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">answers</text>
+<path d="M140.0 74.0 L164.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M164 74.0 L176.0 62.0 L188 74.0 L176.0 86.0z" class="gw"/>
+<path d="M188.0 74.0 L212.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="212" y="50.0" width="84" height="48" rx="9" class="refbox"/>
+<text x="254.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">question</text>
+<rect x="248.0" y="83.0" width="12" height="12" class="drill"/>
+<path d="M251.0 89.0 L257.0 89.0 M254.0 86.0 L254.0 92.0" class="gwx"/>
+<text x="219.0" y="92.0" class="lbl">↻</text>
+<path d="M176.0 62.0 L176.0 22.0 Q176.0 16.0 182.0 16.0 L326.0 16.0 Q332.0 16.0 332.0 22.0 L332.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M296.0 74.0 L320.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M320 74.0 L332.0 62.0 L344 74.0 L332.0 86.0z" class="gw"/>
+<path d="M344.0 74.0 L368.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="380.0" cy="74.0" r="10.8" class="evend"/></g>
+<text x="472" y="1675.0" class="b">Left recursion: a link with the loop sign</text>
+<text x="472" y="1693.0" class="mono m">list = list "item" | "first_item" ;</text>
+<rect x="472" y="1700.0" width="400" height="212.0" rx="8" class="panel"/>
+<text x="484" y="1720.0" class="b">list</text>
+<g transform="translate(484,1730.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 62.0 L76.0 50.0 L88 62.0 L76.0 74.0z" class="gw"/>
+<rect x="112" y="38.0" width="64" height="48" rx="9" class="refbox"/>
+<text x="144.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">list</text>
+<rect x="138.0" y="71.0" width="12" height="12" class="drill"/>
+<path d="M141.0 77.0 L147.0 77.0 M144.0 74.0 L144.0 80.0" class="gwx"/>
+<text x="119.0" y="80.0" class="lbl">↻</text>
+<path d="M176.0 62.0 L200.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="200" y="44.0" width="64" height="36" rx="9" class="task"/>
+<text x="232.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">item</text>
+<path d="M88.0 62.0 L112.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M264.0 62.0 L288.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="122.0" width="98" height="36" rx="9" class="task"/>
+<text x="161.0" y="144.0" class="lab" text-anchor="middle" xml:space="preserve">first_item</text>
+<path d="M76.0 74.0 L76.0 134.0 Q76.0 140.0 82.0 140.0 L112.0 140.0" class="flow" marker-end="url(#ah)"/>
+<path d="M210.0 140.0 L294.0 140.0 Q300.0 140.0 300.0 134.0 L300.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M288 62.0 L300.0 50.0 L312 62.0 L300.0 74.0z" class="gw"/>
+<path d="M312.0 62.0 L336.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="348.0" cy="62.0" r="10.8" class="evend"/></g>
+</svg>

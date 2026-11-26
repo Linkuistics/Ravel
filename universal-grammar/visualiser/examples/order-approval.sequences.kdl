@@ -1,0 +1,13 @@
+/- kdl-version 2
+// Sequences for order-approval.ebnf. Each argument is one step.
+// failure-point counts steps from 1. The tracer design sets the final fixture format.
+
+accepted submit_order check_order approve ship
+accepted submit_order check_order request_changes revise_order escalate remind escalate reject hand_back hand_back notify_rejection
+
+// The approval one level up needs its hand-back before the order ships.
+rejected submit_order check_order escalate approve ship failure-point=5
+// A hand-back needs an escalation.
+rejected submit_order check_order approve hand_back failure-point=4
+// A fourth round of changes exceeds the bound of three.
+rejected submit_order check_order request_changes revise_order request_changes revise_order request_changes revise_order request_changes failure-point=9

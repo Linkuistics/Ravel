@@ -1,0 +1,2 @@
+error unexpected-argument 6..7 "1"
+    A `trace` node takes no argument.

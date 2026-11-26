@@ -1,0 +1,16 @@
+diagrams format-version=1 grammar-sha256="4a6526bd50e8d22b30a2d5cde29ea03e085b93eb54be4f73c9736675bd743248" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=300 height=110 {
+        start-event x=16 y=44 size=24
+        gateway role=loop-join start=101 end=111 x=64 y=44 size=24
+        task start=101 end=110 symbol=install x=112 y=38 width=76 height=36 {
+            label install
+        }
+        gateway role=loop-split start=101 end=111 x=212 y=44 size=24
+        end-event x=260 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 188 56 212 56 role=sequence
+        flow 224 68 224 92 76 92 76 68 role=back start=101 end=111
+        flow 236 56 260 56 role=sequence
+    }
+}

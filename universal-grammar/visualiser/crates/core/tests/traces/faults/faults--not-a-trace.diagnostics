@@ -1,0 +1,2 @@
+error not-a-trace 0..8 "sequence"
+    The root node is `sequence`. A trace file has one root node, `trace`.

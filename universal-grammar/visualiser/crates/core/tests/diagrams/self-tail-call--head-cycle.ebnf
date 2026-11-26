@@ -1,0 +1,4 @@
+// Rule 3 of the tracer spec: the rule lies on a cycle of head references, so its tail
+// reference links no loop. The tail reference draws as a plain reference box.
+%start a ;
+a = a "x" | "y" a | "z" ;

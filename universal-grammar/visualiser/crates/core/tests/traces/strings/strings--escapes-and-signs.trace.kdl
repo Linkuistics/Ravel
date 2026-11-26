@@ -1,0 +1,21 @@
+trace format-version=1 grammar-sha256="1c18e30889ef42caf89d6d5bbe7db99db229004d1ff4560f2c1551d3b44fb508" reading-cap=10 {
+    sequence {
+        step "+.1" note="-.5" "+.1"=("-.5")#true "key\u{1}"=("kind\u{1}")"a\u{7f}b" "a\u{2028}b"=1 "a＝b"=2
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="+.1"
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="-.5"
+    }
+    reading parent=1 can-end=#false {
+        next symbol="-.5" {
+            occurrence start=22 end=27
+        }
+        rule name=s {
+            step number=1 symbol="+.1" {
+                origin start=16 end=21
+            }
+        }
+    }
+}

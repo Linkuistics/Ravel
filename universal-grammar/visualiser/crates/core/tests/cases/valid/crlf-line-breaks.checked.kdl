@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="7cd5ea4889f3130923a8c5ddcf1ffa7b62a7cdf872db056a0e4a13c2d16c5a84" {
+    grammar-doc text="A grammar." start=5 end=17
+    start-rule name=a start=28 end=29
+    rule name=a start=33 end=34 {
+        choice start=37 end=49 {
+            symbol value=x start=37 end=40
+            symbol value=y start=46 end=49
+        }
+    }
+    symbol value=x {
+        use rule=a start=37 end=40
+    }
+    symbol value=y {
+        use rule=a start=46 end=49
+    }
+}

@@ -1,0 +1,2 @@
+error malformed-derived-node 194..205 "pass-rule=a"
+    A `repetition` loop has no pass rule. Only a loop through rules has `pass-rule`.

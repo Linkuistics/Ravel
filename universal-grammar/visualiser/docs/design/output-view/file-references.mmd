@@ -1,0 +1,20 @@
+stateDiagram-v2
+  state "Classify the value" as classify
+  state "Web address" as web
+  state "Text only" as text
+  state "Waiting for the folder" as waiting
+  state "Look up the path in the folder" as lookup
+  state "Found" as found
+  state "Not found in the folder" as missing
+  state "Outside the folder" as outside
+  [*] --> classify : a url or url-reference value
+  classify --> web : scheme http or https
+  classify --> text : another scheme, or a path that starts with /
+  classify --> waiting : a relative path, and no folder is open
+  classify --> lookup : a relative path, and a folder is open
+  waiting --> lookup : the person opens the folder of the trace file
+  lookup --> found : a file has this path
+  lookup --> missing : no file has this path
+  lookup --> outside : the path leaves the folder through ..
+  web --> [*] : a click opens a new tab
+  found --> [*] : a click opens the file in a new tab

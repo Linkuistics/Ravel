@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="99dd341bc582212dbd9dd6c3e0d5c09460039dd768e7292b3de6fdafd860e049" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=18
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=missing-semicolon message="missing `;` at the end of the rule `a`" start=18 end=18 line=2 column=8
+}

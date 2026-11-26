@@ -1,0 +1,12 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef kept fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  R["Start here: before the first step,<br/>the start rule node a is the<br/>diagram node of the reading"]:::start
+  L["loop ↻ head references:<br/>the new root of the successor"]
+  P["pass 1"]
+  A["a: the node of the start rule nearest<br/>the root takes the place of the diagram node"]:::kept
+  Y["step 1 y: rule 1 marks<br/>its task box, the first box below"]:::kept
+  R -->|"1 the first step y"| L
+  L --> P
+  P --> A
+  A -->|"2 rule 1"| Y

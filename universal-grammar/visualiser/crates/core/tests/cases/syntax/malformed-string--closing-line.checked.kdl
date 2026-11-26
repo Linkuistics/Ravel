@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256=b5f1aa5ad2a6ce49bdf2fbb303d0835d61cead4ff0c2dd8f17ffdb4a97431701 {
+    grammar-doc text="    The text." start=5 end=25
+    start-rule name=a start=36 end=37
+    rule name=a start=40 end=41 {
+        symbol value=x start=44 end=47
+    }
+    symbol value=x {
+        use rule=a start=44 end=47
+    }
+    diagnostic severity=error code=malformed-string message="the closing `\"\"\"` of a multi-line string stands on its own line, after white space only" start=5 end=25 line=1 column=6
+}

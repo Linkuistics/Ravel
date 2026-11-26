@@ -1,0 +1,5 @@
+// The spaces of labels. The case of the implementation review diagram-layout-k40.
+// The second symbol keeps its spaces at the end, so its label differs from the first.
+// A break after a run of spaces drops the whole run.
+%start r ;
+r = "long_symbol" | "long_symbol   " | "aaaaaaaaa    bbbbbbbbb" ;

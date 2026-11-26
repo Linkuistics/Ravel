@@ -1,0 +1,6 @@
+%doc """
+    An order process.
+    It has one rule.
+    """ ;
+%start order ;
+order = "submit" ;

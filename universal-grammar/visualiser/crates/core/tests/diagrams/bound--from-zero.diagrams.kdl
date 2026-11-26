@@ -1,0 +1,25 @@
+diagrams format-version=1 grammar-sha256="38fdb531d7fc55030bb6868ccb95e5367d6bd2b578bb7e2172816032937c646d" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=460 height=129 {
+        start-event x=16 y=56 size=24
+        gateway role=skip-split start=92 end=105 x=64 y=56 size=24
+        gateway role=loop-join start=92 end=105 x=98 y=56 size=24
+        task start=92 end=100 symbol=remind x=146 y=50 width=68 height=36 {
+            label remind
+        }
+        gateway role=loop-split start=92 end=105 x=238 y=56 size=24
+        gateway role=skip-join start=92 end=105 x=272 y=56 size=24
+        task start=106 end=115 symbol=approve x=320 y=50 width=76 height=36 {
+            label approve
+        }
+        end-event x=420 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 98 68 role=sequence
+        flow 122 68 146 68 role=sequence
+        flow 214 68 238 68 role=sequence
+        flow 250 80 250 104 110 104 110 80 role=back start=92 end=105 label="↻ 0–2" label-x=180 label-y=104
+        flow 262 68 272 68 role=sequence
+        flow 76 56 76 16 284 16 284 56 role=skip start=92 end=105
+        flow 296 68 320 68 role=sequence
+        flow 396 68 420 68 role=sequence
+    }
+}

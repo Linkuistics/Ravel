@@ -1,0 +1,2 @@
+%start order ;
+order = "submit_order" "check_order" "Submit-Order" ;

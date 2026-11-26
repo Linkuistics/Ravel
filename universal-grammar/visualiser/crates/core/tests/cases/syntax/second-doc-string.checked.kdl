@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256=afd240f436cc6d2e39168f80111cbff33f910c0c5cc1d3278ee7b15bc6c65690 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        doc text=d start=13 end=16
+        symbol value=x start=23 end=26
+    }
+    symbol value=x {
+        use rule=a start=23 end=26
+    }
+    diagnostic severity=error code=second-doc-string message="the rule `a` has a second doc string; a rule has one doc string at most" start=17 end=20 line=2 column=7
+}

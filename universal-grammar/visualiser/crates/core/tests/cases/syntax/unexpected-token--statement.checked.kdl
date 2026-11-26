@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="4d191d8f1ff87cda77baef01531b221b72ed5c858d11794ff1ab0f22c731885d" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=18
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=unexpected-token message="unexpected `=`: expected a rule name, `%doc` or `%start`" start=21 end=22 line=3 column=1
+}

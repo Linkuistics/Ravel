@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="4ffa8780c70c34412ca96da3b3b912c1b8873e29fdaf0dd823e1d9e60c73dbb5" {
+    start-rule name=a start=92 end=93
+    rule name=a start=96 end=97 {
+        sequence start=100 end=109 {
+            symbol value=x start=100 end=103
+            symbol value=y start=106 end=109
+        }
+    }
+    symbol value=x {
+        use rule=a start=100 end=103
+    }
+    symbol value=y {
+        use rule=a start=106 end=109
+    }
+    diagnostic severity=error code=reserved-operator message="`&` is reserved for a later operator for steps in any order" start=104 end=105 line=3 column=9
+}

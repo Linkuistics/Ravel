@@ -1,0 +1,3 @@
+// A bound from 1: the drawing of x+, with the loop marker on the back flow.
+%start r ;
+r = "show_example"{1,3} "next"{2,} "last"{3} ;

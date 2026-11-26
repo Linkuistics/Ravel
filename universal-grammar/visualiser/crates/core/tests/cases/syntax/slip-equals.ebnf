@@ -1,0 +1,3 @@
+// Choice rule: a slip comes before a character outside the notation.
+%start a ;
+a ::= "x" ;

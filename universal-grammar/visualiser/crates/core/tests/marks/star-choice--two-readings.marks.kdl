@@ -1,0 +1,39 @@
+marks-case {
+    sequence a a
+    state steps-read=2 reading-count=2 cap-reached=#false {
+        follow-path 1 s
+        follow-path 2 s
+    }
+    marks s {
+        reading 1 {
+            marker {
+                task-box a start=26 end=29
+            }
+            option a {
+                back-flow start=15 end=31
+                task-box a start=16 end=19
+                task-box a start=22 end=25
+            }
+            end can-end=#true
+            pass 1 {
+                back-flow start=15 end=31
+            }
+        }
+        reading 2 {
+            marker {
+                task-box a start=16 end=19
+                task-box a start=22 end=25
+            }
+            option a {
+                back-flow start=15 end=31
+                task-box a start=16 end=19
+                task-box a start=22 end=25
+                task-box a start=26 end=29
+            }
+            end can-end=#true
+            pass 2 {
+                back-flow start=15 end=31
+            }
+        }
+    }
+}

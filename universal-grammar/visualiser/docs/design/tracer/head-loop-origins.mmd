@@ -1,0 +1,11 @@
+flowchart TB
+  S0["Start here: s, the start rule<br/>no origin"]:::start --> L["loop e ↻ head references<br/>origin: the reference e in s"]
+  L --> P1["pass 1<br/>no origin"]:::pass
+  P1 --> E1["e<br/>origin: the reference e in s"]
+  E1 --> T1["step 1 “t”"]
+  L --> P2["pass 2<br/>origin: the head reference e in e"]:::pass
+  P2 --> E2["e<br/>origin: the head reference e in e"]
+  E2 --> PL["step 2 “+”"]
+  E2 --> T2["step 3 “t”"]
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef pass fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40

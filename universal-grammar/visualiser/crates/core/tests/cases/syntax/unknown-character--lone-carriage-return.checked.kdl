@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="183bd983f2a8fd428b956a5a29c1bbadbbfddc97c525c9907cd097cf16774fe7" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=22 {
+            symbol value=x start=15 end=18
+            symbol value=y start=19 end=22
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value=y {
+        use rule=a start=19 end=22
+    }
+    diagnostic severity=error code=unknown-character message="the character U+000D is outside the notation" start=18 end=19 line=2 column=8
+}

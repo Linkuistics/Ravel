@@ -1,0 +1,4 @@
+// The symbol in quotes, and a reference to a rule later in the text.
+%start order ;
+order = "submit_order" decide ;
+decide = "approve" | "reject" ;

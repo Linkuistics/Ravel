@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=a2a5a09aa6a16b78eedc80683ef66a5ff835e38b0052315707b19c7f6c9a61d2 {
+    start-rule name=a start=45 end=46
+    rule name=a start=49 end=50 {
+        symbol value=x start=53 end=56
+    }
+    symbol value=x {
+        use rule=a start=53 end=56
+    }
+    diagnostic severity=error code=slip-comment message="the notation has no block comments; start each comment line with `//`" start=0 end=2 line=1 column=1
+}

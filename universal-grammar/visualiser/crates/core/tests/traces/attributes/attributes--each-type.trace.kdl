@@ -1,0 +1,37 @@
+trace format-version=1 grammar-sha256="86d0772cded7e268f0bf48d50c6a2eef89dd28ba3aa1373cd631cc5b8a2b3025" reading-cap=10 {
+    sequence {
+        step open title=Recursion symbol=close
+        step "set exercise" file=(url-reference)"starter/main.rs" link=(url)"https://example.org/a?b=1" count=16 weight=2.5 small=(u8)7 done=#false note=#null
+        step close "unicode key é"=日本 tab="a\tb"
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=open
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="set exercise"
+        next symbol=close
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="set exercise"
+        next symbol=close
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#true
+    reading parent=1 can-end=#true {
+        rule name=lesson {
+            step number=1 symbol=open {
+                origin start=26 end=32
+            }
+            loop kind=repetition {
+                origin start=33 end=48
+                pass number=1 {
+                    step number=2 symbol="set exercise" {
+                        origin start=33 end=47
+                    }
+                }
+            }
+            step number=3 symbol=close {
+                origin start=49 end=56
+            }
+        }
+    }
+}

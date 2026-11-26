@@ -1,0 +1,172 @@
+{
+  "title": "Output view: agreed design",
+  "intro": "The agreed design of the output view of the grammar workbench, with the state at a failure point, step attributes, file references, the selection across views and the rule for passes in a loop through several rules. The human agreed the design on 2026-11-19. Reading order: in a mock-up, follow the numbered circles and the notes. In a graph, start at the dark node whose label begins with \"Start here\".",
+  "groups": [
+    {
+      "id": "view",
+      "title": "The output view",
+      "description": "The tree of one reading so far, the folds of completed passes, the count of readings with its switch, and the state at a failure point."
+    },
+    {
+      "id": "passes",
+      "title": "Passes and readings",
+      "description": "Where a pass starts in a loop through several rules, why left recursion becomes a loop, and how readings can disagree on passes."
+    },
+    {
+      "id": "attributes",
+      "title": "Attributes and file references",
+      "description": "Where both views draw step attributes, and how a file reference opens."
+    },
+    {
+      "id": "selection",
+      "title": "Selection across the views",
+      "description": "How a selection in the output view maps to the grammar view, and back."
+    },
+    {
+      "id": "trace",
+      "title": "Needs from the trace",
+      "description": "What the output view needs from the trace of the core. The tracer design takes these needs as requirements."
+    }
+  ],
+  "discussion": {
+    "title": "Agree the output-view design",
+    "status": "Agreed",
+    "summary": "On 2026-11-19 the human agreed five decisions. (1) The output view is an outline of rows, one row for each step, with a fold for completed passes. (2) A pass of a loop through several rules starts at the pass rule, where the reading entered the loop. Left recursion also makes a loop. (3) A reading is one distinct tree, and each node holds at least one step. (4) At a failure point, a click on a next option inserts the symbol before the rejected step. (5) The rule checks report a rule that can derive itself with no step. The term \"pass rule\" replaces \"entry rule\", because the glossary keeps \"entry rule\" out.",
+    "diagramIds": [
+      "anatomy",
+      "folds",
+      "readings",
+      "failure",
+      "entry-rule",
+      "tree-entry-rule",
+      "left-recursion",
+      "readings-disagree",
+      "attributes",
+      "file-references",
+      "selection",
+      "selection-mapping",
+      "trace-needs"
+    ],
+    "updatedDiagrams": [
+      {
+        "id": "entry-rule",
+        "summary": "Named question as the pass rule in the panel title and the first note."
+      },
+      {
+        "id": "tree-entry-rule",
+        "summary": "Labelled the loop node with its pass rule."
+      },
+      {
+        "id": "failure",
+        "summary": "Removed the open question from the caption: a click inserts before the rejected step."
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "anatomy",
+      "group": "view",
+      "title": "The output view during a run",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-anatomy.svg",
+      "caption": "Agreed, and clarified after review. An outline with one row for each step. Completed passes fold into one row with counts. The current pass and the path to the last step stay open. A rule shares a row with its step only when the rule is for one step, so no row splits."
+    },
+    {
+      "id": "folds",
+      "group": "view",
+      "title": "Folded and open passes",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-folds.svg",
+      "caption": "Agreed. A fixed rule folds every completed pass. A click opens a fold, and it stays open until the person folds it again."
+    },
+    {
+      "id": "readings",
+      "group": "view",
+      "title": "Two readings, a count and a switch",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-readings.svg",
+      "caption": "Agreed. The output view shows one reading at a time. Next options of other readings show dashed."
+    },
+    {
+      "id": "failure",
+      "group": "view",
+      "title": "Both views at a failure point",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-failure.svg",
+      "caption": "Agreed. Both views keep the state before the rejected step. The grammar-view part is a sketch. The rule-diagram design sets the drawing. A click on a next option inserts the symbol before the rejected step."
+    },
+    {
+      "id": "entry-rule",
+      "group": "passes",
+      "title": "Where a pass starts: outline",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-entry-rule.svg",
+      "caption": "Agreed. A pass starts at each tail reference to the pass rule, the rule where the reading entered the loop. Rejected alternative on the right."
+    },
+    {
+      "id": "tree-entry-rule",
+      "group": "passes",
+      "title": "Where a pass starts: tree of the core",
+      "source": "tree-entry-rule.mmd",
+      "caption": "Agreed. question is the pass rule. Inside a pass, answer stays nested in question. The tail reference from answer back to question starts the next pass. Had the reading entered at answer, through \"resumes\", each pass would start at answer."
+    },
+    {
+      "id": "left-recursion",
+      "group": "passes",
+      "title": "Left recursion becomes a loop",
+      "source": "tree-left-recursion.mmd",
+      "caption": "Agreed. The grammar is history = history \"edit\" | \"create\" ;. Without a loop node, each new step moves the earlier steps deeper, so rows cannot keep their places."
+    },
+    {
+      "id": "readings-disagree",
+      "group": "passes",
+      "title": "Readings disagree on passes",
+      "source": "readings-disagree.mmd",
+      "caption": "Agreed in the decision record on trees, and drawn here for reference. Three readings, three trees, two counts of passes."
+    },
+    {
+      "id": "attributes",
+      "group": "attributes",
+      "title": "Chips, the details panel and the data object",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-attributes.svg",
+      "caption": "Agreed. Attributes are decorations: they never change the height of a row or the place of a box."
+    },
+    {
+      "id": "file-references",
+      "group": "attributes",
+      "title": "How a reference opens",
+      "source": "file-references.mmd",
+      "caption": "Agreed. Only values with the type annotation url, url-reference, irl or irl-reference are references."
+    },
+    {
+      "id": "selection",
+      "group": "selection",
+      "title": "A selected step in both views",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-selection.svg",
+      "caption": "Agreed. The grammar-view part is a sketch. The rule-diagram design sets the drawing."
+    },
+    {
+      "id": "selection-mapping",
+      "group": "selection",
+      "title": "Rows and grammar elements",
+      "source": "selection-mapping.mmd",
+      "caption": "Agreed, and clarified after review. Each double arrow works in both directions. The rejected step has no element. The dotted arrow shows that a shared row stands for its rule node, or else its innermost node. From the grammar view, a row matches when a node of the row has the element among its origins."
+    },
+    {
+      "id": "trace-needs",
+      "group": "trace",
+      "title": "What the output view reads",
+      "source": "trace-needs.mmd",
+      "caption": "Agreed, and clarified after review. Needs, not a format: the tracer design defines the trace file and the interface. Origins never make two trees different."
+    }
+  ]
+}

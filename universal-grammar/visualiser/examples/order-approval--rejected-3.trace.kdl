@@ -1,0 +1,116 @@
+trace format-version=1 grammar-sha256="3042d3dfdedb2ebc2959217716094b171b8e27578a088e43cc030fc364716358" reading-cap=10 {
+    sequence {
+        step submit_order
+        step check_order
+        step request_changes
+        step revise_order
+        step request_changes
+        step revise_order
+        step request_changes
+        step revise_order
+        step request_changes
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=submit_order
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=check_order
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=revise_order
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=revise_order
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=request_changes
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    prefix steps=7 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=revise_order
+    }
+    prefix steps=8 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=remind
+        next symbol=approve
+        next symbol=escalate
+        next symbol=reject
+    }
+    failure-point step=9
+    reading parent=1 can-end=#false {
+        next symbol=remind {
+            occurrence start=1058 end=1066
+            occurrence start=1327 end=1335
+        }
+        next symbol=approve {
+            occurrence start=1073 end=1082
+        }
+        next symbol=escalate {
+            occurrence start=1085 end=1095
+            occurrence start=1353 end=1363
+        }
+        next symbol=reject {
+            occurrence start=1342 end=1350
+        }
+        rule name=order {
+            step number=1 symbol=submit_order {
+                origin start=464 end=478
+            }
+            step number=2 symbol=check_order {
+                origin start=479 end=492
+            }
+            loop kind=repetition {
+                origin start=493 end=506
+                pass number=1 {
+                    rule name=revision {
+                        origin start=493 end=501
+                        step number=3 symbol=request_changes {
+                            origin start=646 end=663
+                        }
+                        step number=4 symbol=revise_order {
+                            origin start=664 end=678
+                        }
+                    }
+                }
+                pass number=2 {
+                    rule name=revision {
+                        origin start=493 end=501
+                        step number=5 symbol=request_changes {
+                            origin start=646 end=663
+                        }
+                        step number=6 symbol=revise_order {
+                            origin start=664 end=678
+                        }
+                    }
+                }
+                pass number=3 {
+                    rule name=revision {
+                        origin start=493 end=501
+                        step number=7 symbol=request_changes {
+                            origin start=646 end=663
+                        }
+                        step number=8 symbol=revise_order {
+                            origin start=664 end=678
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

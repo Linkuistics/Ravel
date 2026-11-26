@@ -1,0 +1,14 @@
+checked-grammar format-version=2 grammar-sha256="30a75bbae51d4dd5aba0caf7fef83dfc52ca96e12541244c9f406339fdfef1a8" {
+    start-rule name=a start=61 end=62
+    rule name=a start=65 end=66 {
+        repetition min=60 max=60 start=69 end=82 {
+            repetition min=2 start=70 end=77 {
+                symbol value=x start=70 end=73
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=70 end=73
+    }
+    diagnostic severity=error code=bound-above-cap message="In the rule `a`, the bounds around the body of this repetition multiply to 120. The bound cap is 100. To mean \"many\", write `*` or `+`." start=70 end=77 line=3 column=6
+}

@@ -1,0 +1,15 @@
+checked-grammar format-version=2 grammar-sha256="91a6c93fee8e1f7b6a0601cacbe1703c8ee2a5bf47e8be30daae338beb7019fb" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=66 {
+            symbol value=submit_order start=15 end=29
+            symbol value=submit_order start=30 end=46
+            symbol value=submit_order start=47 end=66
+        }
+    }
+    symbol value=submit_order {
+        use rule=a start=15 end=29
+        use rule=a start=30 end=46
+        use rule=a start=47 end=66
+    }
+}

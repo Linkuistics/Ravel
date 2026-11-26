@@ -1,0 +1,39 @@
+classDiagram
+  direction LR
+  class State["Start here: trace state after step k"] {
+    readings in a stable order
+    reading cap reached, yes or no
+    next options
+    failure point, if any
+    format version and grammar hash
+  }
+  class Step {
+    index from 1
+    symbol
+    attributes as KDL properties
+    type annotations kept
+  }
+  class Reading {
+    one distinct tree, compared without origins
+    the reading after step k-1 that it extends
+    can end after step k, yes or no
+  }
+  class Node {
+    kind: rule, loop, pass or step
+    label: rule, kind of loop, pass number or step
+    origins: the grammar elements it came from
+    origins narrow at a later step, never grow
+    children in step order
+    holds at least one step
+  }
+  class NextOption {
+    symbol
+    readings that allow it
+    symbol occurrences that offer it
+  }
+  State --> "*" Step : sequence
+  State --> "1..*" Reading
+  Reading --> "1" Node : root
+  Node --> "*" Node : children
+  State --> "*" NextOption
+  style State fill:#1d2330,color:#ffffff,stroke:#1d2330

@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="12728753ca755736ba0625b9b516d05c6a3a6362f2c139de0d522f5ab4f2f4eb" {
+    start-rule name=order start=7 end=12
+    start-rule name=line start=22 end=26
+    rule name=order start=29 end=34 {
+        repetition min=1 start=37 end=42 {
+            reference name=line start=37 end=41
+        }
+    }
+    rule name=line start=45 end=49 {
+        symbol value=add_line start=52 end=62
+    }
+    symbol value=add_line {
+        use rule=line start=52 end=62
+    }
+    diagnostic severity=error code=second-start message="The grammar has more than one `%start`. Keep one, because every reading is a tree of one start rule." start=22 end=26 line=2 column=8
+}

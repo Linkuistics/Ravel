@@ -1,0 +1,3 @@
+%start question ;
+question = "asks" answer ;
+answer = "answers" question? ;

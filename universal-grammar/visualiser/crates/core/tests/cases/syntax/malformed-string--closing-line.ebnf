@@ -1,0 +1,4 @@
+%doc """
+    The text."""  ;
+%start a ;
+a = "x" ;

@@ -1,0 +1,27 @@
+checked-grammar format-version=2 grammar-sha256="6e3a85f7af222e998334fcda62da8331f0507c854c7d2242990056343fbe8a87" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=39 {
+            symbol value=submit start=23 end=31
+            reference name=outcome start=32 end=39
+        }
+    }
+    rule name=outcome start=42 end=49 {
+        choice start=52 end=67 {
+            symbol value=ship start=52 end=58
+            reference name=cancel start=61 end=67
+        }
+    }
+    rule name=cancel start=70 end=76 {
+        symbol value=cancel start=79 end=87
+    }
+    symbol value=submit {
+        use rule=order start=23 end=31
+    }
+    symbol value=ship {
+        use rule=outcome start=52 end=58
+    }
+    symbol value=cancel {
+        use rule=cancel start=79 end=87
+    }
+}

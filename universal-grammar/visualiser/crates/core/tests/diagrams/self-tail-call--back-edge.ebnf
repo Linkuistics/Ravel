@@ -1,0 +1,3 @@
+// A self tail call in a row: a back edge below the body, to a join gateway after the start event.
+%start r ;
+r = "accepts" | "identifies a gap" "revises the solution" r ;

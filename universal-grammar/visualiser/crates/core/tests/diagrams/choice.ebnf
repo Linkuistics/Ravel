@@ -1,0 +1,3 @@
+// A choice: a split gateway, the alternatives from top to bottom, and a join gateway.
+%start r ;
+r = "approve" | "escalate" | "reject" ;

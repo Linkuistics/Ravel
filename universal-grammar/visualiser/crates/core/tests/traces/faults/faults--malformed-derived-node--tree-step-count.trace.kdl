@@ -1,0 +1,14 @@
+trace format-version=1 {
+    sequence {
+        step x
+        step y
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true
+    reading can-end=#true {
+        rule name=a {
+            step number=1 symbol=x
+        }
+    }
+}

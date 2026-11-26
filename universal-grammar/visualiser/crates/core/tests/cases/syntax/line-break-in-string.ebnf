@@ -1,0 +1,5 @@
+// Choice rule: a quoted string ends at its first literal line break outside a
+// whitespace escape, and the parser reports that line break.
+%start a ;
+a = "x
+y" ;

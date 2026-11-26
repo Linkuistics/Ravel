@@ -1,0 +1,113 @@
+trace format-version=1 grammar-sha256="75e39ad9117c89173b4e3156c704ad832dfda6677ce6a8acc02b8aca99f20feb" reading-cap=10 {
+    sequence {
+        step go
+        step x
+        step y
+        step y
+        step z
+        step x
+        step y
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=go
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    prefix steps=7 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+        next symbol=z
+    }
+    reading parent=1 can-end=#false {
+        next symbol=y {
+            occurrence start=40 end=43
+        }
+        next symbol=z {
+            occurrence start=48 end=51
+        }
+        rule name=s {
+            step number=1 symbol=go {
+                origin start=15 end=19
+            }
+            loop kind=tail-references pass-rule=a {
+                origin start=20 end=21
+                pass number=1 {
+                    rule name=a {
+                        origin start=20 end=21
+                        step number=2 symbol=x {
+                            origin start=28 end=31
+                        }
+                        loop kind=tail-references pass-rule=b {
+                            origin start=32 end=33
+                            pass number=1 {
+                                rule name=b {
+                                    origin start=32 end=33
+                                    step number=3 symbol=y {
+                                        origin start=40 end=43
+                                    }
+                                }
+                            }
+                            pass number=2 {
+                                origin start=44 end=45
+                                rule name=b {
+                                    origin start=44 end=45
+                                    step number=4 symbol=y {
+                                        origin start=40 end=43
+                                    }
+                                }
+                            }
+                            pass number=3 {
+                                origin start=44 end=45
+                                rule name=b {
+                                    origin start=44 end=45
+                                    step number=5 symbol=z {
+                                        origin start=48 end=51
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                pass number=2 {
+                    origin start=52 end=53
+                    rule name=a {
+                        origin start=52 end=53
+                        step number=6 symbol=x {
+                            origin start=28 end=31
+                        }
+                        loop kind=tail-references pass-rule=b {
+                            origin start=32 end=33
+                            pass number=1 {
+                                rule name=b {
+                                    origin start=32 end=33
+                                    step number=7 symbol=y {
+                                        origin start=40 end=43
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

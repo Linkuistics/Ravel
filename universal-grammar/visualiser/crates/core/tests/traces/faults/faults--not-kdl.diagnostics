@@ -1,0 +1,2 @@
+error not-kdl 38..39 "{"
+    The text is not KDL 2.0. The parser reports: No closing '}' for child block; Closing '}' was not found after nodes.

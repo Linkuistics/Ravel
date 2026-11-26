@@ -1,0 +1,4 @@
+%doc "A grammar." ;
+%start a ;
+a = "x"
+  | "y" ;

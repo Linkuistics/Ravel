@@ -1,0 +1,14 @@
+trace format-version=1 {
+    sequence {
+        step x
+    }
+    reading can-end=#true {
+        loop kind=head-references {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=x
+                }
+            }
+        }
+    }
+}

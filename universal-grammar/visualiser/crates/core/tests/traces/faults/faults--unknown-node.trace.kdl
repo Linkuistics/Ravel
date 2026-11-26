@@ -1,0 +1,4 @@
+trace format-version=1 {
+    sequence
+    comment text=hello
+}

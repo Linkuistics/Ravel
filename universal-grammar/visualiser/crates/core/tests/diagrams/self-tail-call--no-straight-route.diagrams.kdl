@@ -1,0 +1,34 @@
+diagrams format-version=1 grammar-sha256=df5b44573cc363c446ba43defbb5abebde2e7eed35b29f8738ecbf6957ea2f93 font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=472 height=258 {
+        start-event x=16 y=44 size=24
+        gateway role=choice-split start=154 end=187 x=64 y=44 size=24
+        task start=154 end=172 symbol=very_long_symbol x=112 y=38 width=146 height=36 {
+            label very_long_symbol
+        }
+        task start=175 end=178 symbol=b x=112 y=128 width=64 height=36 {
+            label b
+        }
+        gateway role=option-split start=179 end=181 x=200 y=134 size=24
+        reference start=179 end=180 rule=r x=248 y=122 width=64 height=48 one-step=#false loop-link=tail-references {
+            label r
+        }
+        gateway role=option-join start=179 end=181 x=336 y=134 size=24
+        task start=184 end=187 symbol=c x=112 y=206 width=64 height=36 {
+            label c
+        }
+        gateway role=choice-join start=154 end=187 x=384 y=44 size=24
+        end-event x=432 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 258 56 384 56 role=sequence
+        flow 76 68 76 146 112 146 role=sequence
+        flow 176 146 200 146 role=sequence
+        flow 224 146 248 146 role=sequence
+        flow 212 134 212 88 348 88 348 134 role=skip start=179 end=181
+        flow 312 146 336 146 role=sequence
+        flow 360 146 396 146 396 68 role=sequence
+        flow 76 68 76 224 112 224 role=sequence
+        flow 176 224 396 224 396 68 role=sequence
+        flow 408 56 432 56 role=sequence
+    }
+}

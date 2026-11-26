@@ -1,0 +1,4 @@
+// Left recursion through two rules.
+%start a ;
+a = b "x" | "y" ;
+b = a "z" ;

@@ -1,0 +1,134 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the core natively.
+    cmds:
+      - cargo build -p workbench-core
+
+  build:wasm:
+    desc: Build the core for the page, as a WebAssembly module with its JavaScript glue and TypeScript declarations.
+    sources:
+      - Cargo.toml
+      - Cargo.lock
+      - crates/**/*.rs
+      - crates/**/Cargo.toml
+    generates:
+      - page/generated/core/*
+    cmds:
+      - cargo build -p workbench-wasm --target wasm32-unknown-unknown --release
+      - wasm-bindgen --target web --out-dir page/generated/core target/wasm32-unknown-unknown/release/workbench_wasm.wasm
+
+  fmt:
+    desc: Format the Rust code.
+    cmds:
+      - cargo fmt --all
+
+  fmt:check:
+    desc: Check that the Rust code is formatted.
+    cmds:
+      - cargo fmt --all -- --check
+
+  lint:
+    desc: Run Clippy on the native core and on the WebAssembly bindings, and fail on any warning.
+    cmds:
+      - cargo clippy -p workbench-core --all-targets -- -D warnings
+      - cargo clippy -p workbench-core -p workbench-wasm --target wasm32-unknown-unknown -- -D warnings
+
+  test:
+    desc: Run the Rust tests, including the cases at the core interface.
+    cmds:
+      - cargo test -p workbench-core
+
+  test:update:
+    desc: Run the Rust tests, and rewrite each expected KDL file from the output.
+    env:
+      UPDATE_EXPECT: '1'
+    cmds:
+      - cargo test -p workbench-core
+
+  check:
+    desc: Run every check that a change must pass.
+    cmds:
+      - task: fmt:check
+      - task: lint
+      - task: test
+      - task: page:check
+      - task: page:e2e
+
+  page:install:
+    desc: Install the packages of the page from its lockfile.
+    dir: page
+    sources:
+      - package.json
+      - pnpm-lock.yaml
+    generates:
+      - node_modules/.modules.yaml
+    cmds:
+      - pnpm install --frozen-lockfile
+
+  page:browsers:
+    desc: Install the Chromium build of Playwright for the end-to-end tests.
+    dir: page
+    deps: [page:install]
+    cmds:
+      - pnpm exec playwright install chromium
+
+  page:serve:
+    desc: Serve the workbench page at http://127.0.0.1:PORT/ with live reload (PORT=5173).
+    dir: page
+    deps: [build:wasm, page:install]
+    vars:
+      PORT: '{{.PORT | default "5173"}}'
+    cmds:
+      - pnpm exec vite --host 127.0.0.1 --port {{.PORT}} --strictPort
+
+  page:fmt:
+    desc: Format the TypeScript, CSS and configuration of the page.
+    dir: page
+    deps: [page:install]
+    cmds:
+      - pnpm exec biome format --write .
+
+  page:check:
+    desc: Lint and format-check the page with Biome, and type-check it against the declarations of the core.
+    dir: page
+    deps: [build:wasm, page:install]
+    cmds:
+      - pnpm exec biome ci .
+      - pnpm exec tsc -p tsconfig.json
+
+  page:build:
+    desc: Build the page for production into page/dist.
+    dir: page
+    deps: [build:wasm, page:install]
+    cmds:
+      - pnpm exec vite build
+
+  page:e2e:
+    desc: Build the page, and run the end-to-end tests in Chromium against the real core.
+    dir: page
+    deps: [page:build, page:browsers]
+    cmds:
+      - pnpm exec playwright test
+
+  core:cells-table:
+    desc: Write the table of label cells of the core from the Unicode data of Python.
+    cmds:
+      - python3 -I crates/core/scripts/cells-table.py crates/core/src/cells_table.rs
+
+  design:mockups:
+    desc: Draw the SVG mock-ups of a design presentation (DESIGN=output-view).
+    dir: docs/design/{{.DESIGN}}
+    vars:
+      DESIGN: '{{.DESIGN | default "output-view"}}'
+    cmds:
+      - python3 -I mockups.py .
+
+  design:serve:
+    desc: Serve a design presentation at http://127.0.0.1:PORT/ (DESIGN=output-view, PORT=8765).
+    vars:
+      DESIGN: '{{.DESIGN | default "output-view"}}'
+      PORT: '{{.PORT | default "8765"}}'
+    cmds:
+      - python3 -I -m http.server {{.PORT}} --bind 127.0.0.1 --directory docs/design/{{.DESIGN}}

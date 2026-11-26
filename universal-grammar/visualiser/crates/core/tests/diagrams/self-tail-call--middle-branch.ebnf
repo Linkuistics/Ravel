@@ -1,0 +1,3 @@
+// A self tail call in a middle alternative of a row: a reference box with the loop sign.
+%start menu ;
+menu = "show_menu" ("choose_item" menu | "search" menu | "quit") ;

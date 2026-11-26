@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=c528fc26b0ad9b042006bbc6fd8a53f67d22785fdc9230549200ae13858d0557 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=21 {
+            symbol value=x start=15 end=18
+            symbol value="" start=19 end=21
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value="" {
+        use rule=a start=19 end=21
+    }
+    diagnostic severity=error code=empty-symbol message="a symbol cannot be empty; use `?` for an optional part" start=19 end=21 line=2 column=9
+}

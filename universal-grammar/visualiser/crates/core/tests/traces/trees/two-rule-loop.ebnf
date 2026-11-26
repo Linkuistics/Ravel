@@ -1,0 +1,4 @@
+%start dialogue ;
+dialogue = "opens" question | "starts" answer ;
+question = "asks" answer ;
+answer = "answers" question? ;

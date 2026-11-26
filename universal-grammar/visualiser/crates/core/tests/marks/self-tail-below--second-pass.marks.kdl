@@ -1,0 +1,32 @@
+marks-case {
+    sequence b d b
+    state steps-read=3 reading-count=1 cap-reached=#false {
+        follow-path 1 r x
+    }
+    marks r {
+        reading 1 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option d {
+                reference-box x start=15 end=16
+            }
+            pass 2 {
+                back-edge r start=17 end=18
+            }
+        }
+    }
+    marks r x {
+        reading 1 {
+            marker {
+                task-box b start=32 end=35
+            }
+            option d {
+                task-box d start=36 end=39
+            }
+            pass 2 {
+                breadcrumb 0 r
+            }
+        }
+    }
+}

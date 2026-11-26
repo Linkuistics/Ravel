@@ -1,0 +1,49 @@
+marks-case {
+    sequence overview install
+    focus 2
+    state steps-read=2 reading-count=1 cap-reached=#false {
+        follow-path 1 tutorial setup
+    }
+    marks tutorial {
+        reading 1 {
+            marker {
+                reference-box setup start=418 end=423
+            }
+            option install {
+                reference-box setup start=418 end=423
+            }
+            option configure {
+                reference-box setup start=418 end=423
+            }
+            option introduce_concept {
+                reference-box lesson start=424 end=430
+            }
+            data-object {
+                reference-box setup start=418 end=423
+            }
+        }
+    }
+    marks tutorial setup {
+        reading 1 {
+            marker {
+                reference-box install start=546 end=553
+            }
+            option install {
+                reference-box install start=546 end=553
+                back-flow start=546 end=554
+            }
+            option configure {
+                reference-box configure start=555 end=564
+            }
+            end can-end=#false {
+                option introduce_concept
+            }
+            pass 1 {
+                back-flow start=546 end=554
+            }
+            data-object {
+                reference-box install start=546 end=553
+            }
+        }
+    }
+}

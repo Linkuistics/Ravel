@@ -1,0 +1,32 @@
+checked-grammar format-version=2 grammar-sha256="03d6591de6f52f20c3135de141b7212e2aab89f7159c4e2a0bc0c73e74752fce" {
+    start-rule name=order start=71 end=76
+    rule name=order start=79 end=84 {
+        sequence start=87 end=108 {
+            symbol value=submit start=87 end=95
+            reference name=items start=96 end=101
+            optional start=102 end=108 {
+                reference name=order start=102 end=107
+            }
+        }
+    }
+    rule name=items start=111 end=116 {
+        sequence start=119 end=136 {
+            symbol value=add_line start=119 end=129
+            optional start=130 end=136 {
+                reference name=items start=130 end=135
+            }
+        }
+    }
+    symbol value=submit {
+        use rule=order start=87 end=95
+    }
+    symbol value=add_line {
+        use rule=items start=119 end=129
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=order
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=items
+    }
+}

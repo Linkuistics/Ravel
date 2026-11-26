@@ -1,0 +1,20 @@
+sequenceDiagram
+  participant Page as Workbench page
+  participant Core as Core session
+  Page->>Core: Open: grammar text, optional trace file text
+  Core-->>Page: a session, or the diagnostics
+  Page->>Core: Insert: a step right after the steps read
+  Page->>Core: Read: the next step
+  alt a reading accepts the step
+    Core-->>Page: the new state
+  else no reading accepts the step
+    Core-->>Page: the failure point, and the state before it
+  end
+  Page->>Core: State
+  Core-->>Page: counts, next options, the position of each reading
+  Page->>Core: Tree: the reading on view
+  Core-->>Page: its tree, with the origins of each node
+  Page->>Core: Back
+  Core-->>Page: the state of a new trace of the shorter prefix
+  Page->>Core: Save
+  Core-->>Page: the trace file, as KDL text

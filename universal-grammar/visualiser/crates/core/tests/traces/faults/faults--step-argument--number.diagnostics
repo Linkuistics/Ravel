@@ -1,0 +1,2 @@
+error step-argument 53..54 "5"
+    The argument of a step is its symbol, as a KDL string without a type annotation.

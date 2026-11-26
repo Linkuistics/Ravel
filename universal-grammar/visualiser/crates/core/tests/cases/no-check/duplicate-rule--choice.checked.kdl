@@ -1,0 +1,15 @@
+checked-grammar format-version=2 grammar-sha256=ecb1547c7a529204101b492048e45de94af8dcafa1929222c9b45338efc912bc {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        choice start=23 end=42 {
+            symbol value=submit start=23 end=31
+            symbol value=cancel start=34 end=42
+        }
+    }
+    symbol value=submit {
+        use rule=order start=23 end=31
+    }
+    symbol value=cancel {
+        use rule=order start=34 end=42
+    }
+}

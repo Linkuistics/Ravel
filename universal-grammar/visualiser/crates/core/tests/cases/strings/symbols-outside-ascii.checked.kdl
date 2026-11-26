@@ -1,0 +1,19 @@
+checked-grammar format-version=2 grammar-sha256=f148e9780a9418ae7d961acaa4e62522842dc3549e9ef370f01fc1c51acc73c8 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=51 {
+            symbol value="schöne Grüße" start=15 end=32
+            symbol value=日本語 start=33 end=44
+            symbol value="a b" start=45 end=51
+        }
+    }
+    symbol value="schöne Grüße" {
+        use rule=a start=15 end=32
+    }
+    symbol value=日本語 {
+        use rule=a start=33 end=44
+    }
+    symbol value="a b" {
+        use rule=a start=45 end=51
+    }
+}

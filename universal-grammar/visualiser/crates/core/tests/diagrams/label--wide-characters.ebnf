@@ -1,0 +1,3 @@
+// Wide East Asian characters take two cells, and a combining mark takes none.
+%start r ;
+r = "注文を確認する" "cafe\u{301}" ;

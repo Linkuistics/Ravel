@@ -1,0 +1,5 @@
+// A plain comment.
+//// Also a plain comment.
+%start a ;
+a = "x" // After an item.
+    ;

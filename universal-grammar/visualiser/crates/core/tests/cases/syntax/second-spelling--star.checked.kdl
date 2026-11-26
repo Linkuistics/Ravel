@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256=b2e9893e65fba4b2a730cf9b4b8190cab1b3dfe822c169643b466fcfee51ba07 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=0 start=15 end=22 {
+            symbol value=x start=15 end=18
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=second-spelling message="`{0,}` is a second spelling of `*`; write `\"x\"*`" start=18 end=22 line=2 column=8
+}

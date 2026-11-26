@@ -1,0 +1,24 @@
+diagrams format-version=1 grammar-sha256="8c9fa16365f5557522744fceb5551771d4c719b4a257a674319ab401477351c8" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=list width=376 height=174 {
+        start-event x=16 y=50 size=24
+        gateway role=choice-split start=78 end=104 x=64 y=50 size=24
+        reference start=78 end=82 rule=list x=112 y=38 width=64 height=48 one-step=#false loop-link=head-references {
+            label list
+        }
+        task start=83 end=89 symbol=item x=200 y=44 width=64 height=36 {
+            label item
+        }
+        task start=92 end=104 symbol=first_item x=112 y=122 width=98 height=36 {
+            label first_item
+        }
+        gateway role=choice-join start=78 end=104 x=288 y=50 size=24
+        end-event x=336 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 88 62 112 62 role=sequence
+        flow 176 62 200 62 role=sequence
+        flow 264 62 288 62 role=sequence
+        flow 76 74 76 140 112 140 role=sequence
+        flow 210 140 300 140 300 74 role=sequence
+        flow 312 62 336 62 role=sequence
+    }
+}

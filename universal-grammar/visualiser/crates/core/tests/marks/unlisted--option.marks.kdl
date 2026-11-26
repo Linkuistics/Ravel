@@ -1,0 +1,263 @@
+marks-case {
+    sequence a a a a a a
+    state steps-read=6 reading-count=10 cap-reached=#true {
+        follow-path 1 s x
+        follow-path 2 s x
+        follow-path 3 s x
+        follow-path 4 s x
+        follow-path 5 s x
+        follow-path 6 s x
+        follow-path 7 s x
+        follow-path 8 s x
+        follow-path 9 s x
+        follow-path 10 s x
+    }
+    marks s {
+        reading 1 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 2 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 3 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 4 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 5 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 6 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 7 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 8 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 9 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        reading 10 {
+            marker {
+                reference-box x start=15 end=16
+            }
+            option a {
+                reference-box x start=15 end=16
+            }
+            end can-end=#true
+        }
+        unlisted-option b
+    }
+    marks s x {
+        reading 1 {
+            marker {
+                task-box a start=38 end=41
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            end can-end=#true
+            pass 3 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 2 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 3 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 4 {
+            marker {
+                task-box a start=38 end=41
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 5 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 5 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 6 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 7 {
+            marker {
+                task-box a start=38 end=41
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 8 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 5 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 9 {
+            marker {
+                task-box a start=38 end=41
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            end can-end=#true
+            pass 4 {
+                back-flow start=27 end=43
+            }
+        }
+        reading 10 {
+            marker {
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+            }
+            option a {
+                back-flow start=27 end=43
+                task-box a start=28 end=31
+                task-box a start=34 end=37
+                task-box a start=38 end=41
+            }
+            end can-end=#true
+            pass 5 {
+                back-flow start=27 end=43
+            }
+        }
+        unlisted-option b
+    }
+}

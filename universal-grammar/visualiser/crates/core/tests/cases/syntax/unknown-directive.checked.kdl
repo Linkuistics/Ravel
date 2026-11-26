@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="9e561f38e6d8507fbfd83f37b89698047b6f8b6bc5f9ca5e9afdc2ca554a44ab" {
+    start-rule name=a start=7 end=8
+    rule name=a start=22 end=23 {
+        symbol value=x start=26 end=29
+    }
+    symbol value=x {
+        use rule=a start=26 end=29
+    }
+    diagnostic severity=error code=unknown-directive message="`%strat` is not a directive; the directives are `%doc` and `%start`" start=11 end=17 line=2 column=1
+}

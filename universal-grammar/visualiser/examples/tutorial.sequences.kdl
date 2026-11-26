@@ -1,0 +1,13 @@
+/- kdl-version 2
+// Sequences for tutorial.ebnf. Each argument is one step.
+// failure-point counts steps from 1. The tracer design sets the final fixture format.
+
+accepted overview install introduce_concept show_example set_exercise show_solution summarise
+accepted overview install install configure introduce_concept show_example show_example set_exercise give_hint give_hint show_solution check_understanding introduce_concept show_example summarise suggest_next_steps
+
+// The setup needs at least one install step.
+rejected overview introduce_concept show_example summarise failure-point=2
+// A lesson shows an example before its exercise.
+rejected overview install introduce_concept set_exercise show_solution summarise failure-point=4
+// A lesson shows three examples at most.
+rejected overview install introduce_concept show_example show_example show_example show_example summarise failure-point=7

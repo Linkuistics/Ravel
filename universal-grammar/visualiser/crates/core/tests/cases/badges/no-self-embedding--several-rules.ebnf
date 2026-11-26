@@ -1,0 +1,4 @@
+// The loop of the output-view spec: right recursion through two rules.
+%start question ;
+question = "asks" answer ;
+answer = "answers" question? ;

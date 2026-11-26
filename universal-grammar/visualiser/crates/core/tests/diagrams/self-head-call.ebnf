@@ -1,0 +1,3 @@
+// A self head call: a reference box with the loop sign.
+%start list ;
+list = list "item" | "first_item" ;

@@ -1,0 +1,9 @@
+flowchart TB
+  S(["Start here: start state"]):::start -->|"start outer, start inner"| X["“x”"]
+  X -->|"1: new pass of inner"| X
+  X -->|"2: end inner, new pass of outer, start inner"| X
+  X -->|"end inner"| Y["“y”"]
+  Y -->|"new pass of outer, start inner"| X
+  X -->|"end inner, end outer"| E(["end state"])
+  Y -->|"end outer"| E
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330

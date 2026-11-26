@@ -1,0 +1,3 @@
+// Constructs inside each other: a choice in a repetition in an optional part.
+%start r ;
+r = ("a" ("b" | "c" "d")+ )? ("e"* | "f") ;

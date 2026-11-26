@@ -1,0 +1,2 @@
+%start order ;
+order = "approve" "approved" "re-view" "review it" ;

@@ -1,0 +1,27 @@
+checked-grammar format-version=2 grammar-sha256=a55b53f750a51443488c33c890fd63cdec4fe2b3988cecb2c41ad7e786d72724 {
+    start-rule name=question start=79 end=87
+    rule name=question start=90 end=98 {
+        sequence start=101 end=114 {
+            symbol value=asks start=101 end=107
+            reference name=answer start=108 end=114
+        }
+    }
+    rule name=answer start=117 end=123 {
+        sequence start=126 end=145 {
+            symbol value=answers start=126 end=135
+            optional start=136 end=145 {
+                reference name=question start=136 end=144
+            }
+        }
+    }
+    symbol value=asks {
+        use rule=question start=101 end=107
+    }
+    symbol value=answers {
+        use rule=answer start=126 end=135
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=question
+        member rule=answer
+    }
+}

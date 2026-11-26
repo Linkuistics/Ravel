@@ -1,0 +1,4 @@
+// Choice rule: other braces after an item are a bound. A bound that has not
+// the form `{n}`, `{m,n}` or `{m,}` is a malformed bound.
+%start a ;
+a = "x"{2, ;

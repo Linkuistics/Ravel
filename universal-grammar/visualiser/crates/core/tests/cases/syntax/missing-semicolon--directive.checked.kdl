@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256="0568c5c497a73d2cbada9eeda1d36e79f3c6be941cf46fc4cfdc69ae69cf1d25" {
+    grammar-doc text="A grammar." start=5 end=17
+    start-rule name=a start=25 end=26
+    rule name=a start=29 end=30 {
+        symbol value=x start=33 end=36
+    }
+    symbol value=x {
+        use rule=a start=33 end=36
+    }
+    diagnostic severity=error code=missing-semicolon message="missing `;` at the end of the `%doc` declaration" start=17 end=17 line=1 column=18
+}

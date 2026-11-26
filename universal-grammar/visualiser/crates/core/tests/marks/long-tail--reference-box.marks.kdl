@@ -1,0 +1,29 @@
+marks-case {
+    sequence b b
+    state steps-read=2 reading-count=1 cap-reached=#false {
+        follow-path 1 r
+    }
+    marks r {
+        reading 1 {
+            marker {
+                task-box b start=36 end=39
+            }
+            option very_long_symbol {
+                task-box very_long_symbol start=15 end=33
+                reference-box r start=40 end=41
+            }
+            option b {
+                task-box b start=36 end=39
+                reference-box r start=40 end=41
+            }
+            option c {
+                reference-box r start=40 end=41
+                task-box c start=45 end=48
+            }
+            end can-end=#true
+            pass 2 {
+                breadcrumb 0 r
+            }
+        }
+    }
+}

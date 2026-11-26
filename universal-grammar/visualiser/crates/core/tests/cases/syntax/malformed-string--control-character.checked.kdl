@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=d1aae004f7c458cfe05426a437835c59a2f197e128c92bd396475e377bce282b {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value="x\u{7}" start=15 end=19
+    }
+    symbol value="x\u{7}" {
+        use rule=a start=15 end=19
+    }
+    diagnostic severity=error code=malformed-string message="U+0007 cannot stand in a string as a literal character; write `\\u{7}` in a string that is not raw" start=17 end=18 line=2 column=7
+}

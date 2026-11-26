@@ -1,0 +1,9 @@
+checked-grammar format-version=2 grammar-sha256="06919e5c8f510a1cba46d9a3cf73e92b4e56f652987742b7f13583d787ebcfe8" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value="C:\\path" start=15 end=26
+    }
+    symbol value="C:\\path" {
+        use rule=a start=15 end=26
+    }
+}

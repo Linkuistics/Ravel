@@ -1,0 +1,23 @@
+checked-grammar format-version=2 grammar-sha256="59f214f7ba04a4b32c59b9cdf912f6b67cbaad8acc9dd8a2bf02ae74708d3420" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=65 {
+            symbol value=approve start=23 end=32
+            symbol value=approved start=33 end=43
+            symbol value=re-view start=44 end=53
+            symbol value="review it" start=54 end=65
+        }
+    }
+    symbol value=approve {
+        use rule=order start=23 end=32
+    }
+    symbol value=approved {
+        use rule=order start=33 end=43
+    }
+    symbol value=re-view {
+        use rule=order start=44 end=53
+    }
+    symbol value="review it" {
+        use rule=order start=54 end=65
+    }
+}

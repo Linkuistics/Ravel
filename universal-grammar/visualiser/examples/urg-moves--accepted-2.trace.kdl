@@ -1,0 +1,118 @@
+trace format-version=1 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" reading-cap=10 {
+    sequence {
+        step "refers back"
+        step "states the problem"
+        step "proposes a solution"
+        step "identifies a gap"
+        step "revises the solution"
+        step "identifies a gap"
+        step "revises the solution"
+        step "gives an example"
+        step "gives an example"
+        step "generalises the example"
+        step "names the new concept"
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="refers back"
+        next symbol="states the problem"
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="states the problem"
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="proposes a solution"
+        next symbol="shows the simplest case"
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="identifies a gap"
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="revises the solution"
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="identifies a gap"
+        next symbol="gives an example"
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="revises the solution"
+    }
+    prefix steps=7 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="identifies a gap"
+        next symbol="gives an example"
+    }
+    prefix steps=8 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="gives an example"
+    }
+    prefix steps=9 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="gives an example"
+        next symbol="generalises the example"
+    }
+    prefix steps=10 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="names the new concept"
+    }
+    prefix steps=11 reading-count=1 cap-reached=#false can-end=#true
+    reading parent=1 can-end=#true {
+        rule name=episode {
+            step number=1 symbol="refers back" {
+                origin start=463 end=476
+            }
+            step number=2 symbol="states the problem" {
+                origin start=478 end=498
+            }
+            rule name=development {
+                origin start=499 end=510
+                step number=3 symbol="proposes a solution" {
+                    origin start=673 end=694
+                }
+                loop kind=tail-references pass-rule=refinement {
+                    origin start=695 end=705
+                    pass number=1 {
+                        rule name=refinement {
+                            origin start=695 end=705
+                            step number=4 symbol="identifies a gap" {
+                                origin start=1058 end=1076
+                            }
+                            step number=5 symbol="revises the solution" {
+                                origin start=1077 end=1099
+                            }
+                        }
+                    }
+                    pass number=2 {
+                        origin start=1100 end=1110
+                        rule name=refinement {
+                            origin start=1100 end=1110
+                            step number=6 symbol="identifies a gap" {
+                                origin start=1058 end=1076
+                            }
+                            step number=7 symbol="revises the solution" {
+                                origin start=1077 end=1099
+                            }
+                        }
+                    }
+                }
+            }
+            rule name=generalisation {
+                origin start=511 end=525
+                loop kind=repetition {
+                    origin start=1238 end=1260
+                    pass number=1 {
+                        step number=8 symbol="gives an example" {
+                            origin start=1238 end=1256
+                        }
+                    }
+                    pass number=2 {
+                        step number=9 symbol="gives an example" {
+                            origin start=1238 end=1256
+                        }
+                    }
+                }
+                step number=10 symbol="generalises the example" {
+                    origin start=1261 end=1286
+                }
+                step number=11 symbol="names the new concept" {
+                    origin start=1287 end=1310
+                }
+            }
+        }
+    }
+}

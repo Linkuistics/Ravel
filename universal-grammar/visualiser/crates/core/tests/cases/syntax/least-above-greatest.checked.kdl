@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256="56b0cfdaa93760e9f7df2cb6b9cd75e2c1f3beaa36ad9983b13fa29bef2f771e" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=4 max=2 start=15 end=23 {
+            symbol value=x start=15 end=18
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=least-above-greatest message="the least number 4 is above the greatest number 2" start=18 end=23 line=2 column=8
+}

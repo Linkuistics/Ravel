@@ -1,0 +1,25 @@
+marks-case {
+    sequence y y y
+    state steps-read=3 reading-count=1 cap-reached=#false {
+        follow-path 1 s
+    }
+    marks s {
+        reading 1 {
+            marker {
+                task-box y start=15 end=18
+                task-box y start=25 end=28
+            }
+            option y {
+                task-box y start=15 end=18
+                back-flow start=15 end=22
+            }
+            end can-end=#true
+            pass 3 {
+                back-flow start=15 end=22
+            }
+            pass 3 {
+                back-flow start=25 end=33
+            }
+        }
+    }
+}

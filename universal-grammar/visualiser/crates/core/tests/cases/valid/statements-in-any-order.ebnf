@@ -1,0 +1,4 @@
+b = "y" ;
+a = b ;
+%start a ;
+%doc "Statements in any order." ;

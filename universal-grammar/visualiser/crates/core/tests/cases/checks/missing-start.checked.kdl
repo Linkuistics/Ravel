@@ -1,0 +1,9 @@
+checked-grammar format-version=2 grammar-sha256="726cabbff84d7c3f4459c02e6e746d544052fadd3f54ba8920a9dda183343240" {
+    rule name=order start=0 end=5 {
+        symbol value=submit start=8 end=16
+    }
+    symbol value=submit {
+        use rule=order start=8 end=16
+    }
+    diagnostic severity=error code=missing-start message="The grammar has no `%start`. Add `%start NAME ;`, where NAME is the start rule." start=0 end=0 line=1 column=1
+}

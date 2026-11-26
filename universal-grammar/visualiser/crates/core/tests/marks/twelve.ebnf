@@ -1,0 +1,14 @@
+%start s ;
+s = "seed" (r1 | r2 | r3 | r4 | r5 | r6 | r7 | r8 | r9 | r10 | r11 | r12) ;
+r1 = "next" ;
+r2 = "next" ;
+r3 = "next" ;
+r4 = "next" ;
+r5 = "next" ;
+r6 = "next" ;
+r7 = "next" ;
+r8 = "next" ;
+r9 = "next" ;
+r10 = "next" ;
+r11 = "next" ;
+r12 = "next" ;

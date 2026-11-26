@@ -1,0 +1,2 @@
+error malformed-derived-node 128..136 "number=2"
+    This step of a tree has `number=2`. The steps of a tree run from 1 in the order of the sequence, so this step has `number=1`.

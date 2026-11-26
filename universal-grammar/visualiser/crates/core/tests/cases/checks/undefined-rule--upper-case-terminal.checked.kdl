@@ -1,0 +1,7 @@
+checked-grammar format-version=2 grammar-sha256=be881feb166d4edf703f0a48a2caf701357c5088f9bce7b7e534b8925dfe9df8 {
+    start-rule name=order start=91 end=96
+    rule name=order start=99 end=104 {
+        reference name=SUBMIT start=107 end=113
+    }
+    diagnostic severity=error code=undefined-rule message="In the rule `order`, `SUBMIT` is not the name of a rule. If you meant a symbol, write \"SUBMIT\"." start=107 end=113 line=3 column=9
+}

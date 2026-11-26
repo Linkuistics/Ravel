@@ -1,0 +1,5 @@
+// Choice rule: the recovery after a broken string uses the escapes of the
+// scanner. The two `\` escape each other, so the next `"` closes the string.
+%start a ;
+a = "x
+y\\" "z" ;

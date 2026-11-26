@@ -1,0 +1,33 @@
+diagrams format-version=1 grammar-sha256="9562a846f528e0886e5f37be6b6d7d84a657cfef6e950c1e493e67dcf7cf5adc" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=question width=284 height=102 {
+        start-event x=16 y=50 size=24
+        task start=102 end=108 symbol=asks x=64 y=44 width=64 height=36 {
+            label asks
+        }
+        reference start=109 end=115 rule=answer x=152 y=38 width=68 height=48 one-step=#false loop-link=tail-references {
+            label answer
+        }
+        end-event x=244 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 128 62 152 62 role=sequence
+        flow 220 62 244 62 role=sequence
+    }
+    diagram rule=answer width=408 height=114 {
+        start-event x=16 y=62 size=24
+        task start=127 end=136 symbol=answers x=64 y=56 width=76 height=36 {
+            label answers
+        }
+        gateway role=option-split start=137 end=146 x=164 y=62 size=24
+        reference start=137 end=145 rule=question x=212 y=50 width=84 height=48 one-step=#false loop-link=tail-references {
+            label question
+        }
+        gateway role=option-join start=137 end=146 x=320 y=62 size=24
+        end-event x=368 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 140 74 164 74 role=sequence
+        flow 188 74 212 74 role=sequence
+        flow 176 62 176 16 332 16 332 62 role=skip start=137 end=146
+        flow 296 74 320 74 role=sequence
+        flow 344 74 368 74 role=sequence
+    }
+}

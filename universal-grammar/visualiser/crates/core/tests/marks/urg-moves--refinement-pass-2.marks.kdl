@@ -1,0 +1,50 @@
+marks-case {
+    sequence "states the problem" "proposes a solution" "identifies a gap" "revises the solution" "identifies a gap" "revises the solution"
+    state steps-read=6 reading-count=1 cap-reached=#false {
+        follow-path 1 episode development refinement
+    }
+    marks episode {
+        reading 1 {
+            marker {
+                reference-box development start=499 end=510
+            }
+            option "identifies a gap" {
+                reference-box development start=499 end=510
+            }
+            option "gives an example" {
+                reference-box generalisation start=511 end=525
+            }
+            end can-end=#true
+        }
+    }
+    marks episode development {
+        reading 1 {
+            marker {
+                reference-box refinement start=695 end=705
+            }
+            option "identifies a gap" {
+                reference-box refinement start=695 end=705
+            }
+            end can-end=#true {
+                option "gives an example"
+            }
+        }
+    }
+    marks episode development refinement {
+        reading 1 {
+            marker {
+                task-box "revises the solution" start=1077 end=1099
+            }
+            option "identifies a gap" {
+                task-box "identifies a gap" start=1058 end=1076
+                back-edge refinement start=1100 end=1110
+            }
+            end can-end=#true {
+                option "gives an example"
+            }
+            pass 2 {
+                back-edge refinement start=1100 end=1110
+            }
+        }
+    }
+}

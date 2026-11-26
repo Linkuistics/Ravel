@@ -1,0 +1,21 @@
+marks-case {
+    sequence y x
+    state steps-read=2 reading-count=1 cap-reached=#false {
+        follow-path 1 a
+    }
+    marks a {
+        reading 1 {
+            marker {
+                task-box x start=17 end=20
+            }
+            option x {
+                reference-box a start=15 end=16
+                task-box x start=17 end=20
+            }
+            end can-end=#true
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+    }
+}

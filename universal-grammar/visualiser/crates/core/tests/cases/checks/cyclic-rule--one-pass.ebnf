@@ -1,0 +1,4 @@
+// One pass of the repetition is enough for the cycle.
+%start a ;
+a = b+ ;
+b = a | "x" ;

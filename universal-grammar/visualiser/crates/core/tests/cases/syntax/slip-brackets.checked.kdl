@@ -1,0 +1,24 @@
+checked-grammar format-version=2 grammar-sha256=f896f30e0c1451ec5ac8d65aaae472f17203dd1ea2c5c38b9e2bfca30f63b9a4 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=28 {
+            symbol value=x start=15 end=18
+            optional start=19 end=28 {
+                sequence start=20 end=27 {
+                    symbol value=y start=20 end=23
+                    symbol value=z start=24 end=27
+                }
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value=y {
+        use rule=a start=20 end=23
+    }
+    symbol value=z {
+        use rule=a start=24 end=27
+    }
+    diagnostic severity=error code=slip-brackets message="write `(\"y\" \"z\")?` for an optional part, not `[…]`" start=19 end=28 line=2 column=9
+}

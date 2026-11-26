@@ -1,0 +1,6 @@
+%doc """
+    The first line.
+  The second line.
+    """ ;
+%start a ;
+a = "x" ;

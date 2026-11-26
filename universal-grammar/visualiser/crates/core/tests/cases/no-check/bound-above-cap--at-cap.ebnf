@@ -1,0 +1,4 @@
+// 10 times 10 is 100. `*` counts as 1, and a reference starts a new count.
+%start a ;
+a = ("x"{10}){10} ("y"{50})* b{100} ;
+b = "z"{100} ;

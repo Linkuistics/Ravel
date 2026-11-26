@@ -1,0 +1,34 @@
+diagrams format-version=1 grammar-sha256=fc8e2e6b608e425e6dab35b835db63f9713ace2f743ec9f8614730b52d730a41 font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=706 height=117 {
+        start-event x=16 y=44 size=24
+        gateway role=loop-join start=92 end=111 x=64 y=44 size=24
+        task start=92 end=106 symbol=show_example x=112 y=38 width=114 height=36 {
+            label show_example
+        }
+        gateway role=loop-split start=92 end=111 x=250 y=44 size=24
+        gateway role=loop-join start=112 end=122 x=298 y=44 size=24
+        task start=112 end=118 symbol=next x=346 y=38 width=64 height=36 {
+            label next
+        }
+        gateway role=loop-split start=112 end=122 x=434 y=44 size=24
+        gateway role=loop-join start=123 end=132 x=482 y=44 size=24
+        task start=123 end=129 symbol=last x=530 y=38 width=64 height=36 {
+            label last
+        }
+        gateway role=loop-split start=123 end=132 x=618 y=44 size=24
+        end-event x=666 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 226 56 250 56 role=sequence
+        flow 262 68 262 92 76 92 76 68 role=back start=92 end=111 label="↻ 1–3" label-x=169 label-y=92
+        flow 274 56 298 56 role=sequence
+        flow 322 56 346 56 role=sequence
+        flow 410 56 434 56 role=sequence
+        flow 446 68 446 92 310 92 310 68 role=back start=112 end=122 label="↻ 2+" label-x=378 label-y=92
+        flow 458 56 482 56 role=sequence
+        flow 506 56 530 56 role=sequence
+        flow 594 56 618 56 role=sequence
+        flow 630 68 630 92 494 92 494 68 role=back start=123 end=132 label="↻ 3" label-x=562 label-y=92
+        flow 642 56 666 56 role=sequence
+    }
+}

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="58eafa8d3e6cf67b3d479961d50665d41d120c549c580ddc9e47cdcb787698f3" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        doc text="The first line.\n\n  An indented line." start=13 end=69
+        symbol value=x start=76 end=79
+    }
+    symbol value=x {
+        use rule=a start=76 end=79
+    }
+}

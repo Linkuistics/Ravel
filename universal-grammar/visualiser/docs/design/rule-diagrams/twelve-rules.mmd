@@ -1,0 +1,22 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef lost fill:#fbeaea,stroke:#b42318,color:#7a1712
+  classDef kept fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  R["Start here: the one reading<br/>after seed: s › seed"]:::start
+  subgraph capped["Rejected: the readings after next"]
+    direction TB
+    N12["12 successors:<br/>s › r1 › next … s › r12 › next"]
+    L10["The cap lists 10.<br/>The internal list holds 11"]
+    lost["At least one box r1 … r12<br/>loses its mark"]:::lost
+    N12 --> L10 --> lost
+  end
+  subgraph routes["Proposed: the routes of the reading"]
+    direction TB
+    A["12 alternatives at the open root:<br/>the child rk at the box rk"]
+    S["Each route scans next<br/>at the start of rk"]
+    P["12 cut successors, no cap"]
+    M["Rule 1 marks each box r1 … r12"]:::kept
+    A --> S --> P --> M
+  end
+  R -->|"1"| capped
+  R -->|"2"| routes

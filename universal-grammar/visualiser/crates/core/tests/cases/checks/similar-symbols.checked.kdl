@@ -1,0 +1,20 @@
+checked-grammar format-version=2 grammar-sha256="6006205fcf088196337645d828410b0d132db08debdc76d647a2c3f46ea91a2b" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=66 {
+            symbol value=submit_order start=23 end=37
+            symbol value=check_order start=38 end=51
+            symbol value=Submit-Order start=52 end=66
+        }
+    }
+    symbol value=submit_order {
+        use rule=order start=23 end=37
+    }
+    symbol value=check_order {
+        use rule=order start=38 end=51
+    }
+    symbol value=Submit-Order {
+        use rule=order start=52 end=66
+    }
+    diagnostic severity=warning code=similar-symbols message="In the rule `order`, the symbol \"Submit-Order\" differs from the symbol \"submit_order\" only by case, spaces, `_` or `-`. A misspelt symbol is a new symbol." start=52 end=66 line=2 column=38
+}

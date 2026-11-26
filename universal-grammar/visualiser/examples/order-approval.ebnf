@@ -1,0 +1,43 @@
+%doc """
+    An order-approval process with recursive escalation.
+    An approver who cannot decide escalates the order one level up.
+    Each decision then travels back down one level at a time,
+    so every "escalate" has a matching "hand_back".
+    """ ;
+
+%start order ;
+
+order """
+    One order, from submission to its outcome.
+    The system checks the stock and the credit of each order.
+    The approver can ask for changes up to three times.
+    """
+    = "submit_order" "check_order" revision{0,3} outcome ;
+
+revision """
+    One round of changes: the approver asks for changes,
+    and the customer sends a changed order.
+    """
+    = "request_changes" "revise_order" ;
+
+outcome """
+    An approved order ships.
+    A rejected order closes with a notice to the customer.
+    """
+    = approval "ship"
+    | rejection "notify_rejection"
+    ;
+
+approval """
+    A decision that ends in approval, at one level of authority.
+    The system can remind the approver up to two times.
+    An escalation opens the same decision one level up.
+    """
+    = "remind"{0,2} ("approve" | "escalate" approval "hand_back") ;
+
+rejection """
+    A decision that ends in rejection, at one level of authority.
+    The system can remind the approver up to two times.
+    An escalation opens the same decision one level up.
+    """
+    = "remind"{0,2} ("reject" | "escalate" rejection "hand_back") ;

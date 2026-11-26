@@ -1,0 +1,113 @@
+checked-grammar format-version=2 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" {
+    grammar-doc text="The moves inside one explanatory episode, as URG analyses them.\nThe grammar describes observed episodes, so a rejected episode is\nevidence against the grammar. Move labels are provisional, and they\nuse the words of the URG analysis.\nThe rules follow the URG patterns \"failing case motivates fix\",\n\"simplest case first\" and \"refinement of an earlier solution\"." start=5 end=400
+    start-rule name=episode start=411 end=418
+    rule name=episode start=422 end=429 {
+        doc text="One explanatory episode." start=430 end=456
+        sequence start=463 end=526 {
+            optional start=463 end=477 {
+                symbol value="refers back" start=463 end=476
+            }
+            symbol value="states the problem" start=478 end=498
+            reference name=development start=499 end=510
+            optional start=511 end=526 {
+                reference name=generalisation start=511 end=525
+            }
+        }
+    }
+    rule name=development start=530 end=541 {
+        doc text="The development of the episode: graded cases,\nor a first solution and its refinements." start=542 end=648
+        choice start=655 end=705 {
+            reference name=progression start=655 end=666
+            sequence start=673 end=705 {
+                symbol value="proposes a solution" start=673 end=694
+                reference name=refinement start=695 end=705
+            }
+        }
+    }
+    rule name=progression start=713 end=724 {
+        doc text="The simplest case first, then complications and repairs." start=725 end=783
+        sequence start=790 end=846 {
+            symbol value="shows the simplest case" start=790 end=815
+            repetition min=0 start=816 end=846 {
+                choice start=817 end=844 {
+                    symbol value="adds a complication" start=817 end=838
+                    reference name=fix start=841 end=844
+                }
+            }
+        }
+    }
+    rule name=fix start=850 end=853 {
+        doc text="A failing case motivates a repair." start=854 end=890
+        sequence start=897 end=960 {
+            symbol value="shows a failing case" start=897 end=919
+            optional start=920 end=943 {
+                symbol value="states the principle" start=920 end=942
+            }
+            symbol value="gives a remedy" start=944 end=960
+        }
+    }
+    rule name=refinement start=964 end=974 {
+        doc text="Each revision closes one gap, and the revised solution can show a new gap." start=975 end=1051
+        sequence start=1058 end=1111 {
+            symbol value="identifies a gap" start=1058 end=1076
+            symbol value="revises the solution" start=1077 end=1099
+            optional start=1100 end=1111 {
+                reference name=refinement start=1100 end=1110
+            }
+        }
+    }
+    rule name=generalisation start=1115 end=1129 {
+        doc text="Hypothesis under test: authors give at least two examples\nbefore they generalise." start=1130 end=1231
+        sequence start=1238 end=1311 {
+            repetition min=2 start=1238 end=1260 {
+                symbol value="gives an example" start=1238 end=1256
+            }
+            symbol value="generalises the example" start=1261 end=1286
+            optional start=1287 end=1311 {
+                symbol value="names the new concept" start=1287 end=1310
+            }
+        }
+    }
+    symbol value="refers back" {
+        use rule=episode start=463 end=476
+    }
+    symbol value="states the problem" {
+        use rule=episode start=478 end=498
+    }
+    symbol value="proposes a solution" {
+        use rule=development start=673 end=694
+    }
+    symbol value="shows the simplest case" {
+        use rule=progression start=790 end=815
+    }
+    symbol value="adds a complication" {
+        use rule=progression start=817 end=838
+    }
+    symbol value="shows a failing case" {
+        use rule=fix start=897 end=919
+    }
+    symbol value="states the principle" {
+        use rule=fix start=920 end=942
+    }
+    symbol value="gives a remedy" {
+        use rule=fix start=944 end=960
+    }
+    symbol value="identifies a gap" {
+        use rule=refinement start=1058 end=1076
+    }
+    symbol value="revises the solution" {
+        use rule=refinement start=1077 end=1099
+    }
+    symbol value="gives an example" {
+        use rule=generalisation start=1238 end=1256
+    }
+    symbol value="generalises the example" {
+        use rule=generalisation start=1261 end=1286
+    }
+    symbol value="names the new concept" {
+        use rule=generalisation start=1287 end=1310
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=refinement
+    }
+}

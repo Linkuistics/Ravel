@@ -1,0 +1,15 @@
+trace format-version=1 grammar-sha256=a73fa89eee0fda3bda062712327351007ea3e6e1950debb8c4c619b4221afbd8 reading-cap=10 {
+    sequence {
+        step x
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+    }
+    failure-point step=1
+    reading can-end=#false {
+        next symbol=y {
+            occurrence start=20 end=23
+        }
+        rule name=s
+    }
+}

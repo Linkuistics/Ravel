@@ -1,0 +1,16 @@
+marks-case {
+    sequence overview introduce_concept
+    state steps-read=1 failure-point=2 reading-count=1 cap-reached=#false {
+        follow-path 1 tutorial
+    }
+    marks tutorial {
+        reading 1 {
+            marker {
+                reference-box overview start=409 end=417
+            }
+            option install {
+                reference-box setup start=418 end=423
+            }
+        }
+    }
+}

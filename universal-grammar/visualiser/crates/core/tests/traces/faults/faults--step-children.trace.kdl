@@ -1,0 +1,7 @@
+trace format-version=1 {
+    sequence {
+        step x {
+            note
+        }
+    }
+}

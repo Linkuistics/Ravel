@@ -1,0 +1,4 @@
+// A head reference and a tail reference in one cycle make self-embedding.
+%start a ;
+a = "x" b | "y" ;
+b = a "z" ;

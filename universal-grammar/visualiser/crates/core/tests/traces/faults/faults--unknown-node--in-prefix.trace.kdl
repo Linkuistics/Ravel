@@ -1,0 +1,6 @@
+trace format-version=1 {
+    sequence
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        option symbol=x
+    }
+}

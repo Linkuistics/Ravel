@@ -1,0 +1,4 @@
+trace format-version=1 {
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false
+    sequence
+}

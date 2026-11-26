@@ -1,0 +1,3 @@
+%start s ;
+s = item "y" | item "z" ;
+item = "x" ;

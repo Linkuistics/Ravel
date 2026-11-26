@@ -1,0 +1,15 @@
+flowchart TB
+  GG["Start here: random grammars<br/>1 to 4 rules, depth 3 at most<br/>symbols “x”, “y”, “z”"]:::start --> CK{"rule checks<br/>find an error?"}
+  CK -->|"yes"| SK["skip the grammar"]
+  CK -->|"no"| SQ["sequences of 12 steps at most<br/>sentences with at most 64 decisions,<br/>single edits, random strings"]
+  SQ --> TR["tracer"]
+  SQ --> RR["reference recogniser<br/>plain BNF, relations over spans"]
+  TR --> CMP["compare each prefix:<br/>acceptance, can end, next options"]
+  RR --> CMP
+  TR --> BK["a step back equals a new trace,<br/>and attributes change nothing"]
+  SQ --> TO["tree oracle, 6 steps at most<br/>sets of distinct trees,<br/>grown until they stop growing"]
+  TO --> BIG{"a set holds more<br/>than 1,000 trees?"}
+  BIG -->|"yes"| SKC["skip the tree comparison<br/>and count the case"]
+  BIG -->|"no"| CR["compare the readings, up to the cap:<br/>origins, parents, can end,<br/>next options up to 5 steps"]
+  TR --> CR
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330

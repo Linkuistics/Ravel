@@ -1,0 +1,80 @@
+trace format-version=1 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" reading-cap=10 {
+    sequence {
+        step "states the problem"
+        step "shows the simplest case"
+        step "adds a complication"
+        step "shows a failing case"
+        step "gives a remedy"
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="refers back"
+        next symbol="states the problem"
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="proposes a solution"
+        next symbol="shows the simplest case"
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="adds a complication"
+        next symbol="shows a failing case"
+        next symbol="gives an example"
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="adds a complication"
+        next symbol="shows a failing case"
+        next symbol="gives an example"
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="states the principle"
+        next symbol="gives a remedy"
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol="adds a complication"
+        next symbol="shows a failing case"
+        next symbol="gives an example"
+    }
+    reading parent=1 can-end=#true {
+        next symbol="adds a complication" {
+            occurrence start=817 end=838
+        }
+        next symbol="shows a failing case" {
+            occurrence start=897 end=919
+        }
+        next symbol="gives an example" {
+            occurrence start=1238 end=1256
+        }
+        rule name=episode {
+            step number=1 symbol="states the problem" {
+                origin start=478 end=498
+            }
+            rule name=development {
+                origin start=499 end=510
+                rule name=progression {
+                    origin start=655 end=666
+                    step number=2 symbol="shows the simplest case" {
+                        origin start=790 end=815
+                    }
+                    loop kind=repetition {
+                        origin start=816 end=846
+                        pass number=1 {
+                            step number=3 symbol="adds a complication" {
+                                origin start=817 end=838
+                            }
+                        }
+                        pass number=2 {
+                            rule name=fix {
+                                origin start=841 end=844
+                                step number=4 symbol="shows a failing case" {
+                                    origin start=897 end=919
+                                }
+                                step number=5 symbol="gives a remedy" {
+                                    origin start=944 end=960
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

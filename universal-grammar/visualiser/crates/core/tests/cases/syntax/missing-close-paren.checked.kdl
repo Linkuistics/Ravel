@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="5e52d774a777d8499ccb0f0db94936f304581fd3cbb0ca0b1d57c40f5d8aa2ef" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=16 end=23 {
+            symbol value=x start=16 end=19
+            symbol value=y start=20 end=23
+        }
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    symbol value=y {
+        use rule=a start=20 end=23
+    }
+    diagnostic severity=error code=missing-close-paren message="this `(` has no matching `)`" start=15 end=16 line=2 column=5
+}

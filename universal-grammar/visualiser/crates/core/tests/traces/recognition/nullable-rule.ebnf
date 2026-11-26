@@ -1,0 +1,5 @@
+%start a ;
+
+a = b c "z" ;
+b = "x"? ;
+c = b ;

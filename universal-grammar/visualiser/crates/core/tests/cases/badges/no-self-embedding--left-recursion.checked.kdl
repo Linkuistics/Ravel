@@ -1,0 +1,19 @@
+checked-grammar format-version=2 grammar-sha256=f9077c47d2a1530ff44eb4c98ee95f6d849f6bc455502ad2f6ceb52e78f964fe {
+    start-rule name=list start=7 end=11
+    rule name=list start=14 end=18 {
+        choice start=21 end=41 {
+            sequence start=21 end=32 {
+                reference name=list start=21 end=25
+                symbol value=item start=26 end=32
+            }
+            symbol value=item start=35 end=41
+        }
+    }
+    symbol value=item {
+        use rule=list start=26 end=32
+        use rule=list start=35 end=41
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=list
+    }
+}

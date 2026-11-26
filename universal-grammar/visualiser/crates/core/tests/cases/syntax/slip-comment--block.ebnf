@@ -1,0 +1,4 @@
+/* A comment
+   in the style of C. */
+%start a ;
+a = "x" ;

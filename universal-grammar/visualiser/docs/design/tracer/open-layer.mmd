@@ -1,0 +1,22 @@
+flowchart TB
+  subgraph layer["The open layer after step 1"]
+    direction TB
+    G["Start here: the open root<br/>start rule a, origin 0"]:::start
+    G --> O["open node of rule a<br/>origin 0, state: the reference a<br/>it waits for “x”"]
+    O -->|"last child:<br/>this same node"| O
+    O -->|"or last child:<br/>the completed a"| Y["rule node a over step 1<br/>by a = “y”"]
+    Y --> S["step 1 “y”"]
+  end
+  O --> T["a trip around the cycle adds a pass<br/>to the loop of head references<br/>every step of that pass comes later,<br/>so the pass makes no node"]:::note
+  subgraph reading["The one reading of “y”"]
+    direction TB
+    A0["a, the start rule"] --> L1["loop a ↻ head references"]
+    L1 --> P1["pass 1"]:::pass
+    P1 --> A1["a"]
+    A1 --> Y1["step 1 “y”"]
+  end
+  T --> A0
+  reading --> M["it can end by a = “y”<br/>it offers “x” by a = a “x”"]
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef pass fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  classDef note fill:#fdf3e1,stroke:#9a6700,color:#5c3d00

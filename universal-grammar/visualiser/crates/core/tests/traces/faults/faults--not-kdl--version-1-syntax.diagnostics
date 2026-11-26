@@ -1,0 +1,2 @@
+error not-kdl 60..64 "true"
+    The text is not KDL 2.0. The parser reports: Expected identifier string.

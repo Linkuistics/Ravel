@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="46dab5925fc966720e7e2ecff32ea7b3eb8fec3613d608e553e7603fb24c7e87" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=14 {
+        symbol value=x start=17 end=20
+    }
+    symbol value=x {
+        use rule=a start=17 end=20
+    }
+    diagnostic severity=error code=string-as-name message="a string cannot name a rule; write the bare name `a`" start=11 end=14 line=2 column=1
+}

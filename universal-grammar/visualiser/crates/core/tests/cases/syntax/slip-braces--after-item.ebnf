@@ -1,0 +1,5 @@
+// Choice rule: braces that open with a name, a string or `(` are the ISO slip,
+// wherever they stand. So `"x"{b}` is a slip, and its message names `b*`.
+%start a ;
+a = "x"{b} ;
+b = "y" ;

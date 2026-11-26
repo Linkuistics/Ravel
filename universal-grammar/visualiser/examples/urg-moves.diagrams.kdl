@@ -1,0 +1,154 @@
+diagrams format-version=1 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=episode width=896 height=114 {
+        start-event x=16 y=62 size=24
+        gateway role=option-split start=463 end=477 x=64 y=62 size=24
+        task start=463 end=476 symbol="refers back" x=112 y=56 width=106 height=36 {
+            label "refers back"
+        }
+        gateway role=option-join start=463 end=477 x=242 y=62 size=24
+        task start=478 end=498 symbol="states the problem" x=290 y=56 width=162 height=36 {
+            label "states the problem"
+        }
+        reference start=499 end=510 rule=development x=476 y=50 width=106 height=48 one-step=#false {
+            label development
+        }
+        gateway role=option-split start=511 end=526 x=606 y=62 size=24
+        reference start=511 end=525 rule=generalisation x=654 y=50 width=130 height=48 one-step=#false {
+            label generalisation
+        }
+        gateway role=option-join start=511 end=526 x=808 y=62 size=24
+        end-event x=856 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 88 74 112 74 role=sequence
+        flow 76 62 76 22 254 22 254 62 role=skip start=463 end=477
+        flow 218 74 242 74 role=sequence
+        flow 266 74 290 74 role=sequence
+        flow 452 74 476 74 role=sequence
+        flow 582 74 606 74 role=sequence
+        flow 630 74 654 74 role=sequence
+        flow 618 62 618 16 820 16 820 62 role=skip start=511 end=526
+        flow 784 74 808 74 role=sequence
+        flow 832 74 856 74 role=sequence
+    }
+    diagram rule=development width=444 height=186 {
+        start-event x=16 y=50 size=24
+        gateway role=choice-split start=655 end=705 x=64 y=50 size=24
+        reference start=655 end=666 rule=progression x=112 y=38 width=106 height=48 one-step=#false {
+            label progression
+        }
+        task start=673 end=694 symbol="proposes a solution" x=112 y=122 width=98 height=48 {
+            label "proposes a" solution
+        }
+        reference start=695 end=705 rule=refinement x=234 y=122 width=98 height=48 one-step=#false {
+            label refinement
+        }
+        gateway role=choice-join start=655 end=705 x=356 y=50 size=24
+        end-event x=404 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 88 62 112 62 role=sequence
+        flow 218 62 356 62 role=sequence
+        flow 76 74 76 146 112 146 role=sequence
+        flow 210 146 234 146 role=sequence
+        flow 332 146 368 146 368 74 role=sequence
+        flow 380 62 404 62 role=sequence
+    }
+    diagram rule=progression width=648 height=218 {
+        start-event x=16 y=62 size=24
+        task start=790 end=815 symbol="shows the simplest case" x=64 y=50 width=122 height=48 {
+            label "shows the" "simplest case"
+        }
+        gateway role=skip-split start=816 end=846 x=210 y=62 size=24
+        gateway role=loop-join start=816 end=846 x=244 y=62 size=24
+        gateway role=choice-split start=817 end=844 x=292 y=62 size=24
+        task start=817 end=838 symbol="adds a complication" x=340 y=50 width=114 height=48 {
+            label "adds a" complication
+        }
+        reference start=841 end=844 rule=fix x=340 y=134 width=64 height=48 one-step=#false {
+            label fix
+        }
+        gateway role=choice-join start=817 end=844 x=478 y=62 size=24
+        gateway role=loop-split start=816 end=846 x=526 y=62 size=24
+        gateway role=skip-join start=816 end=846 x=560 y=62 size=24
+        end-event x=608 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 186 74 210 74 role=sequence
+        flow 234 74 244 74 role=sequence
+        flow 268 74 292 74 role=sequence
+        flow 316 74 340 74 role=sequence
+        flow 454 74 478 74 role=sequence
+        flow 304 86 304 158 340 158 role=sequence
+        flow 404 158 490 158 490 86 role=sequence
+        flow 502 74 526 74 role=sequence
+        flow 538 86 538 200 256 200 256 86 role=back start=816 end=846
+        flow 550 74 560 74 role=sequence
+        flow 222 62 222 16 572 16 572 62 role=skip start=816 end=846
+        flow 584 74 608 74 role=sequence
+    }
+    diagram rule=fix width=614 height=114 {
+        start-event x=16 y=62 size=24
+        task start=897 end=919 symbol="shows a failing case" x=64 y=50 width=114 height=48 {
+            label "shows a" "failing case"
+        }
+        gateway role=option-split start=920 end=943 x=202 y=62 size=24
+        task start=920 end=942 symbol="states the principle" x=250 y=50 width=98 height=48 {
+            label "states the" principle
+        }
+        gateway role=option-join start=920 end=943 x=372 y=62 size=24
+        task start=944 end=960 symbol="gives a remedy" x=420 y=56 width=130 height=36 {
+            label "gives a remedy"
+        }
+        end-event x=574 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 178 74 202 74 role=sequence
+        flow 226 74 250 74 role=sequence
+        flow 214 62 214 16 384 16 384 62 role=skip start=920 end=943
+        flow 348 74 372 74 role=sequence
+        flow 396 74 420 74 role=sequence
+        flow 550 74 574 74 role=sequence
+    }
+    diagram rule=refinement width=500 height=134 {
+        start-event x=16 y=50 size=24
+        gateway role=back-edge-join start=964 end=974 x=64 y=50 size=24
+        task start=1058 end=1076 symbol="identifies a gap" x=112 y=44 width=146 height=36 {
+            label "identifies a gap"
+        }
+        task start=1077 end=1099 symbol="revises the solution" x=282 y=38 width=106 height=48 {
+            label "revises the" solution
+        }
+        gateway role=option-split start=1100 end=1111 x=412 y=50 size=24
+        end-event x=460 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 88 62 112 62 role=sequence
+        flow 258 62 282 62 role=sequence
+        flow 388 62 412 62 role=sequence
+        flow 436 62 460 62 role=sequence
+        flow 424 74 424 110 76 110 76 74 role=back-edge start=1100 end=1110 label="↻ refinement" label-x=250 label-y=110
+    }
+    diagram rule=generalisation width=726 height=135 {
+        start-event x=16 y=62 size=24
+        gateway role=loop-join start=1238 end=1260 x=64 y=62 size=24
+        task start=1238 end=1256 symbol="gives an example" x=112 y=56 width=146 height=36 {
+            label "gives an example"
+        }
+        gateway role=loop-split start=1238 end=1260 x=282 y=62 size=24
+        task start=1261 end=1286 symbol="generalises the example" x=330 y=50 width=106 height=48 {
+            label generalises "the example"
+        }
+        gateway role=option-split start=1287 end=1311 x=460 y=62 size=24
+        task start=1287 end=1310 symbol="names the new concept" x=508 y=50 width=106 height=48 {
+            label "names the" "new concept"
+        }
+        gateway role=option-join start=1287 end=1311 x=638 y=62 size=24
+        end-event x=686 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 88 74 112 74 role=sequence
+        flow 258 74 282 74 role=sequence
+        flow 294 86 294 110 76 110 76 86 role=back start=1238 end=1260 label="↻ 2+" label-x=185 label-y=110
+        flow 306 74 330 74 role=sequence
+        flow 436 74 460 74 role=sequence
+        flow 484 74 508 74 role=sequence
+        flow 472 62 472 16 650 16 650 62 role=skip start=1287 end=1311
+        flow 614 74 638 74 role=sequence
+        flow 662 74 686 74 role=sequence
+    }
+}

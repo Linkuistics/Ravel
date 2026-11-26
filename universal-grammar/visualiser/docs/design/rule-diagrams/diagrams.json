@@ -1,0 +1,283 @@
+{
+  "title": "Rule diagrams: agreed design",
+  "intro": "This presentation shows the design of the rule diagrams of the grammar workbench. It covers the drawing of each construct, the layout and its font, the diagram KDL and the marks of a trace. The spec docs/specs/rule-diagrams.md holds the decisions. The human agreed the design on 2026-11-20, and a view marked as a sketch is not a decision. The group \"Next positions\" is a proposal of 2026-11-21 by exact-marks-k39, with the cost repair of exact-marks-k44. The human has not yet agreed it. The mock-ups come from mockups.py, which lays out the example grammars by the agreed rules. Reading order: follow the numbered circles and the notes of a mock-up, or start at the dark node \"Start here\" of a graph.",
+  "groups": [
+    {
+      "id": "constructs",
+      "title": "The drawing of each construct",
+      "description": "Symbol, sequence, choice, optional part, repetitions, bounds, references and the self tail call."
+    },
+    {
+      "id": "examples",
+      "title": "The example grammars",
+      "description": "The diagrams of the three example grammars, and a sketch of a grammar of the sessions of a grove."
+    },
+    {
+      "id": "marks",
+      "title": "Marks of a trace",
+      "description": "Reading markers, next-option marks, the current pass of a loop, the failure point, the selection and the data object."
+    },
+    {
+      "id": "mixed",
+      "title": "Mixed presentation",
+      "description": "A rule that reads as text, with parts that open as diagrams. A sketch for after the slice."
+    },
+    {
+      "id": "layout",
+      "title": "Layout and font",
+      "description": "How each box takes its size from its children, and the choice between a monospace font and a proportional font."
+    },
+    {
+      "id": "core",
+      "title": "Core and page",
+      "description": "What the grammar view asks the core, and the rule that turns a next position into marks."
+    },
+    {
+      "id": "next-positions",
+      "title": "Next positions",
+      "description": "Proposed: how the core finds every next position of a listed reading, why the reading cap removes none, and what that costs."
+    }
+  ],
+  "discussion": {
+    "title": "Exact marks at a polynomial cost: cut successors",
+    "status": "Proposed by exact-marks-k44. An adversarial review comes next",
+    "summary": "A reading can have 2^d successors in a grammar of 2d + 1 rules, so Marks no longer list them. Marks follow the routes of each listed reading, and an open node without a step cuts each successor to the nodes that the four rules read for the open path. Equal cut successors join their origins, also the origins of an added pass, which rule 2 reads. The evaluation fills its lists in rounds over the cycles of the open layer, as the tracer does. A prototype agreed with an uncapped next step on 132,755 cases, and at depth 64 it found the marks of one open path in at most 4.4 ms.",
+    "diagramIds": [
+      "routes",
+      "f1-family",
+      "added-pass",
+      "cost",
+      "twelve-rules",
+      "route-origins",
+      "start-loop",
+      "data-flow",
+      "marks-rule"
+    ],
+    "updatedDiagrams": [
+      {
+        "id": "routes",
+        "summary": "Changed: an open node without a step cuts its successors for the open path, and equal cut successors join. The lists fill in rounds over the cycles of the layer."
+      },
+      {
+        "id": "f1-family",
+        "summary": "Added: the family whose one reading has 2^d successors, its few cut successors and their measured cost."
+      },
+      {
+        "id": "added-pass",
+        "summary": "Added: one successor from two routes, and why its added pass must join before rule 2 applies."
+      },
+      {
+        "id": "cost",
+        "summary": "Changed: the bound P × B became P × H × (m + G) cut successors, visited once for each progress in each round, with the measured family and a grammar full of cycles."
+      },
+      {
+        "id": "twelve-rules",
+        "summary": "Changed: the twelve next positions are now twelve cut successors."
+      },
+      {
+        "id": "data-flow",
+        "summary": "Changed: the alternatives belong to the state, and Marks evaluate cut successors for the open path."
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "constructs",
+      "group": "constructs",
+      "title": "One drawing for each construct",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-constructs.svg",
+      "caption": "Gateways are plain diamonds, and the first alternative stays on the main line. Skip flows run above an item, and back flows below it. A bound puts the loop marker with its numbers on the back flow. A reference to a rule for one step has no drill-down marker. A back edge runs below the body, or above it from the first alternative of each choice around it. A self tail call in another place draws as a reference box with the loop sign, so no flow crosses a box."
+    },
+    {
+      "id": "order",
+      "group": "examples",
+      "title": "The order-approval grammar",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-order.svg",
+      "caption": "approval refers to itself with a step on both sides, so it is a reference box, not a back edge. Its badge says \"may need a stack\"."
+    },
+    {
+      "id": "tutorial",
+      "group": "examples",
+      "title": "The tutorial grammar",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-tutorial.svg",
+      "caption": "Most references go to rules for one step, which draw as thick task boxes. setup, lesson and practice keep the drill-down marker."
+    },
+    {
+      "id": "urg",
+      "group": "examples",
+      "title": "The URG move grammar",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-urg.svg",
+      "caption": "refinement ends in a self tail call, which draws as a back edge to the start. progression repeats a choice, so three gateways stand in a row on each side: a visible trade-off of the strict pairs."
+    },
+    {
+      "id": "grove",
+      "group": "examples",
+      "title": "A grammar of the sessions of a grove",
+      "renderer": "svg",
+      "source": "grove-sessions.ebnf",
+      "rendered": "mock-grove.svg",
+      "caption": "Sketch, not a decision. Today the order of grove sessions emerges from the kind skills. This guess from the live groves shows how a workflow grammar would look. Each rule names the skill source that could contribute it. An abandoned leaf is not a step of the grammar."
+    },
+    {
+      "id": "markers",
+      "group": "marks",
+      "title": "Reading markers for two readings",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-markers.svg",
+      "caption": "A reading marker is a numbered tab: filled for the reading on view, outlined for the others. In a diagram above the last step, it sits on the reference box that holds the reading."
+    },
+    {
+      "id": "next-options",
+      "group": "marks",
+      "title": "Next options at each level of the open path",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-next-options.svg",
+      "caption": "The grammar view follows the reading to setup, the innermost rule that is not a rule for one step. The end event carries a mark when a next option lies after the rule."
+    },
+    {
+      "id": "current-pass",
+      "group": "marks",
+      "title": "The current pass of a loop",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-current-pass.svg",
+      "caption": "A loop that holds the reading shows its current pass. A next option that starts a new pass also marks the back edge or the back flow."
+    },
+    {
+      "id": "failure",
+      "group": "marks",
+      "title": "The state at a failure point",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-failure.svg",
+      "caption": "The marks are those of the state before the rejected step. The open path follows the reading into the inner approval."
+    },
+    {
+      "id": "selection",
+      "group": "marks",
+      "title": "The selection and the data object",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-selection.svg",
+      "caption": "The data object sits in the free band above the box of the step in focus. A selected box or repetition has an amber outline."
+    },
+    {
+      "id": "grove-trace",
+      "group": "marks",
+      "title": "This grove as a trace",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-grove-trace.svg",
+      "caption": "Sketch, not a decision. The sequence is the kind of each session of this grove so far. The reading is in pass 12 of work, at this design session. After a review, two readings wait until the next session decides."
+    },
+    {
+      "id": "abandoned",
+      "group": "marks",
+      "title": "Abandoned work as a withdrawn step",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-grove-abandoned.svg",
+      "caption": "Sketch, not a decision. An abandoned leaf stays in the sequence as a withdrawn step. The views show it, and the tracer does not read it. A real case from the BookScanBuilder grove comes first, then a review that a new review replaces."
+    },
+    {
+      "id": "text-mode",
+      "group": "mixed",
+      "title": "A rule as text, with parts that open as diagrams",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-text-mode.svg",
+      "caption": "Sketch for after the slice. The human described text mode as program text: whole constructs with implicit structure, and embedded diagrams for some parts. This sketch draws more structure than that. A reference opens in place as text or as a diagram, and the marks inside a diagram stay those of the diagram view."
+    },
+    {
+      "id": "layout",
+      "group": "layout",
+      "title": "Each box takes its size from its children",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-layout.svg",
+      "caption": "The dashed frames show the boxes of the expressions. After an edit, the elements after the edited part move, and none changes its order."
+    },
+    {
+      "id": "fonts",
+      "group": "layout",
+      "title": "A monospace font or a proportional font",
+      "renderer": "svg",
+      "source": "mockups.py",
+      "rendered": "mock-fonts.svg",
+      "caption": "Decision, agreed: the bundled monospace font IBM Plex Mono. Monospace labels wrap more, so the diagrams are narrower and taller. The core then needs only a count of cells."
+    },
+    {
+      "id": "data-flow",
+      "group": "core",
+      "title": "What the grammar view asks the core",
+      "source": "data-flow.mmd",
+      "caption": "The core lays out the diagrams, and it computes the marks of the open diagram for an open path. The alternatives of the open layer belong to the state on view. Marks evaluate the cut successors along the routes for each open path. The page chooses the open path and draws."
+    },
+    {
+      "id": "marks-rule",
+      "group": "core",
+      "title": "From a next position to marks",
+      "source": "marks-rule.mmd",
+      "caption": "The first rule that applies decides the marks of one next position in the open diagram. The section \"Next-option marks\" of the spec gives the cases."
+    },
+    {
+      "id": "routes",
+      "group": "next-positions",
+      "title": "From a listed reading to its marks",
+      "source": "routes.mmd",
+      "caption": "Proposed. Each projection of an open node keeps its alternatives, and a route follows them down to an item of the last set. Each alternative passes the progress against the open path to its child. An open node without a step cuts its successors to the nodes that the four rules read. Equal cut successors join their origins, and no cap cuts their list. The evaluation fills the lists in rounds: a projection that a round meets while it is still evaluating it gives its list so far, until no list changes. The spec sections are \"Next positions\" and \"Cut successors\"."
+    },
+    {
+      "id": "f1-family",
+      "group": "next-positions",
+      "title": "A reading with 2^d successors",
+      "source": "f1-family.mmd",
+      "caption": "Proposed. In the family of depth d, each level picks one of two rule names, so the one reading after seed has 2^d successors through next. A list of every successor is out of reach, but the cut successors stay few for each open path. The spec section is \"Cut successors\"."
+    },
+    {
+      "id": "added-pass",
+      "group": "next-positions",
+      "title": "One successor from two routes: the join of an added pass",
+      "source": "added-pass.mmd",
+      "caption": "Proposed. In a = a \"x\" | b \"x\" | \"y\" with b = a, two routes give one successor after y. Rule 2 reads the joined origins of its added pass, so the marks hold the link a and both boxes x, and not the end event. The spec section is \"Why cut successors give exact marks\"."
+    },
+    {
+      "id": "twelve-rules",
+      "group": "next-positions",
+      "title": "Twelve rules: the routes keep every box",
+      "source": "twelve-rules.mmd",
+      "caption": "Proposed. In s = \"seed\" (r1 | … | r12) with each rk = \"next\", the one reading after seed has twelve next positions. The readings after next stop at the cap, so a box loses its mark. The routes of the reading give twelve cut successors, one for each box. The spec section is \"Why the capped lists keep every next position\"."
+    },
+    {
+      "id": "route-origins",
+      "group": "next-positions",
+      "title": "A successor keeps the origins of its own route",
+      "source": "route-origins.mmd",
+      "caption": "Proposed. In s = \"y\"{2,} | \"y\"{1,3} after y y y, both repetitions give one tree, so the loop node joins both spans. Only \"y\"{2,} allows a fourth pass. So only its task box and its back flow carry the mark of y. This case is a marks case of the spec."
+    },
+    {
+      "id": "start-loop",
+      "group": "next-positions",
+      "title": "The first step of a loop at the start rule",
+      "source": "start-loop.mmd",
+      "caption": "Proposed construction for an agreed rule. In a = a \"x\" | \"y\", the first step turns the root into a loop node. The node of the start rule nearest the root takes the place of the diagram node, so rule 1 marks the task box y."
+    },
+    {
+      "id": "cost",
+      "group": "next-positions",
+      "title": "Why the work stays polynomial",
+      "source": "cost.mmd",
+      "caption": "Proposed. The cut successors of one projection differ only in the node that they keep last, in their new nodes down to the cut, and in where they leave the open path. So they number at most P × H × (m + G), and the evaluation visits each projection once for each progress in each round. H, G and λ depend only on the grammar. The spec section is \"The cost of Marks\"."
+    }
+  ]
+}

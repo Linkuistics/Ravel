@@ -1,0 +1,2 @@
+error missing-node 0..5 "trace"
+    The `trace` node needs a `sequence` child.

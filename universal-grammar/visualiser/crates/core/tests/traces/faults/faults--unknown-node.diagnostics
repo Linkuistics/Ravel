@@ -1,0 +1,2 @@
+error unknown-node 42..49 "comment"
+    `comment` is not a child node of `trace`.

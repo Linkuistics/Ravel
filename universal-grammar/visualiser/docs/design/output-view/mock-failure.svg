@@ -1,0 +1,166 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="704" viewBox="0 0 1240 704">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--r:#1f4fa3;--s:#8a4500;--l:#6b3fa0;--fold:#eef0fb;--cur:#0e7c66;--curbg:#e3f4ef;
+--sel:#e0a800;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;--link:#0b5fc0;--note:#2b3445;
+--box:#ffffff;--boxl:#8d96a6;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--r:#8fb4ff;--s:#f0b37e;--l:#c9a8f7;--fold:#272b3e;
+--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;
+--link:#7cb7ff;--note:#d5dae3;--box:#1f232b;--boxl:#6c7484;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.t{fill:var(--t)} .m{fill:var(--m)} .r{fill:var(--r);font-weight:600} .s{fill:var(--s)}
+.l{fill:var(--l);font-weight:600} .p{fill:var(--cur);font-weight:600} .e{fill:var(--e);font-weight:600}
+.lk{fill:var(--link)} .b{font-weight:700} .i{font-style:italic} .sm{font-size:11px}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)} .rule{stroke:var(--line)}
+.fold{fill:var(--fold)} .curbar{fill:var(--cur)} .curbg{fill:var(--curbg)} .errbg{fill:var(--ebg)}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.5} .chip{fill:var(--chip)}
+.next{fill:var(--curbg);stroke:var(--cur)} .nexto{fill:none;stroke:var(--m);stroke-dasharray:3 3}
+.tw{fill:var(--m)} .call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .code{fill:var(--code);stroke:var(--line)}
+.box{fill:var(--box);stroke:var(--boxl);stroke-width:1.3} .flow{stroke:var(--boxl);stroke-width:1.3;fill:none}
+.back{stroke:var(--boxl);stroke-width:1.3;fill:none;stroke-dasharray:5 3}
+.marker{fill:var(--cur)} .nextmark{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.ah{fill:var(--boxl)} .data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.btn{fill:var(--hdr);stroke:var(--line)}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="24.0" y="32.0" class="h1" text-anchor="start" xml:space="preserve">A rejected step in the tutorial grammar</text>
+<text x="24.0" y="52.0" class="m" text-anchor="start" xml:space="preserve">Agreed. The sequence has 6 steps. Step 4 "set_exercise" comes before any example.</text>
+<rect x="24.0" y="70.0" width="760.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="94.0" class="b" text-anchor="start" xml:space="preserve">Output view</text>
+<rect x="134.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="145.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">‹</text>
+<rect x="160.3" y="79.0" width="22.0" height="20.0" rx="4" class="btn"/>
+<text x="171.3" y="94.0" class="m b" text-anchor="middle" xml:space="preserve">›</text>
+<text x="190.3" y="94.0" class="t" text-anchor="start" xml:space="preserve">Reading 1 of 1</text>
+<text x="772.0" y="94.0" class="m sm" text-anchor="end" xml:space="preserve">rejected at step 4  ·  showing the state after step 3</text>
+<rect x="80.0" y="114.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="131.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M90 123 L99 123 L94.5 128.5z" class="tw"/>
+<text x="104.0" y="131.0" xml:space="preserve"><tspan class="r">tutorial</tspan></text>
+<text x="72.0" y="157.0" class="m mono sm" text-anchor="end" xml:space="preserve">1</text>
+<text x="108.0" y="157.0" xml:space="preserve"><tspan class="r">overview</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"overview"</tspan></text>
+<text x="72.0" y="183.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M108 175 L117 175 L112.5 180.5z" class="tw"/>
+<text x="122.0" y="183.0" xml:space="preserve"><tspan class="r">setup</tspan></text>
+<rect x="122.0" y="194.0" width="654.0" height="22.0" rx="5" class="fold"/>
+<text x="72.0" y="209.0" class="m mono sm" text-anchor="end" xml:space="preserve">2</text>
+<path d="M127 199 L132.5 203.5 L127 208z" class="tw"/>
+<text x="140.0" y="209.0" xml:space="preserve"><tspan class="l">install+</tspan><tspan class="m">  ·  </tspan><tspan class="m">1 pass  ·  1 step</tspan></text>
+<rect x="80.0" y="218.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="235.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M108 227 L117 227 L112.5 232.5z" class="tw"/>
+<text x="122.0" y="235.0" xml:space="preserve"><tspan class="l">lesson+</tspan></text>
+<text x="772.0" y="235.0" class="m sm" text-anchor="end" xml:space="preserve">pass 1</text>
+<rect x="80.0" y="244.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="261.0" class="m mono sm" text-anchor="end" xml:space="preserve"></text>
+<path d="M126 253 L135 253 L130.5 258.5z" class="tw"/>
+<text x="140.0" y="261.0" xml:space="preserve"><tspan class="p">pass 1</tspan><tspan class="m">  ·  </tspan><tspan class="r">lesson</tspan></text>
+<rect x="140.0" y="272.0" width="636.0" height="22.0" rx="5" class="curbg"/>
+<rect x="80.0" y="270.0" width="3.0" height="26.0" rx="0" class="curbar"/>
+<text x="72.0" y="287.0" class="m mono sm" text-anchor="end" xml:space="preserve">3</text>
+<text x="144.0" y="287.0" xml:space="preserve"><tspan class="r">introduce_concept</tspan><tspan class="m">  ·  </tspan><tspan class="s mono">"introduce_concept"</tspan></text>
+<rect x="25.0" y="296.0" width="758.0" height="26.0" rx="0" class="errbg"/>
+<text x="72.0" y="313.0" class="e mono sm" text-anchor="end" xml:space="preserve">4</text>
+<text x="90.0" y="313.0" xml:space="preserve"><tspan class="e">✗  </tspan><tspan class="e mono">"set_exercise"</tspan><tspan class="m">   rejected: no reading accepts this step here</tspan></text>
+<rect x="25.0" y="322.0" width="758.0" height="26.0" rx="0" class="errbg"/>
+<text x="72.0" y="339.0" class="e mono sm" text-anchor="end" xml:space="preserve"></text>
+<text x="90.0" y="339.0" xml:space="preserve"><tspan class="m">The grammar uses </tspan><tspan class="s mono">"set_exercise"</tspan><tspan class="m"> in practice, but not at this point.</tspan></text>
+<line x1="32.0" y1="350.0" x2="776.0" y2="350.0" class="rule"/>
+<text x="72.0" y="367.0" class="m mono sm" text-anchor="end" xml:space="preserve">4</text>
+<text x="88.0" y="367.0" xml:space="preserve"><tspan class="m">next at 4</tspan></text>
+<rect x="157.4" y="354.0" width="117.5" height="20.0" rx="10" class="next"/>
+<text x="165.4" y="368.0" class="s mono" text-anchor="start" xml:space="preserve">"show_example"</text>
+<text x="284.9" y="367.0" class="m sm" text-anchor="start" xml:space="preserve">a click inserts the symbol before step 4</text>
+<text x="72.0" y="397.0" class="m mono sm" text-anchor="end" xml:space="preserve">5–6</text>
+<path d="M91 387 L96.5 391.5 L91 396z" class="tw"/>
+<text x="104.0" y="397.0" xml:space="preserve"><tspan class="m i">2 later steps, not read:  </tspan><tspan class="s mono i i">"show_solution"</tspan><tspan class="m i">, </tspan><tspan class="s mono i i">"summarise"</tspan></text>
+<rect x="24" y="70" width="760" height="336.0" rx="6" style="fill:none;stroke:var(--line)"/>
+<circle cx="768.0" cy="283.0" r="9" class="call"/>
+<text x="768.0" y="287.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<circle cx="768.0" cy="309.0" r="9" class="call"/>
+<text x="768.0" y="313.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<circle cx="768.0" cy="335.0" r="9" class="call"/>
+<text x="768.0" y="339.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<circle cx="768.0" cy="363.0" r="9" class="call"/>
+<text x="768.0" y="367.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<circle cx="768.0" cy="393.0" r="9" class="call"/>
+<text x="768.0" y="397.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<circle cx="454.0" cy="89.0" r="9" class="call"/>
+<text x="454.0" y="93.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<rect x="24.0" y="430.0" width="760.0" height="58.0" rx="6" class="hdr"/>
+<text x="36.0" y="454.0" class="m" text-anchor="start" xml:space="preserve">When the grammar has no such symbol, line two reads</text>
+<text x="36.0" y="476.0" class="t" text-anchor="start" xml:space="preserve">The grammar has no symbol "set_excercise".</text>
+<rect x="24.0" y="514.0" width="760.0" height="168.0" rx="6" class="panel"/>
+<rect x="24.0" y="514.0" width="760.0" height="38.0" rx="0" class="hdr"/>
+<text x="36.0" y="538.0" class="b" text-anchor="start" xml:space="preserve">Grammar view</text>
+<text x="144.0" y="538.0" class="m" text-anchor="start" xml:space="preserve">tutorial › lesson (pass 1)</text>
+<text x="772.0" y="672.0" class="m sm i" text-anchor="end" xml:space="preserve">sketch: the rule-diagram design sets the drawing</text>
+<rect x="25.0" y="553.0" width="758.0" height="26.0" rx="0" class="errbg"/>
+<text x="36.0" y="571.0" class="e sm" text-anchor="start" xml:space="preserve">Step 4 "set_exercise" rejected.  Next option: "show_example".</text>
+<circle cx="54" cy="632" r="9" class="box"/>
+<path d="M63.0 632.0 L82.0 632.0" class="flow" marker-end="url(#ah)"/>
+<rect x="84.0" y="612.0" width="150.0" height="40.0" rx="7" class="box"/>
+<text x="159.0" y="637.0" class="r" text-anchor="middle" xml:space="preserve">introduce_concept</text>
+<rect x="153.0" y="640.0" width="12.0" height="10.0" rx="1" class="box"/>
+<text x="159.0" y="649.0" class="m sm" text-anchor="middle" xml:space="preserve">+</text>
+<path d="M152 598 L166 598 L166 606 L159 611 L152 606z" class="marker"/>
+<path d="M234.0 632.0 L256.0 632.0" class="flow" marker-end="url(#ah)"/>
+<rect x="258.0" y="612.0" width="130.0" height="40.0" rx="7" class="box"/>
+<text x="323.0" y="637.0" class="r" text-anchor="middle" xml:space="preserve">show_example</text>
+<rect x="317.0" y="640.0" width="12.0" height="10.0" rx="1" class="box"/>
+<text x="323.0" y="649.0" class="m sm" text-anchor="middle" xml:space="preserve">+</text>
+<rect x="254.0" y="608.0" width="138.0" height="48.0" rx="9" class="nextmark"/>
+<text x="323.0" y="666.0" class="l sm" text-anchor="middle" xml:space="preserve">{1,3}</text>
+<path d="M388.0 632.0 L410.0 632.0" class="flow" marker-end="url(#ah)"/>
+<rect x="412.0" y="612.0" width="100.0" height="40.0" rx="7" class="box"/>
+<text x="462.0" y="637.0" class="r" text-anchor="middle" xml:space="preserve">practice</text>
+<rect x="456.0" y="640.0" width="12.0" height="10.0" rx="1" class="box"/>
+<text x="462.0" y="649.0" class="m sm" text-anchor="middle" xml:space="preserve">+</text>
+<text x="462.0" y="666.0" class="l sm" text-anchor="middle" xml:space="preserve">*</text>
+<path d="M512.0 632.0 L534.0 632.0" class="flow" marker-end="url(#ah)"/>
+<rect x="536.0" y="612.0" width="170.0" height="40.0" rx="7" class="box"/>
+<text x="621.0" y="637.0" class="r" text-anchor="middle" xml:space="preserve">check_understanding</text>
+<rect x="615.0" y="640.0" width="12.0" height="10.0" rx="1" class="box"/>
+<text x="621.0" y="649.0" class="m sm" text-anchor="middle" xml:space="preserve">+</text>
+<text x="621.0" y="666.0" class="l sm" text-anchor="middle" xml:space="preserve">?</text>
+<path d="M706.0 632.0 L738.0 632.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="748" cy="632" r="9" class="box" style="stroke-width:3.2"/>
+<circle cx="768.0" cy="566.0" r="9" class="call"/>
+<text x="768.0" y="570.0" class="callt" text-anchor="middle" xml:space="preserve">7</text>
+<text x="812.0" y="84.0" class="h2" text-anchor="start" xml:space="preserve">READING THE MOCK-UP</text>
+<circle cx="821.0" cy="102.0" r="9" class="call"/>
+<text x="821.0" y="106.0" class="callt" text-anchor="middle" xml:space="preserve">1</text>
+<text x="838.0" y="106.0" class="note" text-anchor="start" xml:space="preserve">The header names the failure point and the state on view: the</text>
+<text x="838.0" y="123.0" class="note" text-anchor="start" xml:space="preserve">state after the step before it.</text>
+<circle cx="821.0" cy="146.0" r="9" class="call"/>
+<text x="821.0" y="150.0" class="callt" text-anchor="middle" xml:space="preserve">2</text>
+<text x="838.0" y="150.0" class="note" text-anchor="start" xml:space="preserve">The tree of the reading stays as it was after step 3, with</text>
+<text x="838.0" y="167.0" class="note" text-anchor="start" xml:space="preserve">its folds and its current pass.</text>
+<circle cx="821.0" cy="190.0" r="9" class="call"/>
+<text x="821.0" y="194.0" class="callt" text-anchor="middle" xml:space="preserve">3</text>
+<text x="838.0" y="194.0" class="note" text-anchor="start" xml:space="preserve">The rejected step gets a row of its own at the end. It</text>
+<text x="838.0" y="211.0" class="note" text-anchor="start" xml:space="preserve">belongs to no node, so it has no indent.</text>
+<circle cx="821.0" cy="234.0" r="9" class="call"/>
+<text x="821.0" y="238.0" class="callt" text-anchor="middle" xml:space="preserve">4</text>
+<text x="838.0" y="238.0" class="note" text-anchor="start" xml:space="preserve">A second line says why: the grammar uses the symbol</text>
+<text x="838.0" y="255.0" class="note" text-anchor="start" xml:space="preserve">elsewhere, or the grammar has no such symbol.</text>
+<circle cx="821.0" cy="278.0" r="9" class="call"/>
+<text x="821.0" y="282.0" class="callt" text-anchor="middle" xml:space="preserve">5</text>
+<text x="838.0" y="282.0" class="note" text-anchor="start" xml:space="preserve">The next options of the state before the rejected step. A</text>
+<text x="838.0" y="299.0" class="note" text-anchor="start" xml:space="preserve">click inserts the symbol before it, and the tracer reads on.</text>
+<circle cx="821.0" cy="322.0" r="9" class="call"/>
+<text x="821.0" y="326.0" class="callt" text-anchor="middle" xml:space="preserve">6</text>
+<text x="838.0" y="326.0" class="note" text-anchor="start" xml:space="preserve">Steps after the failure point fold into one row. The tracer</text>
+<text x="838.0" y="343.0" class="note" text-anchor="start" xml:space="preserve">has not read them, but their attributes stay visible.</text>
+<circle cx="821.0" cy="366.0" r="9" class="call"/>
+<text x="821.0" y="370.0" class="callt" text-anchor="middle" xml:space="preserve">7</text>
+<text x="838.0" y="370.0" class="note" text-anchor="start" xml:space="preserve">The grammar view keeps its markers and next options of the</text>
+<text x="838.0" y="387.0" class="note" text-anchor="start" xml:space="preserve">state after step 3. A banner names the rejected step.</text>
+</svg>

@@ -1,0 +1,65 @@
+trace format-version=1 grammar-sha256="78e49a939ecf18acdec6cd33c22eb49c84f4f1d9b43ae2b7e9294fd5cd53b473" reading-cap=10 {
+    sequence {
+        step z
+        step y
+        step z
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+        next symbol=z
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=y
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+        next symbol=z
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+        next symbol=z
+    }
+    reading parent=1 can-end=#false {
+        next symbol=x {
+            occurrence start=18 end=21
+        }
+        next symbol=z {
+            occurrence start=44 end=47
+        }
+        loop kind=head-references pass-rule=a {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=z {
+                        origin start=24 end=27
+                    }
+                }
+            }
+            pass number=2 {
+                origin start=34 end=35
+                rule name=a {
+                    origin start=34 end=35
+                    loop kind=head-references pass-rule=b {
+                        origin start=16 end=17
+                        pass number=1 {
+                            rule name=b {
+                                origin start=16 end=17
+                                step number=2 symbol=y {
+                                    origin start=36 end=39
+                                }
+                            }
+                        }
+                        pass number=2 {
+                            origin start=42 end=43
+                            rule name=b {
+                                origin start=42 end=43
+                                step number=3 symbol=z {
+                                    origin start=44 end=47
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,2 @@
+error missing-property 0..5 "trace"
+    A `trace` node needs the property `format-version`.

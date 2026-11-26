@@ -1,0 +1,13 @@
+checked-grammar format-version=2 grammar-sha256=c719893abf486c7e4f7526a5fcce54820267ec65e8c55b6341a61ae2e84417e0 {
+    grammar-doc text="Statements in any order." start=34 end=60
+    start-rule name=a start=25 end=26
+    rule name=b start=0 end=1 {
+        symbol value=y start=4 end=7
+    }
+    rule name=a start=10 end=11 {
+        reference name=b start=14 end=15
+    }
+    symbol value=y {
+        use rule=b start=4 end=7
+    }
+}

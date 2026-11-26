@@ -1,0 +1,13 @@
+flowchart TB
+  T["Start here: trace<br/>format-version<br/>grammar-sha256<br/>reading-cap"]:::start
+  T --> SQ["sequence"]:::written
+  SQ --> ST["step “symbol” key=value<br/>one argument,<br/>open attributes"]:::written
+  T --> PF["prefix steps=k<br/>reading-count<br/>cap-reached, can-end"]:::derived
+  PF --> PN["next symbol=…"]:::derived
+  T --> FP["failure-point<br/>step=k"]:::derived
+  T --> RD["reading<br/>parent, can-end"]:::derived
+  RD --> RN["next symbol=…<br/>occurrence<br/>start, end"]:::derived
+  RD --> TR["tree: rule, loop,<br/>pass, step<br/>with origin nodes"]:::derived
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef written fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  classDef derived fill:#e8eefc,stroke:#3557b7,color:#1f3470

@@ -1,0 +1,4 @@
+%start order ;
+%start line ;
+order = line+ ;
+line = "add_line" ;

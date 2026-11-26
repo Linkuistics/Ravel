@@ -1,0 +1,4 @@
+// Two groups: the recursion in `items` does not reach `order`.
+%start order ;
+order = "submit" items order? ;
+items = "add_line" items? ;

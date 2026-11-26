@@ -1,0 +1,2 @@
+error not-a-trace 0..0 ""
+    The document is empty. A trace file has one root node, `trace`.

@@ -1,0 +1,24 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef note fill:#fdf3e1,stroke:#9a6700,color:#5c3d00
+  S["Start here: the cut successors of one<br/>projection, for one open path"]:::start
+  K["The node that they keep last:<br/>one of the P nodes on the path"]
+  C["The new nodes down to the cut:<br/>one of H chains of the grammar"]
+  O["Where they leave the open path:<br/>at most m + G places"]
+  T["At most P × H × (m + G)<br/>cut successors"]
+  V["Each projection on the routes, once for each<br/>progress in each round: at most (m + 2)^(λ + 1)"]
+  E1["Family of depth 64, 129 rules:<br/>2^64 successors, at most 66 cut successors at the root"]:::note
+  E2["(a | a a)*: 89 readings after 10 steps,<br/>the count of readings does not enter"]:::note
+  E3["Example sequences: at most<br/>2 next positions through one option"]:::note
+  E4["r0 = ((r0 | y) | r0){2} after 12 steps:<br/>2 rounds, 102 projections visited"]:::note
+  S -->|"1"| K
+  S -->|"2"| C
+  S -->|"3"| O
+  K --> T
+  C --> T
+  O --> T
+  T -->|"4"| V
+  V --> E1
+  V --> E2
+  V --> E3
+  V --> E4

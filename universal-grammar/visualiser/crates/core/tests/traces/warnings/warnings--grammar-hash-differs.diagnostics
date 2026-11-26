@@ -1,0 +1,2 @@
+warning grammar-hash-differs 23..104 "grammar-sha256=\"0000000000000000000000000000000000000000000000000000000000000000\""
+    The trace file names the grammar hash 0000000000000000000000000000000000000000000000000000000000000000, but the grammar text has the hash 704a421cc975b6d51221501557711e0e4d35aac878c57835659865b83f6d5ee8. The core traces the sequence against this grammar text, and it derives every other node again.

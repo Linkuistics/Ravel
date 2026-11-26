@@ -1,0 +1,2 @@
+error line-break-in-symbol 53..59 "\"x\\ny\""
+    The symbol of a step holds a line break.

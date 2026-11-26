@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="41f0053ab0201a25c0ae215c7fdbe630f751e1f7e05c7ed2eece5317ade03ce7" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        choice start=15 end=22 {
+            reference name=a start=15 end=16
+            symbol value=x start=19 end=22
+        }
+    }
+    symbol value=x {
+        use rule=a start=19 end=22
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=a
+    }
+    diagnostic severity=error code=cyclic-rule message="The rule `a` can derive itself with no step: `a` → `a`. So one sequence can have infinitely many trees. Make one rule of the cycle take a step." start=15 end=16 line=2 column=5
+}

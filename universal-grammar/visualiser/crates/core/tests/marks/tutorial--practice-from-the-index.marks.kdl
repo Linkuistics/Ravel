@@ -1,0 +1,64 @@
+marks-case {
+    sequence overview install introduce_concept show_example
+    open-path tutorial lesson practice
+    state steps-read=4 reading-count=1 cap-reached=#false {
+        follow-path 1 tutorial lesson
+    }
+    marks tutorial {
+        reading 1 {
+            marker {
+                reference-box lesson start=424 end=430
+            }
+            option introduce_concept {
+                reference-box lesson start=424 end=430
+                back-flow start=424 end=431
+            }
+            option show_example {
+                reference-box lesson start=424 end=430
+            }
+            option set_exercise {
+                reference-box lesson start=424 end=430
+            }
+            option check_understanding {
+                reference-box lesson start=424 end=430
+            }
+            option summarise {
+                reference-box summarise start=432 end=441
+            }
+            pass 1 {
+                back-flow start=424 end=431
+            }
+        }
+    }
+    marks tutorial lesson {
+        reading 1 {
+            marker {
+                reference-box show_example start=662 end=674
+            }
+            option show_example {
+                reference-box show_example start=662 end=674
+                back-flow start=662 end=679
+            }
+            option set_exercise {
+                reference-box practice start=680 end=688
+            }
+            option check_understanding {
+                reference-box check_understanding start=690 end=709
+            }
+            end can-end=#false {
+                option introduce_concept
+                option summarise
+            }
+            pass 1 {
+                back-flow start=662 end=679
+            }
+        }
+    }
+    marks tutorial lesson practice {
+        reading 1 {
+            option set_exercise {
+                reference-box set_exercise start=778 end=790
+            }
+        }
+    }
+}

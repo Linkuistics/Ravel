@@ -1,0 +1,3 @@
+// An LLM that knows grammars with upper-case terminals writes SUBMIT for "SUBMIT".
+%start order ;
+order = SUBMIT ;

@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="86953ae3a3a6804c5b078e57f36781e31981811b5a515a253830f3dbc3180db0" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        choice start=15 end=29 {
+            reference name=a start=15 end=16
+            symbol value=x start=26 end=29
+        }
+    }
+    symbol value=x {
+        use rule=a start=26 end=29
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=a
+    }
+    diagnostic severity=error code=malformed-bound message="`{2,3,4}` is not a bound; a bound has the form `{n}`, `{m,n}` or `{m,}`" start=16 end=23 line=2 column=6
+}

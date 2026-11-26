@@ -1,0 +1,61 @@
+diagrams format-version=1 grammar-sha256="31f9fc04a817a04cf3e4ac59407740cce800d3d4075aeace070ae369728581e8" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=1004 height=194 {
+        start-event x=16 y=56 size=24
+        gateway role=option-split start=94 end=118 x=64 y=56 size=24
+        task start=95 end=98 symbol=a x=112 y=50 width=64 height=36 {
+            label a
+        }
+        gateway role=loop-join start=99 end=115 x=200 y=56 size=24
+        gateway role=choice-split start=100 end=113 x=248 y=56 size=24
+        task start=100 end=103 symbol=b x=296 y=50 width=64 height=36 {
+            label b
+        }
+        task start=106 end=109 symbol=c x=296 y=122 width=64 height=36 {
+            label c
+        }
+        task start=110 end=113 symbol=d x=384 y=122 width=64 height=36 {
+            label d
+        }
+        gateway role=choice-join start=100 end=113 x=472 y=56 size=24
+        gateway role=loop-split start=99 end=115 x=520 y=56 size=24
+        gateway role=option-join start=94 end=118 x=568 y=56 size=24
+        gateway role=choice-split start=120 end=130 x=616 y=56 size=24
+        gateway role=skip-split start=120 end=124 x=664 y=56 size=24
+        gateway role=loop-join start=120 end=124 x=698 y=56 size=24
+        task start=120 end=123 symbol=e x=746 y=50 width=64 height=36 {
+            label e
+        }
+        gateway role=loop-split start=120 end=124 x=834 y=56 size=24
+        gateway role=skip-join start=120 end=124 x=868 y=56 size=24
+        task start=127 end=130 symbol=f x=664 y=142 width=64 height=36 {
+            label f
+        }
+        gateway role=choice-join start=120 end=130 x=916 y=56 size=24
+        end-event x=964 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 112 68 role=sequence
+        flow 176 68 200 68 role=sequence
+        flow 224 68 248 68 role=sequence
+        flow 272 68 296 68 role=sequence
+        flow 360 68 472 68 role=sequence
+        flow 260 80 260 140 296 140 role=sequence
+        flow 360 140 384 140 role=sequence
+        flow 448 140 484 140 484 80 role=sequence
+        flow 496 68 520 68 role=sequence
+        flow 532 80 532 176 212 176 212 80 role=back start=99 end=115
+        flow 76 56 76 16 580 16 580 56 role=skip start=94 end=118
+        flow 544 68 568 68 role=sequence
+        flow 592 68 616 68 role=sequence
+        flow 640 68 664 68 role=sequence
+        flow 688 68 698 68 role=sequence
+        flow 722 68 746 68 role=sequence
+        flow 810 68 834 68 role=sequence
+        flow 846 80 846 104 710 104 710 80 role=back start=120 end=124
+        flow 858 68 868 68 role=sequence
+        flow 676 56 676 16 880 16 880 56 role=skip start=120 end=124
+        flow 892 68 916 68 role=sequence
+        flow 628 80 628 160 664 160 role=sequence
+        flow 728 160 928 160 928 80 role=sequence
+        flow 940 68 964 68 role=sequence
+    }
+}

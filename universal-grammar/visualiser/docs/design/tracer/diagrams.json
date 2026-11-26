@@ -1,0 +1,147 @@
+{
+  "title": "Tracer: proposed design",
+  "intro": "The proposed design of the tracer, the trace file and the interface between the core and the workbench page. The spec docs/specs/tracer.md holds the decisions, and these views show them. Reading order: in a graph, start at the dark node whose label begins with \"Start here\". A sequence diagram reads from its first message.",
+  "groups": [
+    {
+      "id": "overview",
+      "title": "Overview",
+      "description": "The parts of the tracer, the trace file and the operations that cross the WebAssembly boundary as typed objects."
+    },
+    {
+      "id": "recognition",
+      "title": "Automata and recognition",
+      "description": "One position automaton for each rule, with pass counts in the states and loop events on the edges."
+    },
+    {
+      "id": "readings",
+      "title": "Readings",
+      "description": "How the forest and its open layer give the first readings up to the cap of 10, and the order in which they come."
+    },
+    {
+      "id": "loops",
+      "title": "Loops through rules",
+      "description": "The rule on two kinds of cycle, and the origins in a loop of head references."
+    },
+    {
+      "id": "file",
+      "title": "Trace file",
+      "description": "The part that any program writes, and the part that only the core derives."
+    },
+    {
+      "id": "tests",
+      "title": "Tests",
+      "description": "The reference recogniser, the generators and the tree oracle of the property tests."
+    }
+  ],
+  "discussion": {
+    "title": "Tracer design, repaired after the adversarial review",
+    "status": "Reviewed",
+    "summary": "The review tracer-design-k26 found three gaps in the tracer design, and tracer-design-k27 repaired them in the spec. (1) The open layer is a finite graph, and a trip around one of its cycles adds no tree. A grammar has finitely many loop contexts. (2) The tree oracle keeps sets of distinct trees instead of a list of derivations, and the generators stop after 64 decisions. (3) A start rule that derives no finite sequence gives no reading, even before the first step. The six earlier decisions stand, from the shared forest and the cap of 10 to the rule on two kinds of cycle.",
+    "diagramIds": [
+      "overview",
+      "interface",
+      "automaton-lesson",
+      "two-edges",
+      "capped-lists",
+      "open-layer",
+      "reading-order",
+      "mixed-loops",
+      "head-loop-origins",
+      "trace-file",
+      "property-tests"
+    ],
+    "updatedDiagrams": [
+      {
+        "id": "open-layer",
+        "summary": "New: the cycle of the open layer for a = a “x” | “y” ; after y, and its one reading."
+      },
+      {
+        "id": "capped-lists",
+        "summary": "Caption: each listed tree keeps the origins and next options of every derivation that gives it."
+      },
+      {
+        "id": "property-tests",
+        "summary": "The tree oracle keeps sets of distinct trees, with a bound on their size. Sentences stop after 64 decisions."
+      }
+    ]
+  },
+  "diagrams": [
+    {
+      "id": "overview",
+      "group": "overview",
+      "title": "From grammar text to readings",
+      "source": "overview.mmd",
+      "caption": "The Earley sets give the exact answers: acceptance, the next options and the failure point. The forest, the open layer, the projection and the capped lists give the readings up to the cap. Green parts of a trace file come from any program, and blue parts only from the core."
+    },
+    {
+      "id": "interface",
+      "group": "overview",
+      "title": "The operations of a session",
+      "source": "interface.mmd",
+      "caption": "The interface takes one step at a time, so a later program can embed the core. The page asks for the tree of the reading on view only."
+    },
+    {
+      "id": "automaton-lesson",
+      "group": "recognition",
+      "title": "The automaton of the rule lesson",
+      "source": "automaton-lesson.mmd",
+      "caption": "lesson = introduce_concept show_example{1,3} practice* check_understanding? ; The bounded repetition counts its passes in the state, so show_example has three states. Each edge names its loop events. The states of a position never exceed the count of its bounds under the bound cap of 100."
+    },
+    {
+      "id": "two-edges",
+      "group": "recognition",
+      "title": "Two edges between one pair of positions",
+      "source": "two-edges.mmd",
+      "caption": "(\"x\"+ \"y\"?)+ ; Edges 1 and 2 both lead from x back to x, but with different loop events. They give the two trees of x x: one outer pass with two inner passes, or two outer passes."
+    },
+    {
+      "id": "capped-lists",
+      "group": "readings",
+      "title": "Capped lists in one order",
+      "source": "capped-lists.mmd",
+      "caption": "A tree among the first C+1 of a node is also among the first C+1 of each alternative that gives it. So the lists lose no reading that the cap allows, and the tracer never lists every derivation. Each listed tree keeps the origins and next options of every derivation that gives it."
+    },
+    {
+      "id": "open-layer",
+      "group": "readings",
+      "title": "A cycle in the open layer",
+      "source": "open-layer.mmd",
+      "caption": "a = a “x” | “y” ; After step 1, the open node of a can be its own last child. A cycle keeps one origin, so it follows head references. Each trip adds a pass whose steps all come later, so it makes no node. The core evaluates the layer without the trips, and the one reading of y offers “x”."
+    },
+    {
+      "id": "reading-order",
+      "group": "readings",
+      "title": "The order of the readings of a a a",
+      "source": "reading-order.mmd",
+      "caption": "(\"a\" | \"a\" \"a\")* ; Trees compare node by node in pre-order, and the deeper node comes first. So a reading that adds to an open pass comes before a reading that opens a new pass. The readings after step 3 keep the order of their parents."
+    },
+    {
+      "id": "mixed-loops",
+      "group": "loops",
+      "title": "A rule on both kinds of cycle",
+      "source": "mixed-loops.mmd",
+      "caption": "a = a \"x\" | \"y\" a | \"z\" ; Only the cycle of head references makes a loop. The tail reference after \"y\" is not a link of that loop, so it enters a new loop. The sequence y z x then has two readings, and both grow at the end."
+    },
+    {
+      "id": "head-loop-origins",
+      "group": "loops",
+      "title": "Origins in a loop of head references",
+      "source": "head-loop-origins.mmd",
+      "caption": "s = e ; e = e \"+\" \"t\" | \"t\" ; The node of the first pass has the reference that entered the loop. Each later pass and its node have the head reference that links them to the loop so far. So a later step never adds an origin to a node."
+    },
+    {
+      "id": "trace-file",
+      "group": "file",
+      "title": "The nodes of a trace file",
+      "source": "trace-file.mmd",
+      "caption": "Another program writes the root node and the sequence. The core derives every other node again, and it never takes one from a file. A fixture is one file that is both the input and the expected output."
+    },
+    {
+      "id": "property-tests",
+      "group": "tests",
+      "title": "Property tests",
+      "source": "property-tests.mmd",
+      "caption": "The reference recogniser shares only the checked grammar and the BNF expansion with the tracer. The tree oracle keeps sets of distinct trees, never a list of derivations, so it stops on every grammar. It checks the forest, the open layer and the capped lists. It does not check the tree rules, because both sides apply them."
+    }
+  ]
+}

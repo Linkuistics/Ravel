@@ -1,0 +1,230 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1394" viewBox="0 0 1100 1394">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--cur:#0e7c66;--curbg:#e3f4ef;--sel:#d99a00;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;
+--note:#2b3445;--box:#ffffff;--boxl:#5f6878;--gw:#ffffff;--ref:#1f4fa3;--frame:#c9ced8;
+--tok:#2f6fd6;--lbl:#f4f5f7;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;
+--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;--note:#d5dae3;--box:#1f232b;--boxl:#9aa3b3;
+--gw:#1f232b;--ref:#8fb4ff;--frame:#3a404c;--tok:#6ea8ff;--lbl:#232731;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;fill:var(--t)}
+.lab{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--t)}
+.labp{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.m{fill:var(--m)} .b{font-weight:700} .sm{font-size:11px} .e{fill:var(--e);font-weight:600}
+.cur{fill:var(--cur);font-weight:600} .refc{fill:var(--ref);font-weight:600}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)}
+.task{fill:var(--box);stroke:var(--boxl);stroke-width:1.4}
+.refbox{fill:var(--box);stroke:var(--boxl);stroke-width:3.2}
+.gw{fill:var(--gw);stroke:var(--boxl);stroke-width:1.4} .gwx{stroke:var(--boxl);stroke-width:1.8}
+.ev{fill:var(--box);stroke:var(--boxl);stroke-width:1.4} .evend{fill:var(--box);stroke:var(--boxl);stroke-width:3.6}
+.flow{stroke:var(--boxl);stroke-width:1.4;fill:none}
+.ah{fill:var(--boxl)} .drill{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.lblbg{fill:var(--bg)} .lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--m)}
+.tab{fill:var(--cur);stroke:var(--cur);stroke-width:1.2} .tabo{fill:var(--bg);stroke:var(--cur);stroke-width:1.4}
+.tabt{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--bg)} .tabto{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--cur)}
+.nextmark{fill:none;stroke:var(--cur);stroke-width:2} .nextmarko{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.nextbtn{fill:var(--cur)} .nextbtnt{font-size:10px;font-weight:700;fill:var(--bg)}
+.passbg{fill:var(--curbg);stroke:var(--cur);stroke-width:1} .passt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur);font-weight:600}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.6} .selflow{fill:none;stroke:var(--sel);stroke-width:5;opacity:.55}
+.backmark{fill:none;stroke:var(--cur);stroke-width:4;opacity:.45}
+.data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2} .assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.badge{fill:var(--chip)} .chip{fill:var(--curbg);stroke:var(--cur)} .chipt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur)}
+.pop{fill:var(--bg);stroke:var(--line)} .banner{fill:var(--ebg);stroke:var(--e)}
+.call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .nest{fill:none;stroke:var(--m);stroke-width:1;stroke-dasharray:3 3}
+.nestt{font-size:10px;fill:var(--m)} .tok{fill:var(--tok)} .tokt{font-size:10px;font-weight:700;fill:#fff}
+.code{fill:var(--code);stroke:var(--line)} .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.crumb{fill:var(--ref)} .rejbox{fill:none;stroke:var(--e);stroke-width:2;stroke-dasharray:4 3}
+.strike{fill:none;stroke:var(--m);stroke-width:1.3}
+.loopbar{fill:none;stroke:var(--cur);stroke-width:2.5;stroke-linecap:round}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="16" y="26" class="h1">The URG move grammar: a self tail call draws as a back edge</text>
+<text x="16" y="46" class="m">Drawn by the agreed layout from examples/urg-moves.ebnf. The breadcrumbs show the open path from the start rule.</text>
+<rect x="16" y="57" width="920" height="169.0" rx="8" class="panel"/>
+<text x="28" y="77" class="b">episode</text>
+<text x="28" y="95" class="m sm">One explanatory episode.</text>
+<g transform="translate(28,104)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 74.0 L76.0 62.0 L88 74.0 L76.0 86.0z" class="gw"/>
+<path d="M88.0 74.0 L112.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="56.0" width="106" height="36" rx="9" class="task"/>
+<text x="165.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">refers back</text>
+<path d="M76.0 62.0 L76.0 28.0 Q76.0 22.0 82.0 22.0 L248.0 22.0 Q254.0 22.0 254.0 28.0 L254.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M218.0 74.0 L242.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M242 74.0 L254.0 62.0 L266 74.0 L254.0 86.0z" class="gw"/>
+<path d="M266.0 74.0 L290.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="290" y="56.0" width="162" height="36" rx="9" class="task"/>
+<text x="371.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">states the problem</text>
+<path d="M452.0 74.0 L476.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="476" y="50.0" width="106" height="48" rx="9" class="refbox"/>
+<text x="529.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">development</text>
+<rect x="523.0" y="83.0" width="12" height="12" class="drill"/>
+<path d="M526.0 89.0 L532.0 89.0 M529.0 86.0 L529.0 92.0" class="gwx"/>
+<path d="M582.0 74.0 L606.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M606 74.0 L618.0 62.0 L630 74.0 L618.0 86.0z" class="gw"/>
+<path d="M630.0 74.0 L654.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="654" y="50.0" width="130" height="48" rx="9" class="refbox"/>
+<text x="719.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">generalisation</text>
+<rect x="713.0" y="83.0" width="12" height="12" class="drill"/>
+<path d="M716.0 89.0 L722.0 89.0 M719.0 86.0 L719.0 92.0" class="gwx"/>
+<path d="M618.0 62.0 L618.0 22.0 Q618.0 16.0 624.0 16.0 L814.0 16.0 Q820.0 16.0 820.0 22.0 L820.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M784.0 74.0 L808.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M808 74.0 L820.0 62.0 L832 74.0 L820.0 86.0z" class="gw"/>
+<path d="M832.0 74.0 L856.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="868.0" cy="74.0" r="10.8" class="evend"/></g>
+<rect x="16" y="242.0" width="468" height="241.0" rx="8" class="panel"/>
+<text x="28" y="262.0" class="crumb">episode</text>
+<text x="82.125" y="262.0" class="m">›</text>
+<text x="96.125" y="262.0" class="b">development</text>
+<text x="28" y="280.0" class="m sm">The development of the episode: graded cases, or a first solution and its refinements.</text>
+<g transform="translate(28,289.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 62.0 L76.0 50.0 L88 62.0 L76.0 74.0z" class="gw"/>
+<rect x="112" y="38.0" width="106" height="48" rx="9" class="refbox"/>
+<text x="165.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">progression</text>
+<rect x="159.0" y="71.0" width="12" height="12" class="drill"/>
+<path d="M162.0 77.0 L168.0 77.0 M165.0 74.0 L165.0 80.0" class="gwx"/>
+<path d="M88.0 62.0 L112.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M218.0 62.0 L356.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="122.0" width="98" height="48" rx="9" class="task"/>
+<text x="161.0" y="142.0" class="lab" text-anchor="middle" xml:space="preserve">proposes a</text>
+<text x="161.0" y="158.0" class="lab" text-anchor="middle" xml:space="preserve">solution</text>
+<path d="M210.0 146.0 L234.0 146.0" class="flow" marker-end="url(#ah)"/>
+<rect x="234" y="122.0" width="98" height="48" rx="9" class="refbox"/>
+<text x="283.0" y="144.0" class="lab" text-anchor="middle" xml:space="preserve">refinement</text>
+<rect x="277.0" y="155.0" width="12" height="12" class="drill"/>
+<path d="M280.0 161.0 L286.0 161.0 M283.0 158.0 L283.0 164.0" class="gwx"/>
+<path d="M76.0 74.0 L76.0 140.0 Q76.0 146.0 82.0 146.0 L112.0 146.0" class="flow" marker-end="url(#ah)"/>
+<path d="M332.0 146.0 L362.0 146.0 Q368.0 146.0 368.0 140.0 L368.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M356 62.0 L368.0 50.0 L380 62.0 L368.0 74.0z" class="gw"/>
+<path d="M380.0 62.0 L404.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="416.0" cy="62.0" r="10.8" class="evend"/></g>
+<rect x="16" y="499.0" width="672" height="273.0" rx="8" class="panel"/>
+<text x="28" y="519.0" class="crumb">episode</text>
+<text x="82.125" y="519.0" class="m">›</text>
+<text x="96.125" y="519.0" class="crumb">development</text>
+<text x="177.75" y="519.0" class="m">›</text>
+<text x="191.75" y="519.0" class="b">progression</text>
+<text x="28" y="537.0" class="m sm">The simplest case first, then complications and repairs.</text>
+<g transform="translate(28,546.0)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="50.0" width="122" height="48" rx="9" class="task"/>
+<text x="125.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">shows the</text>
+<text x="125.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">simplest case</text>
+<path d="M186.0 74.0 L210.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M210 74.0 L222.0 62.0 L234 74.0 L222.0 86.0z" class="gw"/>
+<path d="M234.0 74.0 L244.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M244 74.0 L256.0 62.0 L268 74.0 L256.0 86.0z" class="gw"/>
+<path d="M268.0 74.0 L292.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M292 74.0 L304.0 62.0 L316 74.0 L304.0 86.0z" class="gw"/>
+<rect x="340" y="50.0" width="114" height="48" rx="9" class="task"/>
+<text x="397.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">adds a</text>
+<text x="397.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">complication</text>
+<path d="M316.0 74.0 L340.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M454.0 74.0 L478.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="340" y="134.0" width="64" height="48" rx="9" class="refbox"/>
+<text x="372.0" y="156.0" class="lab" text-anchor="middle" xml:space="preserve">fix</text>
+<rect x="366.0" y="167.0" width="12" height="12" class="drill"/>
+<path d="M369.0 173.0 L375.0 173.0 M372.0 170.0 L372.0 176.0" class="gwx"/>
+<path d="M304.0 86.0 L304.0 152.0 Q304.0 158.0 310.0 158.0 L340.0 158.0" class="flow" marker-end="url(#ah)"/>
+<path d="M404.0 158.0 L484.0 158.0 Q490.0 158.0 490.0 152.0 L490.0 86.0" class="flow" marker-end="url(#ah)"/>
+<path d="M478 74.0 L490.0 62.0 L502 74.0 L490.0 86.0z" class="gw"/>
+<path d="M502.0 74.0 L526.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M526 74.0 L538.0 62.0 L550 74.0 L538.0 86.0z" class="gw"/>
+<path d="M538.0 86.0 L538.0 194.0 Q538.0 200.0 532.0 200.0 L262.0 200.0 Q256.0 200.0 256.0 194.0 L256.0 86.0" class="flow" marker-end="url(#ah)"/>
+<path d="M550.0 74.0 L560.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M560 74.0 L572.0 62.0 L584 74.0 L572.0 86.0z" class="gw"/>
+<path d="M222.0 62.0 L222.0 22.0 Q222.0 16.0 228.0 16.0 L566.0 16.0 Q572.0 16.0 572.0 22.0 L572.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M584.0 74.0 L608.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="620.0" cy="74.0" r="10.8" class="evend"/></g>
+<rect x="16" y="788.0" width="638" height="169.0" rx="8" class="panel"/>
+<text x="28" y="808.0" class="crumb">episode</text>
+<text x="82.125" y="808.0" class="m">›</text>
+<text x="96.125" y="808.0" class="crumb">development</text>
+<text x="177.75" y="808.0" class="m">›</text>
+<text x="191.75" y="808.0" class="crumb">progression</text>
+<text x="273.375" y="808.0" class="m">›</text>
+<text x="287.375" y="808.0" class="b">fix</text>
+<text x="28" y="826.0" class="m sm">A failing case motivates a repair.</text>
+<g transform="translate(28,835.0)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="50.0" width="114" height="48" rx="9" class="task"/>
+<text x="121.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">shows a</text>
+<text x="121.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">failing case</text>
+<path d="M178.0 74.0 L202.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M202 74.0 L214.0 62.0 L226 74.0 L214.0 86.0z" class="gw"/>
+<path d="M226.0 74.0 L250.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="250" y="50.0" width="98" height="48" rx="9" class="task"/>
+<text x="299.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">states the</text>
+<text x="299.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">principle</text>
+<path d="M214.0 62.0 L214.0 22.0 Q214.0 16.0 220.0 16.0 L378.0 16.0 Q384.0 16.0 384.0 22.0 L384.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M348.0 74.0 L372.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M372 74.0 L384.0 62.0 L396 74.0 L384.0 86.0z" class="gw"/>
+<path d="M396.0 74.0 L420.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="420" y="56.0" width="130" height="36" rx="9" class="task"/>
+<text x="485.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">gives a remedy</text>
+<path d="M550.0 74.0 L574.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="586.0" cy="74.0" r="10.8" class="evend"/></g>
+<rect x="16" y="973.0" width="524" height="189.0" rx="8" class="panel"/>
+<text x="28" y="993.0" class="crumb">episode</text>
+<text x="82.125" y="993.0" class="m">›</text>
+<text x="96.125" y="993.0" class="crumb">development</text>
+<text x="177.75" y="993.0" class="m">›</text>
+<text x="191.75" y="993.0" class="b">refinement</text>
+<rect x="413.15" y="981.0" width="116.85000000000001" height="17" rx="8" class="badge"/>
+<text x="420.15" y="993.0" class="m sm">no self-embedding</text>
+<text x="28" y="1011.0" class="m sm">Each revision closes one gap, and the revised solution can show a new gap.</text>
+<g transform="translate(28,1020.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 62.0 L76.0 50.0 L88 62.0 L76.0 74.0z" class="gw"/>
+<path d="M88.0 62.0 L112.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="44.0" width="146" height="36" rx="9" class="task"/>
+<text x="185.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">identifies a gap</text>
+<path d="M258.0 62.0 L282.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="282" y="38.0" width="106" height="48" rx="9" class="task"/>
+<text x="335.0" y="58.0" class="lab" text-anchor="middle" xml:space="preserve">revises the</text>
+<text x="335.0" y="74.0" class="lab" text-anchor="middle" xml:space="preserve">solution</text>
+<path d="M388.0 62.0 L412.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M412 62.0 L424.0 50.0 L436 62.0 L424.0 74.0z" class="gw"/>
+<path d="M436.0 62.0 L460.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="472.0" cy="62.0" r="10.8" class="evend"/>
+<path d="M424.0 74.0 L424.0 104.0 Q424.0 110.0 418.0 110.0 L82.0 110.0 Q76.0 110.0 76.0 104.0 L76.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="206.4" y="102.0" width="87.2" height="16" rx="3" class="lblbg"/>
+<text x="250.0" y="114.0" class="lbl" text-anchor="middle">↻ refinement</text></g>
+<rect x="16" y="1178.0" width="750" height="190.0" rx="8" class="panel"/>
+<text x="28" y="1198.0" class="crumb">episode</text>
+<text x="82.125" y="1198.0" class="m">›</text>
+<text x="96.125" y="1198.0" class="b">generalisation</text>
+<text x="28" y="1216.0" class="m sm">Hypothesis under test: authors give at least two examples before they generalise.</text>
+<g transform="translate(28,1225.0)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 74.0 L76.0 62.0 L88 74.0 L76.0 86.0z" class="gw"/>
+<path d="M88.0 74.0 L112.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="56.0" width="146" height="36" rx="9" class="task"/>
+<text x="185.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">gives an example</text>
+<path d="M258.0 74.0 L282.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M282 74.0 L294.0 62.0 L306 74.0 L294.0 86.0z" class="gw"/>
+<path d="M294.0 86.0 L294.0 104.0 Q294.0 110.0 288.0 110.0 L82.0 110.0 Q76.0 110.0 76.0 104.0 L76.0 86.0" class="flow" marker-end="url(#ah)"/>
+<rect x="167.8" y="102.0" width="34.4" height="16" rx="3" class="lblbg"/>
+<text x="185.0" y="114.0" class="lbl" text-anchor="middle">↻ 2+</text>
+<path d="M306.0 74.0 L330.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="330" y="50.0" width="106" height="48" rx="9" class="task"/>
+<text x="383.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">generalises</text>
+<text x="383.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">the example</text>
+<path d="M436.0 74.0 L460.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M460 74.0 L472.0 62.0 L484 74.0 L472.0 86.0z" class="gw"/>
+<path d="M484.0 74.0 L508.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="508" y="50.0" width="106" height="48" rx="9" class="task"/>
+<text x="561.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">names the</text>
+<text x="561.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">new concept</text>
+<path d="M472.0 62.0 L472.0 22.0 Q472.0 16.0 478.0 16.0 L644.0 16.0 Q650.0 16.0 650.0 22.0 L650.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M614.0 74.0 L638.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M638 74.0 L650.0 62.0 L662 74.0 L650.0 86.0z" class="gw"/>
+<path d="M662.0 74.0 L686.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="698.0" cy="74.0" r="10.8" class="evend"/></g>
+</svg>

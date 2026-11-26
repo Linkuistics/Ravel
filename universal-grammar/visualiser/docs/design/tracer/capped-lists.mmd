@@ -1,0 +1,9 @@
+flowchart TB
+  N["Start here: one forest node<br/>keeps its first C+1 distinct trees"]:::start
+  N --> A1["alternative 1<br/>its list: t1, t3, t4"]
+  N --> A2["alternative 2<br/>its list: t1, t2"]
+  A1 --> M["merge in the order of trees<br/>equal trees are one reading,<br/>and their origins join"]
+  A2 --> M
+  M --> R["t1, t2, t3, t4, …<br/>cut after C+1"]
+  R --> C["C+1 present:<br/>the tracer reached the cap"]
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330

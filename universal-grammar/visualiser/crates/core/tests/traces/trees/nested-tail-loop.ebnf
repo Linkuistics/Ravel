@@ -1,0 +1,4 @@
+%start s ;
+s = "go" a ;
+a = "x" b ;
+b = "y" b | "z" a? ;

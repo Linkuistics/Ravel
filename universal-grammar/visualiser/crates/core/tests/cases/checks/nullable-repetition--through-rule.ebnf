@@ -1,0 +1,3 @@
+%start order ;
+order = review+ "decide" ;
+review = "remind"? "comment"* ;

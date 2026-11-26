@@ -1,0 +1,3 @@
+// Choice rule: a string without its closing quote reaches the end of the file.
+%start a ;
+a = "x

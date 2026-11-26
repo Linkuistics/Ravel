@@ -1,0 +1,47 @@
+trace format-version=1 grammar-sha256="78a936a280f1d5b04ae4bb2827b53fb74d2e860d82f7da64fff1f6dfd93aeab2" reading-cap=10 {
+    sequence {
+        step x
+        step x
+        step x
+        step x
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+        next symbol=y
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+    }
+    failure-point step=4
+    reading parent=1 can-end=#false {
+        next symbol=y {
+            occurrence start=25 end=28
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=24
+                pass number=1 {
+                    step number=1 symbol=x {
+                        origin start=16 end=19
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=x {
+                        origin start=16 end=19
+                    }
+                }
+                pass number=3 {
+                    step number=3 symbol=x {
+                        origin start=16 end=19
+                    }
+                }
+            }
+        }
+    }
+}

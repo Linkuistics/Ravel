@@ -1,0 +1,2 @@
+%start order ;
+order = ("remind"? "comment"?){2,3} ;

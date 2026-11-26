@@ -1,0 +1,3 @@
+// A self tail call in the first alternative of a choice: a back edge above the body.
+%start menu ;
+menu = "show_menu" ("choose_item" menu | "quit") ;

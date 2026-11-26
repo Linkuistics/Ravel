@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256="0e174679752d37f786d280796871e44a053edb59273a84712b60b147f43b8f77" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=2 max=2 start=15 end=22 {
+            symbol value=x start=15 end=18
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=leading-zero message="a number has no leading zero; write `2`" start=19 end=21 line=2 column=9
+}

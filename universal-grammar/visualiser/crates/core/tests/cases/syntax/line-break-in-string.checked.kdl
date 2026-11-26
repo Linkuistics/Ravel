@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="938bb66bb3567fd2b2a2a2c7a3ee21b40de40373a6439d7436773920477233e1" {
+    start-rule name=a start=148 end=149
+    rule name=a start=152 end=153 {
+        symbol value=x start=156 end=158
+    }
+    symbol value=x {
+        use rule=a start=156 end=158
+    }
+    diagnostic severity=error code=line-break-in-string message="a quoted string cannot hold a line break; write `\\n`, or end the line with `\\` to continue the string" start=158 end=159 line=4 column=7
+}

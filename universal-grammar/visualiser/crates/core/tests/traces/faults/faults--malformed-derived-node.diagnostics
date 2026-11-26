@@ -1,0 +1,2 @@
+error malformed-derived-node 72..79 "steps=1"
+    This `prefix` has `steps=1`. The prefixes count the steps read from 0, one by one, and this one must have `steps=0`, within the 1 steps of the sequence.

@@ -1,0 +1,33 @@
+marks-case {
+    sequence asks answers
+    state steps-read=2 reading-count=1 cap-reached=#false {
+        follow-path 1 question answer
+    }
+    marks question {
+        reading 1 {
+            marker {
+                reference-box answer start=36 end=42
+            }
+            end can-end=#true {
+                option asks
+            }
+            pass 1 {
+                breadcrumb 0 question
+            }
+        }
+    }
+    marks question answer {
+        reading 1 {
+            marker {
+                task-box answers start=54 end=63
+            }
+            option asks {
+                reference-box question start=64 end=72
+            }
+            end can-end=#true
+            pass 1 {
+                breadcrumb 0 question
+            }
+        }
+    }
+}

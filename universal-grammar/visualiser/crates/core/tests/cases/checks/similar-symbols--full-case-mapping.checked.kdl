@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=b9e5c106fde2e5a2e9da2a58ecb7db165370be0e69ba6027c281e951ad794ba3 {
+    start-rule name=street start=7 end=13
+    rule name=street start=16 end=22 {
+        sequence start=25 end=44 {
+            symbol value=Straße start=25 end=34
+            symbol value=STRASSE start=35 end=44
+        }
+    }
+    symbol value=Straße {
+        use rule=street start=25 end=34
+    }
+    symbol value=STRASSE {
+        use rule=street start=35 end=44
+    }
+    diagnostic severity=warning code=similar-symbols message="In the rule `street`, the symbol \"STRASSE\" differs from the symbol \"Straße\" only by case, spaces, `_` or `-`. A misspelt symbol is a new symbol." start=35 end=44 line=2 column=19
+}

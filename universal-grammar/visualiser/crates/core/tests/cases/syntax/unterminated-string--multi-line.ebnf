@@ -1,0 +1,4 @@
+%start a ;
+a = "x" ;
+%doc """
+    A text without its end.

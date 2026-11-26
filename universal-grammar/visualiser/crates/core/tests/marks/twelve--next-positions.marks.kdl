@@ -1,0 +1,27 @@
+marks-case {
+    sequence seed
+    state steps-read=1 reading-count=1 cap-reached=#false {
+        follow-path 1 s
+    }
+    marks s {
+        reading 1 {
+            marker {
+                task-box seed start=15 end=21
+            }
+            option next {
+                reference-box r1 start=23 end=25
+                reference-box r2 start=28 end=30
+                reference-box r3 start=33 end=35
+                reference-box r4 start=38 end=40
+                reference-box r5 start=43 end=45
+                reference-box r6 start=48 end=50
+                reference-box r7 start=53 end=55
+                reference-box r8 start=58 end=60
+                reference-box r9 start=63 end=65
+                reference-box r10 start=68 end=71
+                reference-box r11 start=74 end=77
+                reference-box r12 start=80 end=83
+            }
+        }
+    }
+}

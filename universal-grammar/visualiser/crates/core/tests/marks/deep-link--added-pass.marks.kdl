@@ -1,0 +1,184 @@
+marks-case {
+    sequence y z
+    open-path a b c
+    state steps-read=2 reading-count=3 cap-reached=#false {
+        follow-path 1 a b c
+        follow-path 2 a b d
+        follow-path 3 a e c
+    }
+    marks a {
+        reading 1 {
+            marker {
+                reference-box b start=15 end=16
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 2 {
+            marker {
+                reference-box b start=15 end=16
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 3 {
+            marker {
+                reference-box e start=19 end=20
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+    }
+    marks a b {
+        reading 1 {
+            marker {
+                reference-box c start=33 end=34
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 2 {
+            marker {
+                reference-box d start=37 end=38
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 3 {
+            option z {
+                reference-box c start=33 end=34
+                reference-box d start=37 end=38
+            }
+        }
+    }
+    marks a b c {
+        reading 1 {
+            marker {
+                task-box z start=55 end=58
+            }
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 2 {
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+        }
+        reading 3 {
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+        }
+    }
+    marks a b d {
+        reading 1 {
+            option z {
+                reference-box a start=65 end=66
+                task-box z start=67 end=70
+            }
+        }
+        reading 2 {
+            marker {
+                task-box z start=67 end=70
+            }
+            option z {
+                reference-box a start=65 end=66
+                task-box z start=67 end=70
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+        reading 3 {
+            option z {
+                reference-box a start=65 end=66
+                task-box z start=67 end=70
+            }
+        }
+    }
+    marks a e {
+        reading 1 {
+            option z {
+                reference-box c start=45 end=46
+            }
+        }
+        reading 2 {
+            option z {
+                reference-box c start=45 end=46
+            }
+        }
+        reading 3 {
+            marker {
+                reference-box c start=45 end=46
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+    }
+    marks a e c {
+        reading 1 {
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+        }
+        reading 2 {
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+        }
+        reading 3 {
+            marker {
+                task-box z start=55 end=58
+            }
+            option z {
+                reference-box a start=53 end=54
+                task-box z start=55 end=58
+            }
+            end can-end=#true {
+                option z
+            }
+            pass 2 {
+                breadcrumb 0 a
+            }
+        }
+    }
+}

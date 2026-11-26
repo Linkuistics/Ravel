@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="793" viewBox="0 0 1100 793">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--cur:#0e7c66;--curbg:#e3f4ef;--sel:#d99a00;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;
+--note:#2b3445;--box:#ffffff;--boxl:#5f6878;--gw:#ffffff;--ref:#1f4fa3;--frame:#c9ced8;
+--tok:#2f6fd6;--lbl:#f4f5f7;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;
+--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;--note:#d5dae3;--box:#1f232b;--boxl:#9aa3b3;
+--gw:#1f232b;--ref:#8fb4ff;--frame:#3a404c;--tok:#6ea8ff;--lbl:#232731;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;fill:var(--t)}
+.lab{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--t)}
+.labp{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.m{fill:var(--m)} .b{font-weight:700} .sm{font-size:11px} .e{fill:var(--e);font-weight:600}
+.cur{fill:var(--cur);font-weight:600} .refc{fill:var(--ref);font-weight:600}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)}
+.task{fill:var(--box);stroke:var(--boxl);stroke-width:1.4}
+.refbox{fill:var(--box);stroke:var(--boxl);stroke-width:3.2}
+.gw{fill:var(--gw);stroke:var(--boxl);stroke-width:1.4} .gwx{stroke:var(--boxl);stroke-width:1.8}
+.ev{fill:var(--box);stroke:var(--boxl);stroke-width:1.4} .evend{fill:var(--box);stroke:var(--boxl);stroke-width:3.6}
+.flow{stroke:var(--boxl);stroke-width:1.4;fill:none}
+.ah{fill:var(--boxl)} .drill{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.lblbg{fill:var(--bg)} .lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--m)}
+.tab{fill:var(--cur);stroke:var(--cur);stroke-width:1.2} .tabo{fill:var(--bg);stroke:var(--cur);stroke-width:1.4}
+.tabt{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--bg)} .tabto{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--cur)}
+.nextmark{fill:none;stroke:var(--cur);stroke-width:2} .nextmarko{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.nextbtn{fill:var(--cur)} .nextbtnt{font-size:10px;font-weight:700;fill:var(--bg)}
+.passbg{fill:var(--curbg);stroke:var(--cur);stroke-width:1} .passt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur);font-weight:600}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.6} .selflow{fill:none;stroke:var(--sel);stroke-width:5;opacity:.55}
+.backmark{fill:none;stroke:var(--cur);stroke-width:4;opacity:.45}
+.data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2} .assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.badge{fill:var(--chip)} .chip{fill:var(--curbg);stroke:var(--cur)} .chipt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur)}
+.pop{fill:var(--bg);stroke:var(--line)} .banner{fill:var(--ebg);stroke:var(--e)}
+.call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .nest{fill:none;stroke:var(--m);stroke-width:1;stroke-dasharray:3 3}
+.nestt{font-size:10px;fill:var(--m)} .tok{fill:var(--tok)} .tokt{font-size:10px;font-weight:700;fill:#fff}
+.code{fill:var(--code);stroke:var(--line)} .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.crumb{fill:var(--ref)} .rejbox{fill:none;stroke:var(--e);stroke-width:2;stroke-dasharray:4 3}
+.strike{fill:none;stroke:var(--m);stroke-width:1.3}
+.loopbar{fill:none;stroke:var(--cur);stroke-width:2.5;stroke-linecap:round}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="16" y="26" class="h1">The order-approval grammar: one diagram for each rule</text>
+<text x="16" y="46" class="m">Drawn by the agreed layout from examples/order-approval.ebnf. The breadcrumbs show the open path from the start rule.</text>
+<rect x="16" y="57" width="768" height="196.0" rx="8" class="panel"/>
+<text x="28" y="77" class="b">order</text>
+<text x="28" y="95" class="m sm">One order, from submission to its outcome. The system checks the stock and the credit of each order. The approver can…</text>
+<g transform="translate(28,104)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="56.0" width="114" height="36" rx="9" class="task"/>
+<text x="121.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">submit_order</text>
+<path d="M178.0 74.0 L202.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="202" y="56.0" width="106" height="36" rx="9" class="task"/>
+<text x="255.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">check_order</text>
+<path d="M308.0 74.0 L332.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M332 74.0 L344.0 62.0 L356 74.0 L344.0 86.0z" class="gw"/>
+<path d="M356.0 74.0 L366.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M366 74.0 L378.0 62.0 L390 74.0 L378.0 86.0z" class="gw"/>
+<path d="M390.0 74.0 L414.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="414" y="50.0" width="84" height="48" rx="9" class="refbox"/>
+<text x="456.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">revision</text>
+<rect x="450.0" y="83.0" width="12" height="12" class="drill"/>
+<path d="M453.0 89.0 L459.0 89.0 M456.0 86.0 L456.0 92.0" class="gwx"/>
+<path d="M498.0 74.0 L522.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M522 74.0 L534.0 62.0 L546 74.0 L534.0 86.0z" class="gw"/>
+<path d="M534.0 86.0 L534.0 110.0 Q534.0 116.0 528.0 116.0 L384.0 116.0 Q378.0 116.0 378.0 110.0 L378.0 86.0" class="flow" marker-end="url(#ah)"/>
+<path d="M546.0 74.0 L556.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M556 74.0 L568.0 62.0 L580 74.0 L568.0 86.0z" class="gw"/>
+<path d="M344.0 62.0 L344.0 22.0 Q344.0 16.0 350.0 16.0 L562.0 16.0 Q568.0 16.0 568.0 22.0 L568.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="435.5" y="108.0" width="41.0" height="16" rx="3" class="lblbg"/>
+<text x="456.0" y="120.0" class="lbl" text-anchor="middle">↻ 0–3</text>
+<path d="M580.0 74.0 L604.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="604" y="50.0" width="76" height="48" rx="9" class="refbox"/>
+<text x="642.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">outcome</text>
+<rect x="636.0" y="83.0" width="12" height="12" class="drill"/>
+<path d="M639.0 89.0 L645.0 89.0 M642.0 86.0 L642.0 92.0" class="gwx"/>
+<path d="M680.0 74.0 L704.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="716.0" cy="74.0" r="10.8" class="evend"/></g>
+<rect x="16" y="269.0" width="510" height="241.0" rx="8" class="panel"/>
+<text x="28" y="289.0" class="crumb">order</text>
+<text x="68.375" y="289.0" class="m">›</text>
+<text x="82.375" y="289.0" class="b">outcome</text>
+<text x="28" y="307.0" class="m sm">An approved order ships. A rejected order closes with a notice to the customer.</text>
+<g transform="translate(28,316.0)"><circle cx="28.0" cy="62.0" r="12.0" class="ev"/>
+<path d="M40.0 62.0 L64.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 62.0 L76.0 50.0 L88 62.0 L76.0 74.0z" class="gw"/>
+<rect x="112" y="38.0" width="84" height="48" rx="9" class="refbox"/>
+<text x="154.0" y="60.0" class="lab" text-anchor="middle" xml:space="preserve">approval</text>
+<rect x="148.0" y="71.0" width="12" height="12" class="drill"/>
+<path d="M151.0 77.0 L157.0 77.0 M154.0 74.0 L154.0 80.0" class="gwx"/>
+<path d="M196.0 62.0 L220.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="220" y="44.0" width="64" height="36" rx="9" class="task"/>
+<text x="252.0" y="66.0" class="lab" text-anchor="middle" xml:space="preserve">ship</text>
+<path d="M88.0 62.0 L112.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M284.0 62.0 L398.0 62.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="122.0" width="92" height="48" rx="9" class="refbox"/>
+<text x="158.0" y="144.0" class="lab" text-anchor="middle" xml:space="preserve">rejection</text>
+<rect x="152.0" y="155.0" width="12" height="12" class="drill"/>
+<path d="M155.0 161.0 L161.0 161.0 M158.0 158.0 L158.0 164.0" class="gwx"/>
+<path d="M204.0 146.0 L228.0 146.0" class="flow" marker-end="url(#ah)"/>
+<rect x="228" y="128.0" width="146" height="36" rx="9" class="task"/>
+<text x="301.0" y="150.0" class="lab" text-anchor="middle" xml:space="preserve">notify_rejection</text>
+<path d="M76.0 74.0 L76.0 140.0 Q76.0 146.0 82.0 146.0 L112.0 146.0" class="flow" marker-end="url(#ah)"/>
+<path d="M374.0 146.0 L404.0 146.0 Q410.0 146.0 410.0 140.0 L410.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M398 62.0 L410.0 50.0 L422 62.0 L410.0 74.0z" class="gw"/>
+<path d="M422.0 62.0 L446.0 62.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="458.0" cy="62.0" r="10.8" class="evend"/></g>
+<rect x="16" y="526.0" width="812" height="241.0" rx="8" class="panel"/>
+<text x="28" y="546.0" class="crumb">order</text>
+<text x="68.375" y="546.0" class="m">›</text>
+<text x="82.375" y="546.0" class="crumb">outcome</text>
+<text x="136.5" y="546.0" class="m">›</text>
+<text x="150.5" y="546.0" class="b">approval</text>
+<rect x="707.2" y="534.0" width="110.80000000000001" height="17" rx="8" class="badge"/>
+<text x="714.2" y="546.0" class="m sm">may need a stack</text>
+<text x="28" y="564.0" class="m sm">A decision that ends in approval, at one level of authority. The system can remind the approver up to two times. An e…</text>
+<g transform="translate(28,573.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 68.0 L76.0 56.0 L88 68.0 L76.0 80.0z" class="gw"/>
+<path d="M88.0 68.0 L98.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M98 68.0 L110.0 56.0 L122 68.0 L110.0 80.0z" class="gw"/>
+<path d="M122.0 68.0 L146.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="146" y="50.0" width="68" height="36" rx="9" class="task"/>
+<text x="180.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">remind</text>
+<path d="M214.0 68.0 L238.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M238 68.0 L250.0 56.0 L262 68.0 L250.0 80.0z" class="gw"/>
+<path d="M250.0 80.0 L250.0 98.0 Q250.0 104.0 244.0 104.0 L116.0 104.0 Q110.0 104.0 110.0 98.0 L110.0 80.0" class="flow" marker-end="url(#ah)"/>
+<path d="M262.0 68.0 L272.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M272 68.0 L284.0 56.0 L296 68.0 L284.0 80.0z" class="gw"/>
+<path d="M76.0 56.0 L76.0 22.0 Q76.0 16.0 82.0 16.0 L278.0 16.0 Q284.0 16.0 284.0 22.0 L284.0 56.0" class="flow" marker-end="url(#ah)"/>
+<rect x="159.5" y="96.0" width="41.0" height="16" rx="3" class="lblbg"/>
+<text x="180.0" y="108.0" class="lbl" text-anchor="middle">↻ 0–2</text>
+<path d="M296.0 68.0 L320.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M320 68.0 L332.0 56.0 L344 68.0 L332.0 80.0z" class="gw"/>
+<rect x="368" y="50.0" width="76" height="36" rx="9" class="task"/>
+<text x="406.0" y="72.0" class="lab" text-anchor="middle" xml:space="preserve">approve</text>
+<path d="M344.0 68.0 L368.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M444.0 68.0 L700.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="368" y="128.0" width="84" height="36" rx="9" class="task"/>
+<text x="410.0" y="150.0" class="lab" text-anchor="middle" xml:space="preserve">escalate</text>
+<path d="M452.0 146.0 L476.0 146.0" class="flow" marker-end="url(#ah)"/>
+<rect x="476" y="122.0" width="84" height="48" rx="9" class="refbox"/>
+<text x="518.0" y="144.0" class="lab" text-anchor="middle" xml:space="preserve">approval</text>
+<rect x="512.0" y="155.0" width="12" height="12" class="drill"/>
+<path d="M515.0 161.0 L521.0 161.0 M518.0 158.0 L518.0 164.0" class="gwx"/>
+<path d="M560.0 146.0 L584.0 146.0" class="flow" marker-end="url(#ah)"/>
+<rect x="584" y="128.0" width="92" height="36" rx="9" class="task"/>
+<text x="630.0" y="150.0" class="lab" text-anchor="middle" xml:space="preserve">hand_back</text>
+<path d="M332.0 80.0 L332.0 140.0 Q332.0 146.0 338.0 146.0 L368.0 146.0" class="flow" marker-end="url(#ah)"/>
+<path d="M676.0 146.0 L706.0 146.0 Q712.0 146.0 712.0 140.0 L712.0 80.0" class="flow" marker-end="url(#ah)"/>
+<path d="M700 68.0 L712.0 56.0 L724 68.0 L712.0 80.0z" class="gw"/>
+<path d="M724.0 68.0 L748.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="760.0" cy="68.0" r="10.8" class="evend"/></g>
+</svg>

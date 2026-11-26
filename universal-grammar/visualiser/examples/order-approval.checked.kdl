@@ -1,0 +1,109 @@
+checked-grammar format-version=2 grammar-sha256="3042d3dfdedb2ebc2959217716094b171b8e27578a088e43cc030fc364716358" {
+    grammar-doc text="An order-approval process with recursive escalation.\nAn approver who cannot decide escalates the order one level up.\nEach decision then travels back down one level at a time,\nso every \"escalate\" has a matching \"hand_back\"." start=5 end=255
+    start-rule name=order start=266 end=271
+    rule name=order start=275 end=280 {
+        doc text="One order, from submission to its outcome.\nThe system checks the stock and the credit of each order.\nThe approver can ask for changes up to three times." start=281 end=457
+        sequence start=464 end=514 {
+            symbol value=submit_order start=464 end=478
+            symbol value=check_order start=479 end=492
+            repetition min=0 max=3 start=493 end=506 {
+                reference name=revision start=493 end=501
+            }
+            reference name=outcome start=507 end=514
+        }
+    }
+    rule name=revision start=518 end=526 {
+        doc text="One round of changes: the approver asks for changes,\nand the customer sends a changed order." start=527 end=639
+        sequence start=646 end=678 {
+            symbol value=request_changes start=646 end=663
+            symbol value=revise_order start=664 end=678
+        }
+    }
+    rule name=outcome start=682 end=689 {
+        doc text="An approved order ships.\nA rejected order closes with a notice to the customer." start=690 end=789
+        choice start=796 end=846 {
+            sequence start=796 end=811 {
+                reference name=approval start=796 end=804
+                symbol value=ship start=805 end=811
+            }
+            sequence start=818 end=846 {
+                reference name=rejection start=818 end=827
+                symbol value=notify_rejection start=828 end=846
+            }
+        }
+    }
+    rule name=approval start=854 end=862 {
+        doc text="A decision that ends in approval, at one level of authority.\nThe system can remind the approver up to two times.\nAn escalation opens the same decision one level up." start=863 end=1051
+        sequence start=1058 end=1116 {
+            repetition min=0 max=2 start=1058 end=1071 {
+                symbol value=remind start=1058 end=1066
+            }
+            choice start=1073 end=1116 {
+                symbol value=approve start=1073 end=1082
+                sequence start=1085 end=1116 {
+                    symbol value=escalate start=1085 end=1095
+                    reference name=approval start=1096 end=1104
+                    symbol value=hand_back start=1105 end=1116
+                }
+            }
+        }
+    }
+    rule name=rejection start=1121 end=1130 {
+        doc text="A decision that ends in rejection, at one level of authority.\nThe system can remind the approver up to two times.\nAn escalation opens the same decision one level up." start=1131 end=1320
+        sequence start=1327 end=1385 {
+            repetition min=0 max=2 start=1327 end=1340 {
+                symbol value=remind start=1327 end=1335
+            }
+            choice start=1342 end=1385 {
+                symbol value=reject start=1342 end=1350
+                sequence start=1353 end=1385 {
+                    symbol value=escalate start=1353 end=1363
+                    reference name=rejection start=1364 end=1373
+                    symbol value=hand_back start=1374 end=1385
+                }
+            }
+        }
+    }
+    symbol value=submit_order {
+        use rule=order start=464 end=478
+    }
+    symbol value=check_order {
+        use rule=order start=479 end=492
+    }
+    symbol value=request_changes {
+        use rule=revision start=646 end=663
+    }
+    symbol value=revise_order {
+        use rule=revision start=664 end=678
+    }
+    symbol value=ship {
+        use rule=outcome start=805 end=811
+    }
+    symbol value=notify_rejection {
+        use rule=outcome start=828 end=846
+    }
+    symbol value=remind {
+        use rule=approval start=1058 end=1066
+        use rule=rejection start=1327 end=1335
+    }
+    symbol value=approve {
+        use rule=approval start=1073 end=1082
+    }
+    symbol value=escalate {
+        use rule=approval start=1085 end=1095
+        use rule=rejection start=1353 end=1363
+    }
+    symbol value=hand_back {
+        use rule=approval start=1105 end=1116
+        use rule=rejection start=1374 end=1385
+    }
+    symbol value=reject {
+        use rule=rejection start=1342 end=1350
+    }
+    recursive-group badge=may-need-a-stack {
+        member rule=approval
+    }
+    recursive-group badge=may-need-a-stack {
+        member rule=rejection
+    }
+}

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="214534d6b10b964664a250b5024bbeb374c7d8790b94a7b35d431608153abe36" {
+    grammar-doc text="A grammar with a \"quoted\" word and \\n." start=5 end=61
+    start-rule name=a start=71 end=72
+    rule name=a start=75 end=76 {
+        symbol value=x start=79 end=82
+    }
+    symbol value=x {
+        use rule=a start=79 end=82
+    }
+}

@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="0e2016f788a78fdd9b06a2df48176091e2ac6b603ed93b283c0c9e849dee9ac4" {
+    start-rule name=greeting start=7 end=15
+    rule name=greeting start=18 end=26 {
+        sequence start=29 end=42 {
+            symbol value=ΟΣ start=29 end=35
+            symbol value=ος start=36 end=42
+        }
+    }
+    symbol value=ΟΣ {
+        use rule=greeting start=29 end=35
+    }
+    symbol value=ος {
+        use rule=greeting start=36 end=42
+    }
+    diagnostic severity=warning code=similar-symbols message="In the rule `greeting`, the symbol \"ος\" differs from the symbol \"ΟΣ\" only by case, spaces, `_` or `-`. A misspelt symbol is a new symbol." start=36 end=42 line=2 column=17
+}

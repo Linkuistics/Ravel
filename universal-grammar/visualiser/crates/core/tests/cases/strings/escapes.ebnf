@@ -1,0 +1,2 @@
+%start a ;
+a = "tab\there" "quote\"" "back\\slash" "\u{1F600}" "\s\u{41}" ;

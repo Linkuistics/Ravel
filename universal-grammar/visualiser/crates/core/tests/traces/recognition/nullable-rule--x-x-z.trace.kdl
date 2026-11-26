@@ -1,0 +1,41 @@
+trace format-version=1 grammar-sha256="4eb2997e1591f2a8825418eb928e51f60e9598683f290d72cec422b17eec9702" reading-cap=10 {
+    sequence {
+        step x
+        step x
+        step z
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=z
+        next symbol=x
+    }
+    prefix steps=1 reading-count=2 cap-reached=#false can-end=#false {
+        next symbol=z
+        next symbol=x
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=z
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#true
+    reading parent=1 can-end=#true {
+        rule name=a {
+            rule name=b {
+                origin start=16 end=17
+                step number=1 symbol=x {
+                    origin start=30 end=33
+                }
+            }
+            rule name=c {
+                origin start=18 end=19
+                rule name=b {
+                    origin start=41 end=42
+                    step number=2 symbol=x {
+                        origin start=30 end=33
+                    }
+                }
+            }
+            step number=3 symbol=z {
+                origin start=20 end=23
+            }
+        }
+    }
+}

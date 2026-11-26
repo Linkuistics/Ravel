@@ -1,0 +1,7 @@
+%start a ;
+a """
+    The first line.
+
+      An indented line.
+    """
+    = "x" ;

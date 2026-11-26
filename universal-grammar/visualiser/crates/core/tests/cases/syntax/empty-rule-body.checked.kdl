@@ -1,0 +1,5 @@
+checked-grammar format-version=2 grammar-sha256=a2bc11bcb295eab57c2338a2945425d6da9615a124d5b094070706db0f8a5dd2 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12
+    diagnostic severity=error code=empty-rule-body message="the body of the rule `a` is empty; a rule body holds at least one item" start=13 end=14 line=2 column=3
+}

@@ -1,0 +1,3 @@
+// A self tail call as the item of an optional part: the split gateway sends the back edge.
+%start refinement ;
+refinement = "identifies a gap" "revises the solution" refinement? ;

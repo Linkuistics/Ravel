@@ -1,0 +1,18 @@
+checked-grammar format-version=2 grammar-sha256="210915225268fb7a2f9235052edfcbf16ea31c739d65669be5504c723781d9db" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=31 {
+            symbol value=x start=15 end=18
+            repetition min=0 max=0 start=19 end=31 {
+                symbol value=y start=19 end=22
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value=y {
+        use rule=a start=19 end=22
+    }
+    diagnostic severity=error code=second-spelling message="`{ 0 , 0 }` matches nothing; remove the item" start=22 end=31 line=2 column=12
+}

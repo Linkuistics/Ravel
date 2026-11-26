@@ -1,0 +1,82 @@
+trace format-version=1 grammar-sha256=e482530595c0bfbee66fa69145ec1b347e04fa83d3cd64eb8aec76996b628412 reading-cap=10 {
+    sequence {
+        step begin
+        step y
+        step z
+        step x
+        step z
+        step x
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=begin
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=z
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+    }
+    prefix steps=4 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=z
+    }
+    prefix steps=5 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=x
+    }
+    prefix steps=6 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=z
+    }
+    reading parent=1 can-end=#true {
+        next symbol=z {
+            occurrence start=51 end=54
+        }
+        rule name=s {
+            step number=1 symbol=begin {
+                origin start=15 end=22
+            }
+            loop kind=head-references pass-rule=a {
+                origin start=23 end=24
+                pass number=1 {
+                    rule name=a {
+                        origin start=23 end=24
+                        step number=2 symbol=y {
+                            origin start=39 end=42
+                        }
+                    }
+                }
+                pass number=2 {
+                    origin start=49 end=50
+                    rule name=a {
+                        origin start=49 end=50
+                        rule name=b {
+                            origin start=31 end=32
+                            step number=3 symbol=z {
+                                origin start=51 end=54
+                            }
+                        }
+                        step number=4 symbol=x {
+                            origin start=33 end=36
+                        }
+                    }
+                }
+                pass number=3 {
+                    origin start=49 end=50
+                    rule name=a {
+                        origin start=49 end=50
+                        rule name=b {
+                            origin start=31 end=32
+                            step number=5 symbol=z {
+                                origin start=51 end=54
+                            }
+                        }
+                        step number=6 symbol=x {
+                            origin start=33 end=36
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

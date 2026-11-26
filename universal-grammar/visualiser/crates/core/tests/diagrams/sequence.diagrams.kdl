@@ -1,0 +1,19 @@
+diagrams format-version=1 grammar-sha256=abceafc6eb11695bb432bab3d911dc725466e31642770f26819c1c32efe6a1c1 font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=460 height=90 {
+        start-event x=16 y=44 size=24
+        task start=67 end=81 symbol=submit_order x=64 y=38 width=114 height=36 {
+            label submit_order
+        }
+        task start=82 end=95 symbol=check_order x=202 y=38 width=106 height=36 {
+            label check_order
+        }
+        task start=96 end=102 symbol=ship x=332 y=38 width=64 height=36 {
+            label ship
+        }
+        end-event x=420 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 178 56 202 56 role=sequence
+        flow 308 56 332 56 role=sequence
+        flow 396 56 420 56 role=sequence
+    }
+}

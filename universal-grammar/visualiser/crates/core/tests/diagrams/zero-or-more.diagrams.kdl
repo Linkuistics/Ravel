@@ -1,0 +1,29 @@
+diagrams format-version=1 grammar-sha256="084a81032b9d29c8a26d39dccf5ca714d50c7563268349ea17327cd1ea3692aa" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=668 height=122 {
+        start-event x=16 y=56 size=24
+        task start=98 end=112 symbol=set_exercise x=64 y=50 width=114 height=36 {
+            label set_exercise
+        }
+        gateway role=skip-split start=113 end=125 x=202 y=56 size=24
+        gateway role=loop-join start=113 end=125 x=236 y=56 size=24
+        task start=113 end=124 symbol=give_hint x=284 y=50 width=92 height=36 {
+            label give_hint
+        }
+        gateway role=loop-split start=113 end=125 x=400 y=56 size=24
+        gateway role=skip-join start=113 end=125 x=434 y=56 size=24
+        task start=126 end=141 symbol=show_solution x=482 y=50 width=122 height=36 {
+            label show_solution
+        }
+        end-event x=628 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 178 68 202 68 role=sequence
+        flow 226 68 236 68 role=sequence
+        flow 260 68 284 68 role=sequence
+        flow 376 68 400 68 role=sequence
+        flow 412 80 412 104 248 104 248 80 role=back start=113 end=125
+        flow 424 68 434 68 role=sequence
+        flow 214 56 214 16 446 16 446 56 role=skip start=113 end=125
+        flow 458 68 482 68 role=sequence
+        flow 604 68 628 68 role=sequence
+    }
+}

@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256="42fb8ce2a992a5c390c4aef6cd83cf13e6e8b1084d660c0f3e51443d65b3f571" {
+    grammar-doc text="" start=26 end=29
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=18
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=unterminated-string message="this string has no closing `\"\"\"` before the end of the file" start=26 end=29 line=3 column=6
+}

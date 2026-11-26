@@ -1,0 +1,18 @@
+checked-grammar format-version=2 grammar-sha256="9f9e579b1bceb2586ec7088a84b8a4f0d3f36148c9dbba19a5fc061e4626fd3c" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=25 {
+            symbol value=x start=15 end=18
+            repetition min=1 max=1 start=19 end=25 {
+                symbol value=y start=19 end=22
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value=y {
+        use rule=a start=19 end=22
+    }
+    diagnostic severity=error code=second-spelling message="`{1}` matches the item once; write `\"y\"` alone" start=22 end=25 line=2 column=12
+}

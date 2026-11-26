@@ -1,0 +1,4 @@
+// A reference: a thick box with the rule name and a drill-down marker.
+%start r ;
+r = "submit_order" revision "ship" ;
+revision = "request_changes" "revise_order" ;

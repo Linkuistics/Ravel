@@ -1,0 +1,32 @@
+diagrams format-version=1 grammar-sha256="7d8d0ee924096072374fba3000dbfc65525dab162d4023fa1348be5f2f96bdb0" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=menu width=618 height=226 {
+        start-event x=16 y=76 size=24
+        gateway role=back-edge-join start=80 end=84 x=64 y=76 size=24
+        task start=87 end=98 symbol=show_menu x=112 y=70 width=92 height=36 {
+            label show_menu
+        }
+        gateway role=choice-split start=100 end=150 x=228 y=76 size=24
+        task start=100 end=113 symbol=choose_item x=276 y=70 width=106 height=36 {
+            label choose_item
+        }
+        gateway role=option-split start=114 end=119 x=406 y=76 size=24
+        task start=122 end=130 symbol=search x=276 y=142 width=68 height=36 {
+            label search
+        }
+        task start=131 end=145 symbol=show_results x=368 y=142 width=114 height=36 {
+            label show_results
+        }
+        end-event x=578 y=76 size=24
+        flow 40 88 64 88 role=sequence
+        flow 88 88 112 88 role=sequence
+        flow 204 88 228 88 role=sequence
+        flow 252 88 276 88 role=sequence
+        flow 382 88 406 88 role=sequence
+        flow 430 88 554 88 role=sequence
+        flow 240 100 240 160 276 160 role=sequence
+        flow 344 160 368 160 role=sequence
+        flow 554 88 578 88 role=sequence
+        flow 418 76 418 24 76 24 76 76 role=back-edge start=114 end=118 label="↻ menu" label-x=247 label-y=24
+        flow 482 160 506 160 506 202 76 202 76 100 role=back-edge start=146 end=150 label="↻ menu" label-x=291 label-y=202
+    }
+}

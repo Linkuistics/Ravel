@@ -1,0 +1,25 @@
+trace format-version=1 grammar-sha256="58d2986be9236679f2060edd2ee5c091d94bbce3e1e02171ae76b30f7c9a805d" reading-cap=10 {
+    sequence {
+        step y
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+    }
+    reading parent=1 can-end=#true {
+        next symbol=x {
+            occurrence start=18 end=21
+        }
+        loop kind=head-references pass-rule=a {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=y {
+                        origin start=24 end=27
+                    }
+                }
+            }
+        }
+    }
+}

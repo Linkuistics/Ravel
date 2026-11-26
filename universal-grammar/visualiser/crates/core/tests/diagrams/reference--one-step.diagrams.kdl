@@ -1,0 +1,64 @@
+diagrams format-version=1 grammar-sha256="97eb4e7c26faad8abc5c48c7abe95a242564b241f72204a98b934392799b0a22" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=396 height=102 {
+        start-event x=16 y=50 size=24
+        reference start=101 end=109 rule=overview x=64 y=44 width=84 height=36 one-step=#true {
+            label overview
+        }
+        reference start=110 end=116 rule=answer x=172 y=44 width=68 height=36 one-step=#true {
+            label answer
+        }
+        reference start=117 end=123 rule=lesson x=264 y=38 width=68 height=48 one-step=#false {
+            label lesson
+        }
+        end-event x=356 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 148 62 172 62 role=sequence
+        flow 240 62 264 62 role=sequence
+        flow 332 62 356 62 role=sequence
+    }
+    diagram rule=overview width=212 height=90 {
+        start-event x=16 y=44 size=24
+        task start=137 end=147 symbol=overview x=64 y=38 width=84 height=36 {
+            label overview
+        }
+        end-event x=172 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 148 56 172 56 role=sequence
+    }
+    diagram rule=answer width=384 height=174 {
+        start-event x=16 y=44 size=24
+        gateway role=choice-split start=159 end=172 x=64 y=44 size=24
+        task start=159 end=164 symbol=yes x=112 y=38 width=64 height=36 {
+            label yes
+        }
+        gateway role=option-split start=167 end=172 x=112 y=128 size=24
+        task start=167 end=171 symbol=no x=160 y=122 width=64 height=36 {
+            label no
+        }
+        gateway role=option-join start=167 end=172 x=248 y=128 size=24
+        gateway role=choice-join start=159 end=172 x=296 y=44 size=24
+        end-event x=344 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 176 56 296 56 role=sequence
+        flow 76 68 76 140 112 140 role=sequence
+        flow 136 140 160 140 role=sequence
+        flow 124 128 124 88 260 88 260 128 role=skip start=167 end=172
+        flow 224 140 248 140 role=sequence
+        flow 272 140 308 140 308 68 role=sequence
+        flow 320 56 344 56 role=sequence
+    }
+    diagram rule=lesson width=420 height=90 {
+        start-event x=16 y=44 size=24
+        task start=184 end=203 symbol=introduce_concept x=64 y=38 width=154 height=36 {
+            label introduce_concept
+        }
+        task start=204 end=218 symbol=show_example x=242 y=38 width=114 height=36 {
+            label show_example
+        }
+        end-event x=380 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 218 56 242 56 role=sequence
+        flow 356 56 380 56 role=sequence
+    }
+}

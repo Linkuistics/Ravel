@@ -1,0 +1,4 @@
+// Two passes of b need a step from the second pass, so a does not derive itself with no step.
+%start a ;
+a = b{2} ;
+b = a | "x" ;

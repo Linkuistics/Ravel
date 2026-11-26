@@ -1,0 +1,25 @@
+diagrams format-version=1 grammar-sha256="346145d13059a9a383c6cae0d3471107cdbcbfac431582566df3fb7b2bdd316a" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=572 height=206 {
+        start-event x=16 y=44 size=24
+        gateway role=back-edge-join start=110 end=111 x=64 y=44 size=24
+        gateway role=choice-split start=114 end=169 x=112 y=44 size=24
+        task start=114 end=123 symbol=accepts x=160 y=38 width=76 height=36 {
+            label accepts
+        }
+        task start=126 end=144 symbol="identifies a gap" x=160 y=116 width=146 height=36 {
+            label "identifies a gap"
+        }
+        task start=145 end=167 symbol="revises the solution" x=330 y=110 width=106 height=48 {
+            label "revises the" solution
+        }
+        end-event x=532 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 88 56 112 56 role=sequence
+        flow 136 56 160 56 role=sequence
+        flow 236 56 508 56 role=sequence
+        flow 124 68 124 134 160 134 role=sequence
+        flow 306 134 330 134 role=sequence
+        flow 508 56 532 56 role=sequence
+        flow 436 134 460 134 460 182 76 182 76 68 role=back-edge start=168 end=169 label="↻ r" label-x=268 label-y=182
+    }
+}

@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256="43b3f6ea8bb9ecfb15dc49fa2637262fba2d551670756ef5cc92994bb927a35d" {
+    grammar-doc text="An order process." start=5 end=24
+    grammar-doc text="It has one rule." start=32 end=50
+    start-rule name=order start=60 end=65
+    rule name=order start=68 end=73 {
+        symbol value=submit start=76 end=84
+    }
+    symbol value=submit {
+        use rule=order start=76 end=84
+    }
+    diagnostic severity=error code=second-grammar-doc message="The grammar has more than one `%doc`. Put the whole text into the first `%doc`." start=32 end=50 line=2 column=6
+}

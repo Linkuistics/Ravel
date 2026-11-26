@@ -1,0 +1,15 @@
+diagrams format-version=1 grammar-sha256="52f3e5d1fac391d695d7416599dde3ba087fe181cd3881070899d16c6ccfbd7e" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=346 height=90 {
+        start-event x=16 y=44 size=24
+        task start=94 end=117 symbol=注文を確認する x=64 y=38 width=130 height=36 {
+            label 注文を確認する
+        }
+        task start=118 end=131 symbol=café x=218 y=38 width=64 height=36 {
+            label café
+        }
+        end-event x=306 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 194 56 218 56 role=sequence
+        flow 282 56 306 56 role=sequence
+    }
+}

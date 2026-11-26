@@ -1,0 +1,31 @@
+checked-grammar format-version=2 grammar-sha256="8fd013bb0e9d87b7d83170ab018c616cc22ad9fb9eb1cf445b241da0a11d239a" {
+    start-rule name=a start=44 end=45
+    rule name=a start=48 end=49 {
+        choice start=52 end=63 {
+            sequence start=52 end=57 {
+                reference name=b start=52 end=53
+                symbol value=x start=54 end=57
+            }
+            symbol value=y start=60 end=63
+        }
+    }
+    rule name=b start=66 end=67 {
+        sequence start=70 end=75 {
+            reference name=a start=70 end=71
+            symbol value=z start=72 end=75
+        }
+    }
+    symbol value=x {
+        use rule=a start=54 end=57
+    }
+    symbol value=y {
+        use rule=a start=60 end=63
+    }
+    symbol value=z {
+        use rule=b start=72 end=75
+    }
+    recursive-group badge=no-self-embedding {
+        member rule=a
+        member rule=b
+    }
+}

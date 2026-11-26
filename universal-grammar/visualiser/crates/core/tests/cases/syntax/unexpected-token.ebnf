@@ -1,0 +1,3 @@
+%doc ;
+%start a ;
+a = "x" ;

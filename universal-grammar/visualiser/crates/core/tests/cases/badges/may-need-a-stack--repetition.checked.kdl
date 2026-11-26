@@ -1,0 +1,23 @@
+checked-grammar format-version=2 grammar-sha256=c7d76eca55336d48d4d0a2fbae59410da0c94f35ec7386694773ce01afec1277 {
+    start-rule name=a start=159 end=160
+    rule name=a start=163 end=164 {
+        sequence start=167 end=179 {
+            symbol value=x start=167 end=170
+            repetition min=0 start=171 end=179 {
+                sequence start=172 end=177 {
+                    symbol value=y start=172 end=175
+                    reference name=a start=176 end=177
+                }
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=167 end=170
+    }
+    symbol value=y {
+        use rule=a start=172 end=175
+    }
+    recursive-group badge=may-need-a-stack {
+        member rule=a
+    }
+}

@@ -1,0 +1,2 @@
+error malformed-derived-node 137..145 "symbol=y"
+    This step of a tree has the symbol "y", but step 1 of the sequence has the symbol "x". A step of a tree repeats the symbol in the sequence.

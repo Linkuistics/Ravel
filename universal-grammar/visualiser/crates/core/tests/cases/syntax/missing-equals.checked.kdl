@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="825bc3d941d335cb3069e85b01923520645bbf29ae7c20498ab036002e2131e1" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=13 end=16
+    }
+    symbol value=x {
+        use rule=a start=13 end=16
+    }
+    diagnostic severity=error code=missing-equals message="missing `=` after the rule name `a`" start=12 end=12 line=2 column=2
+}

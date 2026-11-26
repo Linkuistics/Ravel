@@ -1,0 +1,152 @@
+diagrams format-version=1 grammar-sha256="3042d3dfdedb2ebc2959217716094b171b8e27578a088e43cc030fc364716358" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=order width=744 height=141 {
+        start-event x=16 y=62 size=24
+        task start=464 end=478 symbol=submit_order x=64 y=56 width=114 height=36 {
+            label submit_order
+        }
+        task start=479 end=492 symbol=check_order x=202 y=56 width=106 height=36 {
+            label check_order
+        }
+        gateway role=skip-split start=493 end=506 x=332 y=62 size=24
+        gateway role=loop-join start=493 end=506 x=366 y=62 size=24
+        reference start=493 end=501 rule=revision x=414 y=50 width=84 height=48 one-step=#false {
+            label revision
+        }
+        gateway role=loop-split start=493 end=506 x=522 y=62 size=24
+        gateway role=skip-join start=493 end=506 x=556 y=62 size=24
+        reference start=507 end=514 rule=outcome x=604 y=50 width=76 height=48 one-step=#false {
+            label outcome
+        }
+        end-event x=704 y=62 size=24
+        flow 40 74 64 74 role=sequence
+        flow 178 74 202 74 role=sequence
+        flow 308 74 332 74 role=sequence
+        flow 356 74 366 74 role=sequence
+        flow 390 74 414 74 role=sequence
+        flow 498 74 522 74 role=sequence
+        flow 534 86 534 116 378 116 378 86 role=back start=493 end=506 label="↻ 0–3" label-x=456 label-y=116
+        flow 546 74 556 74 role=sequence
+        flow 344 62 344 16 568 16 568 62 role=skip start=493 end=506
+        flow 580 74 604 74 role=sequence
+        flow 680 74 704 74 role=sequence
+    }
+    diagram rule=revision width=404 height=90 {
+        start-event x=16 y=44 size=24
+        task start=646 end=663 symbol=request_changes x=64 y=38 width=138 height=36 {
+            label request_changes
+        }
+        task start=664 end=678 symbol=revise_order x=226 y=38 width=114 height=36 {
+            label revise_order
+        }
+        end-event x=364 y=44 size=24
+        flow 40 56 64 56 role=sequence
+        flow 202 56 226 56 role=sequence
+        flow 340 56 364 56 role=sequence
+    }
+    diagram rule=outcome width=486 height=186 {
+        start-event x=16 y=50 size=24
+        gateway role=choice-split start=796 end=846 x=64 y=50 size=24
+        reference start=796 end=804 rule=approval x=112 y=38 width=84 height=48 one-step=#false {
+            label approval
+        }
+        task start=805 end=811 symbol=ship x=220 y=44 width=64 height=36 {
+            label ship
+        }
+        reference start=818 end=827 rule=rejection x=112 y=122 width=92 height=48 one-step=#false {
+            label rejection
+        }
+        task start=828 end=846 symbol=notify_rejection x=228 y=128 width=146 height=36 {
+            label notify_rejection
+        }
+        gateway role=choice-join start=796 end=846 x=398 y=50 size=24
+        end-event x=446 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 88 62 112 62 role=sequence
+        flow 196 62 220 62 role=sequence
+        flow 284 62 398 62 role=sequence
+        flow 76 74 76 146 112 146 role=sequence
+        flow 204 146 228 146 role=sequence
+        flow 374 146 410 146 410 74 role=sequence
+        flow 422 62 446 62 role=sequence
+    }
+    diagram rule=approval width=788 height=186 {
+        start-event x=16 y=56 size=24
+        gateway role=skip-split start=1058 end=1071 x=64 y=56 size=24
+        gateway role=loop-join start=1058 end=1071 x=98 y=56 size=24
+        task start=1058 end=1066 symbol=remind x=146 y=50 width=68 height=36 {
+            label remind
+        }
+        gateway role=loop-split start=1058 end=1071 x=238 y=56 size=24
+        gateway role=skip-join start=1058 end=1071 x=272 y=56 size=24
+        gateway role=choice-split start=1073 end=1116 x=320 y=56 size=24
+        task start=1073 end=1082 symbol=approve x=368 y=50 width=76 height=36 {
+            label approve
+        }
+        task start=1085 end=1095 symbol=escalate x=368 y=128 width=84 height=36 {
+            label escalate
+        }
+        reference start=1096 end=1104 rule=approval x=476 y=122 width=84 height=48 one-step=#false {
+            label approval
+        }
+        task start=1105 end=1116 symbol=hand_back x=584 y=128 width=92 height=36 {
+            label hand_back
+        }
+        gateway role=choice-join start=1073 end=1116 x=700 y=56 size=24
+        end-event x=748 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 98 68 role=sequence
+        flow 122 68 146 68 role=sequence
+        flow 214 68 238 68 role=sequence
+        flow 250 80 250 104 110 104 110 80 role=back start=1058 end=1071 label="↻ 0–2" label-x=180 label-y=104
+        flow 262 68 272 68 role=sequence
+        flow 76 56 76 16 284 16 284 56 role=skip start=1058 end=1071
+        flow 296 68 320 68 role=sequence
+        flow 344 68 368 68 role=sequence
+        flow 444 68 700 68 role=sequence
+        flow 332 80 332 146 368 146 role=sequence
+        flow 452 146 476 146 role=sequence
+        flow 560 146 584 146 role=sequence
+        flow 676 146 712 146 712 80 role=sequence
+        flow 724 68 748 68 role=sequence
+    }
+    diagram rule=rejection width=796 height=186 {
+        start-event x=16 y=56 size=24
+        gateway role=skip-split start=1327 end=1340 x=64 y=56 size=24
+        gateway role=loop-join start=1327 end=1340 x=98 y=56 size=24
+        task start=1327 end=1335 symbol=remind x=146 y=50 width=68 height=36 {
+            label remind
+        }
+        gateway role=loop-split start=1327 end=1340 x=238 y=56 size=24
+        gateway role=skip-join start=1327 end=1340 x=272 y=56 size=24
+        gateway role=choice-split start=1342 end=1385 x=320 y=56 size=24
+        task start=1342 end=1350 symbol=reject x=368 y=50 width=68 height=36 {
+            label reject
+        }
+        task start=1353 end=1363 symbol=escalate x=368 y=128 width=84 height=36 {
+            label escalate
+        }
+        reference start=1364 end=1373 rule=rejection x=476 y=122 width=92 height=48 one-step=#false {
+            label rejection
+        }
+        task start=1374 end=1385 symbol=hand_back x=592 y=128 width=92 height=36 {
+            label hand_back
+        }
+        gateway role=choice-join start=1342 end=1385 x=708 y=56 size=24
+        end-event x=756 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 98 68 role=sequence
+        flow 122 68 146 68 role=sequence
+        flow 214 68 238 68 role=sequence
+        flow 250 80 250 104 110 104 110 80 role=back start=1327 end=1340 label="↻ 0–2" label-x=180 label-y=104
+        flow 262 68 272 68 role=sequence
+        flow 76 56 76 16 284 16 284 56 role=skip start=1327 end=1340
+        flow 296 68 320 68 role=sequence
+        flow 344 68 368 68 role=sequence
+        flow 436 68 708 68 role=sequence
+        flow 332 80 332 146 368 146 role=sequence
+        flow 452 146 476 146 role=sequence
+        flow 568 146 592 146 role=sequence
+        flow 684 146 720 146 720 80 role=sequence
+        flow 732 68 756 68 role=sequence
+    }
+}

@@ -1,0 +1,52 @@
+%doc """
+    The kinds of the leaves of one grove, in the order in which the
+    driver walks them. Today no grammar states this order. It emerges from
+    the leaves that each kind skill cuts. This grammar is a guess from the
+    live groves, for the design discussion of the rule diagrams only.
+    Each comment names the skill source that could contribute the rules
+    under it.
+
+    A leaf that the human abandoned is not a step of this grammar. The
+    sequence would keep it as a withdrawn step, which the tracer does not
+    read and the views still show. So a replaced review cannot malform
+    the tree.
+    """ ;
+
+%start grove ;
+
+// Contributed by the grove spine.
+
+grove "One workstream: its requirements, then work until the finish."
+    = requirements work* "finish" ;
+
+work "One piece of work. Each skill source adds the alternatives of its own kinds."
+    = requirements | research | planning | design | prototype | impl ;
+
+planning "Cut the leaves of the work, and review the cut when others build on it."
+    = "planning" ("review-planning" "integrate-review-planning")* "review-planning"? ;
+
+// Contributed by the requirements source.
+
+requirements "Agree what the grove must deliver."
+    = "requirements" ("review-requirements" "integrate-review-requirements")* "review-requirements"? ;
+
+// Contributed by the research source.
+
+research "One survey, or two independent surveys and their combination."
+    = "research-a" ("research-b" "combine-research")? ;
+
+// Contributed by the design source.
+
+design """
+    Establish how. Each review that finds something ends in an
+    integration. A review that finds nothing ends the chain.
+    """
+    = "design" ("review-design" "integrate-review-design")* "review-design"? ;
+
+// Contributed by the engineering source.
+
+prototype "Learn by building something to throw away."
+    = "prototype" ("review-prototype" "integrate-review-prototype")* "review-prototype"? ;
+
+impl "Build one slice behind its test seam."
+    = "impl" ("review-impl" "integrate-review-impl")* "review-impl"? ;

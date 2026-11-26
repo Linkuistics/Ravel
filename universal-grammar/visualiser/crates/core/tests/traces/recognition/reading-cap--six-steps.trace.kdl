@@ -1,0 +1,417 @@
+trace format-version=1 grammar-sha256="10142ddc24f449ddd51c1c0252167e3b18f107f185f0691008e042d613da29e0" reading-cap=10 {
+    sequence {
+        step a
+        step a
+        step a
+        step a
+        step a
+        step a
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=2 reading-count=2 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=3 reading-count=3 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=4 reading-count=5 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=5 reading-count=8 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=6 reading-count=10 cap-reached=#true can-end=#true {
+        next symbol=a
+    }
+    reading parent=1 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=2 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=4 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=3 {
+                    step number=5 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=6 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+            }
+        }
+    }
+    reading parent=1 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=2 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=4 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=3 {
+                    step number=5 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=4 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+    reading parent=2 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=2 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=5 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=4 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+    reading parent=3 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=2 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=6 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+            }
+        }
+    }
+    reading parent=3 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=2 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=5 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+    reading parent=4 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=3 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=5 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=4 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+    reading parent=5 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=3 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=6 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+            }
+        }
+    }
+    reading parent=5 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=3 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=3 {
+                    step number=4 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=5 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+    reading parent=6 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=3 {
+                    step number=3 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=4 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=6 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+            }
+        }
+    }
+    reading parent=6 can-end=#true {
+        next symbol=a {
+            occurrence start=17 end=20
+            occurrence start=23 end=26
+            occurrence start=27 end=30
+        }
+        rule name=a {
+            loop kind=repetition {
+                origin start=16 end=32
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=3 {
+                    step number=3 symbol=a {
+                        origin start=23 end=26
+                    }
+                    step number=4 symbol=a {
+                        origin start=27 end=30
+                    }
+                }
+                pass number=4 {
+                    step number=5 symbol=a {
+                        origin start=17 end=20
+                    }
+                }
+                pass number=5 {
+                    step number=6 symbol=a {
+                        origin start=17 end=20
+                        origin start=23 end=26
+                    }
+                }
+            }
+        }
+    }
+}

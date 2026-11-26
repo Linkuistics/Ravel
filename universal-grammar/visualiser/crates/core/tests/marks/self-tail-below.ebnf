@@ -1,0 +1,3 @@
+%start r ;
+r = x r? | "c" ;
+x = "b" "d" ;

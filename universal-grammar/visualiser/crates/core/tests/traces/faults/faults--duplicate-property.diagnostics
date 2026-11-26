@@ -1,0 +1,2 @@
+error duplicate-property 23..39 "format-version=1"
+    The `trace` node has the property `format-version` twice.

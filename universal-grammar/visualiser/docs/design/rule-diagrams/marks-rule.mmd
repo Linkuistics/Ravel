@@ -1,0 +1,21 @@
+flowchart TD
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  s["Start here: one next position<br/>of one reading"]:::start
+  q1{"Does it keep the<br/>diagram node of the reading?"}
+  r1["Rule 1: mark the first box<br/>below the diagram node,<br/>and the back flow of a new pass"]
+  q2{"Does it add a pass of a loop<br/>through rules, whose origins<br/>hold a link of the open diagram?"}
+  r2["Rule 2: mark the link.<br/>When it stands in the diagram,<br/>also mark the first box<br/>below its new diagram node"]
+  q3{"Does the reading stand<br/>in the open diagram?"}
+  r3["Rule 3: mark the end event"]
+  q4{"Does the next position stand<br/>in the open diagram?"}
+  r4["Rule 4: mark the first box<br/>below its new diagram node"]
+  none["No mark in this diagram"]
+  s --> q1
+  q1 -->|"1 yes"| r1
+  q1 -->|"no"| q2
+  q2 -->|"2 yes"| r2
+  q2 -->|"no"| q3
+  q3 -->|"3 yes"| r3
+  q3 -->|"no"| q4
+  q4 -->|"4 yes"| r4
+  q4 -->|"no"| none

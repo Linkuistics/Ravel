@@ -1,0 +1,27 @@
+// The diagram KDL of the rule setup of examples/tutorial.ebnf, as the spec rule-diagrams proposes it.
+// mockups.py writes this file. The hash is shortened here.
+diagrams format-version=1 grammar-sha256="…" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=setup width=512 height=122 {
+        start-event x=16 y=56 size=24
+        gateway role=loop-join start=546 end=554 x=64 y=56 size=24
+        reference start=546 end=553 rule=install x=112 y=50 width=76 height=36 one-step=#true {
+            label install
+        }
+        gateway role=loop-split start=546 end=554 x=212 y=56 size=24
+        gateway role=option-split start=555 end=565 x=260 y=56 size=24
+        reference start=555 end=564 rule=configure x=308 y=50 width=92 height=36 one-step=#true {
+            label configure
+        }
+        gateway role=option-join start=555 end=565 x=424 y=56 size=24
+        end-event x=472 y=56 size=24
+        flow 40 68 64 68 role=sequence
+        flow 88 68 112 68 role=sequence
+        flow 188 68 212 68 role=sequence
+        flow 224 80 224 104 76 104 76 80 role=back start=546 end=554
+        flow 236 68 260 68 role=sequence
+        flow 284 68 308 68 role=sequence
+        flow 272 56 272 16 436 16 436 56 role=skip start=555 end=565
+        flow 400 68 424 68 role=sequence
+        flow 448 68 472 68 role=sequence
+    }
+}

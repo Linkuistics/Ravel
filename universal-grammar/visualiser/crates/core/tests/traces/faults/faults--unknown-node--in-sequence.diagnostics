@@ -1,0 +1,2 @@
+error unknown-node 48..52 "stop"
+    `stop` is not a child node of `sequence`. Each child is a `step`.

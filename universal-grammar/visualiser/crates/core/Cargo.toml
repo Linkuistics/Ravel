@@ -1,0 +1,25 @@
+[package]
+name = "workbench-core"
+version = "0.1.0"
+description = "The core of the grammar workbench: parse, check, trace and lay out grammars."
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+kdl.workspace = true
+rowan.workspace = true
+sha2.workspace = true
+miette.workspace = true
+serde = { workspace = true, optional = true }
+tsify = { workspace = true, optional = true }
+wasm-bindgen = { workspace = true, optional = true }
+
+[features]
+# The serde and Tsify derives of the types that cross the WebAssembly boundary
+# (docs/adr/typed-objects-at-the-webassembly-boundary.md). The crate
+# `workbench-wasm` turns it on. Native builds and tests need none of these crates.
+wasm = ["dep:serde", "dep:tsify", "dep:wasm-bindgen"]
+
+[dev-dependencies]
+kdl.workspace = true

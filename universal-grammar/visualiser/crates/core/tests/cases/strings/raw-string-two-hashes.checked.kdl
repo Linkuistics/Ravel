@@ -1,0 +1,15 @@
+checked-grammar format-version=2 grammar-sha256="4dc898a15e7e9f765b5bcf7391af2b9c24f8da2c9d83a6cc8260a861200ce4d2" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=39 {
+            symbol value=x start=15 end=22
+            symbol value="say \"#hi\"#" start=23 end=39
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=22
+    }
+    symbol value="say \"#hi\"#" {
+        use rule=a start=23 end=39
+    }
+}

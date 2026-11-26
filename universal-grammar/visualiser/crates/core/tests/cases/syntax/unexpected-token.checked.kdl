@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="5c179e0ea7639b2a7b0905211c5de14d90273de44de2370c6742c9327f77333a" {
+    start-rule name=a start=14 end=15
+    rule name=a start=18 end=19 {
+        symbol value=x start=22 end=25
+    }
+    symbol value=x {
+        use rule=a start=22 end=25
+    }
+    diagnostic severity=error code=unexpected-token message="unexpected `;`: expected a string" start=5 end=6 line=1 column=6
+}

@@ -1,0 +1,48 @@
+trace format-version=1 grammar-sha256="3040ca48f64a55cbb1bfce4d53427a224b379ff571152c6c4aa79798a5b0562d" reading-cap=10 {
+    sequence {
+        step asks
+        step answers
+        step asks
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=asks
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=answers
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=asks
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=answers
+    }
+    reading parent=1 can-end=#false {
+        next symbol=answers {
+            occurrence start=54 end=63
+        }
+        loop kind=tail-references pass-rule=question {
+            pass number=1 {
+                rule name=question {
+                    step number=1 symbol=asks {
+                        origin start=29 end=35
+                    }
+                    rule name=answer {
+                        origin start=36 end=42
+                        step number=2 symbol=answers {
+                            origin start=54 end=63
+                        }
+                    }
+                }
+            }
+            pass number=2 {
+                origin start=64 end=72
+                rule name=question {
+                    origin start=64 end=72
+                    step number=3 symbol=asks {
+                        origin start=29 end=35
+                    }
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,62 @@
+%doc """
+    A tutorial step model. An LLM follows this grammar to write a tutorial,
+    one step at a time. Each step has a rule of its own, and the doc string
+    of that rule tells the LLM what to write.
+    The "set_exercise" step carries a `file` attribute: the relative path
+    of the starter file. Attributes never affect acceptance.
+    """ ;
+
+%start tutorial ;
+
+tutorial "The whole tutorial."
+    = overview setup lesson+ summarise suggest_next_steps? ;
+
+setup "Prepare the machine of the reader: one install step for each tool."
+    = install+ configure? ;
+
+lesson "One lesson teaches one concept, with one to three examples."
+    = introduce_concept show_example{1,3} practice* check_understanding? ;
+
+practice "One exercise, with its hints and its solution."
+    = set_exercise give_hint* show_solution ;
+
+// The steps.
+
+overview "State what the reader builds and what the reader must know first."
+    = "overview" ;
+
+install "Tell the reader how to install one tool."
+    = "install" ;
+
+configure """
+    Tell the reader how to configure the tools.
+    Leave this step out when the defaults work.
+    """
+    = "configure" ;
+
+introduce_concept "Introduce one new concept in plain words."
+    = "introduce_concept" ;
+
+show_example "Show a short worked example of the concept."
+    = "show_example" ;
+
+set_exercise """
+    Set an exercise.
+    Attribute `file`: the relative path of the starter file.
+    """
+    = "set_exercise" ;
+
+give_hint "Give one hint for the current exercise."
+    = "give_hint" ;
+
+show_solution "Show the solution of the current exercise, and explain it."
+    = "show_solution" ;
+
+check_understanding "Ask two or three questions that check the concept."
+    = "check_understanding" ;
+
+summarise "Sum up what the reader learned."
+    = "summarise" ;
+
+suggest_next_steps "Point the reader to further material."
+    = "suggest_next_steps" ;

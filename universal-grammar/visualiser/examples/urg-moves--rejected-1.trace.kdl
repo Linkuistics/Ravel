@@ -1,0 +1,28 @@
+trace format-version=1 grammar-sha256="10736957070ac981e9828ce20e6f059a9e25413959681308e4a189053fc96948" reading-cap=10 {
+    sequence {
+        step "states the problem"
+        step "adds a complication"
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="refers back"
+        next symbol="states the problem"
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol="proposes a solution"
+        next symbol="shows the simplest case"
+    }
+    failure-point step=2
+    reading parent=1 can-end=#false {
+        next symbol="proposes a solution" {
+            occurrence start=673 end=694
+        }
+        next symbol="shows the simplest case" {
+            occurrence start=790 end=815
+        }
+        rule name=episode {
+            step number=1 symbol="states the problem" {
+                origin start=478 end=498
+            }
+        }
+    }
+}

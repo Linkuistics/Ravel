@@ -1,0 +1,2 @@
+error missing-property 97..101 "loop"
+    A `loop` of kind `head-references` is a loop through rules, and it needs the property `pass-rule`.

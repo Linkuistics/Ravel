@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="81194f8007f2145f627ec7cf9502f03641b16741555ea7bde2f7fe49bf86c781" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value="" start=15 end=28
+    }
+    symbol value="" {
+        use rule=a start=15 end=28
+    }
+    diagnostic severity=error code=invalid-escape message="a Unicode escape has the form `\\u{…}`, with 1 to 6 hex digits" start=16 end=27 line=2 column=6
+}

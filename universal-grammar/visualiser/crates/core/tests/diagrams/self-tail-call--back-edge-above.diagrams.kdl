@@ -1,0 +1,25 @@
+diagrams format-version=1 grammar-sha256="7ac783109553141b95a93d3470aa9e22d4ccc3575e54d398c108d57779238ca2" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=menu width=518 height=194 {
+        start-event x=16 y=76 size=24
+        gateway role=back-edge-join start=100 end=104 x=64 y=76 size=24
+        task start=107 end=118 symbol=show_menu x=112 y=70 width=92 height=36 {
+            label show_menu
+        }
+        gateway role=choice-split start=120 end=147 x=228 y=76 size=24
+        task start=120 end=133 symbol=choose_item x=276 y=70 width=106 height=36 {
+            label choose_item
+        }
+        task start=141 end=147 symbol=quit x=276 y=142 width=64 height=36 {
+            label quit
+        }
+        end-event x=478 y=76 size=24
+        flow 40 88 64 88 role=sequence
+        flow 88 88 112 88 role=sequence
+        flow 204 88 228 88 role=sequence
+        flow 252 88 276 88 role=sequence
+        flow 240 100 240 160 276 160 role=sequence
+        flow 340 160 442 160 442 88 454 88 role=sequence
+        flow 454 88 478 88 role=sequence
+        flow 382 88 406 88 406 24 76 24 76 76 role=back-edge start=134 end=138 label="↻ menu" label-x=241 label-y=24
+    }
+}

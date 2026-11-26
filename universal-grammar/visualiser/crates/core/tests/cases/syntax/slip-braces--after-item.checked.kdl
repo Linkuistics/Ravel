@@ -1,0 +1,21 @@
+checked-grammar format-version=2 grammar-sha256="5719514b691dd9e0e826471607aed0ef7a85fdc3a7ce46965f4eb84150ee67ca" {
+    start-rule name=a start=162 end=163
+    rule name=a start=166 end=167 {
+        sequence start=170 end=176 {
+            symbol value=x start=170 end=173
+            repetition min=0 start=173 end=176 {
+                reference name=b start=174 end=175
+            }
+        }
+    }
+    rule name=b start=179 end=180 {
+        symbol value=y start=183 end=186
+    }
+    symbol value=x {
+        use rule=a start=170 end=173
+    }
+    symbol value=y {
+        use rule=b start=183 end=186
+    }
+    diagnostic severity=error code=slip-braces message="write `b*` for a repetition, not `{…}`" start=173 end=176 line=4 column=8
+}

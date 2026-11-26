@@ -1,0 +1,36 @@
+checked-grammar format-version=2 grammar-sha256="0bea4da80a82c554844a2589cc108b10673624832acd14934a66afe381054780" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        sequence start=23 end=57 {
+            repetition min=0 start=23 end=45 {
+                sequence start=24 end=43 {
+                    optional start=24 end=33 {
+                        symbol value=remind start=24 end=32
+                    }
+                    symbol value=comment start=34 end=43
+                }
+            }
+            repetition min=2 max=3 start=46 end=57 {
+                reference name=review start=46 end=52
+            }
+        }
+    }
+    rule name=review start=60 end=66 {
+        sequence start=69 end=87 {
+            repetition min=0 start=69 end=78 {
+                symbol value=remind start=69 end=77
+            }
+            symbol value=decide start=79 end=87
+        }
+    }
+    symbol value=remind {
+        use rule=order start=24 end=32
+        use rule=review start=69 end=77
+    }
+    symbol value=comment {
+        use rule=order start=34 end=43
+    }
+    symbol value=decide {
+        use rule=review start=79 end=87
+    }
+}

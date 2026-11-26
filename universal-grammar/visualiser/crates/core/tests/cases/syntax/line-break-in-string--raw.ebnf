@@ -1,0 +1,5 @@
+// Choice rule: the recovery after a broken raw string looks for its own
+// closing delimiter, `"#`.
+%start a ;
+a = #"x
+y"# "z" ;

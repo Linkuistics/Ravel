@@ -1,0 +1,28 @@
+flowchart LR
+  subgraph out["Output view row"]
+    direction TB
+    o1["Start here: step row"]:::start
+    o2["shared row"]
+    o3["rule row"]
+    o4["loop row or fold row"]
+    o5["pass row"]
+    o6["next option"]
+    o7["rejected step row"]
+  end
+  subgraph gv["Grammar view element"]
+    direction TB
+    g1["task box of each symbol occurrence among the origins"]
+    g2["each reference box among the origins, or the diagram of the start rule"]
+    g3["each repetition, or each reference box that entered a loop through rules, or the diagram of the start rule"]
+    g4["back edge of each reference that started the pass, or the elements of the loop row for a first pass and a repetition pass"]
+    g5["next-option marks"]
+    g6["no element"]
+  end
+  o1 <-->|1| g1
+  o2 -.->|2. stands for its rule node, or else its innermost node| o3
+  o3 <-->|3| g2
+  o4 <-->|4| g3
+  o5 <-->|5| g4
+  o6 <-->|6| g5
+  o7 -->|7| g6
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330

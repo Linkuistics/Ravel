@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256="1d7ad4bedd054d610837ed1046dd0a70c65c70a45c56bddf835fbcfba0b21309" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        choice start=16 end=27 {
+            symbol value=x start=16 end=19
+            symbol value=y start=24 end=27
+        }
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    symbol value=y {
+        use rule=a start=24 end=27
+    }
+    diagnostic severity=error code=empty-alternative message="an alternative is empty; each alternative holds at least one item, and `?` makes an optional part" start=20 end=21 line=2 column=10
+}

@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=ec537b83d98edd920f67b2464cc876d7365e104a614d10aaf0ee87eedcc7d0b0 {
+    start-rule name=a start=22 end=23
+    rule name=a start=26 end=27 {
+        symbol value=x start=30 end=33
+    }
+    symbol value=x {
+        use rule=a start=30 end=33
+    }
+    diagnostic severity=error code=slip-doc-comment message="the notation documents with strings: write a doc string after the rule name, or `%doc` for the grammar" start=0 end=3 line=1 column=1
+}

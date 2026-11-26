@@ -1,0 +1,18 @@
+checked-grammar format-version=2 grammar-sha256="439e4271cdecc3c38c216051b8d853812a0fc69885ef2e49bfda42eedd47451a" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=1 start=15 end=28 {
+            sequence start=16 end=23 {
+                symbol value=x start=16 end=19
+                symbol value=y start=20 end=23
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    symbol value=y {
+        use rule=a start=20 end=23
+    }
+    diagnostic severity=error code=second-spelling message="`{1,}` is a second spelling of `+`; write `(\"x\" \"y\")+`" start=24 end=28 line=2 column=14
+}

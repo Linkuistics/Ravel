@@ -1,0 +1,36 @@
+%doc """
+    The moves inside one explanatory episode, as URG analyses them.
+    The grammar describes observed episodes, so a rejected episode is
+    evidence against the grammar. Move labels are provisional, and they
+    use the words of the URG analysis.
+    The rules follow the URG patterns "failing case motivates fix",
+    "simplest case first" and "refinement of an earlier solution".
+    """ ;
+
+%start episode ;
+
+episode "One explanatory episode."
+    = "refers back"? "states the problem" development generalisation? ;
+
+development """
+    The development of the episode: graded cases,
+    or a first solution and its refinements.
+    """
+    = progression
+    | "proposes a solution" refinement
+    ;
+
+progression "The simplest case first, then complications and repairs."
+    = "shows the simplest case" ("adds a complication" | fix)* ;
+
+fix "A failing case motivates a repair."
+    = "shows a failing case" "states the principle"? "gives a remedy" ;
+
+refinement "Each revision closes one gap, and the revised solution can show a new gap."
+    = "identifies a gap" "revises the solution" refinement? ;
+
+generalisation """
+    Hypothesis under test: authors give at least two examples
+    before they generalise.
+    """
+    = "gives an example"{2,} "generalises the example" "names the new concept"? ;

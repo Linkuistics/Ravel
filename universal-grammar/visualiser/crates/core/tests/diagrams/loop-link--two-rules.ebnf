@@ -1,0 +1,4 @@
+// A loop through two rules: each linking reference shows the loop sign.
+%start question ;
+question = "asks" answer ;
+answer = "answers" question? ;

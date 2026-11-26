@@ -1,0 +1,3 @@
+// Two self tail calls: one lane above the body and one below it.
+%start menu ;
+menu = "show_menu" ("choose_item" menu? | "search" "show_results" menu) ;

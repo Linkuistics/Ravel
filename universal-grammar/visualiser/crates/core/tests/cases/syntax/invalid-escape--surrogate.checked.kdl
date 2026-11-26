@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256=f7bd7bc27febc00320b7e556d044a7c387e14b4e05c9c073b76fd21454457c0b {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value="" start=15 end=25
+    }
+    symbol value="" {
+        use rule=a start=15 end=25
+    }
+    diagnostic severity=error code=invalid-escape message="`\\u{D800}` is not a Unicode scalar value" start=16 end=24 line=2 column=6
+}

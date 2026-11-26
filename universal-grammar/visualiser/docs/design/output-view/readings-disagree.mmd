@@ -1,0 +1,26 @@
+flowchart TD
+  subgraph r1["Reading 1: three passes"]
+    direction TB
+    A0["Start here: loop<br/>(“step” | “step” “step”)*"]:::start
+    A0 --> A1["pass 1"]:::pass --> As1["step 1"]
+    A0 --> A2["pass 2"]:::pass --> As2["step 2"]
+    A0 --> A3["pass 3"]:::pass --> As3["step 3"]
+  end
+  subgraph r2["Reading 2: two passes"]
+    direction TB
+    B0["Start here: loop"]:::start
+    B0 --> B1["pass 1"]:::pass
+    B1 --> Bs1["step 1"]
+    B1 --> Bs2["step 2"]
+    B0 --> B2["pass 2"]:::pass --> Bs3["step 3"]
+  end
+  subgraph r3["Reading 3: two passes"]
+    direction TB
+    C0["Start here: loop"]:::start
+    C0 --> C1["pass 1"]:::pass --> Cs1["step 1"]
+    C0 --> C2["pass 2"]:::pass
+    C2 --> Cs2["step 2"]
+    C2 --> Cs3["step 3"]
+  end
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef pass fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40

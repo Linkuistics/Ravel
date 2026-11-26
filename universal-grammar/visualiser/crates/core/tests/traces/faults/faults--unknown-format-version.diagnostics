@@ -1,0 +1,2 @@
+error unknown-format-version 6..22 "format-version=2"
+    The format version 2 is not 1, the version that this core reads.

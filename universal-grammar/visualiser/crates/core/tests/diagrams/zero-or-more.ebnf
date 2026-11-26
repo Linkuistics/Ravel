@@ -1,0 +1,3 @@
+// x*: two pairs of gateways, a skip flow above the item and a back flow below it.
+%start r ;
+r = "set_exercise" "give_hint"* "show_solution" ;

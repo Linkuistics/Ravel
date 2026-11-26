@@ -1,0 +1,66 @@
+trace format-version=1 grammar-sha256="59de628ef10155e40c7695aff3aa161c188df78a83ac7c8263caa954ad0d70dc" reading-cap=10 {
+    sequence {
+        step overview
+        step install
+        step introduce_concept
+        step set_exercise
+        step show_solution
+        step summarise
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=overview
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=install
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=install
+        next symbol=configure
+        next symbol=introduce_concept
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=show_example
+    }
+    failure-point step=4
+    reading parent=1 can-end=#false {
+        next symbol=show_example {
+            occurrence start=1296 end=1310
+        }
+        rule name=tutorial {
+            rule name=overview {
+                origin start=409 end=417
+                step number=1 symbol=overview {
+                    origin start=917 end=927
+                }
+            }
+            rule name=setup {
+                origin start=418 end=423
+                loop kind=repetition {
+                    origin start=546 end=554
+                    pass number=1 {
+                        rule name=install {
+                            origin start=546 end=553
+                            step number=2 symbol=install {
+                                origin start=988 end=997
+                            }
+                        }
+                    }
+                }
+            }
+            loop kind=repetition {
+                origin start=424 end=431
+                pass number=1 {
+                    rule name=lesson {
+                        origin start=424 end=430
+                        rule name=introduce_concept {
+                            origin start=644 end=661
+                            step number=3 symbol=introduce_concept {
+                                origin start=1208 end=1227
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

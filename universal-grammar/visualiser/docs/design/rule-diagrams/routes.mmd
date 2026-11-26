@@ -1,0 +1,35 @@
+flowchart TB
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  subgraph layer["In the open layer of the state"]
+    direction LR
+    r["Start here: one listed reading,<br/>a projection of the open root"]:::start
+    alts["Its alternatives: items of the last set,<br/>or child projections with their reference"]
+    route["A route: a chain of alternatives<br/>down to one item of the last set"]
+    r -->|"1"| alts
+    alts -->|"2"| route
+  end
+  subgraph down["The cut successors, for one open path: down each route"]
+    direction LR
+    prog["Each alternative passes its child<br/>the progress against the open path"]
+    scan["Each edge from the item to a<br/>next option adds the step"]
+    prog -->|"4"| scan
+  end
+  subgraph up["Back up to the open root"]
+    direction LR
+    back["Each alternative adds its<br/>content and its reference"]
+    cut["An open node without a step cuts its<br/>successors to the nodes that the rules read"]
+    join["Equal cut successors join their origins.<br/>The list has no cap"]
+    rounds["Rounds: a projection on a cycle gives its<br/>list so far, until no list changes"]
+    back -->|"6"| cut
+    cut -->|"7"| join
+    join -->|"8"| rounds
+  end
+  subgraph out["The marks"]
+    direction LR
+    rules["The four rules of the section<br/>Next-option marks"]
+    marks["Marks of the open diagram"]
+    rules -->|"10"| marks
+  end
+  layer -->|"3 the route ends at an item"| down
+  down -->|"5 with the new step"| up
+  up -->|"9 each cut successor at the open root"| out

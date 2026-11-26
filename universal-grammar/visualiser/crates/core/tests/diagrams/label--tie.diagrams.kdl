@@ -1,0 +1,15 @@
+diagrams format-version=1 grammar-sha256="29972131d8ebf948a11e5f802befb670c0d91fe3d2ce1040db834f7f9d194da3" font-size=13 cell-width=7.8 line-height=16 {
+    diagram rule=r width=396 height=102 {
+        start-event x=16 y=50 size=24
+        task start=161 end=183 symbol="aaaaaa bbbbbb cccccc" x=64 y=38 width=122 height=48 {
+            label "aaaaaa bbbbbb" cccccc
+        }
+        task start=184 end=209 symbol="shows the simplest case" x=210 y=38 width=122 height=48 {
+            label "shows the" "simplest case"
+        }
+        end-event x=356 y=50 size=24
+        flow 40 62 64 62 role=sequence
+        flow 186 62 210 62 role=sequence
+        flow 332 62 356 62 role=sequence
+    }
+}

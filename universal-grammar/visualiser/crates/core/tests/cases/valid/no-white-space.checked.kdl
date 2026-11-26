@@ -1,0 +1,20 @@
+checked-grammar format-version=2 grammar-sha256="9d66b1a6b3fb770dc889f840784b13eb14174f93288497c83dcc9a18910e750d" {
+    start-rule name=a start=7 end=8
+    rule name=a start=9 end=10 {
+        sequence start=11 end=16 {
+            symbol value=x start=11 end=14
+            repetition min=0 start=14 end=16 {
+                reference name=b start=14 end=15
+            }
+        }
+    }
+    rule name=b start=17 end=18 {
+        symbol value=y start=19 end=22
+    }
+    symbol value=x {
+        use rule=a start=11 end=14
+    }
+    symbol value=y {
+        use rule=b start=19 end=22
+    }
+}

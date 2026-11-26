@@ -1,0 +1,2 @@
+error wrong-type 6..24 "format-version=\"1\""
+    The property `format-version` of a `trace` node is an integer.

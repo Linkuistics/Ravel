@@ -1,0 +1,33 @@
+[workspace]
+resolver = "3"
+members = ["crates/core", "crates/wasm"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.95"
+license = "MIT OR Apache-2.0"
+
+[workspace.dependencies]
+kdl = { version = "6.7.1", default-features = false, features = ["span"] }
+rowan = "0.17.0"
+sha2 = "0.11.1"
+# The span type of the `kdl` crate. The `kdl` crate already depends on it.
+miette = { version = "7.6.0", default-features = false }
+# The WebAssembly boundary: docs/adr/typed-objects-at-the-webassembly-boundary.md.
+# The `wasm-bindgen` command must have the same version as the crate, so the
+# crate has an exact pin. `mise.toml` pins the command.
+serde = { version = "1.0.229", features = ["derive"] }
+tsify = { version = "0.5.8", default-features = false, features = ["js"] }
+wasm-bindgen = "=0.2.130"
+
+# Optimise the dependencies in debug builds and tests. The property tests of
+# the tracer write and read 27,000 trace files through the `kdl` crate. Without
+# this, that took 54 s of a 68 s run. The crates of the workspace stay at the
+# usual level, so they still build fast and debug well.
+[profile.dev.package."*"]
+opt-level = 2
+
+# The forest of the tracer does most of the work of the property tests. At
+# opt-level 0 the suite does not fit one ordinary run of `task test`.
+[profile.dev.package.workbench-core]
+opt-level = 2

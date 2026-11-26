@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=d3ec29be4841fd070a56301f88d46e3553e807b0973802ad444fb11d94dea961 {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=15 end=23 {
+            symbol value=x start=15 end=18
+            symbol value=y start=20 end=23
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    symbol value=y {
+        use rule=a start=20 end=23
+    }
+    diagnostic severity=error code=slip-comma message="separate the items of a sequence with white space, not `,`" start=18 end=19 line=2 column=8
+}

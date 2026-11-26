@@ -1,0 +1,6 @@
+trace format-version=1 {
+    sequence {
+        step x
+    }
+    failure-point step=9
+}

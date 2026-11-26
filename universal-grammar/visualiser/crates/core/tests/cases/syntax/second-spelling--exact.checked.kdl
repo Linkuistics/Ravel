@@ -1,0 +1,12 @@
+checked-grammar format-version=2 grammar-sha256=b6aa462f55d1896800d7c286ce3523a84d7f41f92d7c22343a2a9afe1842dfac {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        repetition min=2 max=2 start=15 end=23 {
+            symbol value=x start=15 end=18
+        }
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=second-spelling message="`{2,2}` is a second spelling of `{2}`; write `\"x\"{2}`" start=18 end=23 line=2 column=8
+}

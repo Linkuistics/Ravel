@@ -1,0 +1,4 @@
+// A label that two sets of breaks fit equally: the first line holds as much as it can.
+// The case of the design review rule-diagram-design-k37.
+%start r ;
+r = "aaaaaa bbbbbb cccccc" "shows the simplest case" ;

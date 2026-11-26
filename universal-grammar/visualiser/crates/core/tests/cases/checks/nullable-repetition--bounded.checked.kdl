@@ -1,0 +1,22 @@
+checked-grammar format-version=2 grammar-sha256="60225adf640902680cbee6ec235f269fff226cc131ba32bda9b131ea78991679" {
+    start-rule name=order start=7 end=12
+    rule name=order start=15 end=20 {
+        repetition min=2 max=3 start=23 end=50 {
+            sequence start=24 end=44 {
+                optional start=24 end=33 {
+                    symbol value=remind start=24 end=32
+                }
+                optional start=34 end=44 {
+                    symbol value=comment start=34 end=43
+                }
+            }
+        }
+    }
+    symbol value=remind {
+        use rule=order start=24 end=32
+    }
+    symbol value=comment {
+        use rule=order start=34 end=43
+    }
+    diagnostic severity=error code=nullable-repetition message="In the rule `order`, the body of this repetition can match the empty sequence. So one sequence can have several trees that differ only by empty passes. Make each pass take at least one step." start=23 end=50 line=2 column=9
+}

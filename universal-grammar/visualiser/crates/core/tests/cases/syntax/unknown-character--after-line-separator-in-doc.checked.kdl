@@ -1,0 +1,11 @@
+checked-grammar format-version=2 grammar-sha256="7835e73a6a7ea6e33593699ea719b2e6810e67a3eb8a380e33a21615c519fe08" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        doc text="d\ne" start=13 end=32
+        symbol value=x start=35 end=38
+    }
+    symbol value=x {
+        use rule=a start=35 end=38
+    }
+    diagnostic severity=error code=unknown-character message="`!` is outside the notation" start=39 end=40 line=5 column=13
+}

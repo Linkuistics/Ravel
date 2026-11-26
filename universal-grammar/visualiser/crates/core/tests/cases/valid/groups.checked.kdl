@@ -1,0 +1,27 @@
+checked-grammar format-version=2 grammar-sha256="33300c9f82bb6bd66fbe498843ff0c9e2ab63e8e7ece1986c4dca533eee496f7" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        sequence start=16 end=36 {
+            choice start=16 end=25 {
+                symbol value=x start=16 end=19
+                symbol value=y start=22 end=25
+            }
+            sequence start=28 end=36 {
+                symbol value=z start=28 end=31
+                symbol value=w start=33 end=36
+            }
+        }
+    }
+    symbol value=x {
+        use rule=a start=16 end=19
+    }
+    symbol value=y {
+        use rule=a start=22 end=25
+    }
+    symbol value=z {
+        use rule=a start=28 end=31
+    }
+    symbol value=w {
+        use rule=a start=33 end=36
+    }
+}

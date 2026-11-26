@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="6473bc82b18bd2eca25b4a1a1cc81aec9635d27dc62cd5578b938495dc62f813" {
+    start-rule name=orders start=7 end=13
+    rule name=order start=16 end=21 {
+        symbol value=submit start=24 end=32
+    }
+    symbol value=submit {
+        use rule=order start=24 end=32
+    }
+    diagnostic severity=error code=undefined-start-rule message="`%start` names `orders`, but no rule has that name." start=7 end=13 line=1 column=8
+}

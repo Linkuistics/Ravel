@@ -1,0 +1,9 @@
+checked-grammar format-version=2 grammar-sha256="9a3861d9bf7be1ec18ddb9838639b0e03dd6627abf16894f6a41d07fd88029bc" {
+    rule name=a start=9 end=10 {
+        symbol value=x start=13 end=16
+    }
+    symbol value=x {
+        use rule=a start=13 end=16
+    }
+    diagnostic severity=error code=unexpected-token message="unexpected `;`: expected a rule name" start=7 end=8 line=1 column=8
+}

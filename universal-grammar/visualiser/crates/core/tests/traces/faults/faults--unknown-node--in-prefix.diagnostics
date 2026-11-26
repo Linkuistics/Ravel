@@ -1,0 +1,2 @@
+error unknown-node 117..123 "option"
+    `option` is not a child node of `prefix`.

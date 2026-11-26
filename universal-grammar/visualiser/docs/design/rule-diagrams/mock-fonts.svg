@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1192" height="959" viewBox="0 0 1192 959">
+<style>
+:root{--bg:#ffffff;--panel:#fbfbfc;--hdr:#f1f3f6;--line:#d5dae2;--t:#1d2330;--m:#677184;
+--cur:#0e7c66;--curbg:#e3f4ef;--sel:#d99a00;--e:#b3261e;--ebg:#fdecea;--chip:#eceff4;
+--note:#2b3445;--box:#ffffff;--boxl:#5f6878;--gw:#ffffff;--ref:#1f4fa3;--frame:#c9ced8;
+--tok:#2f6fd6;--lbl:#f4f5f7;--code:#f4f5f7}
+@media (prefers-color-scheme: dark){:root{--bg:#15171c;--panel:#1b1e25;--hdr:#232731;
+--line:#363c48;--t:#e5e8ee;--m:#9aa3b3;--cur:#4fd1b5;--curbg:#173a33;--sel:#f2c94c;
+--e:#ff7b72;--ebg:#3b1f22;--chip:#2a2f3b;--note:#d5dae3;--box:#1f232b;--boxl:#9aa3b3;
+--gw:#1f232b;--ref:#8fb4ff;--frame:#3a404c;--tok:#6ea8ff;--lbl:#232731;--code:#20242c}}
+svg{background:var(--bg)}
+text{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:12px;fill:var(--t)}
+.lab{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13px;fill:var(--t)}
+.labp{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:13px;fill:var(--t)}
+.m{fill:var(--m)} .b{font-weight:700} .sm{font-size:11px} .e{fill:var(--e);font-weight:600}
+.cur{fill:var(--cur);font-weight:600} .refc{fill:var(--ref);font-weight:600}
+.h1{font-size:15px;font-weight:700} .h2{font-size:12px;font-weight:700;fill:var(--m);letter-spacing:.04em}
+.panel{fill:var(--panel);stroke:var(--line)} .hdr{fill:var(--hdr)}
+.task{fill:var(--box);stroke:var(--boxl);stroke-width:1.4}
+.refbox{fill:var(--box);stroke:var(--boxl);stroke-width:3.2}
+.gw{fill:var(--gw);stroke:var(--boxl);stroke-width:1.4} .gwx{stroke:var(--boxl);stroke-width:1.8}
+.ev{fill:var(--box);stroke:var(--boxl);stroke-width:1.4} .evend{fill:var(--box);stroke:var(--boxl);stroke-width:3.6}
+.flow{stroke:var(--boxl);stroke-width:1.4;fill:none}
+.ah{fill:var(--boxl)} .drill{fill:var(--box);stroke:var(--boxl);stroke-width:1.2}
+.lblbg{fill:var(--bg)} .lbl{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--m)}
+.tab{fill:var(--cur);stroke:var(--cur);stroke-width:1.2} .tabo{fill:var(--bg);stroke:var(--cur);stroke-width:1.4}
+.tabt{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--bg)} .tabto{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:11px;font-weight:700;fill:var(--cur)}
+.nextmark{fill:none;stroke:var(--cur);stroke-width:2} .nextmarko{fill:none;stroke:var(--cur);stroke-width:2;stroke-dasharray:5 3}
+.nextbtn{fill:var(--cur)} .nextbtnt{font-size:10px;font-weight:700;fill:var(--bg)}
+.passbg{fill:var(--curbg);stroke:var(--cur);stroke-width:1} .passt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur);font-weight:600}
+.sel{fill:none;stroke:var(--sel);stroke-width:2.6} .selflow{fill:none;stroke:var(--sel);stroke-width:5;opacity:.55}
+.backmark{fill:none;stroke:var(--cur);stroke-width:4;opacity:.45}
+.data{fill:var(--box);stroke:var(--boxl);stroke-width:1.2} .assoc{stroke:var(--boxl);stroke-width:1.2;stroke-dasharray:2 3;fill:none}
+.badge{fill:var(--chip)} .chip{fill:var(--curbg);stroke:var(--cur)} .chipt{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:11px;fill:var(--cur)}
+.pop{fill:var(--bg);stroke:var(--line)} .banner{fill:var(--ebg);stroke:var(--e)}
+.call{fill:var(--t)} .callt{fill:var(--bg);font-size:11px;font-weight:700}
+.note{fill:var(--note)} .nest{fill:none;stroke:var(--m);stroke-width:1;stroke-dasharray:3 3}
+.nestt{font-size:10px;fill:var(--m)} .tok{fill:var(--tok)} .tokt{font-size:10px;font-weight:700;fill:#fff}
+.code{fill:var(--code);stroke:var(--line)} .mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12px}
+.crumb{fill:var(--ref)} .rejbox{fill:none;stroke:var(--e);stroke-width:2;stroke-dasharray:4 3}
+.strike{fill:none;stroke:var(--m);stroke-width:1.3}
+.loopbar{fill:none;stroke:var(--cur);stroke-width:2.5;stroke-linecap:round}
+</style>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="ah"/></marker></defs>
+<rect width="100%" height="100%" style="fill:var(--bg)"/>
+<text x="16" y="26" class="h1">Decision: a bundled monospace font or a proportional font with a width table</text>
+<text x="16" y="46" class="m">The same two rules in both fonts. The layout constants are equal, and only the text widths differ. Agreed: the bundled monospace font.</text>
+<text x="16" y="69" class="b">Bundled monospace font, 0.6 em for each cell (agreed)</text>
+<rect x="16" y="79" width="638" height="152.0" rx="8" class="panel"/>
+<text x="28" y="99" class="crumb">episode</text>
+<text x="82.125" y="99" class="m">›</text>
+<text x="96.125" y="99" class="crumb">…</text>
+<text x="109.0" y="99" class="m">›</text>
+<text x="123.0" y="99" class="b">fix</text>
+<g transform="translate(28,109)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="50.0" width="114" height="48" rx="9" class="task"/>
+<text x="121.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">shows a</text>
+<text x="121.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">failing case</text>
+<path d="M178.0 74.0 L202.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M202 74.0 L214.0 62.0 L226 74.0 L214.0 86.0z" class="gw"/>
+<path d="M226.0 74.0 L250.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="250" y="50.0" width="98" height="48" rx="9" class="task"/>
+<text x="299.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">states the</text>
+<text x="299.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">principle</text>
+<path d="M214.0 62.0 L214.0 22.0 Q214.0 16.0 220.0 16.0 L378.0 16.0 Q384.0 16.0 384.0 22.0 L384.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M348.0 74.0 L372.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M372 74.0 L384.0 62.0 L396 74.0 L384.0 86.0z" class="gw"/>
+<path d="M396.0 74.0 L420.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="420" y="56.0" width="130" height="36" rx="9" class="task"/>
+<text x="485.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">gives a remedy</text>
+<path d="M550.0 74.0 L574.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="586.0" cy="74.0" r="10.8" class="evend"/></g>
+<text x="694" y="96" class="note">Diagram: 614 by 114 px. The longest label</text>
+<text x="694" y="112" class="note">takes 2 lines.</text>
+<rect x="16" y="247.0" width="750" height="173.0" rx="8" class="panel"/>
+<text x="28" y="267.0" class="crumb">episode</text>
+<text x="82.125" y="267.0" class="m">›</text>
+<text x="96.125" y="267.0" class="crumb">…</text>
+<text x="109.0" y="267.0" class="m">›</text>
+<text x="123.0" y="267.0" class="b">generalisation</text>
+<g transform="translate(28,277.0)"><circle cx="28.0" cy="74.0" r="12.0" class="ev"/>
+<path d="M40.0 74.0 L64.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 74.0 L76.0 62.0 L88 74.0 L76.0 86.0z" class="gw"/>
+<path d="M88.0 74.0 L112.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="56.0" width="146" height="36" rx="9" class="task"/>
+<text x="185.0" y="78.0" class="lab" text-anchor="middle" xml:space="preserve">gives an example</text>
+<path d="M258.0 74.0 L282.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M282 74.0 L294.0 62.0 L306 74.0 L294.0 86.0z" class="gw"/>
+<path d="M294.0 86.0 L294.0 104.0 Q294.0 110.0 288.0 110.0 L82.0 110.0 Q76.0 110.0 76.0 104.0 L76.0 86.0" class="flow" marker-end="url(#ah)"/>
+<rect x="167.8" y="102.0" width="34.4" height="16" rx="3" class="lblbg"/>
+<text x="185.0" y="114.0" class="lbl" text-anchor="middle">↻ 2+</text>
+<path d="M306.0 74.0 L330.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="330" y="50.0" width="106" height="48" rx="9" class="task"/>
+<text x="383.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">generalises</text>
+<text x="383.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">the example</text>
+<path d="M436.0 74.0 L460.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M460 74.0 L472.0 62.0 L484 74.0 L472.0 86.0z" class="gw"/>
+<path d="M484.0 74.0 L508.0 74.0" class="flow" marker-end="url(#ah)"/>
+<rect x="508" y="50.0" width="106" height="48" rx="9" class="task"/>
+<text x="561.0" y="70.0" class="lab" text-anchor="middle" xml:space="preserve">names the</text>
+<text x="561.0" y="86.0" class="lab" text-anchor="middle" xml:space="preserve">new concept</text>
+<path d="M472.0 62.0 L472.0 22.0 Q472.0 16.0 478.0 16.0 L644.0 16.0 Q650.0 16.0 650.0 22.0 L650.0 62.0" class="flow" marker-end="url(#ah)"/>
+<path d="M614.0 74.0 L638.0 74.0" class="flow" marker-end="url(#ah)"/>
+<path d="M638 74.0 L650.0 62.0 L662 74.0 L650.0 86.0z" class="gw"/>
+<path d="M662.0 74.0 L686.0 74.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="698.0" cy="74.0" r="10.8" class="evend"/></g>
+<text x="806" y="264.0" class="note">Diagram: 726 by 135 px. The longest label</text>
+<text x="806" y="280.0" class="note">takes 2 lines.</text>
+<text x="16" y="448.0" class="b">Proportional font, widths from a table of the bundled font</text>
+<rect x="16" y="458.0" width="670" height="140.0" rx="8" class="panel"/>
+<text x="28" y="478.0" class="crumb">episode</text>
+<text x="82.125" y="478.0" class="m">›</text>
+<text x="96.125" y="478.0" class="crumb">…</text>
+<text x="109.0" y="478.0" class="m">›</text>
+<text x="123.0" y="478.0" class="b">fix</text>
+<g transform="translate(28,488.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="64" y="50.0" width="138" height="36" rx="9" class="task"/>
+<text x="133.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">shows a failing case</text>
+<path d="M202.0 68.0 L226.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M226 68.0 L238.0 56.0 L250 68.0 L238.0 80.0z" class="gw"/>
+<path d="M250.0 68.0 L274.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="274" y="50.0" width="130" height="36" rx="9" class="task"/>
+<text x="339.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">states the principle</text>
+<path d="M238.0 56.0 L238.0 22.0 Q238.0 16.0 244.0 16.0 L434.0 16.0 Q440.0 16.0 440.0 22.0 L440.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M404.0 68.0 L428.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M428 68.0 L440.0 56.0 L452 68.0 L440.0 80.0z" class="gw"/>
+<path d="M452.0 68.0 L476.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="476" y="50.0" width="106" height="36" rx="9" class="task"/>
+<text x="529.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">gives a remedy</text>
+<path d="M582.0 68.0 L606.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="618.0" cy="68.0" r="10.8" class="evend"/></g>
+<text x="726" y="475.0" class="note">Diagram: 646 by 102 px. The longest label</text>
+<text x="726" y="491.0" class="note">takes 1 lines.</text>
+<rect x="16" y="614.0" width="826" height="167.0" rx="8" class="panel"/>
+<text x="28" y="634.0" class="crumb">episode</text>
+<text x="82.125" y="634.0" class="m">›</text>
+<text x="96.125" y="634.0" class="crumb">…</text>
+<text x="109.0" y="634.0" class="m">›</text>
+<text x="123.0" y="634.0" class="b">generalisation</text>
+<g transform="translate(28,644.0)"><circle cx="28.0" cy="68.0" r="12.0" class="ev"/>
+<path d="M40.0 68.0 L64.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M64 68.0 L76.0 56.0 L88 68.0 L76.0 80.0z" class="gw"/>
+<path d="M88.0 68.0 L112.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="112" y="50.0" width="120" height="36" rx="9" class="task"/>
+<text x="172.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">gives an example</text>
+<path d="M232.0 68.0 L256.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M256 68.0 L268.0 56.0 L280 68.0 L268.0 80.0z" class="gw"/>
+<path d="M268.0 80.0 L268.0 98.0 Q268.0 104.0 262.0 104.0 L82.0 104.0 Q76.0 104.0 76.0 98.0 L76.0 80.0" class="flow" marker-end="url(#ah)"/>
+<rect x="154.8" y="96.0" width="34.4" height="16" rx="3" class="lblbg"/>
+<text x="172.0" y="108.0" class="lbl" text-anchor="middle">↻ 2+</text>
+<path d="M280.0 68.0 L304.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="304" y="50.0" width="158" height="36" rx="9" class="task"/>
+<text x="383.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">generalises the example</text>
+<path d="M462.0 68.0 L486.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M486 68.0 L498.0 56.0 L510 68.0 L498.0 80.0z" class="gw"/>
+<path d="M510.0 68.0 L534.0 68.0" class="flow" marker-end="url(#ah)"/>
+<rect x="534" y="50.0" width="156" height="36" rx="9" class="task"/>
+<text x="612.0" y="72.0" class="labp" text-anchor="middle" xml:space="preserve">names the new concept</text>
+<path d="M498.0 56.0 L498.0 22.0 Q498.0 16.0 504.0 16.0 L720.0 16.0 Q726.0 16.0 726.0 22.0 L726.0 56.0" class="flow" marker-end="url(#ah)"/>
+<path d="M690.0 68.0 L714.0 68.0" class="flow" marker-end="url(#ah)"/>
+<path d="M714 68.0 L726.0 56.0 L738 68.0 L726.0 80.0z" class="gw"/>
+<path d="M738.0 68.0 L762.0 68.0" class="flow" marker-end="url(#ah)"/>
+<circle cx="774.0" cy="68.0" r="10.8" class="evend"/></g>
+<text x="882" y="631.0" class="note">Diagram: 802 by 129 px. The longest label</text>
+<text x="882" y="647.0" class="note">takes 1 lines.</text>
+<text x="42" y="810.0" class="note">Both fonts use the same limit of 140 px for one line. The proportional font fits a whole phrase on one line, and the monospace font</text>
+<text x="42" y="826.0" class="note">wraps it. So the monospace diagrams are narrower and taller.</text>
+<text x="42" y="852.0" class="note">Measured in Chromium on macOS, as em for each character: Menlo 0.602, SF Mono 0.618, Courier New 0.600, Monaco 0.600. Chromium has</text>
+<text x="42" y="868.0" class="note">no ui-monospace, and Safari maps it to SF Mono. A system font therefore differs from the width that the core assumes by up to 3 % on</text>
+<text x="42" y="884.0" class="note">this machine. Fonts on other systems were not measured. A bundled font removes the difference.</text>
+<text x="42" y="910.0" class="note">A monospace font gives each character its own cell. Symbols that differ only by case, spaces, _ or - stay easy to tell apart, and</text>
+<text x="42" y="926.0" class="note">the rule checks warn about exactly those symbols.</text>
+</svg>

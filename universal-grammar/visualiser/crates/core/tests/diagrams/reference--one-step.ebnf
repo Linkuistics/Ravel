@@ -1,0 +1,6 @@
+// A reference to a rule for one step: a reference box without the drill-down marker.
+%start r ;
+r = overview answer lesson ;
+overview = "overview" ;
+answer = "yes" | "no"? ;
+lesson = "introduce_concept" "show_example" ;

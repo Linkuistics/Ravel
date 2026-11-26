@@ -1,0 +1,66 @@
+trace format-version=1 grammar-sha256="444a0d0448997553ca90bc366c5731fb8533e8652f9f7c520e8882de155a5de0" reading-cap=10 {
+    sequence {
+        step y
+        step x
+        step x
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#false {
+        next symbol=y
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+    }
+    prefix steps=2 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+        next symbol=y
+    }
+    prefix steps=3 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=x
+        next symbol=y
+    }
+    reading parent=1 can-end=#true {
+        next symbol=x {
+            occurrence start=18 end=21
+        }
+        next symbol=y {
+            occurrence start=26 end=29
+        }
+        loop kind=head-references pass-rule=a {
+            pass number=1 {
+                rule name=a {
+                    step number=1 symbol=y {
+                        origin start=26 end=29
+                    }
+                }
+            }
+            pass number=2 {
+                origin start=16 end=17
+                rule name=a {
+                    origin start=16 end=17
+                    loop kind=repetition {
+                        origin start=15 end=23
+                        pass number=1 {
+                            step number=2 symbol=x {
+                                origin start=18 end=21
+                            }
+                        }
+                    }
+                }
+            }
+            pass number=3 {
+                origin start=16 end=17
+                rule name=a {
+                    origin start=16 end=17
+                    loop kind=repetition {
+                        origin start=15 end=23
+                        pass number=1 {
+                            step number=3 symbol=x {
+                                origin start=18 end=21
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

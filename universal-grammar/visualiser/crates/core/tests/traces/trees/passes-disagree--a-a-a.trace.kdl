@@ -1,0 +1,97 @@
+trace format-version=1 grammar-sha256="8bec8b530f03b6cd5ce311ffc9ad41538e14ffa0973dec707df694ab12e1c0b6" reading-cap=10 {
+    sequence {
+        step a
+        step a
+        step a
+    }
+    prefix steps=0 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=1 reading-count=1 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=2 reading-count=2 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    prefix steps=3 reading-count=3 cap-reached=#false can-end=#true {
+        next symbol=a
+    }
+    reading parent=1 can-end=#true {
+        next symbol=a {
+            occurrence start=16 end=19
+            occurrence start=22 end=25
+            occurrence start=26 end=29
+        }
+        rule name=s {
+            loop kind=repetition {
+                origin start=15 end=31
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=22 end=25
+                    }
+                    step number=2 symbol=a {
+                        origin start=26 end=29
+                    }
+                }
+                pass number=2 {
+                    step number=3 symbol=a {
+                        origin start=16 end=19
+                        origin start=22 end=25
+                    }
+                }
+            }
+        }
+    }
+    reading parent=2 can-end=#true {
+        next symbol=a {
+            occurrence start=16 end=19
+            occurrence start=22 end=25
+        }
+        rule name=s {
+            loop kind=repetition {
+                origin start=15 end=31
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=16 end=19
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=22 end=25
+                    }
+                    step number=3 symbol=a {
+                        origin start=26 end=29
+                    }
+                }
+            }
+        }
+    }
+    reading parent=2 can-end=#true {
+        next symbol=a {
+            occurrence start=16 end=19
+            occurrence start=22 end=25
+            occurrence start=26 end=29
+        }
+        rule name=s {
+            loop kind=repetition {
+                origin start=15 end=31
+                pass number=1 {
+                    step number=1 symbol=a {
+                        origin start=16 end=19
+                    }
+                }
+                pass number=2 {
+                    step number=2 symbol=a {
+                        origin start=16 end=19
+                    }
+                }
+                pass number=3 {
+                    step number=3 symbol=a {
+                        origin start=16 end=19
+                        origin start=22 end=25
+                    }
+                }
+            }
+        }
+    }
+}

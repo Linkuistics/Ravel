@@ -1,0 +1,32 @@
+flowchart TB
+  subgraph r1["Reading 1: “x” starts pass 2 of the inner loop"]
+    direction TB
+    A0["Start here: a, the start rule"]:::start --> L1["loop a ↻ head references"]
+    L1 --> P1["pass 1"]:::pass
+    P1 --> A1["a"]
+    A1 --> Y1["step 1 “y”"]
+    A1 --> L2["loop a ↻ head references<br/>entered by the tail reference"]
+    L2 --> Q1["pass 1"]:::pass
+    Q1 --> A2["a"]
+    A2 --> Z1["step 2 “z”"]
+    L2 --> Q2["pass 2"]:::pass
+    Q2 --> A3["a"]
+    A3 --> X1["step 3 “x”"]
+  end
+  subgraph r2["Reading 2: “x” starts pass 2 of the outer loop"]
+    direction TB
+    B0["a, the start rule"] --> M1["loop a ↻ head references"]
+    M1 --> N1["pass 1"]:::pass
+    N1 --> B1["a"]
+    B1 --> Y2["step 1 “y”"]
+    B1 --> M2["loop a ↻ head references<br/>entered by the tail reference"]
+    M2 --> O1["pass 1"]:::pass
+    O1 --> B2["a"]
+    B2 --> Z2["step 2 “z”"]
+    M1 --> N2["pass 2"]:::pass
+    N2 --> B3["a"]
+    B3 --> X2["step 3 “x”"]
+  end
+  r1 ~~~ r2
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef pass fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40

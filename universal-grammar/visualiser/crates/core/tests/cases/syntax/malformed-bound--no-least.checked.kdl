@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="58b502e6f5116bbb7fc616b1f3cc3a35469b7e19f76ec67693879a823b68f02b" {
+    start-rule name=a start=7 end=8
+    rule name=a start=11 end=12 {
+        symbol value=x start=15 end=18
+    }
+    symbol value=x {
+        use rule=a start=15 end=18
+    }
+    diagnostic severity=error code=malformed-bound message="`{,3}` is not a bound; a bound has the form `{n}`, `{m,n}` or `{m,}`" start=18 end=22 line=2 column=8
+}

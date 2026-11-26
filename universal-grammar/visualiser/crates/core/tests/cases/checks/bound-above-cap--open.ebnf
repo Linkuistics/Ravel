@@ -1,0 +1,3 @@
+// An open bound {m,} counts as m: 60 times 2 is 120.
+%start a ;
+a = ("x"{2,}){60} ;

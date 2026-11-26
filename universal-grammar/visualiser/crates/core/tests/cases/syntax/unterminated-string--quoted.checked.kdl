@@ -1,0 +1,10 @@
+checked-grammar format-version=2 grammar-sha256="49f14244fe809b7a3b3f14fe41980300f2cdcaaf917183eedd74f6650c8e21d6" {
+    start-rule name=a start=87 end=88
+    rule name=a start=91 end=92 {
+        symbol value=x start=95 end=97
+    }
+    symbol value=x {
+        use rule=a start=95 end=97
+    }
+    diagnostic severity=error code=unterminated-string message="this string has no closing quote before the end of the file" start=95 end=96 line=3 column=5
+}

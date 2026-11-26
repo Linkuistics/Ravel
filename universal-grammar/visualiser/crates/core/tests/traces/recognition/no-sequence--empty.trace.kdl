@@ -1,0 +1,4 @@
+trace format-version=1 grammar-sha256="0d05fa0bfddcf17d38c959f6c6f4b283083a7cf8ffaf4f5a1af42b8a5769ddd7" reading-cap=10 {
+    sequence
+    prefix steps=0 reading-count=0 cap-reached=#false can-end=#false
+}

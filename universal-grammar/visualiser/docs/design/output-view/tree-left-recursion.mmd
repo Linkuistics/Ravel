@@ -1,0 +1,23 @@
+flowchart TD
+  subgraph nested["Rejected: left recursion as nested rule nodes"]
+    direction TB
+    N0["Start here: history<br/>after step 3"]:::start
+    N0 --> N1["history"]
+    N0 --> NE2["step 3 “edit”"]
+    N1 --> N2["history"]
+    N1 --> NE1["step 2 “edit”"]
+    N2 --> NC["step 1 “create”<br/>two levels deeper than after step 1"]:::moved
+  end
+  subgraph looped["Agreed: one loop node, one pass for each trip"]
+    direction TB
+    L0["Start here: history ↻<br/>after step 3"]:::start
+    L0 --> LP1["pass 1"]:::pass
+    L0 --> LP2["pass 2"]:::pass
+    L0 --> LP3["pass 3"]:::pass
+    LP1 --> LC["step 1 “create”<br/>same place after every step"]
+    LP2 --> LE1["step 2 “edit”"]
+    LP3 --> LE2["step 3 “edit”"]
+  end
+  classDef start fill:#1d2330,color:#ffffff,font-weight:bold,stroke:#1d2330
+  classDef pass fill:#e3f4ef,stroke:#0e7c66,color:#0b4d40
+  classDef moved fill:#fdecea,stroke:#b3261e,color:#7a1a14

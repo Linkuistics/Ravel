@@ -1,0 +1,16 @@
+checked-grammar format-version=2 grammar-sha256=e85587f3af72a7233cc99c70b782b4053c468bb48b0e74629a67d05c3a6db138 {
+    start-rule name=episode start=7 end=14
+    rule name=episode start=17 end=24 {
+        sequence start=27 end=68 {
+            symbol value="states the problem" start=27 end=47
+            symbol value=states_the_problem start=48 end=68
+        }
+    }
+    symbol value="states the problem" {
+        use rule=episode start=27 end=47
+    }
+    symbol value=states_the_problem {
+        use rule=episode start=48 end=68
+    }
+    diagnostic severity=warning code=similar-symbols message="In the rule `episode`, the symbol \"states_the_problem\" differs from the symbol \"states the problem\" only by case, spaces, `_` or `-`. A misspelt symbol is a new symbol." start=48 end=68 line=2 column=32
+}
