@@ -1,0 +1,26 @@
+# The rules that the files of the requirements pack own, as data.
+#
+# Grove's `plugins/grove/conformance/rules.tsv` states the five tab-separated
+# columns: rule, owner, class, load and phrase. Grove's
+# `docs/specs/external-pack-contract.md`, "Conformance", states what a run
+# checks with this manifest alone and in the aggregate with core.
+#
+# Each owner is a file that this pack ships. A rule ID is unique across this
+# manifest and every manifest that a run supplies.
+grilling-procedure	grove-requirements/grilling.md	B	on(the grilling threshold is met) @ grove-requirements/SKILL.md	
+no-writes-before-shared-understanding	grove-requirements/grilling.md	B	on(the grilling threshold is met) @ grove-requirements/SKILL.md	
+probe-with-concrete-scenarios	grove-requirements/grilling.md	B	on(the grilling threshold is met) @ grove-requirements/SKILL.md	stress-test them with specific scenarios
+acceptance-is-not-a-rewrite-order	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	record those ambitions as later work, not as instructions to rewrite now
+checkpoint-states-its-frame-first	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	give the reader the steps that make them load
+corrections-route-to-owners	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	Schedule the next read before dependent document work, starting it at the repaired entry
+early-failure-stops-the-read	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	An early comprehension failure stops the read
+evidence-classes-stay-apart	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	count probes that share one model context as one reader
+observe-outcomes-not-liking	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	Liking is not the outcome, and a guideline's counts are not thresholds
+record-locations-leave-unknowns	grove-requirements/reader-test.md	B	on(this leaf holds a reader checkpoint) @ grove-requirements/SKILL.md	a quoted passage does not establish a route
+agree-the-seams-during-grilling	grove-requirements/SKILL.md	B	static({requirements})	
+grilling-threshold	grove-requirements/SKILL.md	B*	static({requirements})	
+pre-decided-is-not-a-grilling-question	grove-requirements/SKILL.md	B	static({requirements})	
+requirements-establishes-what	grove-requirements/SKILL.md	B	static({requirements})	
+sequence-interdependent-questions	grove-requirements/SKILL.md	B	static({requirements})	
+small-workstream-may-fuse-the-three	grove-requirements/SKILL.md	B	static({requirements})	
+when-not-to-start-a-grove	grove-requirements/SKILL.md	B	static({requirements})	
