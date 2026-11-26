@@ -1,0 +1,2 @@
+2026-08-29T14:40:43.871948Z ERROR codex_core::tools::router: error=resources/list failed: unknown MCP server 'workspace'
+2026-08-29T14:40:45.793152Z ERROR codex_core::tools::router: error=resources/list failed: unknown MCP server 'filesystem'

@@ -1,0 +1,38 @@
+direction: down
+
+classes: {
+  start: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+  open: {style: {stroke: "#b45309"; stroke-dash: 4}}
+  text: {shape: page}
+}
+
+harness: "Start here:\na session on a harness" {class: start}
+
+entries: "Harness entries\n(thin and stable)" {
+  cc: "Claude Code:\nplugin hooks.json"
+  codex: "Codex:\nhooks plugin\n(trusted once by you)"
+  pi: "Pi:\nextension file"
+  gemini: "Gemini CLI:\nnone (skill only)" {style.stroke-dash: 3}
+}
+
+skill: "technical-communication/ skill directory" {
+  skillmd: "SKILL.md\nscope, precedence, core rules,\nconversion, checker, switch" {class: text}
+  refs: "references/\none file per section of Part 1" {class: text}
+  always: "always-on/\ninstruction.md, reminder.md" {class: text}
+  core: "scripts/tc-hook\nhook core: switch, events"
+  checker: "scripts/ste-lint.py\nlint, markers, score, log"
+  skillmd -> refs: "read on demand"
+}
+
+state: "~/.local/state/technical-communication/" {
+  off: "off\n(the switch)" {class: text}
+  log: "sessions/*.jsonl\n(the reply log)" {shape: cylinder}
+}
+
+harness -> entries: "1. hook event"
+entries -> skill.core: "2. tc-hook <harness> <event>"
+skill.core -> state.off: "3. present? stop quietly"
+skill.core -> skill.always: "4a. start, prompt: inject text"
+skill.core -> skill.checker: "4b. write, reply: check or score"
+skill.checker -> state.log: "5. append one record"
+harness -> skill.skillmd: "description match or instruction" {style.stroke-dash: 3}

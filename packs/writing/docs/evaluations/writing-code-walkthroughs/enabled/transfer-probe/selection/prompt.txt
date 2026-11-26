@@ -1,0 +1,26 @@
+Select one out-of-sample subject for evaluating whether an assistant can plan a
+complete-source Markdown code walkthrough. You are the fresh selector. You have
+only the evaluation subject and the transfer constraints below; do not assume or
+request any prior campaign artifact.
+
+Choose a small, real, publicly available open-source production utility at an
+immutable revision. Bound the source inventory to one to three text source files
+and at most 350 total nonblank lines. The utility must have a concrete observable
+purpose, at least three causal stages worth explaining, and enough nontrivial
+control or data flow to support a worked execution. Prefer a mature project with
+an OSI-approved license and a stable upstream raw-file URL. Do not choose an
+evaluation framework, tutorial, generated file, test, fixture, model, or Markdown
+document. Avoid Rust filesystem-tree libraries and OCaml package-floor checkers.
+
+You may use web search and read public upstream source while selecting. Return a
+single frozen selection containing: project and upstream URL; immutable commit;
+license; exact production-source paths; authoritative raw URLs; total line count;
+why the subject satisfies the bounds; and a byte-exact user prompt for both arms.
+The user prompt must ask for an authoring plan, not a finished walkthrough. It
+must identify the supplied source inventory as complete and authoritative, state
+the intended audience, permit read-only inspection only inside the fresh run
+directory, and request an exact inventory, concept-oriented reader sequence,
+fragment ledger with insertion relationships, one low-resolution worked
+execution, local exposition/cross-reference decisions, and mechanical plus
+independent-review assurance. Do not include scoring criteria or advice about
+how an assistant should satisfy them outside those requested deliverables.

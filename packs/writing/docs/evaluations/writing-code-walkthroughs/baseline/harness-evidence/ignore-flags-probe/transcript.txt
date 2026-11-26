@@ -1,0 +1,46 @@
+Codex isolation-flag probe transcript
+UTC date: 2026-08-28
+
+$ codex --version
+codex-cli 0.150.1
+
+$ codex exec --help  # relevant lines
+--ignore-user-config
+    Do not load `$CODEX_HOME/config.toml`; auth still uses `CODEX_HOME`
+--ignore-rules
+    Do not load user or project execpolicy `.rules` files
+
+Attempt 1: default installed home under the parent sandbox
+exit: 1, before thread creation
+stderr:
+  Error: failed to initialize in-process app-server client: Operation not permitted (os error 1)
+
+Attempt 2: fresh writable probe CODEX_HOME, both isolation flags, throwaway
+startup-source prompt
+observed JSONL before the network failure:
+  {"type":"thread.started","thread_id":"01a04ac5-813a-7a32-9238-3bf76c3cc607"}
+  {"type":"turn.started"}
+  {"type":"error","message":"Reconnecting... waiting for network (Connection failed: error sending request)"}
+operator action: interrupted after repeated identical network errors; no final
+assistant message existed
+post-launch manifest observation:
+  skills/.system PRESENT
+  probe skill PRESENT
+  AGENTS.md PRESENT
+  hooks.json PRESENT
+  hook marker ABSENT (execution was not established)
+
+Compensating-control preflight: fresh writable CODEX_HOME containing only an
+auth symlink, both isolation flags, and `-c skills.bundled.enabled=false`
+observed JSONL before the network failure:
+  {"type":"thread.started","thread_id":"01a04ac9-61ea-7bb3-a243-fda14bf1814d"}
+  {"type":"turn.started"}
+operator action: interrupted after the same network denial; no final assistant
+message existed
+post-launch manifest observation:
+  skills ABSENT
+  AGENTS.md ABSENT
+  hooks.json ABSENT
+  config.toml ABSENT
+  auth.json PRESENT
+  Codex-created SQLite state and installation_id PRESENT

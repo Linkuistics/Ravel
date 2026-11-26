@@ -1,0 +1,51 @@
+# The rules that the files of the writing pack own, as data.
+#
+# Grove's `plugins/grove/conformance/rules.tsv` states the five tab-separated
+# columns: rule, owner, class, load and phrase. Grove's
+# `docs/specs/external-pack-contract.md`, "Conformance", states what a run
+# checks with this manifest alone and in the aggregate with core.
+#
+# Each owner is a file that this pack ships. A rule ID is unique across this
+# manifest and every manifest that a run supplies.
+art-works-in-the-contracts-medium	grove-art/SKILL.md	B	static({art})	Do not introduce a medium the contract does not name
+figure-carries-the-relation-and-states-its-role	grove-art/SKILL.md	B	static({art})	Every figure states its role
+declined-figure-names-one-of-three-reasons	grove-art/SKILL.md	B	static({art})	a contract's medium is reopened by that record and by nothing else. A host that cannot render the admitted notation is a case of *the medium could not carry it*.
+art-meets-the-figure-contract	grove-art/SKILL.md	B	static({art})	Every figure drawn or kept meets `FIGURE-FORMAT.md`, and `art` owns source and rendering agreement.
+art-owns-figure-text	grove-art/SKILL.md	B	static({art})	written in the prose contract's terms and read with the adjacent prose
+copy-edit-does-not-restructure	grove-copy-edit/SKILL.md	B	static({copy-edit})	a structural finding is sent back as a `draft` re-run leaf, never fixed here
+copy-edit-operative-tests	grove-copy-edit/SKILL.md	B	static({copy-edit})	A figure of speech replaced by the mechanism it stood for
+copy-edit-binds-the-teaching-rules	grove-copy-edit/SKILL.md	B+S	static({copy-edit})	The rules in `references/execute.md` under *Teaching the reader* bind this sentence work
+copy-edit-reads-the-prose-contract	grove-copy-edit/SKILL.md	B+S	static({copy-edit})	Read the set's prose contract as the contract format resolves it (the house style when the set declares none), the term risks and the declared expertise.
+tests-reach-openings-and-labels	grove-copy-edit/SKILL.md	B+S	static({copy-edit})	The tests cover headings, first sentences, summaries including table summaries, and example labels, not only body text.
+missing-teaching-goes-to-draft	grove-copy-edit/SKILL.md	B+S	static({copy-edit})	An untaught relationship or missing model is sent back as a `draft` correction run, never repaired in sentences.
+normative-wording-preserved	grove-copy-edit/SKILL.md	B+S	static({copy-edit})	Reword teaching text only; a defect in a normative sentence's wording or force goes back as a `draft` correction run rather than being repaired here.
+draft-requires-a-structure-brief	grove-draft/SKILL.md	B+S	static({draft})	If this document has no structure brief, stop and say so
+structure-brief-is-three-citable-things	grove-draft/SKILL.md	B	static({draft})	The existence of a node file is not the test
+draft-owns-structure-and-technical-truth	grove-draft/SKILL.md	B	static({draft})	every claim about the subject is checked against the subject
+structure-brief-three-items-deepened	grove-draft/SKILL.md	B	static({draft})	the model-first plan with page purposes and entry routes
+local-context-at-every-declared-entry	grove-draft/SKILL.md	B	static({draft})	Each declared entry carries the local context and example it needs
+examples-labelled-canonical-complete	grove-draft/SKILL.md	B	static({draft})	Label each example complete or fragment and say what a fragment omits
+reference-entries-shaped-by-subject	grove-draft/SKILL.md	B	static({draft})	carry identifiers that survive heading edits
+draft-reads-the-contract-parts	grove-draft/SKILL.md	B+S	static({draft})	The section plan outranks a layout convention
+draft-binds-the-teaching-rules	grove-draft/SKILL.md	B+S	static({draft})	The rules in `references/execute.md` under *Teaching the reader* bind this drafting
+editorial-stage-is-a-producer	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	a **producer, not a reviewer**
+whole-document-one-charter	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	changes only what its own charter owns
+charter-overflow-is-passed-not-absorbed	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	recorded and passed on, **never absorbed**
+editorial-chain-is-lazy-and-mandatory	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	unless a live later sibling under this node already holds that stage
+no-stage-is-skipped-on-judgement	editorial-family/SKILL.md	B+S	static({draft,copy-edit,art,proof})	Do not skip a stage because you judge it will find nothing
+stage-leaf-carries-the-documents-stem	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	carries the document's bare stem as its whole slug
+handed-forward-list-is-in-the-node-brief	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	under a running `## Handed forward` list naming the owning stage
+send-back-is-a-contiguous-run	editorial-family/SKILL.md	B+S	static({draft,copy-edit,art,proof})	a **contiguous run** that begins at the owning stage and ends at `proof`
+second-re-run-is-an-escalation	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	A second re-run of one stage against one document is an escalation, not a third leaf
+stage-review-allowance-is-the-producers	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	The next stage is not that review
+stage-leaves-it-green	editorial-family/SKILL.md	B	static({draft,copy-edit,art,proof})	passing whatever gate the repository runs over it
+editorial-stage-reads-the-document-contract	editorial-family/SKILL.md	B+S	static({draft,copy-edit,art,proof})	A document declares its contract as `DOCUMENT-CONTRACT-FORMAT.md` directs
+proof-reads-for-whole-document-coherence	grove-proof/SKILL.md	B	static({proof})	counted one way on one page and another way elsewhere. Status statements, terms and figure vocabulary agree across the set
+walk-every-declared-entry	grove-proof/SKILL.md	B	static({proof})	including the direct rule, reference, example and figure entries
+coverage-against-the-inventory	grove-proof/SKILL.md	B	static({proof})	Check coverage against the contract's inventory, when there is one
+read-in-the-declared-environment	grove-proof/SKILL.md	B	static({proof})	aids are set apart from the normative text beside them
+proof-claims-no-understanding	grove-proof/SKILL.md	B	static({proof})	names the reader checkpoint that would test it
+proof-reads-headings-and-openings-in-order	grove-proof/SKILL.md	B	static({proof})	no relationship is left compressed where the reader first meets it
+proof-clears-the-hand-forward-list	grove-proof/SKILL.md	B	static({proof})	An entry left in the list when this stage retires is a defect nobody owns
+proof-cuts-nothing-unless-it-sends-work-back	grove-proof/SKILL.md	B	static({proof})	the node closes when a `proof` retires having sent nothing back
+proof-is-the-stated-fallback	grove-proof/SKILL.md	B	static({proof})	a proof session that finds nothing has still done its job

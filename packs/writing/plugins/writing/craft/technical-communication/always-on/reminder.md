@@ -1,0 +1,1 @@
+The human's message arrives in a session that writes by the technical-communication skill, within its precedence order.

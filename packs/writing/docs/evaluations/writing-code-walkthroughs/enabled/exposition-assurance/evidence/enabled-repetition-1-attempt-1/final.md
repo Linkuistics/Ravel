@@ -1,0 +1,38 @@
+I would structure this as a bounded reuse rule: the later mutation page should restate only the minimum meaning needed to follow the write path, link back to the early identity page for the full definition and invariants, and repeat the earlier source fragment only if the reader must inspect its exact code to understand a control-flow or data-shape transition on the mutation page. If the later page only relies on the semantic fact that `NormalizedKey` is the canonical tenant-qualified identity, do not reprint the fragment; cite it and summarize its role locally. Reproduce it only when the later explanation would otherwise force the reader to page-hop mid-argument.
+
+On the later page, state locally:
+- `NormalizedKey` is the identity form used by the write path at the point where tenant-qualified targeting matters.
+- The walkthrough assumes the early page established how that identity is formed and why it is canonical.
+- Any step that depends on properties beyond that meaning is a verification obligation until the source is checked.
+
+Link to:
+- The early page section that defines `NormalizedKey`.
+- The earlier fragment anchor, if that fragment is the authoritative source for the identity transition reused here.
+- Any later placeholder note such as `[verify: where write path first requires canonical tenant-qualified identity]`.
+
+Representative later-page paragraph:
+
+“In this write path, the request is no longer discussed in terms of an unspecified caller key shape; from this point onward, the walkthrough tracks the operation by `NormalizedKey`, the canonical tenant-qualified identity established earlier. That earlier definition is not repeated here in full; see `[Identity Page §NormalizedKey]` and `[Source Fragment A]` for the code-level construction and contract. The claim made on this page is narrower: some actor in the mutation flow must either receive or derive `NormalizedKey` before performing tenant-scoped lookup, validation, or persistence steps. The exact function, ordering, and error handling remain `[verify in source]` until the implementation excerpt for this page is confirmed.”
+
+**Prose Rules**
+- Claims: Separate observed facts from walkthrough inferences. Every concrete behavior claim must be backed by a cited fragment or marked `[verify]`. Do not convert architectural expectations into assertions.
+- Stable vocabulary: Use one term per concept across pages. If `NormalizedKey` is the canonical tenant-qualified identity, do not later rename it as “resolved key”, “storage key”, or “scoped key” unless the code explicitly distinguishes those forms.
+- Explicit actors: Every step names an actor, even if provisional: “request handler”, “mutation coordinator”, “storage adapter”, or `[actor verify]`. Avoid actorless sentences like “the key is normalized” when the responsible component is unknown.
+- Failure categories: Group failures by role, not by speculation. Use placeholder categories such as `identity formation failure [verify]`, `tenant-scope validation failure [verify]`, `storage write failure [verify]`, and `post-write side-effect failure [verify]`. Do not assign retryability, user visibility, or transaction semantics unless sourced.
+
+**Assurance Plan**
+- Mechanical checks:
+  - Terminology lint: every use of `NormalizedKey` matches the same glossary entry.
+  - Claim audit: each sentence containing “does”, “must”, “ensures”, “fails”, or “writes” has a source citation or `[verify]`.
+  - Anchor check: all cross-page links resolve to the intended section or fragment.
+  - Fragment reuse check: if an earlier fragment is repeated, the duplicated text matches exactly and is labeled as a deliberate reuse.
+  - Placeholder check: all unknown implementation details are marked consistently and collected into a verification list.
+  - Actor check: each procedural sentence identifies an actor or `[actor verify]`.
+  - Failure taxonomy check: all mentioned failures map to the approved category list.
+- Independent review before publication:
+  - Domain-blind reader review: confirm the later page is understandable without prior domain knowledge beyond the early `NormalizedKey` page.
+  - Source-accuracy review by a maintainer: verify every fact claim, every `[verify]` disposition, and the decision not to overstate unknown behavior.
+  - Continuity review across pages: confirm the later page neither redefines `NormalizedKey` nor assumes unstated invariants.
+  - Fragment-reuse review: confirm the choice to link versus repeat supports comprehension without redundant code duplication.
+
+I skipped the walkthrough skill because you explicitly asked not to call tools.

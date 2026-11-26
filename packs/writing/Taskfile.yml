@@ -1,0 +1,133 @@
+version: '3'
+
+# The writing pack's checks. Grove's `docs/specs/external-pack-contract.md`,
+# "The checker without a copy", states these tasks and their two variables.
+#
+# The tasks check:tc-* check the craft skill technical-communication. They came
+# from Grove's scripts/check.sh and need no Grove checkout.
+#
+# GROVE_COMMIT names the Grove revision that this pack checks against. That
+# revision gives both the conformance runner and core's content. A published
+# pack commit records only a commit that Grove's public remote holds, and its
+# GROVE_REPOSITORY stays the public URL. A development run can name a local
+# Grove repository on the command line, for example:
+#
+#   task check GROVE_REPOSITORY=$HOME/Development/AgenticOrchestration/grove
+#
+# Such a run is never the evidence for a published pack commit.
+
+set: [errexit, nounset, pipefail]
+
+vars:
+  GROVE_REPOSITORY: https://github.com/Linkuistics/grove.git
+  GROVE_COMMIT: ca7f6c685209da7d0d86a4f8b51fad06114115ef
+  GROVE_DIR: '{{.ROOT_DIR}}/.cache/grove/{{.GROVE_COMMIT}}'
+  PACK: plugins/writing
+  HOOKS_PLUGIN: plugins/writing/craft/technical-communication
+
+env:
+  GIT_CONFIG_GLOBAL: /dev/null
+  GIT_CONFIG_NOSYSTEM: '1'
+  GIT_TERMINAL_PROMPT: '0'
+
+tasks:
+  grove:checkout:
+    desc: Make a plain Git checkout of GROVE_COMMIT under .cache/grove, or reuse a clean one
+    cmds:
+      - |
+        dir='{{.GROVE_DIR}}'
+        commit='{{.GROVE_COMMIT}}'
+        if [ -d "$dir/.git" ] \
+          && [ "$(git -C "$dir" rev-parse HEAD 2>/dev/null)" = "$commit" ] \
+          && [ -z "$(git -C "$dir" status --porcelain --ignored)" ]; then
+          echo "reusing the clean Grove checkout of $commit"
+          exit 0
+        fi
+        rm -rf "$dir"
+        mkdir -p "$dir"
+        git init --quiet "$dir"
+        git -C "$dir" fetch --quiet --depth 1 '{{.GROVE_REPOSITORY}}' "$commit"
+        git -C "$dir" checkout --quiet --detach FETCH_HEAD
+        head="$(git -C "$dir" rev-parse HEAD)"
+        if [ "$head" != "$commit" ]; then
+          echo "error: the Grove checkout is at $head, not $commit" >&2
+          exit 1
+        fi
+        echo "checked out Grove $commit from {{.GROVE_REPOSITORY}}"
+
+  check:conformance:
+    desc: Check the pack alone, then the aggregate of Grove's core and this pack
+    cmds:
+      - task: grove:checkout
+      - bash '{{.GROVE_DIR}}/plugins/grove/conformance.sh' --pack '{{.PACK}}' --alone
+      - bash '{{.GROVE_DIR}}/plugins/grove/conformance.sh' --pack '{{.PACK}}'
+
+  check:plugin:
+    desc: Validate both Claude Code plugins, the writing plugin and its hooks plugin, or skip when Claude Code is not installed
+    cmds:
+      - |
+        if ! command -v claude >/dev/null 2>&1; then
+          echo "skipping check:plugin: Claude Code is not installed"
+          exit 0
+        fi
+        claude plugin validate '{{.PACK}}'
+        claude plugin validate '{{.HOOKS_PLUGIN}}'
+
+  check:hooks:
+    desc: Count the hook declarations of each installation of the two plugins, then run the controls that must fail
+    cmds:
+      - task: grove:checkout
+      # The writing plugin depends on Grove's `grove` plugin, so the count
+      # reads that plugin from the Grove checkout.
+      - python3 -I '{{.ROOT_DIR}}/scripts/hook-count.py' '{{.ROOT_DIR}}' --plugin 'grove={{.GROVE_DIR}}/plugins/grove' --controls
+
+  check:hook-writes:
+    desc: Run every declared hook against a read-only and a writable copy of the source, require the writable copy unchanged, then run the controls that must fail
+    cmds:
+      - python3 -I '{{.ROOT_DIR}}/scripts/hook-writes.py' '{{.ROOT_DIR}}' --controls
+
+  check:tc-checker:
+    desc: Run the self-test of the technical-communication checker
+    cmds:
+      # `-I` keeps the interpreter from importing anything out of the current
+      # directory or the user's site.
+      - python3 -I '{{.ROOT_DIR}}/{{.PACK}}/craft/technical-communication/scripts/ste-lint.py' --selftest
+
+  check:tc-hook-lint:
+    desc: Lint the hook guard tc-hook and the Pi load check with ShellCheck
+    cmds:
+      - shellcheck '{{.ROOT_DIR}}/{{.PACK}}/craft/technical-communication/scripts/tc-hook' '{{.ROOT_DIR}}/scripts/pi-extension-load.test.sh'
+
+  check:tc-pi:
+    desc: Load the technical-communication Pi extension in a real Pi, with its controls, or skip when Pi is not installed
+    cmds:
+      - bash '{{.ROOT_DIR}}/scripts/pi-extension-load.test.sh'
+
+  check:
+    desc: Run every check of the pack
+    cmds:
+      - task: check:plugin
+      - task: check:hooks
+      - task: check:hook-writes
+      - task: check:tc-checker
+      - task: check:tc-hook-lint
+      - task: check:tc-pi
+      - task: check:conformance
+
+  design:technical-communication:
+    desc: Serve the technical-communication design views at localhost (default port 8770)
+    vars:
+      PORT: '{{.PORT | default "8770"}}'
+    cmds:
+      - python3 -m http.server {{.PORT}} --bind 127.0.0.1 --directory '{{.ROOT_DIR}}/docs/design/technical-communication'
+
+  design:technical-communication:render:
+    desc: Export the technical-communication design views from their D2 sources
+    dir: docs/design/technical-communication
+    sources:
+      - '*.d2'
+    generates:
+      - '*.svg'
+    cmds:
+      - for: sources
+        cmd: d2 --layout=elk --theme=0 --dark-theme=200 '{{.ITEM}}' '{{trimSuffix ".d2" .ITEM}}.svg'

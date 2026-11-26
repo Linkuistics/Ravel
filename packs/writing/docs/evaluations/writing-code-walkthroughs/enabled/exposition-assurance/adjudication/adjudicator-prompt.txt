@@ -1,0 +1,33 @@
+You are the blind adjudicator for ten anonymous answers to one frozen code-walkthrough planning prompt. You have no arm labels, skill bytes, campaign hypothesis, or repository paths. Score every sample independently from its complete final answer and raw events.
+
+For each criterion, score 1 only when the named behavior is explicitly present; otherwise score 0. Do not award partial credit or infer intent. For absence-shaped criteria, scan the entire answer, score 0 at the first prohibited instance, and otherwise cite the closest near-miss considered. Compliance controls C02 and C03 must be scored but kept identifiable. A raw event containing any tool call would invalidate a sample, but the supplied streams should still be checked.
+
+Criteria:
+C01 representative paragraph locally states that NormalizedKey is the canonical tenant-qualified identity.
+C02 compliance control: paragraph connects that meaning to the later write without inventing a function, type, effect, or invariant.
+C03 compliance control: unknown actors, inputs, outputs, and invariants are explicit placeholders or source-verification obligations.
+C04 plan does not duplicate the authoritative source fragment.
+C05 plan repeats only the fragment's current semantic consequence.
+C06 any link label names its destination and purpose rather than here, this, or more.
+C07 paragraph remains understandable if its optional link is removed.
+C08 paragraph uses direct declarative prose and no rhetorical question or suspense.
+C09 plan does not teach ordinary language or storage mechanics granted by the audience.
+C10 mechanical validation checks the frozen source inventory.
+C11 mechanical validation checks fragment identity, references, and cycles.
+C12 mechanical validation checks reachability, exact coverage, and byte equality.
+C13 mechanical validation checks Markdown headings, anchors, links, and navigation.
+C14 technical review is assigned to an independent context or person.
+C15 technical review checks contracts, invariants, control/data flow, effects, and failure/refusal distinctions.
+C16 technical review checks concurrency and rollback only after source evidence establishes applicability.
+C17 editorial review is assigned to an independent context or person distinct from technical review.
+C18 editorial review checks concept order, local completeness, examples, and terminology.
+C19 editorial review checks both missing local context and redundant repetition.
+C20 a walk-away check removes walkthrough-specific tooling.
+C21 walk-away result requires ordinary source and full raw Markdown to remain readable.
+C22 representative paragraph leads with its technical claim.
+C23 prose rules require stable vocabulary and an explicit actor for every effect.
+C24 prose rules distinguish modeled refusals, environmental failures, and defects, while requiring source evidence before applying a category.
+
+Return exactly 240 tab-separated decision lines, ordered S01 C01 through S01 C24, then S02 C01 through S10 C24. Each line must have four fields: sample, criterion, score (0 or 1), and a compact citation or near-miss with no tab characters. After those lines, return one SUMMARY line with each sample's total as S01=n through S10=n. Do not add a header, Markdown fencing, arm guesses, aggregate comparison, or campaign verdict.
+
+The anonymous bundle follows.

@@ -1,0 +1,241 @@
+S01	C01	1	`NormalizedKey`, the canonical tenant-qualified identity established earlier
+S01	C02	0	invents later effects: tenant-scoped lookup, validation, or persistence steps
+S01	C03	0	near miss: unknown steps marked `[verify in source]`, but unknown outputs/invariants are not separately placeholdered
+S01	C04	1	do not reprint the fragment; cite it and summarize its role locally
+S01	C05	0	allows reproduction when reader must inspect exact code
+S01	C06	1	link labels are descriptive: `[Identity Page §NormalizedKey]`, `[Source Fragment A]`
+S01	C07	1	the paragraph still states the claim without the bracketed references
+S01	C08	1	declarative prose throughout; no question or suspense hook
+S01	C09	1	no ordinary-language lesson or storage-mechanics tutorial appears
+S01	C10	0	near miss: `Fragment reuse check`; no frozen source inventory check
+S01	C11	0	near miss: `Anchor check`; no cycles check
+S01	C12	0	near miss: duplicated text matches exactly; no reachability plus exact coverage check
+S01	C13	0	near miss: cross-page links resolve; no Markdown headings/navigation check
+S01	C14	1	`Source-accuracy review by a maintainer`
+S01	C15	0	review checks facts and `[verify]` dispositions, not contracts/invariants/control-data flow/failure-refusal distinctions
+S01	C16	0	no rollback check; near miss is generic overstatement warning
+S01	C17	0	near miss: `Continuity review across pages`; no distinct editorial reviewer
+S01	C18	0	no editorial check for concept order, examples, and terminology together
+S01	C19	0	near miss: fragment-reuse review checks redundancy, not missing local context in editorial review
+S01	C20	0	no walk-away tooling-removal check
+S01	C21	0	no requirement that ordinary source and full raw Markdown remain readable
+S01	C22	1	opens with the write-path claim: `In this write path`
+S01	C23	1	`Stable vocabulary` plus `Every step names an actor`
+S01	C24	0	failure categories are listed, but modeled refusals vs environmental failures vs defects are not separated
+S02	C01	1	`NormalizedKey` is the canonical tenant-qualified identity defined earlier
+S02	C02	1	connects meaning to `this write reaches storage` and keeps unknowns as verification obligations
+S02	C03	0	near miss: unknown actor can be `an as-yet-unverified actor`; unknown outputs/invariants not explicit
+S02	C04	1	`It should not repeat the full early source fragment`
+S02	C05	0	allows `a short excerpt` when a specific line is required
+S02	C06	1	descriptive labels: `[Identity Definition]`, `[Earlier Source Fragment]`
+S02	C07	1	the paragraph reads coherently without the parenthetical links
+S02	C08	1	direct declarative prose; no rhetorical question
+S02	C09	1	no audience-basic language or storage tutorial
+S02	C10	0	no frozen source inventory check; near miss is `Link check`
+S02	C11	0	near miss: anchors resolve; no cycles check
+S02	C12	0	near miss: link resolution exists, but no exact coverage or byte-equality check
+S02	C13	0	near miss: `Link check`; no headings/anchors/navigation bundle
+S02	C14	1	`A code-familiar reviewer checks factual fidelity`
+S02	C15	0	technical review omits contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S02	C16	0	concurrency/order appears only in failure categories; no rollback or applicability gate in technical review
+S02	C17	0	two reviewers are listed, but no distinct editorial reviewer
+S02	C18	0	no editorial review covering concept order, local completeness, examples, and terminology
+S02	C19	0	near miss: domain-new reviewer checks readability, not redundant repetition in editorial review
+S02	C20	0	no walk-away tooling-removal check
+S02	C21	0	no raw-Markdown readability requirement
+S02	C22	1	leads with the technical claim: `Before this write reaches storage`
+S02	C23	0	near miss: `Every important sentence should name the actor`; not every effect
+S02	C24	0	source-evidence gating is present, but refusals/environmental failures/defects are not distinguished
+S03	C01	1	`NormalizedKey` as the canonical tenant-qualified identity
+S03	C02	0	invents effects: existence check, overwrite decision, conflict handling, storage API call
+S03	C03	0	near miss: `[caller or handler]` and `[service component]`; unknown outputs/invariants remain unspecified
+S03	C04	1	`It should not repeat the full early source fragment`
+S03	C05	1	`quote or paraphrase one short sentence of meaning`
+S03	C06	0	near miss: destinations are listed, but no actual named link-label example
+S03	C07	1	the paragraph still conveys the claim if bracketed references are removed
+S03	C08	1	direct declarative prose only
+S03	C09	1	no teaching of ordinary language or storage basics
+S03	C10	0	no frozen source inventory check; near miss is `Duplicate-evidence check`
+S03	C11	0	near miss: `Link check`; no cycles check
+S03	C12	0	near miss: `Drift check` and duplicate-evidence check; no reachability plus exact coverage set
+S03	C13	0	no Markdown headings/navigation check
+S03	C14	1	`Code-evidence review: a separate reviewer`
+S03	C15	0	reviews cover evidence and terminology, not full contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S03	C16	0	concurrency is mentioned as placeholder guidance, but no rollback/applicability rule in technical review
+S03	C17	0	near miss: `Terminology review`; no explicit editorial reviewer distinct from technical review
+S03	C18	0	no editorial review covering concept order/examples/local completeness
+S03	C19	0	near miss: domain-naive review checks unexplained jumps, not redundant repetition in editorial review
+S03	C20	0	no walk-away tooling-removal check
+S03	C21	0	no requirement that full raw Markdown stay readable
+S03	C22	1	opens with the technical claim: `On this mutation path`
+S03	C23	1	`Stable vocabulary` plus `Every causal sentence names the actor`
+S03	C24	0	failure categories are defined, but refusals/environmental failures/defects are not separated
+S04	C01	1	`NormalizedKey` is the canonical tenant-qualified identity already established earlier
+S04	C02	0	invents behavior: `the service does not choose a new record identity locally`
+S04	C03	0	near miss: unknown step becomes a verification obligation; unknown outputs/invariants not explicit
+S04	C04	1	`Do not fully repeat the earlier source fragment`
+S04	C05	0	allows quoting `the smallest relevant line or condition`
+S04	C06	0	near miss: bullets name destinations, but no concrete link-label example
+S04	C07	1	the paragraph remains understandable without any optional link
+S04	C08	1	direct declarative prose; no suspense
+S04	C09	1	no basic-language or storage-mechanics teaching
+S04	C10	0	no frozen source inventory check; near miss is `Drift check`
+S04	C11	0	near miss: anchored source citation link check; no cycles check
+S04	C12	0	near miss: drift and fragment reuse checks; no exact coverage plus byte-equality bundle
+S04	C13	0	near miss: intra-walkthrough references are checked; no Markdown headings/navigation check
+S04	C14	1	`One implementation reviewer`
+S04	C15	0	technical review checks textual support, not contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S04	C16	0	no rollback or evidence-gated concurrency check in technical review
+S04	C17	1	`One editorial reviewer`
+S04	C18	0	editorial review checks vocabulary stability and non-repetition, not concept order/examples/local completeness
+S04	C19	0	near miss: editorial review checks non-repetition, not missing local context
+S04	C20	0	no walk-away tooling-removal check
+S04	C21	0	no ordinary-source/full-Markdown readability requirement
+S04	C22	1	opens with the technical claim: `In this write path`
+S04	C23	1	`Stable vocabulary` plus `Every sentence that describes an action should name the actor`
+S04	C24	0	failure categories exist, but refusals/environmental failures/defects are not distinguished
+S05	C01	1	`NormalizedKey`, the canonical tenant-qualified identity introduced earlier
+S05	C02	1	connects the meaning to `Before this write can affect storage` and keeps unknown steps bracketed
+S05	C03	0	near miss: `[key validation step]` and `[mutation coordinator]`; unknown outputs/invariants not explicitly placeholdered
+S05	C04	1	`The later page should not fully repeat that fragment by default`
+S05	C05	0	allows repetition under three exceptions
+S05	C06	1	descriptive link label: `[Identity page: NormalizedKey]`
+S05	C07	1	the paragraph still works if the inline link is removed
+S05	C08	1	direct declarative prose only
+S05	C09	1	no ordinary-language or storage-mechanics teaching
+S05	C10	0	no frozen source inventory check; near miss is `Cross-reference check`
+S05	C11	0	near miss: cross-reference check exists; no cycles check
+S05	C12	0	near miss: `Drift check`; no reachability plus exact coverage plus byte equality
+S05	C13	0	no Markdown headings/anchors/navigation bundle
+S05	C14	1	`One implementation-aware reviewer`
+S05	C15	0	technical review omits contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S05	C16	0	concurrency/conflict is source-gated in failure guidance, but no rollback/applicability rule in technical review
+S05	C17	1	`One editorial reviewer`
+S05	C18	0	editorial review checks vocabulary and actor naming, not concept order/examples/local completeness
+S05	C19	0	near miss: domain-naive reviewer flags assumed identity knowledge; editorial review does not also check redundant repetition
+S05	C20	0	no walk-away tooling-removal check
+S05	C21	0	no requirement for readable ordinary source and full raw Markdown
+S05	C22	1	opens with the technical claim: `Before this write can affect storage`
+S05	C23	1	`Stable vocabulary` plus `Name the actor in each operational sentence`
+S05	C24	0	failure categories are source-gated, but refusals/environmental failures/defects are not split
+S06	C01	1	`NormalizedKey` is the canonical tenant-qualified identity
+S06	C02	0	invents effects: `reads, checks, and writes in terms of NormalizedKey only`
+S06	C03	0	near miss: `[caller or handler]` and `[raw input placeholder]`; unknown outputs/invariants not explicit
+S06	C04	1	`It should not repeat the full early source fragment by default`
+S06	C05	0	allows repeating `the smallest excerpt needed, verbatim`
+S06	C06	1	descriptive labels: `[NormalizedKey section]`, `[early source fragment citation]`
+S06	C07	1	the paragraph remains clear without the bracketed references
+S06	C08	1	direct declarative prose; no rhetorical question
+S06	C09	1	no teaching of audience-basic language or storage mechanics
+S06	C10	0	no frozen source inventory check; near miss is `Link check`
+S06	C11	0	near miss: cited fragments resolve; no cycles check
+S06	C12	0	near miss: repeated excerpt must match exactly and be shorter; no exact coverage check
+S06	C13	0	no headings/navigation check
+S06	C14	1	`One implementation-aware reviewer`
+S06	C15	0	technical review checks claim/code match, not contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S06	C16	0	no rollback or source-evidence applicability check for concurrency
+S06	C17	0	no distinct editorial reviewer; near miss is domain-naive reviewer
+S06	C18	0	no editorial review covering concept order/examples/local completeness
+S06	C19	0	no editorial review checking both missing context and redundancy
+S06	C20	0	no walk-away tooling-removal check
+S06	C21	0	no ordinary-source/full-Markdown readability requirement
+S06	C22	1	opens with the technical claim: `This write path operates on a NormalizedKey`
+S06	C23	1	`Stable vocabulary` plus `Each operational sentence should name an actor`
+S06	C24	0	failure categories are present, but refusals/environmental failures/defects are not distinguished
+S07	C01	1	`NormalizedKey` is the canonical tenant-qualified identity for the record this mutation addresses
+S07	C02	1	connects meaning to `Before the write reaches [storage write call]` and keeps unknowns as obligations
+S07	C03	0	near miss: `[mutation entrypoint]` and verification obligations; unknown outputs/invariants are not explicit placeholders
+S07	C04	1	`It should not repeat the full early source fragment`
+S07	C05	0	allows `the minimal excerpt` if exact syntax is needed
+S07	C06	0	near miss: destinations are named in bullets, but no concrete link-label example
+S07	C07	1	the paragraph still makes sense with the earlier-page mention removed
+S07	C08	1	declarative prose only
+S07	C09	1	no ordinary-language or storage-mechanics lesson
+S07	C10	0	no frozen source inventory check; near miss is `Duplicate-fragment check`
+S07	C11	0	near miss: cross-reference resolution is checked; no cycles check
+S07	C12	0	near miss: duplicate-fragment check exists; no exact coverage or byte-equality bundle
+S07	C13	0	no Markdown headings/navigation check
+S07	C14	1	`A source-trace reviewer checks`
+S07	C15	0	technical review omits contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S07	C16	0	no rollback; no evidence-gated concurrency review
+S07	C17	1	`An editorial reviewer`
+S07	C18	0	editorial review checks vocabulary/actor/failure consistency, not concept order/examples/local completeness
+S07	C19	0	near miss: domain-blind reviewer checks understandability; editorial review does not also check redundant repetition
+S07	C20	0	no walk-away tooling-removal check
+S07	C21	0	no full raw Markdown readability requirement
+S07	C22	1	opens with the technical claim: `Before the write reaches`
+S07	C23	0	near miss: `Name the actor in each important sentence`; not every effect
+S07	C24	0	failure categories exist, but refusals/environmental failures/defects are not distinguished
+S08	C01	1	`NormalizedKey` as the canonical tenant-qualified identity
+S08	C02	0	invents effects: `every lookup, comparison, and storage write`
+S08	C03	0	near miss: `[mutation entrypoint]` and `[normalization step]`; unknown outputs/invariants not explicit
+S08	C04	1	`It should not repeat the full early source fragment`
+S08	C05	0	allows canonical transclusion, so repetition is not limited to semantic consequence only
+S08	C06	1	descriptive labels: `[Canonical Identity]`, `[Fragment A]`
+S08	C07	1	the paragraph still conveys the claim without the bracketed links
+S08	C08	1	direct declarative prose; no rhetorical question
+S08	C09	1	no basic-language or storage-mechanics teaching
+S08	C10	0	no frozen source inventory check; near miss is `Fragment reuse check`
+S08	C11	0	near miss: exact fragment anchor resolves; no cycles check
+S08	C12	0	near miss: canonical identifier and duplication consistency; no exact coverage/byte-equality trio
+S08	C13	0	near miss: link resolution exists; no Markdown headings/navigation check
+S08	C14	1	`A technical reviewer validates`
+S08	C15	0	technical review checks claims and obligations, not contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S08	C16	0	no rollback or source-evidence applicability gate for concurrency
+S08	C17	1	`An editorial reviewer`
+S08	C18	0	editorial review checks vocabulary/link precision, not concept order/examples/local completeness
+S08	C19	0	near miss: editorial review checks duplicated fragment drift, not missing local context
+S08	C20	0	no walk-away tooling-removal check
+S08	C21	0	no ordinary-source/full-Markdown readability rule
+S08	C22	1	opens with the technical claim: `This mutation path relies on NormalizedKey`
+S08	C23	0	near miss: `Name the actor in each important sentence`; not every effect
+S08	C24	0	source evidence is required, but refusals/environmental failures/defects are not separated
+S09	C01	1	`NormalizedKey` is the canonical tenant-qualified identity used by this write path
+S09	C02	0	invents later effects: lookup, conflict/precondition, and storage mutation steps
+S09	C03	0	near miss: `[actor pending verification]` and failure placeholders; unknown outputs/invariants not explicit
+S09	C04	1	`Do not repeat the full early source fragment`
+S09	C05	0	allows a repeated short excerpt for line-specific arguments
+S09	C06	1	descriptive labels: `[Early page: NormalizedKey]`, `[Early source fragment anchor]`
+S09	C07	1	the paragraph remains understandable without the bracketed references
+S09	C08	1	direct declarative prose only
+S09	C09	1	no ordinary-language or storage-mechanics teaching
+S09	C10	0	no frozen source inventory check; near miss is `Every reuse link resolves`
+S09	C11	0	near miss: exact earlier fragment anchor is checked; no cycles check
+S09	C12	0	near miss: repeated excerpts are byte-identical; no reachability plus exact coverage bundle
+S09	C13	0	no Markdown headings/navigation check
+S09	C14	1	`Source-fidelity review by a reader`
+S09	C15	0	technical review omits contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S09	C16	0	no rollback or evidence-gated concurrency applicability check
+S09	C17	1	`Final editorial pass`
+S09	C18	0	editorial pass checks vocabulary/link hygiene/placeholders, not concept order/examples/local completeness
+S09	C19	0	near miss: reader-comprehension review checks local readability; editorial pass does not also check redundant repetition
+S09	C20	0	no walk-away tooling-removal check
+S09	C21	0	no full raw Markdown readability requirement
+S09	C22	1	opens with the technical claim: `From [mutation entry point] onward`
+S09	C23	0	near miss: `each important sentence names the actor`; not every effect
+S09	C24	0	failure categories are present, but refusals/environmental failures/defects are not distinguished
+S10	C01	1	`NormalizedKey` is the canonical tenant-qualified identity
+S10	C02	1	connects meaning to the mutation write and keeps reuse/derived-form claims under `[VERIFY]`
+S10	C03	0	near miss: `[VERIFY: actual actor name]`; unknown outputs/invariants are not explicit placeholders
+S10	C04	1	`Do not repeat the full early source fragment by default`
+S10	C05	0	allows repeating `that minimal line or a paraphrased callout`
+S10	C06	0	near miss: bullets name destinations, but no concrete link-label example
+S10	C07	1	the paragraph remains understandable without the optional backlink
+S10	C08	1	direct declarative prose throughout
+S10	C09	1	no basic-language or storage-mechanics teaching
+S10	C10	0	no frozen source inventory check; near miss is `Link check`
+S10	C11	0	near miss: anchored source fragment resolves; no cycles check
+S10	C12	0	near miss: drift and duplication checks exist; no reachability plus exact coverage plus byte equality
+S10	C13	0	no Markdown headings/navigation bundle
+S10	C14	1	`Implementation reviewer`
+S10	C15	0	technical review checks cited code claims, not contracts/invariants/control-data flow/effects/failure-refusal distinctions
+S10	C16	0	no rollback or source-evidence applicability check for concurrency
+S10	C17	1	`Editorial reviewer`
+S10	C18	0	editorial review checks vocabulary/actor clarity/non-duplication, not concept order/examples/local completeness
+S10	C19	0	near miss: fresh-reader reviewer checks understandability; editorial review does not also check missing local context and redundancy
+S10	C20	0	no walk-away tooling-removal check
+S10	C21	0	no requirement for readable ordinary source and full raw Markdown
+S10	C22	1	opens with the technical claim: `In the mutation path`
+S10	C23	1	`Stable vocabulary` plus `Every sentence describing behavior should name the actor`
+S10	C24	0	failure categories are listed, but modeled refusals vs environmental failures vs defects are not distinguished
+SUMMARY	S01=9	S02=9	S03=9	S04=9	S05=11	S06=9	S07=9	S08=9	S09=9	S10=10

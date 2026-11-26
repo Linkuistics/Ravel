@@ -1,0 +1,28 @@
+S01	C06	0	1	`[Source Fragment A]` is too generic for destination-plus-purpose	link labels are descriptive: `[Identity Page §NormalizedKey]`, `[Source Fragment A]`
+S02	C03	1	0	unknown actor/branches are framed as verification obligations	near miss: unknown actor can be `an as-yet-unverified actor`; unknown outputs/invariants not explicit
+S02	C05	1	0	repeats only that the write path operates on `NormalizedKey`	allows `a short excerpt` when a specific line is required
+S02	C23	1	0	Stable vocabulary and "Every important sentence should name the actor"	near miss: `Every important sentence should name the actor`; not every effect
+S03	C03	1	0	unknown actors and steps use bracketed placeholders and VERIFY tags	near miss: `[caller or handler]` and `[service component]`; unknown outputs/invariants remain unspecified
+S03	C05	0	1	restatement extends to target selection/conflict/failure behavior	`quote or paraphrase one short sentence of meaning`
+S03	C06	1	0	no generic here/this/more link label appears	near miss: destinations are listed, but no actual named link-label example
+S04	C02	1	0	applies that meaning to "which entry is being updated" without inventing a function	invents behavior: `the service does not choose a new record identity locally`
+S04	C03	1	0	unknown derivation/validation is a verification obligation	near miss: unknown step becomes a verification obligation; unknown outputs/invariants not explicit
+S04	C05	1	0	local statement is only the operational consequence for the mutation	allows quoting `the smallest relevant line or condition`
+S04	C06	1	0	no here/this/more link label appears	near miss: bullets name destinations, but no concrete link-label example
+S05	C03	1	0	unknown steps are named as placeholders or verification obligations	near miss: `[key validation step]` and `[mutation coordinator]`; unknown outputs/invariants not explicitly placeholdered
+S05	C05	1	0	repeats only the target-selection consequence for the write	allows repetition under three exceptions
+S06	C02	1	0	ties that meaning to the write path and defers unknown steps with verification	invents effects: `reads, checks, and writes in terms of NormalizedKey only`
+S06	C03	1	0	unknown actors and inputs use bracketed placeholders	near miss: `[caller or handler]` and `[raw input placeholder]`; unknown outputs/invariants not explicit
+S06	C05	1	0	repeats only the stable-handle consequence for later reads/checks/writes	allows repeating `the smallest excerpt needed, verbatim`
+S07	C03	1	0	unknown steps are bracketed or called verification obligations	near miss: `[mutation entrypoint]` and verification obligations; unknown outputs/invariants are not explicit placeholders
+S07	C05	1	0	repeats only the minimum identity consequence for the write path	allows `the minimal excerpt` if exact syntax is needed
+S07	C06	1	0	no here/this/more label appears	near miss: destinations are named in bullets, but no concrete link-label example
+S07	C23	1	0	Stable vocabulary plus actor requirement	near miss: `Name the actor in each important sentence`; not every effect
+S08	C03	1	0	unknown entrypoint/normalization step are explicit placeholders	near miss: `[mutation entrypoint]` and `[normalization step]`; unknown outputs/invariants not explicit
+S08	C06	0	1	`[Fragment A]` is generic	descriptive labels: `[Canonical Identity]`, `[Fragment A]`
+S08	C23	1	0	Stable vocabulary plus actor-naming rule	near miss: `Name the actor in each important sentence`; not every effect
+S09	C03	1	0	unshown construction/validation/failure are verification obligations	near miss: `[actor pending verification]` and failure placeholders; unknown outputs/invariants not explicit
+S09	C23	1	0	Stable vocabulary plus actor requirement	near miss: `each important sentence names the actor`; not every effect
+S10	C03	1	0	entry point and later-step unknowns are explicit VERIFY obligations	near miss: `[VERIFY: actual actor name]`; unknown outputs/invariants are not explicit placeholders
+S10	C05	1	0	repeats only the write-targeting consequence of the earlier fact	allows repeating `that minimal line or a paraphrased callout`
+S10	C06	1	0	no generic here/this/more label appears	near miss: bullets name destinations, but no concrete link-label example

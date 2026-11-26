@@ -1,0 +1,10 @@
+S01 enabled 1
+S02 control 2
+S03 enabled 4
+S04 control 4
+S05 enabled 3
+S06 enabled 5
+S07 control 1
+S08 enabled 2
+S09 control 5
+S10 control 3

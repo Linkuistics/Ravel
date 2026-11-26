@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
+  "name": "technical-communication-hooks",
+  "description": "The always-on hooks of the technical-communication skill: the instruction, the reminder, the document gate and the reply log. This plugin holds no skill. Ravel delivers the skill from Grove's Homebrew keg.",
+  "author": {
+    "name": "Antony Blakey",
+    "email": "antony.blakey@gmail.com"
+  },
+  "repository": "https://github.com/Linkuistics/WritingSkills",
+  "license": "Apache-2.0",
+  "skills": [],
+  "keywords": [
+    "hooks",
+    "technical-communication",
+    "controlled-english",
+    "writing"
+  ]
+}

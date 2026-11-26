@@ -1,0 +1,32 @@
+shape: sequence_diagram
+
+h: Harness
+c: "Hook core"
+k: Checker
+l: "Reply log"
+
+start: "Session or subagent start" {
+  h -> c: "session-start / subagent-start"
+  c -> k: "log a start record"
+  k -> l: "append {kind: start, source}"
+  c -> h: "instruction.md as added context"
+}
+
+prompt: "Each prompt" {
+  h -> c: "prompt"
+  c -> h: "reminder.md as added context"
+}
+
+write: "Each prose-file write" {
+  h -> c: "write (path or patch)"
+  c -> k: "lint the whole file"
+  k -> c: "unaccepted hard findings"
+  c -> h: "findings beside the tool result\n(nothing when clean)"
+}
+
+reply: "Each finished reply" {
+  h -> c: "stop (final reply text)"
+  c -> k: "score the prose"
+  k -> l: "append {kind: reply, scores}"
+  c -> h: "nothing; exit 0"
+}

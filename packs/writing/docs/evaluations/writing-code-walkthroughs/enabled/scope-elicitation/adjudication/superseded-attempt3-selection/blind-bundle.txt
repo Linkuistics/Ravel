@@ -1,0 +1,472 @@
+## Blind sample Alder
+
+### Final answer
+
+`writing-code-walkthroughs` is the relevant skill for the eventual authoring pass; I would not invoke it yet because you asked for intake only and no file inspection or tool use.
+
+> "What exact subsystem boundary should this walkthrough cover?"
+
+Rule for the rest of intake: ask exactly one question per turn, record the answer verbatim, and do not ask the next question until the previous answer is confirmed.
+
+1. Who is the primary audience for the walkthrough?
+2. What should the reader be able to understand or do after reading it?
+3. What kind of walkthrough do you want: onboarding, maintenance, design rationale, incident/debugging, or contributor guide?
+4. What completeness standard should apply: exhaustive coverage of the subsystem or selective coverage of the most important paths?
+5. What source corpus is in scope for explanation?
+6. What sources are authoritative if code, docs, tests, comments, and tickets disagree?
+7. What exact revision should be treated as the frozen target?
+8. What level of detail should explanations reach: architecture only, file/module level, function level, or line-level for key paths?
+9. Which execution paths, scenarios, or use cases must be traced end to end?
+10. Which topics are explicitly out of scope even if they appear adjacent in the code?
+11. What evidence standard do you want for claims: source-exact citations only, or source plus clearly labeled inference?
+12. Should the walkthrough include diagrams, tables, glossaries, or call graphs?
+13. What output format and structure do you want?
+14. Are there confidentiality, tone, terminology, or style constraints?
+15. What are the acceptance criteria for calling the walkthrough complete?
+
+Before inspecting code, I would freeze this contract:
+
+- Subsystem boundary: exact included components and explicit exclusions.
+- Audience: primary reader and assumed background.
+- Walkthrough goal: the concrete reader outcomes.
+- Walkthrough type: onboarding, maintenance, design, debugging, or mixed.
+- Completeness rule: exhaustive vs selective, with the selection rule stated.
+- Source corpus: allowed files and artifact types.
+- Authority order: how conflicts between sources are resolved.
+- Revision pin: branch, tag, commit, or snapshot to treat as canonical.
+- Detail level: architecture, module, function, or path-specific deep dives.
+- Mandatory traces: scenarios or flows that must be covered.
+- Citation policy: source-exact reproduction vs labeled inference.
+- Deliverable format: markdown/book/guide structure and required extras.
+- Style constraints: terminology, tone, redaction, and forbidden content.
+- Acceptance criteria: what the finished walkthrough must contain to be approved.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"`writing-code-walkthroughs` is the relevant skill for the eventual authoring pass; I would not invoke it yet because you asked for intake only and no file inspection or tool use.\n\n> \"What exact subsystem boundary should this walkthrough cover?\"\n\nRule for the rest of intake: ask exactly one question per turn, record the answer verbatim, and do not ask the next question until the previous answer is confirmed.\n\n1. Who is the primary audience for the walkthrough?\n2. What should the reader be able to understand or do after reading it?\n3. What kind of walkthrough do you want: onboarding, maintenance, design rationale, incident/debugging, or contributor guide?\n4. What completeness standard should apply: exhaustive coverage of the subsystem or selective coverage of the most important paths?\n5. What source corpus is in scope for explanation?\n6. What sources are authoritative if code, docs, tests, comments, and tickets disagree?\n7. What exact revision should be treated as the frozen target?\n8. What level of detail should explanations reach: architecture only, file/module level, function level, or line-level for key paths?\n9. Which execution paths, scenarios, or use cases must be traced end to end?\n10. Which topics are explicitly out of scope even if they appear adjacent in the code?\n11. What evidence standard do you want for claims: source-exact citations only, or source plus clearly labeled inference?\n12. Should the walkthrough include diagrams, tables, glossaries, or call graphs?\n13. What output format and structure do you want?\n14. Are there confidentiality, tone, terminology, or style constraints?\n15. What are the acceptance criteria for calling the walkthrough complete?\n\nBefore inspecting code, I would freeze this contract:\n\n- Subsystem boundary: exact included components and explicit exclusions.\n- Audience: primary reader and assumed background.\n- Walkthrough goal: the concrete reader outcomes.\n- Walkthrough type: onboarding, maintenance, design, debugging, or mixed.\n- Completeness rule: exhaustive vs selective, with the selection rule stated.\n- Source corpus: allowed files and artifact types.\n- Authority order: how conflicts between sources are resolved.\n- Revision pin: branch, tag, commit, or snapshot to treat as canonical.\n- Detail level: architecture, module, function, or path-specific deep dives.\n- Mandatory traces: scenarios or flows that must be covered.\n- Citation policy: source-exact reproduction vs labeled inference.\n- Deliverable format: markdown/book/guide structure and required extras.\n- Style constraints: terminology, tone, redaction, and forbidden content.\n- Acceptance criteria: what the finished walkthrough must contain to be approved."}}
+{"type":"turn.completed","usage":{"input_tokens":11827,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1048,"reasoning_output_tokens":506}}
+
+## Blind sample Cobalt
+
+### Final answer
+
+`"What exact subsystem should the walkthrough cover?"`
+
+Rule for later turns: ask exactly one question per turn, wait for the answer, record it verbatim in the intake, then ask the next question. Do not merge questions, infer missing answers, or inspect code before the contract is frozen.
+
+Later questions, in order:
+
+1. What is the primary audience for this walkthrough?
+2. What should that audience be able to do or understand after reading it?
+3. What repository, branch, commit, tag, or release should be treated as the source of truth?
+4. What exact files, directories, modules, packages, or services are in scope?
+5. What exact files, directories, modules, packages, or services are explicitly out of scope?
+6. Does “complete” mean full source coverage of the scoped corpus, or only complete coverage of specific flows and concepts?
+7. Which runtime paths, user journeys, jobs, protocols, or request flows must be covered end to end?
+8. Are there specific entrypoints that define the subsystem boundary?
+9. Are there specific abstractions, classes, functions, schemas, or interfaces that must be explained in detail?
+10. What level of source fidelity is required?
+11. Should the walkthrough quote and explain exact code fragments, or paraphrase structure with references only?
+12. What output form do you want?
+13. What chapter or section structure, if any, should be used?
+14. What depth should be assumed for the intended reader?
+15. What prior knowledge may be assumed?
+16. Are there design docs, ADRs, tickets, specs, PRs, or incident reports that must be treated as supporting context?
+17. Should tests be used as normative evidence of intended behavior?
+18. Should generated code, vendored code, migrations, config, and infrastructure files be included or excluded?
+19. Are version history and recent architectural changes part of the walkthrough, or should it be strictly snapshot-based?
+20. Are known bugs, legacy seams, TODOs, or risky areas required content?
+21. Are there naming, terminology, or product-language constraints I must preserve?
+22. Are there confidentiality or redaction constraints for identifiers, secrets, customer names, or internal URLs?
+23. Do you want diagrams, tables, call graphs, sequence narratives, or only prose?
+24. Should the walkthrough optimize for onboarding, maintenance, debugging, extension, auditability, or rewrite planning?
+25. What would make the walkthrough unacceptable even if technically accurate?
+26. What are the acceptance criteria for signing off the walkthrough?
+
+**Frozen Contract Before Code Inspection**
+
+I would freeze this contract before inspecting any code:
+
+- Scope: exact subsystem boundary, named inclusions, named exclusions.
+- Source of truth: repo plus branch/commit/tag/release and any approved supporting documents.
+- Audience: intended reader, assumed background, and target outcomes.
+- Completeness standard: what “complete” means for this walkthrough.
+- Coverage obligations: required flows, entrypoints, components, and artifacts to explain.
+- Fidelity rule: whether to use exact source-grounded excerpts, paraphrased explanations, or both.
+- Evidence rule: what counts as authoritative when code, tests, and docs disagree.
+- Deliverable shape: format, section structure, diagram expectations, and citation/reference style.
+- Constraints: redactions, terminology requirements, and out-of-scope material handling.
+- Acceptance criteria: objective conditions for “done.”
+
+No code inspection begins until you confirm that frozen contract.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"`\"What exact subsystem should the walkthrough cover?\"`\n\nRule for later turns: ask exactly one question per turn, wait for the answer, record it verbatim in the intake, then ask the next question. Do not merge questions, infer missing answers, or inspect code before the contract is frozen.\n\nLater questions, in order:\n\n1. What is the primary audience for this walkthrough?\n2. What should that audience be able to do or understand after reading it?\n3. What repository, branch, commit, tag, or release should be treated as the source of truth?\n4. What exact files, directories, modules, packages, or services are in scope?\n5. What exact files, directories, modules, packages, or services are explicitly out of scope?\n6. Does “complete” mean full source coverage of the scoped corpus, or only complete coverage of specific flows and concepts?\n7. Which runtime paths, user journeys, jobs, protocols, or request flows must be covered end to end?\n8. Are there specific entrypoints that define the subsystem boundary?\n9. Are there specific abstractions, classes, functions, schemas, or interfaces that must be explained in detail?\n10. What level of source fidelity is required?\n11. Should the walkthrough quote and explain exact code fragments, or paraphrase structure with references only?\n12. What output form do you want?\n13. What chapter or section structure, if any, should be used?\n14. What depth should be assumed for the intended reader?\n15. What prior knowledge may be assumed?\n16. Are there design docs, ADRs, tickets, specs, PRs, or incident reports that must be treated as supporting context?\n17. Should tests be used as normative evidence of intended behavior?\n18. Should generated code, vendored code, migrations, config, and infrastructure files be included or excluded?\n19. Are version history and recent architectural changes part of the walkthrough, or should it be strictly snapshot-based?\n20. Are known bugs, legacy seams, TODOs, or risky areas required content?\n21. Are there naming, terminology, or product-language constraints I must preserve?\n22. Are there confidentiality or redaction constraints for identifiers, secrets, customer names, or internal URLs?\n23. Do you want diagrams, tables, call graphs, sequence narratives, or only prose?\n24. Should the walkthrough optimize for onboarding, maintenance, debugging, extension, auditability, or rewrite planning?\n25. What would make the walkthrough unacceptable even if technically accurate?\n26. What are the acceptance criteria for signing off the walkthrough?\n\n**Frozen Contract Before Code Inspection**\n\nI would freeze this contract before inspecting any code:\n\n- Scope: exact subsystem boundary, named inclusions, named exclusions.\n- Source of truth: repo plus branch/commit/tag/release and any approved supporting documents.\n- Audience: intended reader, assumed background, and target outcomes.\n- Completeness standard: what “complete” means for this walkthrough.\n- Coverage obligations: required flows, entrypoints, components, and artifacts to explain.\n- Fidelity rule: whether to use exact source-grounded excerpts, paraphrased explanations, or both.\n- Evidence rule: what counts as authoritative when code, tests, and docs disagree.\n- Deliverable shape: format, section structure, diagram expectations, and citation/reference style.\n- Constraints: redactions, terminology requirements, and out-of-scope material handling.\n- Acceptance criteria: objective conditions for “done.”\n\nNo code inspection begins until you confirm that frozen contract."}}
+{"type":"turn.completed","usage":{"input_tokens":11827,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1229,"reasoning_output_tokens":516}}
+
+## Blind sample Ember
+
+### Final answer
+
+**First Turn**
+
+> "What exact subsystem should the walkthrough cover?"
+
+**Question Order Rule**
+
+Ask exactly one question per turn. Record the answer in a running intake record before asking the next question.
+
+**Later Questions**
+
+1. What decision or outcome should this walkthrough enable?
+2. Who is the primary audience, and what is their assumed technical baseline?
+3. What depth do you want: executive overview, engineer onboarding, maintenance guide, or implementation deep dive?
+4. What is explicitly in scope for the subsystem?
+5. What is explicitly out of scope?
+6. Which repository, branch, commit, build, or deployment version should be treated as the source of truth?
+7. Which runtime flow, user journey, or operational scenario should anchor the walkthrough first?
+8. What are the current pain points, unknowns, or failure modes you most want clarified?
+9. What deliverable shape do you want: narrative document, annotated outline, diagram set, API trace, call-chain map, or mixed format?
+10. What constraints apply to the walkthrough: time budget, length, confidentiality, redaction, or prohibited areas?
+11. What evidence standard should I use: code only, code plus tests, code plus docs, or code plus runtime/config artifacts?
+12. What counts as done for you?
+
+**Frozen Contract Before Inspecting Code**
+
+I would freeze a short written contract with these fields:
+
+- Subsystem identifier
+- Objective of the walkthrough
+- Primary audience and assumed baseline
+- Depth level
+- In-scope boundaries
+- Out-of-scope boundaries
+- Source-of-truth code revision/environment
+- Anchor flow(s) to trace first
+- Required deliverable format
+- Evidence sources allowed
+- Constraints and redactions
+- Acceptance criteria for completion
+
+Once that contract is frozen, only then would I inspect code.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**First Turn**\n\n> \"What exact subsystem should the walkthrough cover?\"\n\n**Question Order Rule**\n\nAsk exactly one question per turn. Record the answer in a running intake record before asking the next question.\n\n**Later Questions**\n\n1. What decision or outcome should this walkthrough enable?\n2. Who is the primary audience, and what is their assumed technical baseline?\n3. What depth do you want: executive overview, engineer onboarding, maintenance guide, or implementation deep dive?\n4. What is explicitly in scope for the subsystem?\n5. What is explicitly out of scope?\n6. Which repository, branch, commit, build, or deployment version should be treated as the source of truth?\n7. Which runtime flow, user journey, or operational scenario should anchor the walkthrough first?\n8. What are the current pain points, unknowns, or failure modes you most want clarified?\n9. What deliverable shape do you want: narrative document, annotated outline, diagram set, API trace, call-chain map, or mixed format?\n10. What constraints apply to the walkthrough: time budget, length, confidentiality, redaction, or prohibited areas?\n11. What evidence standard should I use: code only, code plus tests, code plus docs, or code plus runtime/config artifacts?\n12. What counts as done for you?\n\n**Frozen Contract Before Inspecting Code**\n\nI would freeze a short written contract with these fields:\n\n- Subsystem identifier\n- Objective of the walkthrough\n- Primary audience and assumed baseline\n- Depth level\n- In-scope boundaries\n- Out-of-scope boundaries\n- Source-of-truth code revision/environment\n- Anchor flow(s) to trace first\n- Required deliverable format\n- Evidence sources allowed\n- Constraints and redactions\n- Acceptance criteria for completion\n\nOnce that contract is frozen, only then would I inspect code."}}
+{"type":"turn.completed","usage":{"input_tokens":11721,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":893,"reasoning_output_tokens":516}}
+
+## Blind sample Harbor
+
+### Final answer
+
+> “What exact subsystem are we walking through, and what outcome should the walkthrough enable for its audience?”
+
+Rule for the rest of the intake: ask exactly one question per turn, record the answer, then choose the next question based on that answer before continuing.
+
+Later questions, in order:
+
+1. Who is the primary audience for this walkthrough?
+2. What is their starting level with the codebase, language, framework, and business domain?
+3. What is the scope boundary?
+4. What is explicitly out of scope?
+5. Is the goal comprehension, onboarding, debugging, modification, incident response, design review, or handoff?
+6. What deliverable format do you want?
+7. What level of depth do you want?
+8. Should the walkthrough prioritize runtime behavior, static structure, data flow, control flow, APIs, state management, persistence, concurrency, security, performance, or operations?
+9. Are there specific scenarios, requests, jobs, or user journeys the walkthrough must trace end to end?
+10. Are there known pain points, confusing areas, or failure modes that must receive extra attention?
+11. Should the walkthrough explain historical design intent and tradeoffs, or only current behavior?
+12. Do you want diagrams, tables, glossaries, or sequence narratives included?
+13. What evidence standard should be used for claims?
+14. How should uncertainty be handled when the code is ambiguous or inconsistent?
+15. Are there repository, privacy, compliance, or redaction constraints on what may be quoted or described?
+16. Should the walkthrough include defects, risks, and technical debt, or stay descriptive only?
+17. What tone should the final walkthrough use?
+18. What length target or time-to-read target should it hit?
+19. What acceptance criteria will make you say the walkthrough is complete?
+20. Is there anything else that must be true before I inspect the code?
+
+**Frozen Contract Before Inspecting Code**
+
+I would freeze this contract:
+
+- Objective: one explicit walkthrough goal, stated in user terms.
+- Audience: one named primary audience with known baseline knowledge.
+- Scope: named subsystem, entry points, and hard boundaries.
+- Output: exact deliverable format and target depth.
+- Priorities: ordered topics to emphasize.
+- Scenarios: required end-to-end traces to cover.
+- Constraints: redaction, compliance, quoting, and evidence rules.
+- Review posture: descriptive only, or descriptive plus risks/defects.
+- Acceptance: concrete completion criteria.
+
+Once that contract is frozen, I would inspect code only to satisfy that contract and not silently expand scope.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"> “What exact subsystem are we walking through, and what outcome should the walkthrough enable for its audience?”\n\nRule for the rest of the intake: ask exactly one question per turn, record the answer, then choose the next question based on that answer before continuing.\n\nLater questions, in order:\n\n1. Who is the primary audience for this walkthrough?\n2. What is their starting level with the codebase, language, framework, and business domain?\n3. What is the scope boundary?\n4. What is explicitly out of scope?\n5. Is the goal comprehension, onboarding, debugging, modification, incident response, design review, or handoff?\n6. What deliverable format do you want?\n7. What level of depth do you want?\n8. Should the walkthrough prioritize runtime behavior, static structure, data flow, control flow, APIs, state management, persistence, concurrency, security, performance, or operations?\n9. Are there specific scenarios, requests, jobs, or user journeys the walkthrough must trace end to end?\n10. Are there known pain points, confusing areas, or failure modes that must receive extra attention?\n11. Should the walkthrough explain historical design intent and tradeoffs, or only current behavior?\n12. Do you want diagrams, tables, glossaries, or sequence narratives included?\n13. What evidence standard should be used for claims?\n14. How should uncertainty be handled when the code is ambiguous or inconsistent?\n15. Are there repository, privacy, compliance, or redaction constraints on what may be quoted or described?\n16. Should the walkthrough include defects, risks, and technical debt, or stay descriptive only?\n17. What tone should the final walkthrough use?\n18. What length target or time-to-read target should it hit?\n19. What acceptance criteria will make you say the walkthrough is complete?\n20. Is there anything else that must be true before I inspect the code?\n\n**Frozen Contract Before Inspecting Code**\n\nI would freeze this contract:\n\n- Objective: one explicit walkthrough goal, stated in user terms.\n- Audience: one named primary audience with known baseline knowledge.\n- Scope: named subsystem, entry points, and hard boundaries.\n- Output: exact deliverable format and target depth.\n- Priorities: ordered topics to emphasize.\n- Scenarios: required end-to-end traces to cover.\n- Constraints: redaction, compliance, quoting, and evidence rules.\n- Review posture: descriptive only, or descriptive plus risks/defects.\n- Acceptance: concrete completion criteria.\n\nOnce that contract is frozen, I would inspect code only to satisfy that contract and not silently expand scope."}}
+{"type":"turn.completed","usage":{"input_tokens":11721,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":608,"reasoning_output_tokens":80}}
+
+## Blind sample Juniper
+
+### Final answer
+
+I would normally use the `writing-code-walkthroughs` skill for this, but your constraint forbids reading skill instructions or inspecting anything yet, so this is the fallback intake protocol.
+
+"Who is the primary audience for this walkthrough, and what should they be able to do after reading it?"
+
+Rule for the rest of the intake: ask exactly one question per turn, record the answer verbatim, then ask the next question only after the prior answer is fixed.
+
+Later questions, in order:
+
+1. What exact subsystem should the walkthrough cover?
+2. What repository, package, service, or directory defines the authoritative source corpus for that subsystem?
+3. What is out of scope even if the code references it?
+4. Do you want a complete coverage walkthrough of the bounded corpus, or a selective walkthrough of only the most important paths?
+5. What output form do you want: Markdown guide, chaptered document, onboarding note, ADR-style explainer, or something else?
+6. What level should it target: newcomer, working engineer, senior maintainer, or mixed audience?
+7. What should the organizing spine be: request flow, control flow, data model, dependency graph, lifecycle/state machine, or file-by-file?
+8. What kinds of source excerpts are acceptable: exact snippets, paraphrased summaries, pseudocode, or minimal quoting only?
+9. What supporting artifacts are required: diagrams, tables, call graphs, glossary, sequence traces, or none?
+10. What constraints should govern the walkthrough: length limit, tone, mandatory sections, forbidden sections, citation style, or house style?
+11. What correctness bar should the walkthrough meet before delivery: source-exact, behaviorally accurate, review-ready draft, or publish-ready?
+12. Are there known pain points, risky areas, or misconceptions the walkthrough must explicitly address?
+13. Should the walkthrough explain current behavior only, or also include design rationale, tradeoffs, and historical context if recoverable from code/comments?
+14. What final acceptance criteria will tell you the walkthrough is complete?
+
+**Frozen Contract**
+Before inspecting code, I would freeze this contract:
+
+- `Audience`: named reader and expected post-read capability.
+- `Subsystem`: exact name and boundary.
+- `Source corpus`: authoritative repo/path/module set to inspect.
+- `Out of scope`: explicit exclusions.
+- `Coverage mode`: complete bounded coverage or selective coverage.
+- `Document form`: target artifact and structure expectations.
+- `Explanatory spine`: the ordering principle for the walkthrough.
+- `Excerpt policy`: how literally source may be quoted.
+- `Required artifacts`: diagrams/tables/glossary/traces.
+- `Style constraints`: tone, length, section requirements, citation rules.
+- `Accuracy standard`: draft vs review-ready vs publish-ready.
+- `Acceptance criteria`: concrete definition of done.
+
+Once that contract is frozen, only then would inspection start.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I would normally use the `writing-code-walkthroughs` skill for this, but your constraint forbids reading skill instructions or inspecting anything yet, so this is the fallback intake protocol.\n\n\"Who is the primary audience for this walkthrough, and what should they be able to do after reading it?\"\n\nRule for the rest of the intake: ask exactly one question per turn, record the answer verbatim, then ask the next question only after the prior answer is fixed.\n\nLater questions, in order:\n\n1. What exact subsystem should the walkthrough cover?\n2. What repository, package, service, or directory defines the authoritative source corpus for that subsystem?\n3. What is out of scope even if the code references it?\n4. Do you want a complete coverage walkthrough of the bounded corpus, or a selective walkthrough of only the most important paths?\n5. What output form do you want: Markdown guide, chaptered document, onboarding note, ADR-style explainer, or something else?\n6. What level should it target: newcomer, working engineer, senior maintainer, or mixed audience?\n7. What should the organizing spine be: request flow, control flow, data model, dependency graph, lifecycle/state machine, or file-by-file?\n8. What kinds of source excerpts are acceptable: exact snippets, paraphrased summaries, pseudocode, or minimal quoting only?\n9. What supporting artifacts are required: diagrams, tables, call graphs, glossary, sequence traces, or none?\n10. What constraints should govern the walkthrough: length limit, tone, mandatory sections, forbidden sections, citation style, or house style?\n11. What correctness bar should the walkthrough meet before delivery: source-exact, behaviorally accurate, review-ready draft, or publish-ready?\n12. Are there known pain points, risky areas, or misconceptions the walkthrough must explicitly address?\n13. Should the walkthrough explain current behavior only, or also include design rationale, tradeoffs, and historical context if recoverable from code/comments?\n14. What final acceptance criteria will tell you the walkthrough is complete?\n\n**Frozen Contract**\nBefore inspecting code, I would freeze this contract:\n\n- `Audience`: named reader and expected post-read capability.\n- `Subsystem`: exact name and boundary.\n- `Source corpus`: authoritative repo/path/module set to inspect.\n- `Out of scope`: explicit exclusions.\n- `Coverage mode`: complete bounded coverage or selective coverage.\n- `Document form`: target artifact and structure expectations.\n- `Explanatory spine`: the ordering principle for the walkthrough.\n- `Excerpt policy`: how literally source may be quoted.\n- `Required artifacts`: diagrams/tables/glossary/traces.\n- `Style constraints`: tone, length, section requirements, citation rules.\n- `Accuracy standard`: draft vs review-ready vs publish-ready.\n- `Acceptance criteria`: concrete definition of done.\n\nOnce that contract is frozen, only then would inspection start."}}
+{"type":"turn.completed","usage":{"input_tokens":11827,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1106,"reasoning_output_tokens":516}}
+
+## Blind sample Lichen
+
+### Final answer
+
+**First Turn**
+> "Which subsystem, by exact name or path, do you want the walkthrough to cover?"
+
+**Rule For Later Intake**
+I would ask exactly one question per turn, record your answer, and only then ask the next question.
+
+**Later Questions In Order**
+1. What is the primary goal of this walkthrough: onboarding, maintenance, debugging, audit, refactor prep, or architecture documentation?
+2. Who is the intended reader, and what is their expected technical baseline?
+3. What output shape do you want: narrative walkthrough, annotated call flow, sequence diagram notes, file-by-file map, or a mixed format?
+4. What depth should the walkthrough reach: conceptual overview, execution path detail, or line-level behavior?
+5. What are the hard scope boundaries: included components, excluded components, and adjacent systems that may be referenced but not unpacked?
+6. What is the authoritative entrypoint for the subsystem: API, job, CLI command, event consumer, UI action, or another trigger?
+7. Which runtime context matters: local dev, production behavior, specific environment, or a particular deployment mode?
+8. Are there known pain points, risks, or confusing areas that the walkthrough must prioritize?
+9. Should the walkthrough include data flow, control flow, state transitions, error handling, concurrency, and external dependencies, or only a subset?
+10. What artifacts are allowed in the final deliverable: prose only, tables, diagrams described in text, code excerpts, glossary, checklist, or FAQ?
+11. Are there repository areas or file types that must not be inspected or cited?
+12. Should the walkthrough explain historical design intent if inferable, or remain strictly limited to present behavior?
+13. What level of certainty labeling do you want for inferred behavior versus directly evidenced behavior?
+14. What acceptance criteria will tell you the walkthrough is complete and usable?
+
+**Contract To Freeze Before Inspecting Code**
+- Objective: produce a complete walkthrough for the named subsystem aligned to the stated goal.
+- Audience: fixed to the reader profile you provide.
+- Scope: fixed inclusions, exclusions, and allowed adjacent references.
+- Entrypoint: fixed starting trigger or execution path.
+- Depth: fixed analysis level and artifact format.
+- Evidence policy: distinguish observed facts from inference; no unstated assumptions.
+- Coverage policy: include only the dimensions you approve, such as control flow, data flow, state, errors, dependencies, and operational context.
+- Source boundary: inspect only approved repository areas and artifact types.
+- Completion standard: fixed acceptance criteria agreed up front.
+- Change control: if scope changes after freeze, I stop and renegotiate the contract before inspecting code.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**First Turn**\n> \"Which subsystem, by exact name or path, do you want the walkthrough to cover?\"\n\n**Rule For Later Intake**\nI would ask exactly one question per turn, record your answer, and only then ask the next question.\n\n**Later Questions In Order**\n1. What is the primary goal of this walkthrough: onboarding, maintenance, debugging, audit, refactor prep, or architecture documentation?\n2. Who is the intended reader, and what is their expected technical baseline?\n3. What output shape do you want: narrative walkthrough, annotated call flow, sequence diagram notes, file-by-file map, or a mixed format?\n4. What depth should the walkthrough reach: conceptual overview, execution path detail, or line-level behavior?\n5. What are the hard scope boundaries: included components, excluded components, and adjacent systems that may be referenced but not unpacked?\n6. What is the authoritative entrypoint for the subsystem: API, job, CLI command, event consumer, UI action, or another trigger?\n7. Which runtime context matters: local dev, production behavior, specific environment, or a particular deployment mode?\n8. Are there known pain points, risks, or confusing areas that the walkthrough must prioritize?\n9. Should the walkthrough include data flow, control flow, state transitions, error handling, concurrency, and external dependencies, or only a subset?\n10. What artifacts are allowed in the final deliverable: prose only, tables, diagrams described in text, code excerpts, glossary, checklist, or FAQ?\n11. Are there repository areas or file types that must not be inspected or cited?\n12. Should the walkthrough explain historical design intent if inferable, or remain strictly limited to present behavior?\n13. What level of certainty labeling do you want for inferred behavior versus directly evidenced behavior?\n14. What acceptance criteria will tell you the walkthrough is complete and usable?\n\n**Contract To Freeze Before Inspecting Code**\n- Objective: produce a complete walkthrough for the named subsystem aligned to the stated goal.\n- Audience: fixed to the reader profile you provide.\n- Scope: fixed inclusions, exclusions, and allowed adjacent references.\n- Entrypoint: fixed starting trigger or execution path.\n- Depth: fixed analysis level and artifact format.\n- Evidence policy: distinguish observed facts from inference; no unstated assumptions.\n- Coverage policy: include only the dimensions you approve, such as control flow, data flow, state, errors, dependencies, and operational context.\n- Source boundary: inspect only approved repository areas and artifact types.\n- Completion standard: fixed acceptance criteria agreed up front.\n- Change control: if scope changes after freeze, I stop and renegotiate the contract before inspecting code."}}
+{"type":"turn.completed","usage":{"input_tokens":11721,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":764,"reasoning_output_tokens":217}}
+
+## Blind sample Quartz
+
+### Final answer
+
+**First Turn**
+> "Which exact subsystem should this walkthrough cover?"
+
+**Later Questions**
+Rule: ask exactly one question per turn, wait for the user's answer, record it, and only then ask the next question.
+
+1. What is the primary purpose of this walkthrough?
+2. Who is the intended audience?
+3. What decisions or tasks should a reader be able to perform after reading it?
+4. What is in scope for the walkthrough?
+5. What is explicitly out of scope?
+6. What form should the final deliverable take?
+7. What level of depth is required?
+8. Which runtime, deployment, or environment boundaries matter for this subsystem?
+9. Which entrypoints, interfaces, or user-visible behaviors matter most?
+10. Which risks, incidents, regressions, or confusing areas should receive extra attention?
+11. Are there specific architectural questions the walkthrough must answer?
+12. Are there required conventions for terminology, naming, or diagrams?
+13. Are there constraints on time, length, or reviewability?
+14. What evidence standard should I use for claims?
+15. What should be excluded even if it appears technically relevant?
+16. What would make the walkthrough unacceptable?
+
+**Contract To Freeze Before Inspecting Code**
+I would freeze this contract before any code inspection begins:
+
+- Named subsystem: exact subsystem identifier and boundary.
+- Objective: what the walkthrough is meant to achieve.
+- Audience: who will read it and their expected baseline knowledge.
+- Deliverable: format, structure, and expected artifacts.
+- Scope: what components, layers, and behaviors are included.
+- Exclusions: what is deliberately omitted.
+- Depth: overview, implementation detail, operational detail, and failure-mode coverage.
+- Priority questions: the specific questions the walkthrough must answer.
+- Evidence rule: whether every statement must be traceable to code, config, tests, docs, or runtime artifacts.
+- Terminology: canonical names to use.
+- Constraints: time, length, confidentiality, and style requirements.
+- Acceptance criteria: what must be true for the walkthrough to be considered complete.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**First Turn**\n> \"Which exact subsystem should this walkthrough cover?\"\n\n**Later Questions**\nRule: ask exactly one question per turn, wait for the user's answer, record it, and only then ask the next question.\n\n1. What is the primary purpose of this walkthrough?\n2. Who is the intended audience?\n3. What decisions or tasks should a reader be able to perform after reading it?\n4. What is in scope for the walkthrough?\n5. What is explicitly out of scope?\n6. What form should the final deliverable take?\n7. What level of depth is required?\n8. Which runtime, deployment, or environment boundaries matter for this subsystem?\n9. Which entrypoints, interfaces, or user-visible behaviors matter most?\n10. Which risks, incidents, regressions, or confusing areas should receive extra attention?\n11. Are there specific architectural questions the walkthrough must answer?\n12. Are there required conventions for terminology, naming, or diagrams?\n13. Are there constraints on time, length, or reviewability?\n14. What evidence standard should I use for claims?\n15. What should be excluded even if it appears technically relevant?\n16. What would make the walkthrough unacceptable?\n\n**Contract To Freeze Before Inspecting Code**\nI would freeze this contract before any code inspection begins:\n\n- Named subsystem: exact subsystem identifier and boundary.\n- Objective: what the walkthrough is meant to achieve.\n- Audience: who will read it and their expected baseline knowledge.\n- Deliverable: format, structure, and expected artifacts.\n- Scope: what components, layers, and behaviors are included.\n- Exclusions: what is deliberately omitted.\n- Depth: overview, implementation detail, operational detail, and failure-mode coverage.\n- Priority questions: the specific questions the walkthrough must answer.\n- Evidence rule: whether every statement must be traceable to code, config, tests, docs, or runtime artifacts.\n- Terminology: canonical names to use.\n- Constraints: time, length, confidentiality, and style requirements.\n- Acceptance criteria: what must be true for the walkthrough to be considered complete."}}
+{"type":"turn.completed","usage":{"input_tokens":11721,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":568,"reasoning_output_tokens":144}}
+
+## Blind sample Sable
+
+### Final answer
+
+`"What exact subsystem should the walkthrough cover?"`
+
+Rule for later turns: ask exactly one question per turn, record the answer verbatim, resolve ambiguities before moving on, and never ask the next question until the current answer is fixed.
+
+Later questions, in order:
+
+1. Who is the primary audience for this walkthrough?
+2. What outcome should that audience achieve after reading it?
+3. What repository, branch, commit, or snapshot should be treated as the source of truth?
+4. What exact files, directories, and generated artifacts are in scope?
+5. What files, directories, topics, and dependencies are explicitly out of scope?
+6. Must the walkthrough cover the full in-scope corpus completely, or may it be selective?
+7. Should the walkthrough explain code in execution order, architectural layers, data flow, or another ordering?
+8. What level of source exactness is required for quoted snippets and symbol names?
+9. What level of detail is expected for APIs, state, control flow, data structures, and failure paths?
+10. Which runtime environments, feature flags, configs, or deployment modes matter for this subsystem?
+11. What known pain points, confusing areas, or historically buggy paths should receive extra scrutiny?
+12. Are tests, benchmarks, scripts, schemas, migrations, or observability assets part of the walkthrough?
+13. Should external dependencies be explained, and if so, how deeply?
+14. What output format is required: book chapter, Markdown guide, ADR-style document, inline repo docs, or something else?
+15. What structural constraints apply: required sections, maximum length, diagram policy, snippet policy, citation style?
+16. Should the walkthrough include unresolved questions, risks, and suspected dead code, or remain purely explanatory?
+17. What confidentiality or redaction rules apply to code excerpts, identifiers, credentials, and internal URLs?
+18. What is the acceptance bar for completion and review?
+
+Contract to freeze before inspecting code:
+
+- Subsystem identity: exact name and boundary.
+- Audience: primary reader and prerequisite knowledge.
+- Reader outcome: what the walkthrough must enable.
+- Source of truth: repo, branch, commit, and any environment assumptions.
+- In-scope corpus: exact paths and artifact types to cover.
+- Out-of-scope corpus: exact exclusions.
+- Coverage rule: complete coverage vs selective coverage.
+- Explanatory ordering: execution, architecture, data flow, or agreed alternative.
+- Fidelity rule: how exact snippets, names, and references must be.
+- Depth rule: what must be covered in detail and what can be summarized.
+- Runtime context: configs, flags, and modes that affect meaning.
+- Deliverable format: document type, structure, and length constraints.
+- Evidence rule: every explanation must trace back to inspected source.
+- Open-issues policy: whether to include ambiguities, risks, and questions.
+- Redaction policy: what cannot appear in the final text.
+- Completion criteria: the explicit standard for “done.”
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"`\"What exact subsystem should the walkthrough cover?\"`\n\nRule for later turns: ask exactly one question per turn, record the answer verbatim, resolve ambiguities before moving on, and never ask the next question until the current answer is fixed.\n\nLater questions, in order:\n\n1. Who is the primary audience for this walkthrough?\n2. What outcome should that audience achieve after reading it?\n3. What repository, branch, commit, or snapshot should be treated as the source of truth?\n4. What exact files, directories, and generated artifacts are in scope?\n5. What files, directories, topics, and dependencies are explicitly out of scope?\n6. Must the walkthrough cover the full in-scope corpus completely, or may it be selective?\n7. Should the walkthrough explain code in execution order, architectural layers, data flow, or another ordering?\n8. What level of source exactness is required for quoted snippets and symbol names?\n9. What level of detail is expected for APIs, state, control flow, data structures, and failure paths?\n10. Which runtime environments, feature flags, configs, or deployment modes matter for this subsystem?\n11. What known pain points, confusing areas, or historically buggy paths should receive extra scrutiny?\n12. Are tests, benchmarks, scripts, schemas, migrations, or observability assets part of the walkthrough?\n13. Should external dependencies be explained, and if so, how deeply?\n14. What output format is required: book chapter, Markdown guide, ADR-style document, inline repo docs, or something else?\n15. What structural constraints apply: required sections, maximum length, diagram policy, snippet policy, citation style?\n16. Should the walkthrough include unresolved questions, risks, and suspected dead code, or remain purely explanatory?\n17. What confidentiality or redaction rules apply to code excerpts, identifiers, credentials, and internal URLs?\n18. What is the acceptance bar for completion and review?\n\nContract to freeze before inspecting code:\n\n- Subsystem identity: exact name and boundary.\n- Audience: primary reader and prerequisite knowledge.\n- Reader outcome: what the walkthrough must enable.\n- Source of truth: repo, branch, commit, and any environment assumptions.\n- In-scope corpus: exact paths and artifact types to cover.\n- Out-of-scope corpus: exact exclusions.\n- Coverage rule: complete coverage vs selective coverage.\n- Explanatory ordering: execution, architecture, data flow, or agreed alternative.\n- Fidelity rule: how exact snippets, names, and references must be.\n- Depth rule: what must be covered in detail and what can be summarized.\n- Runtime context: configs, flags, and modes that affect meaning.\n- Deliverable format: document type, structure, and length constraints.\n- Evidence rule: every explanation must trace back to inspected source.\n- Open-issues policy: whether to include ambiguities, risks, and questions.\n- Redaction policy: what cannot appear in the final text.\n- Completion criteria: the explicit standard for “done.”"}}
+{"type":"turn.completed","usage":{"input_tokens":11827,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1126,"reasoning_output_tokens":516}}
+
+## Blind sample Vale
+
+### Final answer
+
+**First Turn**
+> Which subsystem, exactly, should the walkthrough cover?
+
+**Rule**
+Ask exactly one question per turn. Record the user’s answer verbatim, normalize any defined terms, and do not ask the next question until the current answer is confirmed.
+
+**Later Questions**
+1. Who is the primary audience for this walkthrough?
+2. What outcome should the walkthrough enable for that audience?
+3. What form should the final deliverable take?
+4. What depth do you want: high-level orientation, implementation-level trace, or both?
+5. What is explicitly in scope?
+6. What is explicitly out of scope?
+7. Which use cases, workflows, or execution paths must be covered?
+8. Which quality attributes matter most here: correctness, performance, reliability, security, operability, extensibility, or something else?
+9. Are there known pain points, confusing areas, or suspected risks I should pay special attention to?
+10. Do you want the walkthrough anchored around architecture, runtime behavior, data flow, control flow, public interfaces, or change history?
+11. Is there a specific revision, branch, release, or environment the walkthrough must target?
+12. Are there terminology, naming, or domain conventions I must preserve?
+13. What level of evidence do you want for claims: code citations only, code plus tests, or code plus runtime traces?
+14. Are there confidentiality, compliance, or redaction constraints on the output?
+15. What would make you reject the walkthrough as incomplete or wrong?
+
+**Freeze Contract Before Inspecting Code**
+Before any inspection, freeze this contract:
+
+- Target subsystem: exact boundary and name.
+- Audience: who the walkthrough is for.
+- Objective: what the walkthrough must help them do.
+- Deliverable: format and expected structure.
+- Depth: overview, deep dive, or both.
+- Scope: included components and excluded areas.
+- Required paths: workflows and scenarios that must be traced.
+- Priority lenses: architecture, data flow, control flow, APIs, runtime, tests, risks.
+- Baseline: branch/version/environment to treat as source of truth.
+- Evidence standard: how every claim will be supported.
+- Constraints: redaction, compliance, terminology, and time/length limits.
+- Acceptance criteria: the conditions for “complete.”
+
+No code inspection starts until that contract is confirmed.
+
+### Raw events
+
+{"type":"thread.started","thread_id":"<redacted>"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**First Turn**\n> Which subsystem, exactly, should the walkthrough cover?\n\n**Rule**\nAsk exactly one question per turn. Record the user’s answer verbatim, normalize any defined terms, and do not ask the next question until the current answer is confirmed.\n\n**Later Questions**\n1. Who is the primary audience for this walkthrough?\n2. What outcome should the walkthrough enable for that audience?\n3. What form should the final deliverable take?\n4. What depth do you want: high-level orientation, implementation-level trace, or both?\n5. What is explicitly in scope?\n6. What is explicitly out of scope?\n7. Which use cases, workflows, or execution paths must be covered?\n8. Which quality attributes matter most here: correctness, performance, reliability, security, operability, extensibility, or something else?\n9. Are there known pain points, confusing areas, or suspected risks I should pay special attention to?\n10. Do you want the walkthrough anchored around architecture, runtime behavior, data flow, control flow, public interfaces, or change history?\n11. Is there a specific revision, branch, release, or environment the walkthrough must target?\n12. Are there terminology, naming, or domain conventions I must preserve?\n13. What level of evidence do you want for claims: code citations only, code plus tests, or code plus runtime traces?\n14. Are there confidentiality, compliance, or redaction constraints on the output?\n15. What would make you reject the walkthrough as incomplete or wrong?\n\n**Freeze Contract Before Inspecting Code**\nBefore any inspection, freeze this contract:\n\n- Target subsystem: exact boundary and name.\n- Audience: who the walkthrough is for.\n- Objective: what the walkthrough must help them do.\n- Deliverable: format and expected structure.\n- Depth: overview, deep dive, or both.\n- Scope: included components and excluded areas.\n- Required paths: workflows and scenarios that must be traced.\n- Priority lenses: architecture, data flow, control flow, APIs, runtime, tests, risks.\n- Baseline: branch/version/environment to treat as source of truth.\n- Evidence standard: how every claim will be supported.\n- Constraints: redaction, compliance, terminology, and time/length limits.\n- Acceptance criteria: the conditions for “complete.”\n\nNo code inspection starts until that contract is confirmed."}}
+{"type":"turn.completed","usage":{"input_tokens":11721,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":770,"reasoning_output_tokens":291}}
+

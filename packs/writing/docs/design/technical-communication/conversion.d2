@@ -1,0 +1,36 @@
+direction: down
+
+classes: {
+  start: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+  decide: {shape: diamond}
+  never: {style: {fill: "#e5e7eb"; stroke: "#6b7280"}}
+}
+
+ask: "Start here:\nthe task needs an edit\nto an existing prose document" {class: start}
+excluded: "Never-convert class?\n(licence, vendored, generated,\nhistorical, quotation, LICENSES/)" {class: decide}
+leave: "Edit only; leave the\nwording as it is" {class: never}
+check: "Run the checker on\nthe whole document"
+clean: "Clean, or every finding\nalready accepted?" {class: decide}
+large: "Too large for this session?\n(over 3,000 prose words or\nover 60 hard findings)" {class: decide}
+whole: "Convert the whole document"
+part: "Convert the sections the edit\ntouches; wrap the rest in\ntc: pending regions"
+may: "May this session\ncreate changes?" {class: decide}
+land: "Land the conversion first:\njj split -m \"<handle>: convert <doc>\" <doc>"
+stop: "Stop and ask the human\nto land it, or to allow it"
+edit: "Make the requested edit"
+gate: "Gate reports findings;\nfix them, or mark a\njustified departure"
+
+ask -> excluded: "1"
+excluded -> leave: "yes"
+excluded -> check: "no"
+check -> clean: "2"
+clean -> edit: "yes"
+clean -> large: "no"
+large -> whole: "no"
+large -> part: "yes"
+whole -> may: "3"
+part -> may: "3"
+may -> land: "yes"
+may -> stop: "no"
+land -> edit: "4"
+edit -> gate: "5"

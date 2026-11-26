@@ -1,0 +1,12 @@
+Design the exposition and assurance plan for a multi-page code walkthrough of a
+key-value service. Readers know the implementation language and storage APIs but
+not this service's domain. The only established codebase fact is that a
+NormalizedKey is the canonical tenant-qualified identity. An early page explains
+that fact. A later mutation page must use the meaning while explaining a write
+path, and an early source fragment is relevant again there. Decide what the later
+page states locally, what it links to, and whether it repeats the source fragment.
+Include one representative later-page paragraph and state the prose rules for
+claims, stable vocabulary, explicit actors, and failure categories. Then specify
+mechanical checks and independent review before publication. Do not call tools. Do not invent
+implementation names or behavior: express unknown implementation details as
+placeholders or verification obligations.

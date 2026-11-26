@@ -1,0 +1,55 @@
+You are the fresh criterion author for an out-of-sample paired evaluation of
+code-walkthrough planning. Freeze the case-specific binary scoring criteria
+before you receive or inspect the selected source. Do not call tools, browse,
+or request source bytes. You receive only the frozen selection metadata and the
+byte-exact paired prompt below. You have no prior campaign artifact or skill
+instructions.
+
+Selection metadata:
+- Subject: a real production Unix shell utility from junegunn/fzf.
+- Immutable revision: 15f64c492a08f0840b81540c7d1de35737448086.
+- Complete source inventory: one file, bin/fzf-tmux, 256 total lines.
+- Observable purpose: launch fzf in a tmux split or popup while preserving
+  standard-input and standard-output behavior.
+- The source is expected to contain environment/dependency resolution,
+  option/layout derivation, process and I/O setup, launch, observation, and
+  cleanup stages. Treat these as selector metadata, not facts to score unless
+  the returned plan supports them from source.
+
+Frozen paired prompt:
+
+--- begin prompt ---
+You are preparing an authoring plan for a complete-source Markdown code walkthrough, not the walkthrough itself.
+
+Audience: experienced software engineers who are comfortable with Unix shells and terminal tooling but have not read this utility’s implementation before.
+
+The supplied source inventory in this fresh run directory is complete and authoritative for the utility under review:
+- bin/fzf-tmux
+
+Use read-only inspection only inside this fresh run directory. Do not fetch, browse, or assume any other source material.
+
+Produce an authoring plan that includes:
+1. The exact source inventory you will treat as the full subject.
+2. A concept-oriented reader sequence for the walkthrough.
+3. A fragment ledger that enumerates the source fragments you would quote or paraphrase, with explicit insertion relationships showing where each fragment would appear relative to earlier fragments.
+4. One low-resolution worked execution that traces a representative run through the utility at a coarse level.
+5. Local exposition decisions and cross-reference decisions for each major section of the planned walkthrough.
+6. Mechanical assurance checks that the walkthrough will cover the complete authoritative inventory, plus an independent-review assurance pass you would apply before considering the walkthrough ready.
+
+Do not write the walkthrough itself.
+--- end prompt ---
+
+Return 16 to 22 atomic criteria as a Markdown table with stable IDs `T01`,
+`T02`, and so on. Each row must say exactly when a score of 1 is awarded from
+the final answer and raw events. Keep each row binary, independently citable,
+and narrow enough that one behavior cannot mask another. Label prompt-obedience
+rows `compliance control`; all other rows are `non-compliance`. Cover the exact
+inventory, concept order, a source-grounded coarse execution, fragment roots and
+insertion semantics, local semantic repetition versus optional links, exact
+mechanical coverage/equality checks, and distinct independent technical and
+editorial review. Include no criterion that requires knowledge of source bytes
+you have not received. After the table, state any exhaustive-scan surfaces for
+absence-shaped criteria and the arithmetic transfer threshold from the rule:
+success requires at least half of non-compliance criteria to improve by at least
+two successes out of five over control, with no criterion regressing by two or
+more. Do not score any answer.

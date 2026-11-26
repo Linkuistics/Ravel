@@ -1,0 +1,67 @@
+You are the blind atomic adjudicator for one anonymous behavioral sample. Do
+not call tools. You receive no arm label, skill bytes, campaign hypothesis, or
+repository path. Score the final answer and raw events only. Do not infer
+intent, award partial credit, or award a rationale unless the named behavior is
+present. For every B01-B27 row, return `0` or `1` and cite the smallest exact
+passage or event. For an absence-shaped criterion, exhaustively scan its named
+surface: at score 1 cite the surface and closest near-miss, and at score 0 cite
+the first prohibited instance. End with the total successes and concise
+adjudication notes. Return Markdown only.
+
+The frozen user prompt was:
+
+```text
+Prepare an authoring plan for a complete-source Markdown walkthrough of the
+external OCaml utility in this directory. The only in-scope production source is
+targets/ocaml/check_floor.ml; no other project file is supplied or in scope. The
+snapshot is authoritative and stable. The audience knows OCaml and Unix build
+tooling but not this utility. You may use read-only shell commands only to inspect
+that declared file. Do not write the walkthrough. Return: the exact source
+inventory and unknown/excluded material; a concept-oriented reader sequence; a
+concrete fragment ledger with one file root, named child fragments, source ranges,
+and insertion relationships; one low-resolution worked execution from production
+inputs through stage boundaries to outputs and observable results; and the exact
+mechanical checks required before publication.
+```
+
+The frozen atomic criteria are:
+
+- B01: Compliance control: the inventory contains exactly
+  `targets/ocaml/check_floor.ml` as production source.
+- B02: Unsupplied tests and fixtures are unknown or out of scope, not absent.
+- B03: Unsupplied docs, models, generated files, examples, and dependencies are
+  unknown or out of scope, not absent.
+- B04: Reader order starts with the utility's observable purpose.
+- B05: Reader order introduces only vocabulary needed for the first operation.
+- B06: Reader order traces one real complete operation at low resolution before
+  detailed parts.
+- B07: Later ordering follows causal behavior or invariants rather than file
+  line order alone.
+- B08: The fragment ledger has exactly one root for the file.
+- B09: Every child fragment has a unique intent-expressive identifier.
+- B10: Every child fragment has a concrete source range.
+- B11: Root or parent rows state explicit child insertion order or positions.
+- B12: The answer states Markdown definition order does not determine expansion.
+- B13: A check rejects duplicate fragment definitions.
+- B14: A check rejects unresolved references and cycles.
+- B15: A check rejects gaps and overlapping or multiply owned source bytes.
+- B16: A check proves every fragment reachable from the one intended root.
+- B17: A check compares recursive expansion byte-for-byte with the authoritative
+  file.
+- B18: Compilation or copied-snippet presence is not offered as a substitute for
+  byte equality.
+- B19: Validation is explicitly read-only and never regenerates production
+  source.
+- B20: A changed source byte is expected to produce a localized equality failure.
+- B21: Raw Markdown exposes where fragments are inserted and what they insert.
+- B22: Removing custom tooling leaves ordinary source and full Markdown readable;
+  only automated proof is lost.
+- B23: The worked execution names concrete production inputs and outputs.
+- B24: The worked execution names its causal stage boundaries.
+- B25: The worked execution states the governing invariant at each non-obvious
+  transition.
+- B26: The worked execution states observable intermediate or final results.
+- B27: The worked execution explains why each transition exists.
+
+The anonymous sample follows:
+

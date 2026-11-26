@@ -1,0 +1,37 @@
+| ID | Type | Award 1 iff... |
+|---|---|---|
+| T01 | compliance control | Raw events show no browsing, fetching, or consultation of material outside the fresh run directory for this task. |
+| T02 | compliance control | Raw events show read-only inspection only: no file writes, patches, commits, deletions, or other state-changing commands. |
+| T03 | compliance control | The final answer treats the complete authoritative subject as exactly one file, `bin/fzf-tmux`, and does not add any other file to the walkthrough subject inventory. |
+| T04 | compliance control | The final answer is an authoring plan, not the walkthrough itself: it proposes structure, fragments, executions, and checks without turning into full explanatory walkthrough prose. |
+| T05 | non-compliance | The plan explicitly lists the exact source inventory it will treat as complete, and that inventory is exactly `bin/fzf-tmux`. |
+| T06 | non-compliance | The plan provides an ordered, concept-oriented reader sequence for the walkthrough with at least five major sections or stages. |
+| T07 | non-compliance | The reader sequence is framed by concepts or responsibilities rather than only by file order, line order, or undifferentiated top-to-bottom retelling. |
+| T08 | non-compliance | The plan explicitly places the low-resolution worked execution at a specific point in the reader sequence relative to other major sections. |
+| T09 | non-compliance | The plan includes a fragment ledger with at least six distinct source fragments from `bin/fzf-tmux`. |
+| T10 | non-compliance | Every fragment-ledger entry names a concrete source root within `bin/fzf-tmux` precise enough to find the fragment again in the file. |
+| T11 | non-compliance | Every fragment-ledger entry after the first states an explicit insertion relationship relative to earlier fragment(s), such as appearing before, after, or between named prior entries. |
+| T12 | non-compliance | Every fragment-ledger entry states whether the planned walkthrough would quote that fragment directly or paraphrase it. |
+| T13 | non-compliance | The plan includes exactly one representative worked execution that is explicitly low-resolution or coarse-grained rather than line-by-line. |
+| T14 | non-compliance | The worked execution traces an ordered run across at least four coarse stages, covering entry conditions, option or layout derivation, launch or handoff, and exit observation or cleanup. |
+| T15 | non-compliance | For every major section in the reader sequence, the plan states a local exposition decision describing what that section will explain inline. |
+| T16 | non-compliance | For every major section in the reader sequence, the plan states a cross-reference decision that distinguishes required local semantic repetition from optional links or callbacks to other sections. |
+| T17 | non-compliance | The plan includes a mechanical assurance check that verifies complete coverage of the authoritative inventory, rather than relying on an informal claim of completeness. |
+| T18 | non-compliance | The plan includes an equality-style or partition-style mechanical check tying the fragment ledger back to the authoritative inventory, so omitted or orphaned source regions would be detectable. |
+| T19 | non-compliance | The plan includes a distinct independent technical review pass aimed at source fidelity, control-flow accuracy, behavioral claims, or execution correctness. |
+| T20 | non-compliance | The plan includes a distinct independent editorial review pass aimed at organization, clarity, redundancy control, terminology, and reader usability, separate from the technical review. |
+
+Exhaustive-scan surfaces for absence-shaped criteria:
+- Raw event log: check for external access and any non-read-only actions.
+- Final answer inventory statements: check for extra files or missing `bin/fzf-tmux`.
+- Final answer body outside headings/tables: check that it remains a plan rather than the walkthrough itself.
+- Reader-sequence section: check for ordered concept coverage and placement of the worked execution.
+- Fragment-ledger section: check per-entry roots, quote/paraphrase marking, and insertion semantics.
+- Worked-execution section: check that there is one coarse representative trace.
+- Assurance section: check for explicit mechanical completeness and equality/partition checks.
+- Review section: check for distinct independent technical and editorial passes.
+
+Arithmetic transfer threshold:
+- There are 16 non-compliance criteria (`T05`-`T20`).
+- Success therefore requires at least 8 of those 16 criteria to improve by at least 2 successes out of 5 over control.
+- No criterion may regress by 2 or more successes out of 5.

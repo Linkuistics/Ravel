@@ -1,0 +1,31 @@
+#!/bin/sh
+# tc-hook HARNESS EVENT
+#
+# The guard for the technical-communication hooks. A harness runs this file for
+# each event. It finds python3, passes the harness's payload (on standard input)
+# to tc_hook.py, and exits 0 on every path. A hook that fails must not block or
+# break a turn, so a missing python3, a broken script and a crash all end the
+# same way: nothing on standard output and exit status 0.
+#
+# Run it as `sh tc-hook ...`, so the file needs no execute bit.
+
+# No dirname: the harness may give the hook an empty PATH.
+case $0 in
+  */*) dir=${0%/*} ;;
+  *) dir=. ;;
+esac
+
+for python in python3 /usr/bin/python3 /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+  if command -v "$python" >/dev/null 2>&1; then
+    # -I: ignore PYTHONPATH and the user's site directory, so a stray module
+    # cannot shadow the standard library inside a hook. -I also ignores
+    # PYTHONDONTWRITEBYTECODE, so -B must stop the bytecode write itself.
+    # -B: write no bytecode. The hooks run in place from an installed source,
+    # such as a Homebrew keg, and a file written there changes the source's
+    # digest.
+    "$python" -I -B "$dir/tc_hook.py" "$@" 2>/dev/null
+    exit 0
+  fi
+done
+
+exit 0

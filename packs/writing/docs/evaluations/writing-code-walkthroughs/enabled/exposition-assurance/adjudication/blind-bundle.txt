@@ -1,0 +1,725 @@
+===== SAMPLE S01 =====
+
+FINAL ANSWER
+
+I would structure this as a bounded reuse rule: the later mutation page should restate only the minimum meaning needed to follow the write path, link back to the early identity page for the full definition and invariants, and repeat the earlier source fragment only if the reader must inspect its exact code to understand a control-flow or data-shape transition on the mutation page. If the later page only relies on the semantic fact that `NormalizedKey` is the canonical tenant-qualified identity, do not reprint the fragment; cite it and summarize its role locally. Reproduce it only when the later explanation would otherwise force the reader to page-hop mid-argument.
+
+On the later page, state locally:
+- `NormalizedKey` is the identity form used by the write path at the point where tenant-qualified targeting matters.
+- The walkthrough assumes the early page established how that identity is formed and why it is canonical.
+- Any step that depends on properties beyond that meaning is a verification obligation until the source is checked.
+
+Link to:
+- The early page section that defines `NormalizedKey`.
+- The earlier fragment anchor, if that fragment is the authoritative source for the identity transition reused here.
+- Any later placeholder note such as `[verify: where write path first requires canonical tenant-qualified identity]`.
+
+Representative later-page paragraph:
+
+“In this write path, the request is no longer discussed in terms of an unspecified caller key shape; from this point onward, the walkthrough tracks the operation by `NormalizedKey`, the canonical tenant-qualified identity established earlier. That earlier definition is not repeated here in full; see `[Identity Page §NormalizedKey]` and `[Source Fragment A]` for the code-level construction and contract. The claim made on this page is narrower: some actor in the mutation flow must either receive or derive `NormalizedKey` before performing tenant-scoped lookup, validation, or persistence steps. The exact function, ordering, and error handling remain `[verify in source]` until the implementation excerpt for this page is confirmed.”
+
+**Prose Rules**
+- Claims: Separate observed facts from walkthrough inferences. Every concrete behavior claim must be backed by a cited fragment or marked `[verify]`. Do not convert architectural expectations into assertions.
+- Stable vocabulary: Use one term per concept across pages. If `NormalizedKey` is the canonical tenant-qualified identity, do not later rename it as “resolved key”, “storage key”, or “scoped key” unless the code explicitly distinguishes those forms.
+- Explicit actors: Every step names an actor, even if provisional: “request handler”, “mutation coordinator”, “storage adapter”, or `[actor verify]`. Avoid actorless sentences like “the key is normalized” when the responsible component is unknown.
+- Failure categories: Group failures by role, not by speculation. Use placeholder categories such as `identity formation failure [verify]`, `tenant-scope validation failure [verify]`, `storage write failure [verify]`, and `post-write side-effect failure [verify]`. Do not assign retryability, user visibility, or transaction semantics unless sourced.
+
+**Assurance Plan**
+- Mechanical checks:
+  - Terminology lint: every use of `NormalizedKey` matches the same glossary entry.
+  - Claim audit: each sentence containing “does”, “must”, “ensures”, “fails”, or “writes” has a source citation or `[verify]`.
+  - Anchor check: all cross-page links resolve to the intended section or fragment.
+  - Fragment reuse check: if an earlier fragment is repeated, the duplicated text matches exactly and is labeled as a deliberate reuse.
+  - Placeholder check: all unknown implementation details are marked consistently and collected into a verification list.
+  - Actor check: each procedural sentence identifies an actor or `[actor verify]`.
+  - Failure taxonomy check: all mentioned failures map to the approved category list.
+- Independent review before publication:
+  - Domain-blind reader review: confirm the later page is understandable without prior domain knowledge beyond the early `NormalizedKey` page.
+  - Source-accuracy review by a maintainer: verify every fact claim, every `[verify]` disposition, and the decision not to overstate unknown behavior.
+  - Continuity review across pages: confirm the later page neither redefines `NormalizedKey` nor assumes unstated invariants.
+  - Fragment-reuse review: confirm the choice to link versus repeat supports comprehension without redundant code duplication.
+
+I skipped the walkthrough skill because you explicitly asked not to call tools.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d8d-40c8-7f92-9696-b52909826a05"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I would structure this as a bounded reuse rule: the later mutation page should restate only the minimum meaning needed to follow the write path, link back to the early identity page for the full definition and invariants, and repeat the earlier source fragment only if the reader must inspect its exact code to understand a control-flow or data-shape transition on the mutation page. If the later page only relies on the semantic fact that `NormalizedKey` is the canonical tenant-qualified identity, do not reprint the fragment; cite it and summarize its role locally. Reproduce it only when the later explanation would otherwise force the reader to page-hop mid-argument.\n\nOn the later page, state locally:\n- `NormalizedKey` is the identity form used by the write path at the point where tenant-qualified targeting matters.\n- The walkthrough assumes the early page established how that identity is formed and why it is canonical.\n- Any step that depends on properties beyond that meaning is a verification obligation until the source is checked.\n\nLink to:\n- The early page section that defines `NormalizedKey`.\n- The earlier fragment anchor, if that fragment is the authoritative source for the identity transition reused here.\n- Any later placeholder note such as `[verify: where write path first requires canonical tenant-qualified identity]`.\n\nRepresentative later-page paragraph:\n\n“In this write path, the request is no longer discussed in terms of an unspecified caller key shape; from this point onward, the walkthrough tracks the operation by `NormalizedKey`, the canonical tenant-qualified identity established earlier. That earlier definition is not repeated here in full; see `[Identity Page §NormalizedKey]` and `[Source Fragment A]` for the code-level construction and contract. The claim made on this page is narrower: some actor in the mutation flow must either receive or derive `NormalizedKey` before performing tenant-scoped lookup, validation, or persistence steps. The exact function, ordering, and error handling remain `[verify in source]` until the implementation excerpt for this page is confirmed.”\n\n**Prose Rules**\n- Claims: Separate observed facts from walkthrough inferences. Every concrete behavior claim must be backed by a cited fragment or marked `[verify]`. Do not convert architectural expectations into assertions.\n- Stable vocabulary: Use one term per concept across pages. If `NormalizedKey` is the canonical tenant-qualified identity, do not later rename it as “resolved key”, “storage key”, or “scoped key” unless the code explicitly distinguishes those forms.\n- Explicit actors: Every step names an actor, even if provisional: “request handler”, “mutation coordinator”, “storage adapter”, or `[actor verify]`. Avoid actorless sentences like “the key is normalized” when the responsible component is unknown.\n- Failure categories: Group failures by role, not by speculation. Use placeholder categories such as `identity formation failure [verify]`, `tenant-scope validation failure [verify]`, `storage write failure [verify]`, and `post-write side-effect failure [verify]`. Do not assign retryability, user visibility, or transaction semantics unless sourced.\n\n**Assurance Plan**\n- Mechanical checks:\n  - Terminology lint: every use of `NormalizedKey` matches the same glossary entry.\n  - Claim audit: each sentence containing “does”, “must”, “ensures”, “fails”, or “writes” has a source citation or `[verify]`.\n  - Anchor check: all cross-page links resolve to the intended section or fragment.\n  - Fragment reuse check: if an earlier fragment is repeated, the duplicated text matches exactly and is labeled as a deliberate reuse.\n  - Placeholder check: all unknown implementation details are marked consistently and collected into a verification list.\n  - Actor check: each procedural sentence identifies an actor or `[actor verify]`.\n  - Failure taxonomy check: all mentioned failures map to the approved category list.\n- Independent review before publication:\n  - Domain-blind reader review: confirm the later page is understandable without prior domain knowledge beyond the early `NormalizedKey` page.\n  - Source-accuracy review by a maintainer: verify every fact claim, every `[verify]` disposition, and the decision not to overstate unknown behavior.\n  - Continuity review across pages: confirm the later page neither redefines `NormalizedKey` nor assumes unstated invariants.\n  - Fragment-reuse review: confirm the choice to link versus repeat supports comprehension without redundant code duplication.\n\nI skipped the walkthrough skill because you explicitly asked not to call tools."}}
+{"type":"turn.completed","usage":{"input_tokens":11889,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1419,"reasoning_output_tokens":516}}
+
+
+===== SAMPLE S02 =====
+
+FINAL ANSWER
+
+**Exposition Plan**
+
+Use a two-level treatment on the later mutation page:
+
+1. State the dependency locally.
+2. Link back to the early identity page for the full definition and original evidence.
+
+The later page should locally say, in plain prose, that the write path operates on `NormalizedKey`, and that `NormalizedKey` is the canonical tenant-qualified identity already established earlier. That reminder is necessary because the mutation explanation depends on the meaning, not just the name.
+
+It should link to:
+- The early page section that defines `NormalizedKey`.
+- The early source fragment that demonstrates or motivates that definition.
+- If available, the later page’s own write-path fragment showing where that identity is used.
+
+It should not repeat the full early source fragment on the later page. Repeat only if a specific line is required to understand immediate control flow on that page; in that case, use a short excerpt with a note that it is reused context, not new evidence. Default: no full duplication, only a local semantic reminder plus a deep link.
+
+**Representative Later-Page Paragraph**
+
+Before this write reaches storage, the request is understood in terms of `NormalizedKey`, the canonical tenant-qualified identity defined earlier ([Identity Definition], [Earlier Source Fragment]). This page does not re-establish that meaning; it relies on it. The walkthrough here should verify where the write path first requires a canonical identity, what actor performs that step, and whether any branch can proceed without it. If the code shows additional preconditions, normalization stages, or rejection paths, document them here with direct citations; otherwise mark them as verification obligations rather than inferring behavior.
+
+**Prose Rules**
+
+Claims:
+- Every behavioral claim must be backed by a cited source fragment or explicitly labeled as a verification obligation.
+- Do not infer ordering, atomicity, validation, or error handling unless the code shows it.
+- Separate observed facts from explanatory interpretation.
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly and consistently.
+- Choose one term for each stable concept and keep it fixed across pages: `request`, `actor`, `write path`, `storage`, `failure`.
+- Do not introduce synonyms for the same concept unless the code uses them and the distinction matters.
+
+Explicit actors:
+- Every important sentence should name the actor.
+- Prefer forms like “the write-path entrypoint constructs...”, “the storage adapter receives...”, or “the caller handles...”.
+- If the actor is unknown from current evidence, say “an as-yet-unverified actor” and attach a verification obligation.
+
+Failure categories:
+- Classify failures by where they occur, not by guessed implementation detail.
+- Minimum categories: identity/precondition failure, storage operation failure, concurrency/order failure, and propagation/reporting failure.
+- Only populate a category when code evidence exists; otherwise leave it as a review prompt.
+
+**Mechanical Checks Before Publication**
+
+- Claim-to-citation check: every nontrivial claim has a source link or a verification-obligation label.
+- Vocabulary lint: `NormalizedKey` spelling is uniform; no drift between “tenant-qualified identity” and other aliases.
+- Actor check: each paragraph has explicit actors for key actions.
+- Failure taxonomy check: every mentioned failure is placed in an approved category.
+- Link check: all cross-page anchors and source-fragment links resolve.
+- Repetition check: no full duplicate fragment appears unless explicitly justified as necessary context.
+- Placeholder check: all unknown details are marked as `[verification required]` or equivalent, not narrated as fact.
+- Scope check: no domain explanation exceeds what the cited code supports.
+
+**Independent Review Before Publication**
+
+Use two reviewers:
+
+1. A code-familiar reviewer checks factual fidelity.
+   - Verifies each claim against code.
+   - Confirms no invented behavior, names, or guarantees.
+   - Confirms the later page uses `NormalizedKey` consistently with the early page.
+
+2. A domain-new reviewer checks readability.
+   - Verifies the later page is understandable without re-reading the entire early section.
+   - Confirms the local reminder is sufficient and the link is enough for deeper context.
+   - Flags any sentence where actor, obligation, or failure mode is unclear.
+
+Publication gate:
+- No uncited factual claims.
+- No unresolved wording drift around `NormalizedKey`.
+- No duplicated source fragment without a written justification.
+- All verification obligations either closed or explicitly carried as open review items.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d8e-e22d-7bc3-81b3-976738e7d1bb"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**Exposition Plan**\n\nUse a two-level treatment on the later mutation page:\n\n1. State the dependency locally.\n2. Link back to the early identity page for the full definition and original evidence.\n\nThe later page should locally say, in plain prose, that the write path operates on `NormalizedKey`, and that `NormalizedKey` is the canonical tenant-qualified identity already established earlier. That reminder is necessary because the mutation explanation depends on the meaning, not just the name.\n\nIt should link to:\n- The early page section that defines `NormalizedKey`.\n- The early source fragment that demonstrates or motivates that definition.\n- If available, the later page’s own write-path fragment showing where that identity is used.\n\nIt should not repeat the full early source fragment on the later page. Repeat only if a specific line is required to understand immediate control flow on that page; in that case, use a short excerpt with a note that it is reused context, not new evidence. Default: no full duplication, only a local semantic reminder plus a deep link.\n\n**Representative Later-Page Paragraph**\n\nBefore this write reaches storage, the request is understood in terms of `NormalizedKey`, the canonical tenant-qualified identity defined earlier ([Identity Definition], [Earlier Source Fragment]). This page does not re-establish that meaning; it relies on it. The walkthrough here should verify where the write path first requires a canonical identity, what actor performs that step, and whether any branch can proceed without it. If the code shows additional preconditions, normalization stages, or rejection paths, document them here with direct citations; otherwise mark them as verification obligations rather than inferring behavior.\n\n**Prose Rules**\n\nClaims:\n- Every behavioral claim must be backed by a cited source fragment or explicitly labeled as a verification obligation.\n- Do not infer ordering, atomicity, validation, or error handling unless the code shows it.\n- Separate observed facts from explanatory interpretation.\n\nStable vocabulary:\n- Use `NormalizedKey` exactly and consistently.\n- Choose one term for each stable concept and keep it fixed across pages: `request`, `actor`, `write path`, `storage`, `failure`.\n- Do not introduce synonyms for the same concept unless the code uses them and the distinction matters.\n\nExplicit actors:\n- Every important sentence should name the actor.\n- Prefer forms like “the write-path entrypoint constructs...”, “the storage adapter receives...”, or “the caller handles...”.\n- If the actor is unknown from current evidence, say “an as-yet-unverified actor” and attach a verification obligation.\n\nFailure categories:\n- Classify failures by where they occur, not by guessed implementation detail.\n- Minimum categories: identity/precondition failure, storage operation failure, concurrency/order failure, and propagation/reporting failure.\n- Only populate a category when code evidence exists; otherwise leave it as a review prompt.\n\n**Mechanical Checks Before Publication**\n\n- Claim-to-citation check: every nontrivial claim has a source link or a verification-obligation label.\n- Vocabulary lint: `NormalizedKey` spelling is uniform; no drift between “tenant-qualified identity” and other aliases.\n- Actor check: each paragraph has explicit actors for key actions.\n- Failure taxonomy check: every mentioned failure is placed in an approved category.\n- Link check: all cross-page anchors and source-fragment links resolve.\n- Repetition check: no full duplicate fragment appears unless explicitly justified as necessary context.\n- Placeholder check: all unknown details are marked as `[verification required]` or equivalent, not narrated as fact.\n- Scope check: no domain explanation exceeds what the cited code supports.\n\n**Independent Review Before Publication**\n\nUse two reviewers:\n\n1. A code-familiar reviewer checks factual fidelity.\n   - Verifies each claim against code.\n   - Confirms no invented behavior, names, or guarantees.\n   - Confirms the later page uses `NormalizedKey` consistently with the early page.\n\n2. A domain-new reviewer checks readability.\n   - Verifies the later page is understandable without re-reading the entire early section.\n   - Confirms the local reminder is sufficient and the link is enough for deeper context.\n   - Flags any sentence where actor, obligation, or failure mode is unclear.\n\nPublication gate:\n- No uncited factual claims.\n- No unresolved wording drift around `NormalizedKey`.\n- No duplicated source fragment without a written justification.\n- All verification obligations either closed or explicitly carried as open review items."}}
+{"type":"turn.completed","usage":{"input_tokens":11783,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1408,"reasoning_output_tokens":516}}
+
+
+===== SAMPLE S03 =====
+
+FINAL ANSWER
+
+**Page Design**
+
+The later mutation page should restate the minimum local meaning it needs: `NormalizedKey` is the canonical tenant-qualified identity used to decide which record a write targets. It should not re-teach the full concept or re-argue why that identity is canonical.
+
+It should link to:
+1. The early identity page section that defines `NormalizedKey`.
+2. The original source fragment anchor from the early page.
+3. Any mutation-path source fragment that shows where the write path consumes or derives that identity.
+
+It should not repeat the full early source fragment. Reuse by link, not duplication, unless publication format makes cross-page lookup impossible. The later page can quote or paraphrase one short sentence of meaning, then point back to the original fragment for proof. That avoids drift between two copies of the same evidence.
+
+**What The Later Page States Locally**
+
+The later page should say, in local prose:
+
+- This write path operates on a `NormalizedKey`, not on an unqualified or partially qualified key form.
+- The page assumes the earlier definition of `NormalizedKey` and uses it to explain target selection, conflict scope, and storage effects.
+- Any step not directly verified from code should be marked as a verification obligation, for example `[VERIFY: explain how the write path obtains or validates the NormalizedKey]`.
+- Any storage or concurrency behavior not established from code should be described as a placeholder, for example `[storage write call]`, `[precondition check]`, `[failure return]`.
+
+**Representative Later-Page Paragraph**
+
+On this mutation path, the service treats `NormalizedKey` as the canonical tenant-qualified identity for the record being written; that definition is established earlier and is reused here rather than redefined. After `[caller or handler]` obtains or receives the `NormalizedKey` `[VERIFY: source of normalization or validation]`, `[service component]` uses that identity to select the write target and to scope any existence check, overwrite decision, or conflict handling `[VERIFY: exact decision points]`. The storage operation itself is `[storage API call or sequence]`, issued by `[actor]`, and any failure is reported as one of the categories listed below rather than as an unstructured error `[VERIFY: mapping from storage failures to service-visible failures]`.
+
+**Prose Rules**
+
+Claims:
+- Every behavioral claim must be backed by either a code citation, a source citation, or an explicit verification obligation.
+- Do not infer intent from naming alone.
+- Distinguish observed behavior from editorial interpretation with phrases like “the code shows” versus “this implies”.
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly, with consistent casing.
+- Use one term for each role and keep it fixed across pages: for example `caller`, `service`, `storage layer`, `record`, `mutation path`.
+- Ban near-synonyms that blur scope, such as switching between “key”, “identifier”, “name”, and “handle” unless the code distinguishes them.
+
+Explicit actors:
+- Every causal sentence names the actor: who normalizes, who checks, who writes, who returns the error.
+- Avoid actorless prose such as “the record is written” when “[service component] writes the record through [storage API]” is possible.
+- If the actor is unknown, say `[actor unknown: verify]`.
+
+Failure categories:
+- Group failures by service-relevant category, not raw low-level messages.
+- Minimum categories should be placeholders until verified: `[invalid input]`, `[identity mismatch or normalization failure]`, `[precondition or conflict failure]`, `[storage write failure]`, `[timeout or cancellation]`, `[unexpected internal failure]`.
+- Each category needs a verified trigger, a verified actor, and a verified outward effect.
+
+**Mechanical Checks**
+
+- Link check: every intra-doc link and source-fragment anchor resolves.
+- Terminology check: `NormalizedKey` appears with exact spelling; banned synonyms are flagged.
+- Claim audit: each paragraph contains either citations or `[VERIFY: ...]` markers for unverified points.
+- Placeholder audit: all bracketed placeholders are either resolved before publication or listed in a formal open-obligations appendix; none may appear silently.
+- Actor scan: flag sentences with passive voice or missing actors in write-path explanations.
+- Failure taxonomy check: every mentioned failure maps to one approved category.
+- Duplicate-evidence check: the early source fragment is referenced by link, not copied again, unless an exception is recorded.
+- Drift check: if a short restatement of the early fragment appears later, it must match the early page’s wording and cited conclusion.
+
+**Independent Review Before Publication**
+
+1. Domain-naive review: a reviewer who knows the language and storage APIs, but not the service domain, reads only the walkthrough and marks every unexplained jump.
+2. Code-evidence review: a separate reviewer verifies that each claim about the mutation path is supported by cited code or left as an explicit obligation.
+3. Terminology review: one reviewer checks stable vocabulary and ensures `NormalizedKey` is used consistently across pages.
+4. Failure-model review: one reviewer checks that failures are categorized consistently and that no storage-specific behavior is presented as confirmed without proof.
+5. Final signoff rule: publish only when duplicated evidence is removed, links resolve, and every placeholder is either discharged or explicitly tracked as a verification obligation.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d91-1d2c-7430-9e75-e6f8152906c0"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**Page Design**\n\nThe later mutation page should restate the minimum local meaning it needs: `NormalizedKey` is the canonical tenant-qualified identity used to decide which record a write targets. It should not re-teach the full concept or re-argue why that identity is canonical.\n\nIt should link to:\n1. The early identity page section that defines `NormalizedKey`.\n2. The original source fragment anchor from the early page.\n3. Any mutation-path source fragment that shows where the write path consumes or derives that identity.\n\nIt should not repeat the full early source fragment. Reuse by link, not duplication, unless publication format makes cross-page lookup impossible. The later page can quote or paraphrase one short sentence of meaning, then point back to the original fragment for proof. That avoids drift between two copies of the same evidence.\n\n**What The Later Page States Locally**\n\nThe later page should say, in local prose:\n\n- This write path operates on a `NormalizedKey`, not on an unqualified or partially qualified key form.\n- The page assumes the earlier definition of `NormalizedKey` and uses it to explain target selection, conflict scope, and storage effects.\n- Any step not directly verified from code should be marked as a verification obligation, for example `[VERIFY: explain how the write path obtains or validates the NormalizedKey]`.\n- Any storage or concurrency behavior not established from code should be described as a placeholder, for example `[storage write call]`, `[precondition check]`, `[failure return]`.\n\n**Representative Later-Page Paragraph**\n\nOn this mutation path, the service treats `NormalizedKey` as the canonical tenant-qualified identity for the record being written; that definition is established earlier and is reused here rather than redefined. After `[caller or handler]` obtains or receives the `NormalizedKey` `[VERIFY: source of normalization or validation]`, `[service component]` uses that identity to select the write target and to scope any existence check, overwrite decision, or conflict handling `[VERIFY: exact decision points]`. The storage operation itself is `[storage API call or sequence]`, issued by `[actor]`, and any failure is reported as one of the categories listed below rather than as an unstructured error `[VERIFY: mapping from storage failures to service-visible failures]`.\n\n**Prose Rules**\n\nClaims:\n- Every behavioral claim must be backed by either a code citation, a source citation, or an explicit verification obligation.\n- Do not infer intent from naming alone.\n- Distinguish observed behavior from editorial interpretation with phrases like “the code shows” versus “this implies”.\n\nStable vocabulary:\n- Use `NormalizedKey` exactly, with consistent casing.\n- Use one term for each role and keep it fixed across pages: for example `caller`, `service`, `storage layer`, `record`, `mutation path`.\n- Ban near-synonyms that blur scope, such as switching between “key”, “identifier”, “name”, and “handle” unless the code distinguishes them.\n\nExplicit actors:\n- Every causal sentence names the actor: who normalizes, who checks, who writes, who returns the error.\n- Avoid actorless prose such as “the record is written” when “[service component] writes the record through [storage API]” is possible.\n- If the actor is unknown, say `[actor unknown: verify]`.\n\nFailure categories:\n- Group failures by service-relevant category, not raw low-level messages.\n- Minimum categories should be placeholders until verified: `[invalid input]`, `[identity mismatch or normalization failure]`, `[precondition or conflict failure]`, `[storage write failure]`, `[timeout or cancellation]`, `[unexpected internal failure]`.\n- Each category needs a verified trigger, a verified actor, and a verified outward effect.\n\n**Mechanical Checks**\n\n- Link check: every intra-doc link and source-fragment anchor resolves.\n- Terminology check: `NormalizedKey` appears with exact spelling; banned synonyms are flagged.\n- Claim audit: each paragraph contains either citations or `[VERIFY: ...]` markers for unverified points.\n- Placeholder audit: all bracketed placeholders are either resolved before publication or listed in a formal open-obligations appendix; none may appear silently.\n- Actor scan: flag sentences with passive voice or missing actors in write-path explanations.\n- Failure taxonomy check: every mentioned failure maps to one approved category.\n- Duplicate-evidence check: the early source fragment is referenced by link, not copied again, unless an exception is recorded.\n- Drift check: if a short restatement of the early fragment appears later, it must match the early page’s wording and cited conclusion.\n\n**Independent Review Before Publication**\n\n1. Domain-naive review: a reviewer who knows the language and storage APIs, but not the service domain, reads only the walkthrough and marks every unexplained jump.\n2. Code-evidence review: a separate reviewer verifies that each claim about the mutation path is supported by cited code or left as an explicit obligation.\n3. Terminology review: one reviewer checks stable vocabulary and ensures `NormalizedKey` is used consistently across pages.\n4. Failure-model review: one reviewer checks that failures are categorized consistently and that no storage-specific behavior is presented as confirmed without proof.\n5. Final signoff rule: publish only when duplicated evidence is removed, links resolve, and every placeholder is either discharged or explicitly tracked as a verification obligation."}}
+{"type":"turn.completed","usage":{"input_tokens":11783,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1606,"reasoning_output_tokens":516}}
+
+
+===== SAMPLE S04 =====
+
+FINAL ANSWER
+
+**Exposition Plan**
+
+Use a strict split between “local reminder” and “canonical explanation.”
+
+On the later mutation page, state locally only the operational consequence of the earlier fact: the write path uses `NormalizedKey` as the identity under which the mutation is interpreted and persisted. Link back to the early page for the full meaning of `NormalizedKey`, its construction, and the original source fragment. Do not fully repeat the earlier source fragment on the later page by default. Repeat it only if the later argument depends on exact syntax from that fragment; otherwise, reuse it by link and, if needed, quote at most the smallest relevant line or condition.
+
+Recommended later-page pattern:
+1. One sentence re-establishing the fact in local terms.
+2. A link to the early “identity” page.
+3. A new source fragment from the mutation path showing where that fact is used.
+4. An explicit note for any unknown step as a verification obligation.
+
+**Decision For The Later Page**
+
+State locally:
+`NormalizedKey` is the canonical tenant-qualified identity already established earlier; this page relies on that meaning to explain which logical record the mutation targets.
+
+Link to:
+- The early page that defines `NormalizedKey`.
+- The earlier source fragment, by anchored reference.
+- The new mutation-path fragment where the write path consumes, propagates, or requires that identity.
+
+Repeat source fragment:
+- `No`, not in full.
+- `Yes`, only as a minimal excerpt if the later reasoning would otherwise force readers to jump pages to resolve a single line-level dependency.
+
+**Representative Later-Page Paragraph**
+
+“In this write path, the service does not choose a new record identity locally; it acts on the `NormalizedKey` that earlier pages established as the canonical tenant-qualified identity. That fact matters here because every claim about ‘which entry is being updated’ must be read as a claim about the `NormalizedKey`, not about any pre-normalized input form. The earlier identity fragment shows where that canonical meaning is defined; this mutation fragment shows where the write path depends on it. If the code also derives, validates, or re-checks the `NormalizedKey` at this stage, that step should be documented from the exact lines that perform it; otherwise mark the point as a verification obligation.”
+
+**Prose Rules**
+
+- Claims:
+  - Every behavioral claim must be backed by a cited source fragment, storage API contract, or an explicit verification obligation.
+  - Distinguish observed code behavior from inferred intent.
+  - Avoid “always,” “guarantees,” and “ensures” unless the cited code proves them.
+
+- Stable vocabulary:
+  - Use one term consistently for each concept: `NormalizedKey`, `tenant`, `canonical identity`, `mutation`, `write path`, `storage`.
+  - Do not introduce synonyms such as “canonical key,” “resolved key,” or “tenant key” unless the code uses them and the page defines the relationship.
+
+- Explicit actors:
+  - Every sentence that describes an action should name the actor: caller, service method, helper, storage API, or background mechanism if one is proven to exist.
+  - Avoid actorless phrasing like “the key is checked” when the code shows who checks it.
+
+- Failure categories:
+  - Group failures by mechanism visible in code, not by vague outcome.
+  - Allowed template categories are placeholders until verified: `input rejection`, `identity derivation/validation failure`, `precondition failure`, `storage operation failure`, `post-write inconsistency/invariant failure`.
+  - Remove or rename any category not evidenced by code.
+
+**Assurance Plan**
+
+Mechanical checks before publication:
+- Link check for every intra-walkthrough reference and anchored source citation.
+- Terminology check: every defined term has one spelling and one meaning.
+- Claim-evidence check: every nontrivial claim is followed by a citation or a `Verification obligation: ...`.
+- Placeholder check: no unresolved `<placeholder>` or “TBD” text remains without an owner.
+- Fragment reuse check: repeated source excerpts are minimal and justified.
+- Drift check: quoted or referenced line ranges still match the current revision under review.
+- Style check: actor named, failure category named, and modal verbs constrained.
+
+Independent review before publication:
+- One domain-naive reviewer confirms the later mutation page is understandable using only its local reminder plus the link back.
+- One implementation reviewer confirms that every claim about `NormalizedKey` and the write path is textually supported by code.
+- One editorial reviewer checks vocabulary stability, non-repetition, and that unknowns are framed as verification obligations rather than guessed behavior.
+
+Publication gate:
+- No uncited behavioral claims.
+- No unresolved verification obligations without explicit sign-off.
+- No repeated source fragment unless the review record says the repetition is necessary for local reasoning.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d90-70ac-72c1-9505-7ea1a180d8dc"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**Exposition Plan**\n\nUse a strict split between “local reminder” and “canonical explanation.”\n\nOn the later mutation page, state locally only the operational consequence of the earlier fact: the write path uses `NormalizedKey` as the identity under which the mutation is interpreted and persisted. Link back to the early page for the full meaning of `NormalizedKey`, its construction, and the original source fragment. Do not fully repeat the earlier source fragment on the later page by default. Repeat it only if the later argument depends on exact syntax from that fragment; otherwise, reuse it by link and, if needed, quote at most the smallest relevant line or condition.\n\nRecommended later-page pattern:\n1. One sentence re-establishing the fact in local terms.\n2. A link to the early “identity” page.\n3. A new source fragment from the mutation path showing where that fact is used.\n4. An explicit note for any unknown step as a verification obligation.\n\n**Decision For The Later Page**\n\nState locally:\n`NormalizedKey` is the canonical tenant-qualified identity already established earlier; this page relies on that meaning to explain which logical record the mutation targets.\n\nLink to:\n- The early page that defines `NormalizedKey`.\n- The earlier source fragment, by anchored reference.\n- The new mutation-path fragment where the write path consumes, propagates, or requires that identity.\n\nRepeat source fragment:\n- `No`, not in full.\n- `Yes`, only as a minimal excerpt if the later reasoning would otherwise force readers to jump pages to resolve a single line-level dependency.\n\n**Representative Later-Page Paragraph**\n\n“In this write path, the service does not choose a new record identity locally; it acts on the `NormalizedKey` that earlier pages established as the canonical tenant-qualified identity. That fact matters here because every claim about ‘which entry is being updated’ must be read as a claim about the `NormalizedKey`, not about any pre-normalized input form. The earlier identity fragment shows where that canonical meaning is defined; this mutation fragment shows where the write path depends on it. If the code also derives, validates, or re-checks the `NormalizedKey` at this stage, that step should be documented from the exact lines that perform it; otherwise mark the point as a verification obligation.”\n\n**Prose Rules**\n\n- Claims:\n  - Every behavioral claim must be backed by a cited source fragment, storage API contract, or an explicit verification obligation.\n  - Distinguish observed code behavior from inferred intent.\n  - Avoid “always,” “guarantees,” and “ensures” unless the cited code proves them.\n\n- Stable vocabulary:\n  - Use one term consistently for each concept: `NormalizedKey`, `tenant`, `canonical identity`, `mutation`, `write path`, `storage`.\n  - Do not introduce synonyms such as “canonical key,” “resolved key,” or “tenant key” unless the code uses them and the page defines the relationship.\n\n- Explicit actors:\n  - Every sentence that describes an action should name the actor: caller, service method, helper, storage API, or background mechanism if one is proven to exist.\n  - Avoid actorless phrasing like “the key is checked” when the code shows who checks it.\n\n- Failure categories:\n  - Group failures by mechanism visible in code, not by vague outcome.\n  - Allowed template categories are placeholders until verified: `input rejection`, `identity derivation/validation failure`, `precondition failure`, `storage operation failure`, `post-write inconsistency/invariant failure`.\n  - Remove or rename any category not evidenced by code.\n\n**Assurance Plan**\n\nMechanical checks before publication:\n- Link check for every intra-walkthrough reference and anchored source citation.\n- Terminology check: every defined term has one spelling and one meaning.\n- Claim-evidence check: every nontrivial claim is followed by a citation or a `Verification obligation: ...`.\n- Placeholder check: no unresolved `<placeholder>` or “TBD” text remains without an owner.\n- Fragment reuse check: repeated source excerpts are minimal and justified.\n- Drift check: quoted or referenced line ranges still match the current revision under review.\n- Style check: actor named, failure category named, and modal verbs constrained.\n\nIndependent review before publication:\n- One domain-naive reviewer confirms the later mutation page is understandable using only its local reminder plus the link back.\n- One implementation reviewer confirms that every claim about `NormalizedKey` and the write path is textually supported by code.\n- One editorial reviewer checks vocabulary stability, non-repetition, and that unknowns are framed as verification obligations rather than guessed behavior.\n\nPublication gate:\n- No uncited behavioral claims.\n- No unresolved verification obligations without explicit sign-off.\n- No repeated source fragment unless the review record says the repetition is necessary for local reasoning."}}
+{"type":"turn.completed","usage":{"input_tokens":11783,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1494,"reasoning_output_tokens":516}}
+
+
+===== SAMPLE S05 =====
+
+FINAL ANSWER
+
+**Exposition Plan**
+
+The later mutation page should restate the minimum semantic fact it needs locally: `NormalizedKey` is the canonical tenant-qualified identity used to determine which logical item the write targets. It should not re-teach the full concept, derivation, or normalization rules on that page unless the write-path explanation depends on one of those rules. Instead, it should link back to the early page for the full definition and any source-backed explanation of construction or invariants.
+
+It should also link directly to the earlier source fragment if that fragment is the best evidence for the identity claim used in the write path. The later page should not fully repeat that fragment by default. Repeat it only if one of these is true:
+1. The reader cannot follow the later page without seeing the exact lines in place.
+2. The later page makes a new claim about those exact lines that would be hard to verify by cross-page navigation.
+3. The fragment is short enough that repetition improves comprehension more than it harms continuity.
+
+In the normal case, use a short local reminder plus a link, not full fragment repetition. That keeps the later page self-sufficient at the concept level while preserving one authoritative explanation of the identity model.
+
+**Later-Page Paragraph**
+
+Before this write can affect storage, the service identifies the target item by its `NormalizedKey`, the canonical tenant-qualified identity introduced earlier at [Identity page: `NormalizedKey`](#). This page relies on that meaning but does not re-derive it: the verification obligation here is to show where the write path receives, preserves, or reconstructs that canonical identity before any storage mutation occurs. If the implementation also validates, transforms, or rejects candidate keys along this path, those steps should be described only against cited source and named here as `[key validation step]`, `[normalization step]`, or `[rejection path]` until the code excerpt confirms the exact behavior.
+
+**Prose Rules**
+
+Claims:
+- Every behavioral claim must be backed by a cited source fragment, API contract, test, or marked as a verification obligation.
+- Do not compress multiple facts into one sentence if they require different evidence.
+- If behavior is unknown, say `unknown from current evidence` or `verification obligation`, not an inferred implementation story.
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly and consistently for the canonical tenant-qualified identity.
+- Choose one term each for `write`, `mutation`, `request`, `storage operation`, and `failure`, then keep them stable across pages.
+- Do not alternate between near-synonyms such as `record`/`entry`/`item` unless the code distinguishes them and the page explains that distinction.
+
+Explicit actors:
+- Name the actor in each operational sentence: `caller`, `service`, `[write handler]`, `storage API`, `[validation step]`, `[authorization step]`.
+- Avoid passive constructions like “the key is checked” when the responsible component matters.
+- When the code boundary is not yet verified, use placeholders such as `[mutation coordinator]` and mark them for confirmation.
+
+Failure categories:
+- Separate failures by cause, not by generic outcome.
+- Minimum categories should be placeholders such as `[identity formation failure]`, `[tenant mismatch failure]`, `[precondition failure]`, `[storage write failure]`, and `[concurrency/conflict outcome]` only if source confirms they exist.
+- If the code does not yet prove a category, list it as a candidate category with a verification obligation rather than presenting it as established behavior.
+
+**Assurance Plan**
+
+Mechanical checks:
+- Terminology lint: every use of `NormalizedKey` matches the approved spelling and meaning.
+- Claim audit: each nontrivial sentence is tagged internally as `cited`, `derived from cited facts`, or `verification obligation`.
+- Cross-reference check: the later mutation page links to the early identity page and any reused source fragment.
+- Fragment reuse check: repeated source appears only when justified by the page policy above.
+- Actor check: each step in the write path names an actor.
+- Failure taxonomy check: each failure statement fits one defined category or is explicitly marked unknown.
+- Placeholder sweep: all `[placeholder]` names are resolved or retained with publication-blocking verification notes.
+- Drift check: the later page’s summary of `NormalizedKey` matches the early page wording on canonical meaning.
+
+Independent review before publication:
+- One domain-naive reviewer reads the pages in order and flags any place where the later mutation page assumes identity knowledge not actually carried forward locally.
+- One implementation-aware reviewer checks every claim against source and storage API evidence, with special attention to the reused early fragment.
+- One editorial reviewer checks vocabulary stability, actor naming, and whether any unknown behavior was narrated as fact.
+- Publication is blocked if reviewers find uncited behavior, inconsistent identity terminology, ambiguous actor ownership, or failure categories stated without evidence.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d91-b9c3-77b0-9684-0cf3e4691c48"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"Using the walkthrough-authoring discipline here. I’ll design the page-to-page exposition, keep unknowns as placeholders or verification obligations, and make the publication checks explicit."}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"**Exposition Plan**\n\nThe later mutation page should restate the minimum semantic fact it needs locally: `NormalizedKey` is the canonical tenant-qualified identity used to determine which logical item the write targets. It should not re-teach the full concept, derivation, or normalization rules on that page unless the write-path explanation depends on one of those rules. Instead, it should link back to the early page for the full definition and any source-backed explanation of construction or invariants.\n\nIt should also link directly to the earlier source fragment if that fragment is the best evidence for the identity claim used in the write path. The later page should not fully repeat that fragment by default. Repeat it only if one of these is true:\n1. The reader cannot follow the later page without seeing the exact lines in place.\n2. The later page makes a new claim about those exact lines that would be hard to verify by cross-page navigation.\n3. The fragment is short enough that repetition improves comprehension more than it harms continuity.\n\nIn the normal case, use a short local reminder plus a link, not full fragment repetition. That keeps the later page self-sufficient at the concept level while preserving one authoritative explanation of the identity model.\n\n**Later-Page Paragraph**\n\nBefore this write can affect storage, the service identifies the target item by its `NormalizedKey`, the canonical tenant-qualified identity introduced earlier at [Identity page: `NormalizedKey`](#). This page relies on that meaning but does not re-derive it: the verification obligation here is to show where the write path receives, preserves, or reconstructs that canonical identity before any storage mutation occurs. If the implementation also validates, transforms, or rejects candidate keys along this path, those steps should be described only against cited source and named here as `[key validation step]`, `[normalization step]`, or `[rejection path]` until the code excerpt confirms the exact behavior.\n\n**Prose Rules**\n\nClaims:\n- Every behavioral claim must be backed by a cited source fragment, API contract, test, or marked as a verification obligation.\n- Do not compress multiple facts into one sentence if they require different evidence.\n- If behavior is unknown, say `unknown from current evidence` or `verification obligation`, not an inferred implementation story.\n\nStable vocabulary:\n- Use `NormalizedKey` exactly and consistently for the canonical tenant-qualified identity.\n- Choose one term each for `write`, `mutation`, `request`, `storage operation`, and `failure`, then keep them stable across pages.\n- Do not alternate between near-synonyms such as `record`/`entry`/`item` unless the code distinguishes them and the page explains that distinction.\n\nExplicit actors:\n- Name the actor in each operational sentence: `caller`, `service`, `[write handler]`, `storage API`, `[validation step]`, `[authorization step]`.\n- Avoid passive constructions like “the key is checked” when the responsible component matters.\n- When the code boundary is not yet verified, use placeholders such as `[mutation coordinator]` and mark them for confirmation.\n\nFailure categories:\n- Separate failures by cause, not by generic outcome.\n- Minimum categories should be placeholders such as `[identity formation failure]`, `[tenant mismatch failure]`, `[precondition failure]`, `[storage write failure]`, and `[concurrency/conflict outcome]` only if source confirms they exist.\n- If the code does not yet prove a category, list it as a candidate category with a verification obligation rather than presenting it as established behavior.\n\n**Assurance Plan**\n\nMechanical checks:\n- Terminology lint: every use of `NormalizedKey` matches the approved spelling and meaning.\n- Claim audit: each nontrivial sentence is tagged internally as `cited`, `derived from cited facts`, or `verification obligation`.\n- Cross-reference check: the later mutation page links to the early identity page and any reused source fragment.\n- Fragment reuse check: repeated source appears only when justified by the page policy above.\n- Actor check: each step in the write path names an actor.\n- Failure taxonomy check: each failure statement fits one defined category or is explicitly marked unknown.\n- Placeholder sweep: all `[placeholder]` names are resolved or retained with publication-blocking verification notes.\n- Drift check: the later page’s summary of `NormalizedKey` matches the early page wording on canonical meaning.\n\nIndependent review before publication:\n- One domain-naive reviewer reads the pages in order and flags any place where the later mutation page assumes identity knowledge not actually carried forward locally.\n- One implementation-aware reviewer checks every claim against source and storage API evidence, with special attention to the reused early fragment.\n- One editorial reviewer checks vocabulary stability, actor naming, and whether any unknown behavior was narrated as fact.\n- Publication is blocked if reviewers find uncited behavior, inconsistent identity terminology, ambiguous actor ownership, or failure categories stated without evidence."}}
+{"type":"turn.completed","usage":{"input_tokens":11889,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1305,"reasoning_output_tokens":276}}
+
+
+===== SAMPLE S06 =====
+
+FINAL ANSWER
+
+**Later Page Design**
+
+The mutation page should restate only the minimum local fact it needs: `NormalizedKey` is the canonical tenant-qualified identity, and the write path uses that identity as its stable handle for locating or mutating state. It should not re-teach the full concept, derivation, or rationale there.
+
+It should link to:
+- the early conceptual section where `NormalizedKey` is defined
+- the original source fragment that first grounded that definition
+- the exact mutation-path source fragment being discussed on the later page
+
+It should not repeat the full early source fragment by default. Reuse a link unless the write-path explanation depends on exact tokens from that earlier fragment. If it does, repeat only the smallest excerpt needed, verbatim, with the original citation and a note that this is reused evidence, not a second definition.
+
+Representative later-page paragraph:
+
+> This write path operates on a `NormalizedKey`, the canonical tenant-qualified identity introduced earlier. At `[mutation entry point]`, actor `[caller or handler]` must already hold that value or derive it in `[normalization step: verification obligation]`; the walkthrough should name which of those is true rather than imply both. From this point onward, the page should describe reads, checks, and writes in terms of `NormalizedKey` only, unless the code shows a later step also consults `[raw input placeholder]`. The construction details belong to the earlier identity page; this page links back to `[NormalizedKey section]` and to `[early source fragment citation]` because that earlier evidence explains why the write path treats this value as the authoritative identity.
+
+**Prose Rules**
+
+Claims:
+- Every behavioral claim must be backed by a cited code fragment or labeled `verification obligation`.
+- Distinguish `observed in code`, `inferred from structure`, and `unknown`.
+- Do not claim ordering, uniqueness, atomicity, retries, idempotence, or durability unless the code shown establishes them.
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly for the canonical tenant-qualified identity.
+- Use one placeholder term for any pre-normalized input, such as `[raw identifier placeholder]`, and do not switch synonyms.
+- Reserve `identity` for semantic meaning and `key` for the concrete program value only if the page keeps that distinction consistently.
+
+Explicit actors:
+- Each operational sentence should name an actor: `[caller]`, `[normalizer]`, `[mutation handler]`, `[storage layer]`, `[validator]`.
+- Avoid actorless passive prose like “the key is checked” when the code shows who checks it.
+
+Failure categories:
+- Every failure mention must be assigned to a category visible to the reader.
+- Use category labels such as `input/validation failure`, `identity construction or lookup failure`, `storage/write failure`, and `[other category: verification obligation]` only where code evidence exists.
+- If the code does not expose failure handling, state that as unknown rather than invent a category outcome.
+
+**Assurance Before Publication**
+
+Mechanical checks:
+- Terminology lint: `NormalizedKey` spelling and capitalization are consistent across pages.
+- Link check: the later page links to the early definition and cited fragments resolve to the intended anchors.
+- Claim ledger: each sentence is tagged as `evidenced`, `inferred`, or `verification obligation`.
+- Placeholder scan: all bracketed placeholders are either resolved or intentionally retained as explicit unknowns.
+- Reuse check: if the early fragment is repeated, the excerpt matches the original exactly and is shorter than the original fragment.
+- Consistency check: the later page does not redefine `NormalizedKey` or broaden its meaning.
+
+Independent review:
+- One domain-naive reviewer checks that the later page is understandable without rereading the full early section.
+- One implementation-aware reviewer checks that every claim matches the cited code and that unknowns remain marked.
+- Publication gate: reject if any unstated inference appears as fact, if vocabulary drifts, or if a failure mode is described without evidence.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d92-3d94-7411-a412-ff54f377e547"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**Later Page Design**\n\nThe mutation page should restate only the minimum local fact it needs: `NormalizedKey` is the canonical tenant-qualified identity, and the write path uses that identity as its stable handle for locating or mutating state. It should not re-teach the full concept, derivation, or rationale there.\n\nIt should link to:\n- the early conceptual section where `NormalizedKey` is defined\n- the original source fragment that first grounded that definition\n- the exact mutation-path source fragment being discussed on the later page\n\nIt should not repeat the full early source fragment by default. Reuse a link unless the write-path explanation depends on exact tokens from that earlier fragment. If it does, repeat only the smallest excerpt needed, verbatim, with the original citation and a note that this is reused evidence, not a second definition.\n\nRepresentative later-page paragraph:\n\n> This write path operates on a `NormalizedKey`, the canonical tenant-qualified identity introduced earlier. At `[mutation entry point]`, actor `[caller or handler]` must already hold that value or derive it in `[normalization step: verification obligation]`; the walkthrough should name which of those is true rather than imply both. From this point onward, the page should describe reads, checks, and writes in terms of `NormalizedKey` only, unless the code shows a later step also consults `[raw input placeholder]`. The construction details belong to the earlier identity page; this page links back to `[NormalizedKey section]` and to `[early source fragment citation]` because that earlier evidence explains why the write path treats this value as the authoritative identity.\n\n**Prose Rules**\n\nClaims:\n- Every behavioral claim must be backed by a cited code fragment or labeled `verification obligation`.\n- Distinguish `observed in code`, `inferred from structure`, and `unknown`.\n- Do not claim ordering, uniqueness, atomicity, retries, idempotence, or durability unless the code shown establishes them.\n\nStable vocabulary:\n- Use `NormalizedKey` exactly for the canonical tenant-qualified identity.\n- Use one placeholder term for any pre-normalized input, such as `[raw identifier placeholder]`, and do not switch synonyms.\n- Reserve `identity` for semantic meaning and `key` for the concrete program value only if the page keeps that distinction consistently.\n\nExplicit actors:\n- Each operational sentence should name an actor: `[caller]`, `[normalizer]`, `[mutation handler]`, `[storage layer]`, `[validator]`.\n- Avoid actorless passive prose like “the key is checked” when the code shows who checks it.\n\nFailure categories:\n- Every failure mention must be assigned to a category visible to the reader.\n- Use category labels such as `input/validation failure`, `identity construction or lookup failure`, `storage/write failure`, and `[other category: verification obligation]` only where code evidence exists.\n- If the code does not expose failure handling, state that as unknown rather than invent a category outcome.\n\n**Assurance Before Publication**\n\nMechanical checks:\n- Terminology lint: `NormalizedKey` spelling and capitalization are consistent across pages.\n- Link check: the later page links to the early definition and cited fragments resolve to the intended anchors.\n- Claim ledger: each sentence is tagged as `evidenced`, `inferred`, or `verification obligation`.\n- Placeholder scan: all bracketed placeholders are either resolved or intentionally retained as explicit unknowns.\n- Reuse check: if the early fragment is repeated, the excerpt matches the original exactly and is shorter than the original fragment.\n- Consistency check: the later page does not redefine `NormalizedKey` or broaden its meaning.\n\nIndependent review:\n- One domain-naive reviewer checks that the later page is understandable without rereading the full early section.\n- One implementation-aware reviewer checks that every claim matches the cited code and that unknowns remain marked.\n- Publication gate: reject if any unstated inference appears as fact, if vocabulary drifts, or if a failure mode is described without evidence."}}
+{"type":"turn.completed","usage":{"input_tokens":11783,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":2019,"reasoning_output_tokens":1204}}
+
+
+===== SAMPLE S07 =====
+
+FINAL ANSWER
+
+**Exposition Plan**
+
+On the later mutation page, state the meaning locally in one short reminder sentence and then use that meaning operationally. The page should not re-teach the concept; it should establish the minimum needed to follow the write path:
+
+- Local statement: "`NormalizedKey` is the canonical tenant-qualified identity for the record this mutation addresses."
+- Local consequence: "This page assumes that meaning and traces where the write path establishes, preserves, or depends on that identity before the storage call."
+- Verification obligation: "If any step accepts a broader, pre-normalized, or partially qualified identifier, the page must mark that boundary as a verification obligation unless the code shown proves normalization there."
+
+The later page should link to two earlier targets:
+
+- The early explanatory section that defines `NormalizedKey` conceptually.
+- The early source fragment anchor that shows the defining code or first establishment point.
+
+It should not repeat the full early source fragment on the later page. Reuse the earlier fragment by link, not by duplication, unless the later page needs exact syntax from that fragment for a new claim. In that case, repeat only the minimal excerpt and label it as a reused excerpt from the earlier page. The default is: no full repetition.
+
+**Representative Later-Page Paragraph**
+
+Before the write reaches `[storage write call]`, the path must already be operating on `NormalizedKey`, the canonical tenant-qualified identity introduced on the earlier `NormalizedKey` page. This page does not re-derive that definition; it relies on it while tracing how `[mutation entrypoint]`, `[normalization or lookup step]`, and `[storage write call]` preserve the identity of the record being changed. Where the code shown does not prove that the incoming identifier is already normalized, this walkthrough treats that boundary as a verification obligation rather than an established fact and links back to the earlier defining fragment for the source basis.
+
+**Prose Rules**
+
+Claims:
+- Every factual claim must be either source-backed on the page, explicitly linked to an earlier source-backed claim, or marked as a verification obligation.
+- Distinguish observed behavior from inference. Use labels such as `Observed`, `Inference`, or `Verification obligation` if needed.
+- Do not state intended behavior as implemented behavior without source proof.
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly; do not alternate with synonyms such as “canonical key,” “tenant key,” or “qualified id.”
+- Use one term consistently for each role: `mutation`, `caller`, `storage write`, `tenant`, `failure`.
+- After the first full definition, refer to the concept as `NormalizedKey` or “the canonical tenant-qualified identity,” and do not introduce new paraphrases.
+
+Explicit actors:
+- Name the actor in each important sentence: the caller, the mutation handler, the normalization step, the storage layer, or the reviewer.
+- Avoid passive constructions when they hide responsibility for establishing or preserving identity.
+- If a sentence contains “it,” the antecedent must be unambiguous on first read.
+
+Failure categories:
+- Use only stable, high-level categories unless code proves finer ones.
+- Recommended categories: `identity establishment failure`, `precondition or validation failure`, `storage operation failure`, `outcome unknown; verification required`.
+- Do not invent concrete error types, retries, or recovery behavior without evidence.
+
+**Assurance Before Publication**
+
+Mechanical checks:
+- Every page-local claim has a citation, backward link, or `verification obligation` label.
+- Every cross-reference resolves to the intended section or source fragment anchor.
+- `NormalizedKey` spelling and capitalization are consistent everywhere.
+- Banned synonym scan: no uncontrolled substitutes for `NormalizedKey`.
+- Actor scan: key explanatory sentences have explicit actors and no ambiguous pronouns.
+- Failure-language scan: each failure statement uses one of the approved categories.
+- Duplicate-fragment check: the full early source fragment appears only once unless an intentional minimal reused excerpt is marked as such.
+- Placeholder sweep: every placeholder is either resolved or left as an explicit verification obligation.
+
+Independent review:
+- A domain-blind reviewer who knows the language and storage APIs reads the early `NormalizedKey` page and the later mutation page to confirm the later page is understandable without domain knowledge.
+- A source-trace reviewer checks that each claim on the later page is supported by local code, a valid backward link, or a clearly marked obligation.
+- An editorial reviewer checks vocabulary stability, actor clarity, and failure-category consistency.
+- Publication should block on any unresolved claim presented as fact; unresolved items may remain only as explicit verification obligations.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d8d-da56-76b1-b2c4-d91eddbcb879"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"This is a walkthrough-authoring task, so I’m using the `writing-code-walkthroughs` skill first to ground the structure and review criteria. I’ll read that instruction file, then draft the exposition and assurance plan without assuming implementation details."}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"**Exposition Plan**\n\nOn the later mutation page, state the meaning locally in one short reminder sentence and then use that meaning operationally. The page should not re-teach the concept; it should establish the minimum needed to follow the write path:\n\n- Local statement: \"`NormalizedKey` is the canonical tenant-qualified identity for the record this mutation addresses.\"\n- Local consequence: \"This page assumes that meaning and traces where the write path establishes, preserves, or depends on that identity before the storage call.\"\n- Verification obligation: \"If any step accepts a broader, pre-normalized, or partially qualified identifier, the page must mark that boundary as a verification obligation unless the code shown proves normalization there.\"\n\nThe later page should link to two earlier targets:\n\n- The early explanatory section that defines `NormalizedKey` conceptually.\n- The early source fragment anchor that shows the defining code or first establishment point.\n\nIt should not repeat the full early source fragment on the later page. Reuse the earlier fragment by link, not by duplication, unless the later page needs exact syntax from that fragment for a new claim. In that case, repeat only the minimal excerpt and label it as a reused excerpt from the earlier page. The default is: no full repetition.\n\n**Representative Later-Page Paragraph**\n\nBefore the write reaches `[storage write call]`, the path must already be operating on `NormalizedKey`, the canonical tenant-qualified identity introduced on the earlier `NormalizedKey` page. This page does not re-derive that definition; it relies on it while tracing how `[mutation entrypoint]`, `[normalization or lookup step]`, and `[storage write call]` preserve the identity of the record being changed. Where the code shown does not prove that the incoming identifier is already normalized, this walkthrough treats that boundary as a verification obligation rather than an established fact and links back to the earlier defining fragment for the source basis.\n\n**Prose Rules**\n\nClaims:\n- Every factual claim must be either source-backed on the page, explicitly linked to an earlier source-backed claim, or marked as a verification obligation.\n- Distinguish observed behavior from inference. Use labels such as `Observed`, `Inference`, or `Verification obligation` if needed.\n- Do not state intended behavior as implemented behavior without source proof.\n\nStable vocabulary:\n- Use `NormalizedKey` exactly; do not alternate with synonyms such as “canonical key,” “tenant key,” or “qualified id.”\n- Use one term consistently for each role: `mutation`, `caller`, `storage write`, `tenant`, `failure`.\n- After the first full definition, refer to the concept as `NormalizedKey` or “the canonical tenant-qualified identity,” and do not introduce new paraphrases.\n\nExplicit actors:\n- Name the actor in each important sentence: the caller, the mutation handler, the normalization step, the storage layer, or the reviewer.\n- Avoid passive constructions when they hide responsibility for establishing or preserving identity.\n- If a sentence contains “it,” the antecedent must be unambiguous on first read.\n\nFailure categories:\n- Use only stable, high-level categories unless code proves finer ones.\n- Recommended categories: `identity establishment failure`, `precondition or validation failure`, `storage operation failure`, `outcome unknown; verification required`.\n- Do not invent concrete error types, retries, or recovery behavior without evidence.\n\n**Assurance Before Publication**\n\nMechanical checks:\n- Every page-local claim has a citation, backward link, or `verification obligation` label.\n- Every cross-reference resolves to the intended section or source fragment anchor.\n- `NormalizedKey` spelling and capitalization are consistent everywhere.\n- Banned synonym scan: no uncontrolled substitutes for `NormalizedKey`.\n- Actor scan: key explanatory sentences have explicit actors and no ambiguous pronouns.\n- Failure-language scan: each failure statement uses one of the approved categories.\n- Duplicate-fragment check: the full early source fragment appears only once unless an intentional minimal reused excerpt is marked as such.\n- Placeholder sweep: every placeholder is either resolved or left as an explicit verification obligation.\n\nIndependent review:\n- A domain-blind reviewer who knows the language and storage APIs reads the early `NormalizedKey` page and the later mutation page to confirm the later page is understandable without domain knowledge.\n- A source-trace reviewer checks that each claim on the later page is supported by local code, a valid backward link, or a clearly marked obligation.\n- An editorial reviewer checks vocabulary stability, actor clarity, and failure-category consistency.\n- Publication should block on any unresolved claim presented as fact; unresolved items may remain only as explicit verification obligations."}}
+{"type":"turn.completed","usage":{"input_tokens":24493,"cached_input_tokens":19456,"cache_write_input_tokens":0,"output_tokens":3040,"reasoning_output_tokens":1945}}
+
+
+===== SAMPLE S08 =====
+
+FINAL ANSWER
+
+**Later Page Design**
+
+The later mutation page should restate the minimum semantic fact locally:
+
+- `NormalizedKey` is the canonical tenant-qualified identity.
+- This write path must be explained in terms of operations on that identity, not on raw caller input.
+- The page does not re-explain how the identity is derived; that remains on the earlier page.
+- If the code is not yet verified on whether the path receives or constructs the `NormalizedKey`, say so as a verification obligation.
+
+It should link to:
+
+- The earlier explanatory section that defines `NormalizedKey`.
+- The exact earlier source fragment anchor that demonstrates the canonical-identity fact.
+- Any glossary anchor for `NormalizedKey`, if the walkthrough has one.
+
+It should not repeat the full early source fragment. Use a local prose reminder plus an anchor back to the original fragment. Repeat only if publication tooling supports canonical transclusion; do not paste a second independent copy.
+
+Representative later-page paragraph:
+
+> This mutation path relies on `NormalizedKey` as the canonical tenant-qualified identity introduced earlier in [Canonical Identity] and evidenced in [Fragment A]. On this page, every lookup, comparison, and storage write is described relative to that identity rather than to pre-normalized caller input. The remaining implementation question is whether `[mutation entrypoint]` receives a `NormalizedKey` directly or derives it in `[normalization step]`; until that is checked in code, treat that point as a verification obligation rather than an asserted behavior.
+
+**Prose Rules**
+
+Claims:
+
+- Every nontrivial claim must cite code, tests, or an explicit verification obligation.
+- Use assertive prose only for verified facts.
+- Use `appears`, `if`, or `[verify: ...]` for unverified control flow, failure handling, or data transformations.
+
+Stable vocabulary:
+
+- Use `NormalizedKey` exactly, with that capitalization.
+- Use one stable phrase for its meaning: `canonical tenant-qualified identity`.
+- Do not alternate with uncited synonyms such as “logical key”, “full key”, or “resolved key”.
+
+Explicit actors:
+
+- Name the actor in each important sentence: caller, mutation path, normalization step, storage API, or `[actor to verify]`.
+- Avoid actorless prose like “the key is written” when the code actually shows a component doing the work.
+
+Failure categories:
+
+- Use only evidence-backed categories.
+- Preferred buckets are: input/eligibility failure, canonicalization failure, storage-operation failure, conflict-or-staleness failure if present, and post-write invariant failure if present.
+- If the code does not clearly support a bucket, label it `[failure mode to verify]` instead of inventing one.
+
+**Assurance Plan**
+
+Mechanical checks before publication:
+
+- Citation check: every factual paragraph has at least one source anchor or a marked verification obligation.
+- Terminology check: `NormalizedKey` and `canonical tenant-qualified identity` are used consistently.
+- Link check: the mutation page links resolve to the earlier concept section and exact fragment anchor.
+- Fragment reuse check: the early fragment has one canonical identifier and is not duplicated inconsistently.
+- Claim-modality check: unverified statements are visibly marked as conditional or pending verification.
+- Actor check: key operational sentences have explicit subjects.
+- Placeholder sweep: every `[ ... ]` placeholder is either resolved or carried into a tracked publication blocker.
+
+Independent review before publication:
+
+- A technical reviewer validates that each claim matches code and that all verification obligations are real and bounded.
+- A domain-naive reviewer reads the later mutation page alone and confirms it is locally understandable, with links sufficient for deeper context.
+- An editorial reviewer checks vocabulary stability, link precision, and that no duplicated fragment has drifted from the canonical source.
+
+Publication gate:
+
+- Do not publish while any unbounded placeholder remains, any asserted behavior lacks a citation, or the later page depends on rereading the early page for a fact it should have restated locally.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d93-1031-7d00-aa5a-5b330f6ca87e"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"I’m treating this as a walkthrough-architecture and editorial-assurance task. I’ll give a concrete later-page policy, a representative paragraph, and a publication checklist without assuming any unverified service behavior."}}
+{"type":"item.completed","item":{"id":"item_1","type":"agent_message","text":"**Later Page Design**\n\nThe later mutation page should restate the minimum semantic fact locally:\n\n- `NormalizedKey` is the canonical tenant-qualified identity.\n- This write path must be explained in terms of operations on that identity, not on raw caller input.\n- The page does not re-explain how the identity is derived; that remains on the earlier page.\n- If the code is not yet verified on whether the path receives or constructs the `NormalizedKey`, say so as a verification obligation.\n\nIt should link to:\n\n- The earlier explanatory section that defines `NormalizedKey`.\n- The exact earlier source fragment anchor that demonstrates the canonical-identity fact.\n- Any glossary anchor for `NormalizedKey`, if the walkthrough has one.\n\nIt should not repeat the full early source fragment. Use a local prose reminder plus an anchor back to the original fragment. Repeat only if publication tooling supports canonical transclusion; do not paste a second independent copy.\n\nRepresentative later-page paragraph:\n\n> This mutation path relies on `NormalizedKey` as the canonical tenant-qualified identity introduced earlier in [Canonical Identity] and evidenced in [Fragment A]. On this page, every lookup, comparison, and storage write is described relative to that identity rather than to pre-normalized caller input. The remaining implementation question is whether `[mutation entrypoint]` receives a `NormalizedKey` directly or derives it in `[normalization step]`; until that is checked in code, treat that point as a verification obligation rather than an asserted behavior.\n\n**Prose Rules**\n\nClaims:\n\n- Every nontrivial claim must cite code, tests, or an explicit verification obligation.\n- Use assertive prose only for verified facts.\n- Use `appears`, `if`, or `[verify: ...]` for unverified control flow, failure handling, or data transformations.\n\nStable vocabulary:\n\n- Use `NormalizedKey` exactly, with that capitalization.\n- Use one stable phrase for its meaning: `canonical tenant-qualified identity`.\n- Do not alternate with uncited synonyms such as “logical key”, “full key”, or “resolved key”.\n\nExplicit actors:\n\n- Name the actor in each important sentence: caller, mutation path, normalization step, storage API, or `[actor to verify]`.\n- Avoid actorless prose like “the key is written” when the code actually shows a component doing the work.\n\nFailure categories:\n\n- Use only evidence-backed categories.\n- Preferred buckets are: input/eligibility failure, canonicalization failure, storage-operation failure, conflict-or-staleness failure if present, and post-write invariant failure if present.\n- If the code does not clearly support a bucket, label it `[failure mode to verify]` instead of inventing one.\n\n**Assurance Plan**\n\nMechanical checks before publication:\n\n- Citation check: every factual paragraph has at least one source anchor or a marked verification obligation.\n- Terminology check: `NormalizedKey` and `canonical tenant-qualified identity` are used consistently.\n- Link check: the mutation page links resolve to the earlier concept section and exact fragment anchor.\n- Fragment reuse check: the early fragment has one canonical identifier and is not duplicated inconsistently.\n- Claim-modality check: unverified statements are visibly marked as conditional or pending verification.\n- Actor check: key operational sentences have explicit subjects.\n- Placeholder sweep: every `[ ... ]` placeholder is either resolved or carried into a tracked publication blocker.\n\nIndependent review before publication:\n\n- A technical reviewer validates that each claim matches code and that all verification obligations are real and bounded.\n- A domain-naive reviewer reads the later mutation page alone and confirms it is locally understandable, with links sufficient for deeper context.\n- An editorial reviewer checks vocabulary stability, link precision, and that no duplicated fragment has drifted from the canonical source.\n\nPublication gate:\n\n- Do not publish while any unbounded placeholder remains, any asserted behavior lacks a citation, or the later page depends on rereading the early page for a fact it should have restated locally."}}
+{"type":"turn.completed","usage":{"input_tokens":11889,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":2884,"reasoning_output_tokens":2037}}
+
+
+===== SAMPLE S09 =====
+
+FINAL ANSWER
+
+Use a two-level treatment on the later mutation page: give a one-sentence local reminder of what `NormalizedKey` means, then deep-link to the early identity page and its anchored source fragment for the full definition. Do not repeat the full early source fragment on the mutation page; repeat only the semantic consequence in prose. The later page needs local readability, but the code fragment should stay single-sourced unless the later explanation depends on exact tokens or control flow from that fragment. If that happens, reuse a short anchored excerpt and mark it as repeated from the earlier page.
+
+What the later page should state locally:
+- "`NormalizedKey` is the canonical tenant-qualified identity used by this write path."
+- "All claims below about lookup, comparison, overwrite, or persistence apply to that canonical identity unless a cited fragment shows a different intermediate form."
+- "Any detail about how the key is formed, validated, or propagated that is not shown here is delegated to the earlier page or marked as a verification obligation."
+
+What it should link to:
+- The early explanatory page where `NormalizedKey` is introduced.
+- The exact early source fragment anchor that establishes the canonical-identity claim.
+- Any mutation-page fragment that first consumes or propagates `NormalizedKey`.
+
+Whether to repeat the source fragment:
+- Default: no.
+- Exception: repeat a short excerpt only if the later page makes a line-specific argument that cannot be understood from prose plus a link.
+- If repeated, keep the earlier page authoritative and label the later excerpt as contextual reuse.
+
+Representative later-page paragraph:
+
+“From `[mutation entry point]` onward, this walkthrough treats `NormalizedKey` as the subject of the write, not the caller’s pre-normalized input. That meaning is established earlier in `[Early page: NormalizedKey]` and grounded in `[Early source fragment anchor]`; this page relies on that contract rather than re-deriving it. As a result, each downstream step described here, including `[lookup step]`, `[conflict/precondition step]`, and `[storage mutation step]`, should be read as operating on the canonical tenant-qualified identity unless a cited fragment explicitly shows another representation. Any unshown detail about construction, validation, or failure at this boundary remains a verification obligation.”
+
+Prose rules:
+- Claims: every concrete claim must be tagged as either directly shown by a cited fragment, inferred from adjacent shown code, or left as a verification obligation. Do not let inference read like observation.
+- Stable vocabulary: define terms once and reuse them exactly. If `NormalizedKey` is the canonical tenant-qualified identity, do not later rename it to “qualified key,” “canonical key,” or similar.
+- Explicit actors: each important sentence names the actor, such as “caller,” “service code,” “normalization step,” “storage API,” or `[actor pending verification]`. Avoid actorless passive voice for control-flow or failure claims.
+- Failure categories: only name a failure category when the source supports it. Otherwise use placeholders such as `[failure category pending verification]`. Keep categories disjoint, for example `[identity formation failure]`, `[precondition/state failure]`, `[storage failure]`, `[unknown from current evidence]`, but only where verified.
+
+Mechanical checks before publication:
+- Every nontrivial claim has a citation or an explicit verification-obligation marker.
+- Every reuse link resolves to the exact earlier page section or fragment anchor.
+- `NormalizedKey` terminology is consistent across pages with no unchecked synonyms.
+- No invented identifiers, behaviors, or error modes appear without placeholder brackets.
+- Repeated excerpts, if any, are byte-identical to the source excerpt they reuse.
+- Each paragraph has an explicit actor for state changes, checks, and failures.
+- Every stated failure category is evidenced by code, tests, or intentionally marked unresolved.
+
+Independent review before publication:
+- Source-fidelity review by a reader who checks each claim against the cited fragments and removes any unstated behavior.
+- Reader-comprehension review by someone who knows the language and storage APIs but not the service domain; they should confirm the later page is understandable with only the local reminder plus the backlink.
+- Final editorial pass that checks vocabulary stability, link hygiene, placeholder resolution, and that unresolved points remain clearly marked as verification obligations rather than implied facts.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d8f-757a-73c0-b92a-afc49a6f27cf"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"Use a two-level treatment on the later mutation page: give a one-sentence local reminder of what `NormalizedKey` means, then deep-link to the early identity page and its anchored source fragment for the full definition. Do not repeat the full early source fragment on the mutation page; repeat only the semantic consequence in prose. The later page needs local readability, but the code fragment should stay single-sourced unless the later explanation depends on exact tokens or control flow from that fragment. If that happens, reuse a short anchored excerpt and mark it as repeated from the earlier page.\n\nWhat the later page should state locally:\n- \"`NormalizedKey` is the canonical tenant-qualified identity used by this write path.\"\n- \"All claims below about lookup, comparison, overwrite, or persistence apply to that canonical identity unless a cited fragment shows a different intermediate form.\"\n- \"Any detail about how the key is formed, validated, or propagated that is not shown here is delegated to the earlier page or marked as a verification obligation.\"\n\nWhat it should link to:\n- The early explanatory page where `NormalizedKey` is introduced.\n- The exact early source fragment anchor that establishes the canonical-identity claim.\n- Any mutation-page fragment that first consumes or propagates `NormalizedKey`.\n\nWhether to repeat the source fragment:\n- Default: no.\n- Exception: repeat a short excerpt only if the later page makes a line-specific argument that cannot be understood from prose plus a link.\n- If repeated, keep the earlier page authoritative and label the later excerpt as contextual reuse.\n\nRepresentative later-page paragraph:\n\n“From `[mutation entry point]` onward, this walkthrough treats `NormalizedKey` as the subject of the write, not the caller’s pre-normalized input. That meaning is established earlier in `[Early page: NormalizedKey]` and grounded in `[Early source fragment anchor]`; this page relies on that contract rather than re-deriving it. As a result, each downstream step described here, including `[lookup step]`, `[conflict/precondition step]`, and `[storage mutation step]`, should be read as operating on the canonical tenant-qualified identity unless a cited fragment explicitly shows another representation. Any unshown detail about construction, validation, or failure at this boundary remains a verification obligation.”\n\nProse rules:\n- Claims: every concrete claim must be tagged as either directly shown by a cited fragment, inferred from adjacent shown code, or left as a verification obligation. Do not let inference read like observation.\n- Stable vocabulary: define terms once and reuse them exactly. If `NormalizedKey` is the canonical tenant-qualified identity, do not later rename it to “qualified key,” “canonical key,” or similar.\n- Explicit actors: each important sentence names the actor, such as “caller,” “service code,” “normalization step,” “storage API,” or `[actor pending verification]`. Avoid actorless passive voice for control-flow or failure claims.\n- Failure categories: only name a failure category when the source supports it. Otherwise use placeholders such as `[failure category pending verification]`. Keep categories disjoint, for example `[identity formation failure]`, `[precondition/state failure]`, `[storage failure]`, `[unknown from current evidence]`, but only where verified.\n\nMechanical checks before publication:\n- Every nontrivial claim has a citation or an explicit verification-obligation marker.\n- Every reuse link resolves to the exact earlier page section or fragment anchor.\n- `NormalizedKey` terminology is consistent across pages with no unchecked synonyms.\n- No invented identifiers, behaviors, or error modes appear without placeholder brackets.\n- Repeated excerpts, if any, are byte-identical to the source excerpt they reuse.\n- Each paragraph has an explicit actor for state changes, checks, and failures.\n- Every stated failure category is evidenced by code, tests, or intentionally marked unresolved.\n\nIndependent review before publication:\n- Source-fidelity review by a reader who checks each claim against the cited fragments and removes any unstated behavior.\n- Reader-comprehension review by someone who knows the language and storage APIs but not the service domain; they should confirm the later page is understandable with only the local reminder plus the backlink.\n- Final editorial pass that checks vocabulary stability, link hygiene, placeholder resolution, and that unresolved points remain clearly marked as verification obligations rather than implied facts."}}
+{"type":"turn.completed","usage":{"input_tokens":11889,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":2919,"reasoning_output_tokens":2047}}
+
+
+===== SAMPLE S10 =====
+
+FINAL ANSWER
+
+**Recommendation**
+
+On the later mutation page, restate only the operational meaning the reader needs at that moment:
+
+- `NormalizedKey` is the identity used to decide which tenant-scoped record a write targets.
+- The page should say that the write path relies on the earlier definition, not redefine the type from scratch.
+- Link back to the early identity page and to the exact earlier source fragment anchor.
+- Do not repeat the full early source fragment by default. Reuse it by link unless the later page cannot be understood without seeing one specific line inline.
+- If one line is essential, repeat only that minimal line or a paraphrased callout, and label it as reused context rather than new evidence.
+
+This keeps the identity concept stable while avoiding duplicated explanation that can drift.
+
+**What The Later Page Should Contain Locally**
+
+The later page should state, in its own prose:
+
+- where in the write path the actor first needs tenant-qualified identity,
+- that the identity at that point is `NormalizedKey`,
+- why this matters for the mutation being described,
+- which later steps are claimed to consume that same identity or a verified derivative,
+- which details are still unknown and must be verified.
+
+It should link to:
+
+- the early page section that defines `NormalizedKey`,
+- the anchored early source fragment that demonstrates the canonical identity claim,
+- any later source location that shows the write path consuming that identity.
+
+It should not locally re-explain:
+
+- background motivation already covered on the early page,
+- alternate names for the same concept,
+- inferred behavior not yet verified in code.
+
+**Representative Later-Page Paragraph**
+
+“In the mutation path, the request-handling actor first needs a tenant-qualified target identity at `[VERIFY: entry point location]`. This walkthrough uses the earlier established fact that `NormalizedKey` is the canonical tenant-qualified identity, so the write described here is understood to target the record identified by that `NormalizedKey`, not by any pre-normalized input form. The earlier identity fragment remains the basis for that claim; this page applies it to the write path and should link back to that fragment rather than restating it in full. Any claim that a later step reuses the same identity, or a mechanically derived form of it, remains a verification obligation until the relevant code location is cited.”
+
+**Prose Rules**
+
+Claims:
+- Every implementation claim must be either cited to code or marked `[VERIFY]`.
+- Do not infer ordering, validation, caching, deduplication, conflict handling, or persistence semantics without evidence.
+- Separate “observed in code” from “required for reader understanding.”
+
+Stable vocabulary:
+- Use `NormalizedKey` exactly as the canonical term.
+- Use one fixed term for the thing being written, such as `[RECORD]`, until code confirms a better name.
+- Do not introduce synonyms like “entity key,” “storage key,” or “tenant key” unless the code itself distinguishes them.
+
+Explicit actors:
+- Every sentence describing behavior should name the actor: request-handling actor, normalization logic, mutation logic, storage client, or `[VERIFY: actual actor name]`.
+- Avoid actor-free prose like “the key is checked” or “the write is applied.”
+
+Failure categories:
+- Identity formation failure: cannot produce or validate the `NormalizedKey`.
+- Target resolution failure: cannot map the `NormalizedKey` to the intended record or storage location.
+- Mutation precondition failure: write rejected because a required condition is not met.
+- Storage operation failure: underlying storage call fails or returns an unexpected result.
+- Post-write observation failure: the write may succeed but confirmation, logging, or follow-up observation fails.
+- If the code uses different categories, replace these with code-backed names before publication.
+
+**Mechanical Checks Before Publication**
+
+- Terminology check: `NormalizedKey` appears with one spelling and no uncited synonyms.
+- Claim tagging check: every factual sentence has either a code citation or a `[VERIFY]` marker.
+- Link check: backlinks to the early identity page and anchored source fragment resolve.
+- Duplication check: the early source fragment is not fully repeated on the later page unless explicitly justified.
+- Actor check: each process sentence names an actor.
+- Failure check: each described failure belongs to one declared category.
+- Drift check: repeated statements about `NormalizedKey` match the early page wording.
+- Placeholder check: all placeholders are either resolved or collected in a publication-blocking verification list.
+
+**Independent Review Before Publication**
+
+- Implementation reviewer: confirms every cited code claim and rejects uncited behavior.
+- Fresh-reader reviewer: knows the language and storage APIs but not the service domain, and checks whether the later page is understandable using only the local restatement plus links.
+- Editorial reviewer: checks vocabulary stability, actor clarity, and non-duplication of the early fragment.
+- Publication gate: do not publish with unresolved `[VERIFY]` items unless the document is explicitly labeled draft and the open obligations are listed at the top.
+
+RAW EVENTS
+
+{"type":"thread.started","thread_id":"01a04d8c-6ae0-7690-93b0-e2b5a7329602"}
+{"type":"turn.started"}
+{"type":"item.completed","item":{"id":"item_0","type":"agent_message","text":"**Recommendation**\n\nOn the later mutation page, restate only the operational meaning the reader needs at that moment:\n\n- `NormalizedKey` is the identity used to decide which tenant-scoped record a write targets.\n- The page should say that the write path relies on the earlier definition, not redefine the type from scratch.\n- Link back to the early identity page and to the exact earlier source fragment anchor.\n- Do not repeat the full early source fragment by default. Reuse it by link unless the later page cannot be understood without seeing one specific line inline.\n- If one line is essential, repeat only that minimal line or a paraphrased callout, and label it as reused context rather than new evidence.\n\nThis keeps the identity concept stable while avoiding duplicated explanation that can drift.\n\n**What The Later Page Should Contain Locally**\n\nThe later page should state, in its own prose:\n\n- where in the write path the actor first needs tenant-qualified identity,\n- that the identity at that point is `NormalizedKey`,\n- why this matters for the mutation being described,\n- which later steps are claimed to consume that same identity or a verified derivative,\n- which details are still unknown and must be verified.\n\nIt should link to:\n\n- the early page section that defines `NormalizedKey`,\n- the anchored early source fragment that demonstrates the canonical identity claim,\n- any later source location that shows the write path consuming that identity.\n\nIt should not locally re-explain:\n\n- background motivation already covered on the early page,\n- alternate names for the same concept,\n- inferred behavior not yet verified in code.\n\n**Representative Later-Page Paragraph**\n\n“In the mutation path, the request-handling actor first needs a tenant-qualified target identity at `[VERIFY: entry point location]`. This walkthrough uses the earlier established fact that `NormalizedKey` is the canonical tenant-qualified identity, so the write described here is understood to target the record identified by that `NormalizedKey`, not by any pre-normalized input form. The earlier identity fragment remains the basis for that claim; this page applies it to the write path and should link back to that fragment rather than restating it in full. Any claim that a later step reuses the same identity, or a mechanically derived form of it, remains a verification obligation until the relevant code location is cited.”\n\n**Prose Rules**\n\nClaims:\n- Every implementation claim must be either cited to code or marked `[VERIFY]`.\n- Do not infer ordering, validation, caching, deduplication, conflict handling, or persistence semantics without evidence.\n- Separate “observed in code” from “required for reader understanding.”\n\nStable vocabulary:\n- Use `NormalizedKey` exactly as the canonical term.\n- Use one fixed term for the thing being written, such as `[RECORD]`, until code confirms a better name.\n- Do not introduce synonyms like “entity key,” “storage key,” or “tenant key” unless the code itself distinguishes them.\n\nExplicit actors:\n- Every sentence describing behavior should name the actor: request-handling actor, normalization logic, mutation logic, storage client, or `[VERIFY: actual actor name]`.\n- Avoid actor-free prose like “the key is checked” or “the write is applied.”\n\nFailure categories:\n- Identity formation failure: cannot produce or validate the `NormalizedKey`.\n- Target resolution failure: cannot map the `NormalizedKey` to the intended record or storage location.\n- Mutation precondition failure: write rejected because a required condition is not met.\n- Storage operation failure: underlying storage call fails or returns an unexpected result.\n- Post-write observation failure: the write may succeed but confirmation, logging, or follow-up observation fails.\n- If the code uses different categories, replace these with code-backed names before publication.\n\n**Mechanical Checks Before Publication**\n\n- Terminology check: `NormalizedKey` appears with one spelling and no uncited synonyms.\n- Claim tagging check: every factual sentence has either a code citation or a `[VERIFY]` marker.\n- Link check: backlinks to the early identity page and anchored source fragment resolve.\n- Duplication check: the early source fragment is not fully repeated on the later page unless explicitly justified.\n- Actor check: each process sentence names an actor.\n- Failure check: each described failure belongs to one declared category.\n- Drift check: repeated statements about `NormalizedKey` match the early page wording.\n- Placeholder check: all placeholders are either resolved or collected in a publication-blocking verification list.\n\n**Independent Review Before Publication**\n\n- Implementation reviewer: confirms every cited code claim and rejects uncited behavior.\n- Fresh-reader reviewer: knows the language and storage APIs but not the service domain, and checks whether the later page is understandable using only the local restatement plus links.\n- Editorial reviewer: checks vocabulary stability, actor clarity, and non-duplication of the early fragment.\n- Publication gate: do not publish with unresolved `[VERIFY]` items unless the document is explicitly labeled draft and the open obligations are listed at the top."}}
+{"type":"turn.completed","usage":{"input_tokens":11783,"cached_input_tokens":7936,"cache_write_input_tokens":0,"output_tokens":1525,"reasoning_output_tokens":516}}
+
+

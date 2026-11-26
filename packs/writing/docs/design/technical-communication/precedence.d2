@@ -1,0 +1,24 @@
+direction: down
+
+classes: {
+  start: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+  marker: {shape: page; style: {fill: "#eef2ff"; stroke: "#4338ca"}}
+}
+
+r1: "Start here:\n1. The human's explicit request\nfor one output" {class: start}
+r2: "2. Meaning: no lost information,\nhedge or caveat; no added fact"
+r3: "3. This skill's rules for\nwords and sentences"
+r4: "4. House style: grove's communication\nsection, explanatory style, templates,\ncommit conventions, formatting"
+
+m1: "<!-- tc: exempt because ... -->\nreply or document; logged as exempt" {class: marker}
+m2: "<!-- tc: depart <rule> because ... -->\none block; documents only" {class: marker}
+m3: "<!-- tc: off because ... --> ... <!-- tc: on -->\ntext that is not ours to change" {class: marker}
+m4: "<!-- tc: pending because ... --> ... <!-- tc: on -->\nnot converted yet (large documents)" {class: marker}
+
+r1 -> r2: "1. wins over"
+r2 -> r3: "2. wins over"
+r3 -> r4: "3. wins over"
+r1 -> m1: "marked by"
+r2 -> m2: "marked by"
+r3 -> m3: "exclusions"
+r3 -> m4: "lazy conversion"

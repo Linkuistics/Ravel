@@ -1,0 +1,41 @@
+direction: right
+
+classes: {
+  start: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+}
+
+file: "Start here:\none JSON Lines file per session\nsessions/<harness>--<session>.jsonl" {class: start}
+
+startrec: "start record" {
+  shape: sql_table
+  v: "1"
+  kind: "start"
+  ts: "UTC time"
+  harness: "claude-code | codex | pi | gemini"
+  session: "harness session id"
+  agent: "subagent id, or null"
+  source: "startup | resume | clear | compact | subagent"
+}
+
+replyrec: "reply record" {
+  shape: sql_table
+  v: "1"
+  kind: "reply"
+  ts: "UTC time"
+  harness: "claude-code | codex | pi | gemini"
+  model: "model id, or null"
+  session: "harness session id"
+  agent: "subagent id, or null"
+  seq: "nth reply of this agent here"
+  since_start: "replies since the last start"
+  words: "prose words scored"
+  hard: "hard findings"
+  advisory: "advisory findings"
+  per_100: "hard findings per 100 words"
+  rules: "{rule id: count}"
+  exempt: "null, or the reason"
+  checker: "checker digest"
+}
+
+file -> startrec: "1. at each start"
+file -> replyrec: "2. at each reply"

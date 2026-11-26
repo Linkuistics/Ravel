@@ -1,0 +1,28 @@
+direction: down
+
+classes: {
+  start: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+  stops: {style: {fill: "#dcfce7"; stroke: "#166534"}}
+  stays: {style: {fill: "#fef3c7"; stroke: "#b45309"}}
+}
+
+flag: "Start here:\ncreate the file\n~/.local/state/technical-communication/off" {class: start}
+
+core: "Every hook event\nreads the flag first"
+
+hooks: "Next event: stops" {
+  instruction: "instruction at start" {class: stops}
+  reminder: "reminder per prompt" {class: stops}
+  gate: "document gate" {class: stops}
+  log: "reply log" {class: stops}
+}
+
+beyond: "Outside a hook's reach" {
+  injected: "text already in a running\nsession's context:\nstays until that session ends" {class: stays}
+  skill: "SKILL.md stays installed;\nits description fires only\nwith the instruction present\nor when the human asks" {class: stays}
+  primed: "a line you paste into a\nglobal AGENTS.md yourself:\nobeys the switch only if it\nnames the flag file" {class: stays}
+}
+
+flag -> core: "1. checked on every event"
+core -> hooks: "2. off: exit 0, print nothing, write nothing"
+flag -> beyond: "not reached" {style.stroke-dash: 3}

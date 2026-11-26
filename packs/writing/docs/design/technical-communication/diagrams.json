@@ -1,0 +1,106 @@
+{
+  "title": "technical-communication: design views",
+  "intro": "Agreed design for the always-on controlled-English skill; the spec docs/specs/technical-communication.md is the contract. Each graph view starts at the dark box whose label begins with \"Start here\"; numbered edge labels give the order of steps.",
+  "groups": [
+    {
+      "id": "layers",
+      "title": "Layers and layout",
+      "description": "What each layer is and where its files live."
+    },
+    {
+      "id": "behaviour",
+      "title": "Behaviour",
+      "description": "The four events, the precedence order with its markers, and lazy conversion."
+    },
+    {
+      "id": "switch-log",
+      "title": "Switch and reply log",
+      "description": "Items 2 and 3, agreed in a live check: one off file, no retraction; scores and counts only, one file per session."
+    },
+    {
+      "id": "harnesses",
+      "title": "Harness mapping",
+      "description": "Item 7: agreed. No writes to your AGENTS.md files; a Codex hooks plugin you trust once; Gemini CLI gets the skill only; install.sh also links the Pi extension."
+    }
+  ],
+  "discussion": {
+    "title": "Agreed in skill-design-k5",
+    "status": "Agreed",
+    "summary": "No writes to the human's global AGENTS.md files; a Codex hooks plugin the human trusts once; Gemini CLI gets the skill only; install.sh also links the Pi extension; the off file acts at each layer's next event with no retraction; the log stores scores and counts only, in one file per session; no review chain.",
+    "diagramIds": [
+      "layers",
+      "events",
+      "precedence",
+      "conversion",
+      "switch",
+      "log",
+      "harness-map"
+    ],
+    "updatedDiagrams": []
+  },
+  "diagrams": [
+    {
+      "id": "layers",
+      "group": "layers",
+      "title": "Layers and where they live",
+      "renderer": "svg",
+      "source": "layers.d2",
+      "rendered": "layers.svg",
+      "caption": "Everything ships in one skill directory, except each harness's own entry file (Claude Code requires hooks.json at the plugin root). Entries are thin and never change shape, because Codex trust is a hash of the entry. The hook core reads the off file first on every event, then injects the always-on text or calls the checker. The checker alone writes the reply log."
+    },
+    {
+      "id": "events",
+      "group": "behaviour",
+      "title": "The four events",
+      "renderer": "svg",
+      "source": "events.d2",
+      "rendered": "events.svg",
+      "caption": "Start and prompt add context. A write returns findings beside the tool result, which is the quiet channel on every harness: the write stays on disk and no extra turn starts. A reply is scored and the hook prints nothing, because any output from a stop hook continues the turn. Every path exits 0."
+    },
+    {
+      "id": "precedence",
+      "group": "behaviour",
+      "title": "Precedence and its markers",
+      "renderer": "svg",
+      "source": "precedence.d2",
+      "rendered": "precedence.svg",
+      "caption": "The order is yours from plan-k1. The design adds one marker grammar, an HTML comment that starts with tc:, so each departure carries its reason. A marker without a 'because' clause is itself a hard finding, and the departure does not apply."
+    },
+    {
+      "id": "conversion",
+      "group": "behaviour",
+      "title": "Lazy conversion, its fallback and the jj step",
+      "renderer": "svg",
+      "source": "conversion.d2",
+      "rendered": "conversion.svg",
+      "caption": "Tested in a scratch jj repository: jj split -m with the document's path keeps the conversion in its own parent change and leaves other in-progress work on top, also when the conversion is the only change. The size thresholds are starting values for field use to tune."
+    },
+    {
+      "id": "switch",
+      "group": "switch-log",
+      "title": "What the off file reaches",
+      "renderer": "svg",
+      "source": "switch.d2",
+      "rendered": "switch.svg",
+      "caption": "One flag file, because it is the only form every harness's hooks can read: an environment variable misses Codex sessions hosted by its background daemon, and each built-in switch is either specific to one harness or turns off much more. Absence means on. Text already in a running session is not retracted."
+    },
+    {
+      "id": "log",
+      "group": "switch-log",
+      "title": "Reply log records",
+      "renderer": "svg",
+      "source": "log.d2",
+      "rendered": "log.svg",
+      "caption": "No reply text and no matched fragments are stored. seq and since_start answer 'does compliance fade'; since_start resets at a compaction, which re-sends the instruction. harness and model answer 'do harnesses differ'. checker is a digest of the checker file, so a score from an older rule set is visible as such."
+    },
+    {
+      "id": "harness-map",
+      "group": "harnesses",
+      "title": "Layers per harness",
+      "renderer": "svg",
+      "source": "harness-map.d2",
+      "rendered": "harness-map.svg",
+      "caption": "Green: a layer the harness gets. Grey: the fallback, where the model runs the checker itself. Codex layers run only after the human trusts its hooks plugin once; until then Codex is skill only."
+    }
+  ]
+}

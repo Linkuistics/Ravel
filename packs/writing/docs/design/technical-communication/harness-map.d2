@@ -1,0 +1,41 @@
+grid-rows: 6
+grid-columns: 5
+grid-gap: 6
+
+classes: {
+  head: {style: {fill: "#1f2937"; font-color: "#ffffff"; bold: true}}
+  yes: {style: {fill: "#dcfce7"; stroke: "#166534"}}
+  ask: {style: {fill: "#fef3c7"; stroke: "#b45309"; stroke-dash: 4}}
+  no: {style: {fill: "#e5e7eb"; stroke: "#6b7280"}}
+}
+
+h0: "Start here:\nlayer" {class: head}
+h1: "Claude Code" {class: head}
+h2: "Codex" {class: head}
+h3: "Pi" {class: head}
+h4: "Gemini CLI" {class: head}
+i0: "instruction" {class: head}
+i1: "SessionStart +\nSubagentStart" {class: yes}
+i2: "SessionStart +\nSubagentStart,\nonce you trust it" {class: yes}
+i3: "before_agent_start\n-> system prompt" {class: yes}
+i4: "none: skill only" {class: no}
+r0: "reminder" {class: head}
+r1: "UserPromptSubmit" {class: yes}
+r2: "UserPromptSubmit,\nonce you trust it" {class: yes}
+r3: "context handler,\nnot persisted" {class: yes}
+r4: "none: skill only" {class: no}
+g0: "document gate" {class: head}
+g1: "PostToolUse\nWrite|Edit|NotebookEdit" {class: yes}
+g2: "PostToolUse apply_patch,\nonce you trust it" {class: yes}
+g3: "tool_result\nwrite, edit" {class: yes}
+g4: "model runs\nthe checker" {class: no}
+l0: "reply log" {class: head}
+l1: "Stop + SubagentStop" {class: yes}
+l2: "Stop + SubagentStop,\nonce you trust it" {class: yes}
+l3: "agent_end" {class: yes}
+l4: "none" {class: no}
+d0: "delivered by" {class: head}
+d1: "hooks plugin from\nGrove's keg: register once" {class: yes}
+d2: "hooks plugin from Grove's keg:\nadd and trust after each upgrade" {class: yes}
+d3: "you link the extension\nfrom Grove's keg" {class: yes}
+d4: "nothing: you point it\nto the skill directory" {class: no}

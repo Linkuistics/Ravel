@@ -1,0 +1,11 @@
+Prepare an authoring plan for a complete-source Markdown walkthrough of the
+external OCaml utility in this directory. The only in-scope production source is
+targets/ocaml/check_floor.ml; no other project file is supplied or in scope. The
+snapshot is authoritative and stable. The audience knows OCaml and Unix build
+tooling but not this utility. You may use read-only shell commands only to inspect
+that declared file. Do not write the walkthrough. Return: the exact source
+inventory and unknown/excluded material; a concept-oriented reader sequence; a
+concrete fragment ledger with one file root, named child fragments, source ranges,
+and insertion relationships; one low-resolution worked execution from production
+inputs through stage boundaries to outputs and observable results; and the exact
+mechanical checks required before publication.
