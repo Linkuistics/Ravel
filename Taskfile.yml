@@ -17,3 +17,5 @@ tasks:
       - mise exec -C packs/engineering -- task check
       - mise exec -C packs/research -- task check
       - mise exec -C packs/writing -- task check
+      - mise exec -C universal-grammar/core -- task check
+      - mise exec -C universal-grammar/visualiser -- task check

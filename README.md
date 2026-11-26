@@ -24,6 +24,18 @@ explains the layout.
     research kinds.
   - **[Writing](packs/writing/)**, in `packs/writing/`. It ships the
     editorial kinds and writing craft skills.
+- **Universal Refinement Grammar**, in `universal-grammar/`. Its two
+  components keep separate tools, because one is in Python and one is in
+  Rust.
+  - **[UniversalGrammar](universal-grammar/core/)**, in
+    `universal-grammar/core/`. It discovers how authors explain technical
+    subjects, from whole books down to explanatory episodes. Its pipeline
+    reads a personal library, and version control excludes that library and
+    the data derived from it.
+  - **[Visualiser](universal-grammar/visualiser/)**, in
+    `universal-grammar/visualiser/`. It is a workbench for hand-written
+    grammars of steps. It traces sequences of steps through a grammar and
+    draws the rules as diagrams.
 
 ## Work in a checkout
 
