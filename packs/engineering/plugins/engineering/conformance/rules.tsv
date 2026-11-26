@@ -1,0 +1,18 @@
+# The rules that the files of the engineering pack own, as data.
+#
+# Grove's `plugins/grove/conformance/rules.tsv` states the five tab-separated
+# columns: rule, owner, class, load and phrase. Grove's
+# `docs/specs/external-pack-contract.md`, "Conformance", states what a run
+# checks with this manifest alone and in the aggregate with core.
+#
+# Each owner is a file that this pack ships. A rule ID is unique across this
+# manifest and every manifest that a run supplies. The conformance runner reads
+# only `skills/`, so no row has an owner in `craft/`.
+#
+# The four rows are the rows of Grove's manifest whose owner is
+# `grove-impl/SKILL.md` or `grove-prototype/SKILL.md`. The family members own
+# no row.
+cite-framework-decisions-to-source	grove-impl/SKILL.md	B+S	static({impl})	Cite at the decision site
+hard-to-reverse-pairs-with-doubt	grove-impl/SKILL.md	B+S	static({impl})	cite the source *and* have a fresh context try to break it
+impl-ships	grove-impl/SKILL.md	B	static({impl})	
+prototype-is-throwaway	grove-prototype/SKILL.md	B	static({prototype})	
