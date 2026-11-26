@@ -43,7 +43,8 @@ The spec and the decision records settle each design question below.
 - The inspection commands: static inspection and evaluated preview. Ordinary
   logs show no prompt body by default.
 - How existing users keep their skills during the transition. Grove's skills
-  and DesignSkills stay in their current form in this grove.
+  stay in their current form in this grove. DesignSkills keeps its current
+  form until `design-skills-merge` converts it, after its merge.
 
 ## Notes
 

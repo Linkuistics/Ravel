@@ -26,8 +26,12 @@ states.
 - An opt-in Taskfile task runs the trial set on the real Claude Code in a
   sandbox home with the owner's sign-in. Its report stays separate from the
   simulated tests.
+- This session ran that task. The running log records the Claude Code
+  version, the result and each failure.
 
 ## Notes
 
+- If the real trial cannot run, record the blocker and keep this leaf live.
+  Fake-seam results are not evidence of a real trial.
 - Re-check each flag against the installed Claude Code version. The survey's
   sources age.

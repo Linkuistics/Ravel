@@ -28,3 +28,5 @@ those of the writing rules, move into the metadata form.
   what a skill needs. If the case changes behaviour, stop and ask.
 - DesignSkills converts in `design-skills-merge`, after its merge. Grove's own
   skills stay in their current form in this grove.
+- For Gemini CLI, the command-line seam shows that the hooks run. The root leaf
+  `gemini-cli-trial` owns the real trial, and it does not gate this leaf.

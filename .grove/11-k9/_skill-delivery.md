@@ -30,7 +30,9 @@ Code, Codex and Gemini CLI.
   default.
 - The merged packs use the one form.
 - Opt-in Taskfile tasks run a trial set on each supported harness. Their
-  reports stay separate from the simulated tests.
+  reports stay separate from the simulated tests. The real trials on Claude
+  Code and Codex ran, with recorded results. The real Gemini CLI trial belongs
+  to the root leaf `gemini-cli-trial`.
 
 ## Decomposition
 
@@ -46,7 +48,9 @@ it, each leaf leaves the product working and adds one verifiable behaviour.
    them through the prompt to every harness. The evaluated preview shows the
    exact prompt. This is the smallest end-to-end path.
 4. `claude-code-adapter`, `codex-adapter` and `gemini-cli-adapter`: native
-   delivery and launch-time hooks, one supported harness each.
+   delivery and launch-time hooks, one supported harness each. The first two
+   run their real trials. The Gemini CLI trial waits for a sign-in, so a root
+   leaf runs it later.
 5. `pack-form`: the merged packs move to the one form.
 
 The leaves share the skill spec and the harness research. The Lua leaves need
@@ -70,8 +74,11 @@ neither, so this scope earns its own node.
 
 ## Notes
 
-- Grove's own skills and DesignSkills stay unconverted in this grove. Ravel
-  still delivers them, so the form must accept them, or a documented
+- Grove's own skills stay unconverted in this grove. DesignSkills stays
+  unconverted until `design-skills-merge` converts it, late in the grove. Ravel
+  still delivers both, so the form must accept them, or a documented
   compatibility reading must.
-- Gemini CLI is not installed on the owner's machine. Its trials need the
-  owner to install it and sign in first.
+- Gemini CLI is not installed on the owner's machine. Its real trial needs the
+  owner to install it and sign in first. So the root leaf `gemini-cli-trial`
+  runs that trial, after the corpus review. A pending sign-in then blocks no
+  work that does not use the result.

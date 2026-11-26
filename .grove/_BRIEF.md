@@ -87,9 +87,13 @@ this order, and each increment leaves the product working.
 7. **DesignSkills** (`design-skills-merge`). It sits late, because it waits for
    Grove's leaf `relocate-decomposition-design-k1028`. A blocked leaf earlier
    would stop the walk.
-8. **Shipping, book and release** (`pack-shipping`, `book`, `release`). The
-   owner decides the formula move and the releases. The book follows its
-   editorial pipeline, and the release ships migration notes.
+8. **Pack shipping** (`pack-shipping`). The owner decides the formula move and
+   the releases.
+9. **Gemini CLI trial** (`gemini-cli-trial`). The real trial waits for the
+   owner to install Gemini CLI and sign in. It sits after the work that does
+   not use its result, and before the book and the release, which do.
+10. **Book and release** (`book`, `release`). The book follows its editorial
+    pipeline, and the release ships migration notes.
 
 A node holds an increment whose leaves share a subgoal, a joint completion
 condition and context that the other leaves do not need. The research pair,

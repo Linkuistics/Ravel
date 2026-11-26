@@ -22,13 +22,14 @@ and applies their launch-time hooks, as the spec `skill-discovery` states.
 - A fake Gemini CLI at the command-line seam records the arguments, the
   environment, the input and the readable files. Tests show the delivery and
   the hooks through the launch boundary in an isolated home.
-- An opt-in Taskfile task runs the trial set on the real Gemini CLI in a
+- An opt-in Taskfile task can run the trial set on the real Gemini CLI in a
   sandbox home with the owner's sign-in. Its report stays separate from the
-  simulated tests.
+  simulated tests. A test against the fake shows that the task runs the trial
+  set.
 
 ## Notes
 
-- Gemini CLI is not installed on the owner's machine. First, ask the owner to
-  install it and sign in. Do the fake-seam work while the answer is pending.
-- If the owner cannot do the trial in this session, keep this leaf live. The
-  trial is then its only remainder. Do not mark the trial done.
+- Gemini CLI is not installed on the owner's machine. This leaf does not need
+  it.
+- The root leaf `gemini-cli-trial-k33` runs the real trial. Do not run it here,
+  and do not claim a real trial result.
