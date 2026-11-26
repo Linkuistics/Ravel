@@ -13,6 +13,17 @@ explains the layout.
   Codex, as supervised parts of another program. Its
   [README](launcher/README.md) explains the installation and points to its
   book.
+- **Skill packs**, in `packs/`. Each pack ships session kinds of
+  [Grove](https://github.com/Linkuistics/grove) as agent skills. The four
+  packs share their tool pins in `packs/mise.toml`.
+  - **[Requirements](packs/requirements/)**, in `packs/requirements/`. It
+    ships the requirements kinds.
+  - **[Engineering](packs/engineering/)**, in `packs/engineering/`. It ships
+    the `impl` and `prototype` kinds and engineering craft skills.
+  - **[Research](packs/research/)**, in `packs/research/`. It ships the
+    research kinds.
+  - **[Writing](packs/writing/)**, in `packs/writing/`. It ships the
+    editorial kinds and writing craft skills.
 
 ## Work in a checkout
 

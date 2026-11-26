@@ -71,10 +71,11 @@ does not fetch or update the checkout.
 
 ## Checks
 
-Run every check of the pack:
+Run every check of the pack in this directory. mise supplies each program
+that the checks call, from `packs/mise.toml`:
 
 ```sh
-task check
+mise exec -- task check
 ```
 
 The checks use Grove's conformance runner from a plain Git checkout of Grove,
@@ -85,7 +86,7 @@ repository.
 - `task check:conformance` checks the pack alone, then the aggregate of
   Grove's core and this pack.
 - `task check:plugin` checks the Claude Code plugin with
-  `claude plugin validate`. It skips when Claude Code is not installed.
+  `claude plugin validate`.
 
 ## Provenance
 

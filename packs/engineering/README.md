@@ -110,10 +110,11 @@ does not fetch or update the checkout.
 
 ## Checks
 
-Run every check of the pack:
+Run every check of the pack in this directory. mise supplies each program
+that the checks call, from `packs/mise.toml`:
 
 ```sh
-task check
+mise exec -- task check
 ```
 
 The checks use Grove's conformance runner and Grove's spine from a plain Git
@@ -123,7 +124,7 @@ the public Grove repository.
 
 - `task check:plugin` checks the Claude Code plugin with
   `claude plugin validate`, which covers the manifest and the craft skills of
-  `craft/`. It skips when Claude Code is not installed.
+  `craft/`.
 - `task check:doubt` checks the composition of `doubt-driven-development` with
   Grove. `scripts/doubt-composition.sh` holds the skill's half of seven
   assertions that Grove's tests moved to this pack. Each assertion also reads

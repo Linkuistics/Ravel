@@ -59,14 +59,9 @@ tasks:
       - bash '{{.GROVE_DIR}}/plugins/grove/conformance.sh' --pack '{{.PACK}}'
 
   check:plugin:
-    desc: Validate the Claude Code plugin manifest, or skip when Claude Code is not installed
+    desc: Validate the Claude Code plugin manifest
     cmds:
-      - |
-        if ! command -v claude >/dev/null 2>&1; then
-          echo "skipping check:plugin: Claude Code is not installed"
-          exit 0
-        fi
-        claude plugin validate '{{.PACK}}'
+      - claude plugin validate '{{.PACK}}'
 
   check:doubt:
     desc: Check the composition of doubt-driven-development with Grove, then the controls of that check

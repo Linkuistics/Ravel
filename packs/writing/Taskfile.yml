@@ -63,15 +63,10 @@ tasks:
       - bash '{{.GROVE_DIR}}/plugins/grove/conformance.sh' --pack '{{.PACK}}'
 
   check:plugin:
-    desc: Validate both Claude Code plugins, the writing plugin and its hooks plugin, or skip when Claude Code is not installed
+    desc: Validate both Claude Code plugins, the writing plugin and its hooks plugin
     cmds:
-      - |
-        if ! command -v claude >/dev/null 2>&1; then
-          echo "skipping check:plugin: Claude Code is not installed"
-          exit 0
-        fi
-        claude plugin validate '{{.PACK}}'
-        claude plugin validate '{{.HOOKS_PLUGIN}}'
+      - claude plugin validate '{{.PACK}}'
+      - claude plugin validate '{{.HOOKS_PLUGIN}}'
 
   check:hooks:
     desc: Count the hook declarations of each installation of the two plugins, then run the controls that must fail

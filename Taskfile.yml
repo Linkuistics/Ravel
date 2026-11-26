@@ -13,3 +13,7 @@ tasks:
     desc: Run the check of each component in its own directory and mise environment
     cmds:
       - mise exec -C launcher -- task check
+      - mise exec -C packs/requirements -- task check
+      - mise exec -C packs/engineering -- task check
+      - mise exec -C packs/research -- task check
+      - mise exec -C packs/writing -- task check

@@ -203,10 +203,11 @@ of the checkout. It does not fetch or update the checkout.
 
 ## Checks
 
-Run every check of the pack:
+Run every check of the pack in this directory. mise supplies each program
+that the checks call, from `packs/mise.toml`:
 
 ```sh
-task check
+mise exec -- task check
 ```
 
 The conformance checks use Grove's conformance runner from a plain Git checkout
@@ -216,7 +217,7 @@ repository.
 
 - `task check:plugin` checks both Claude Code plugins with
   `claude plugin validate`: the writing plugin, with the craft skills of
-  `craft/`, and the hooks plugin. It skips when Claude Code is not installed.
+  `craft/`, and the hooks plugin.
 - `task check:hooks` runs `scripts/hook-count.py`. The script counts the hook
   declarations of three installations: the writing plugin alone, the hooks
   plugin alone, and both. For each plugin, it reads the default
@@ -233,7 +234,8 @@ repository.
 - `task check:tc-pi` loads the Pi extension in a real Pi, with no model
   request. It checks that the extension writes a start record. Its controls
   check that the off file stops that record and that Pi reports an extension
-  that cannot load. It skips when Pi is not installed.
+  that cannot load. The script skips when Pi is not installed, but
+  `packs/mise.toml` supplies Pi.
 - `task check:conformance` checks the pack alone, then the aggregate of
   Grove's core and this pack. Conformance covers only the kind skills in
   `skills/`. It does not read `craft/`.

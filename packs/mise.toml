@@ -1,0 +1,26 @@
+# The tool pins of the four skill packs. Each pack keeps its own Taskfile.yml,
+# and mise reads this file for each directory below packs/. Every program that
+# a pack task or a script of that task calls comes from here.
+#
+# The utilities that macOS ships in /bin and /usr/bin stay outside this file.
+# Examples are awk, sed, find, sort, mktemp and sh.
+[tools]
+# task runs the recipes in each pack's Taskfile.yml.
+task = "3.54.0"
+# git makes the checkout of each pack's pinned Grove commit.
+"conda:git" = "2.56.1"
+# Grove's conformance runner and the pack scripts run under bash. macOS ships
+# only bash 3.2 in /bin.
+"conda:bash" = "5.3"
+# claude checks the manifests of the Claude Code plugins.
+claude = "2.1.322"
+# python3 runs the hook checks, the technical-communication checker and its
+# hook, and the server of the design views.
+python = "3.15.2"
+# shellcheck lints the technical-communication hook guard and the Pi load check.
+shellcheck = "0.11.0"
+# pi loads the technical-communication Pi extension in check:tc-pi and
+# check:hook-writes.
+pi = "0.84.2"
+# d2 renders the technical-communication design views.
+d2 = "0.9.0"
