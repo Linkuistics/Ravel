@@ -1,0 +1,17 @@
+# The rules that the files of the research pack own, as data.
+#
+# Grove's `plugins/grove/conformance/rules.tsv` states the five tab-separated
+# columns: rule, owner, class, load and phrase. Grove's
+# `docs/specs/external-pack-contract.md`, "Conformance", states what a run
+# checks with this manifest alone and in the aggregate with core.
+#
+# Each owner is a file that this pack ships. A rule ID is unique across this
+# manifest and every manifest that a run supplies.
+agreement-without-independent-primary-sourcing-is-a-red-flag	grove-combine-research/SKILL.md	B+S	static({combine-research})	
+combine-writes-the-union	grove-combine-research/SKILL.md	B	static({combine-research})	
+both-researchers-get-one-brief	research-family/SKILL.md	B	static({research-a,research-b})	
+citation-per-failure-mode-claim	research-family/SKILL.md	B	static({research-a,research-b})	
+research-output-path-per-kind	research-family/SKILL.md	B	static({research-a,research-b})	
+researchers-are-not-adversarial	research-family/SKILL.md	B	static({research-a,research-b})	
+silence-is-a-finding	research-family/SKILL.md	B	static({research-a,research-b})	
+walk-away-check-per-system	research-family/SKILL.md	B	static({research-a,research-b})	
