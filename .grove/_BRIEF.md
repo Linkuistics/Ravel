@@ -1,0 +1,162 @@
+# Ravel.gh-issue-6 — brief
+
+## Goal
+
+Make Ravel a universal entry point for sessions on subscription-billed
+harnesses. A caller asks for a session kind, and the owner's Lua configuration
+selects the harness, the model, the effort and the skills. A skill has one
+form, and Ravel makes it work as identically as possible on every supported
+harness. The owner's statement is Linkuistics/Ravel#6, which coordinates #4 and
+#5.
+
+This grove also runs the first stage of one Ravel product. It merges five skill
+packs, UniversalGrammar and UniversalGrammar-Visualiser into the Ravel
+repository. DesignSkills follows when it is free.
+
+## Done when
+
+Each condition traces to a decision in the running log of `plan-k1`.
+
+- **Lua configuration.** Ravel embeds a pinned standard Lua as its primary
+  configuration language, and it needs no separate Lua installation.
+- **Selection.** A Lua script selects the harness route, the applied skills
+  and the available skills for each kind, including an empty selection. A
+  missing selected skill fails with a clear refusal.
+- **Rhai.** A 2.x release reads Lua and Rhai. Rhai keeps its 2.0 behaviour
+  exactly and gets no new feature. A build without the Rhai module passes the
+  Lua tests.
+- **Skill form.** A skill has one authoring form and one optional metadata
+  form. Every skill identifier has a namespace, and no precedence rule settles
+  equal names. The owner's skills live in `~/.config/ravel/skills`, and
+  installed skills stay as aliases in `share/ravel/skills`.
+- **Descriptions.** An available skill takes its description from its
+  metadata, or else from its first paragraph. Inspection shows each
+  description.
+- **Supported harnesses.** Adapters that Ravel owns make skills behave as
+  identically as possible on Claude Code, Codex and Gemini CLI. That includes
+  launch-time hooks, such as those of the writing rules.
+- **Other harnesses.** Every other harness receives skills through the prompt.
+  Each gap has a documented explicit alternative or an actionable refusal.
+- **Inspection.** Static inspection and an evaluated preview show the route,
+  the selected skills, the delivery mode, the limitations and the exact prompt.
+  That prompt includes the unmodified caller task. Ordinary logs show no prompt
+  body by default.
+- **Protected paths.** The skill directory inside `~/.config/ravel` works. No
+  link or overlap exposes the configuration or a result channel.
+- **First merge stage.** RequirementsSkills, EngineeringSkills, ResearchSkills,
+  WritingSkills, PersonalSkills, UniversalGrammar and
+  UniversalGrammar-Visualiser are in the Ravel repository with their history.
+  Their checks pass there. DesignSkills joins after Grove's leaf
+  `relocate-decomposition-design-k1028` lands.
+- **Corpus review.** The review covers the 32 skills of the five merged packs
+  for readability. It records their intended semantics, and the owner decides
+  each substantive change of policy. The original material and its provenance
+  stay available.
+- **Tests.** The acceptance tests run at the four agreed seams below. Reports
+  of real harness trials stay separate from simulated tests.
+- **Releases.** Each Ravel or Grove release that this work causes ships with
+  migration notes for installed users.
+- **Documentation.** The book, specs, decision records, examples, packaging and
+  third-party notices match the delivered contract. A record states how the
+  outcome relates to #4, #5 and #7.
+
+## Decomposition
+
+The requirements leaf `plan-k1` settled the requirements with the owner. The
+work needs many sessions across several areas, so the planning leaf
+`unification-k2` decomposes it with fresh context. Planning reads this brief
+and the running log of `plan-k1`.
+
+## Pointers
+
+- Requirements statement: Linkuistics/Ravel#6, with #4 and #5. The running log
+  of `plan-k1` holds each decision beside the owner's words.
+- This work reworks four decision records:
+  - `configuration-script-uses-rhai`
+  - `skill-preparation-precedes-evaluation`
+  - `skill-sources-are-local-directories`
+  - `installed-skill-sources-are-the-default`
+- Before any major release, read the decision record
+  `a-caller-transition-publishes-a-versioned-formula-first`.
+- Specs: `docs/specs/configuration-evaluation.md` and
+  `docs/specs/skill-discovery.md`.
+- Configuration terms in play: **Configuration script**, **Rhai worker**,
+  **Original prompt** and **Prepared prompt**.
+- Skill terms in play: **Skill source**, **Default skill directory**, **Skill
+  identifier**, **Applied skill**, **Available skill** and **Supported
+  harness**.
+- Related issues: Linkuistics/Ravel#7 holds the review of Grove's core and
+  DesignSkills. Linkuistics/grove#28 holds the whole merge, and
+  Linkuistics/grove#25 separated the skill repositories.
+
+## Test seams
+
+The owner agreed these four seams in `plan-k1`.
+
+- **The command-line seam, as today.** Tests run the real `ravel` commands
+  against a sandbox home, with fake harness programs on a private `PATH`. Fakes
+  stand in for Claude Code, Codex and Gemini CLI, and one fake accepts only a
+  prompt. Each fake records its arguments, environment, input and the files
+  that it can read. Almost all acceptance tests run here.
+- **Real harness trials.** Opt-in Taskfile tasks run a trial set on each
+  supported harness, in a sandbox home, with the owner's sign-in.
+- **The comparison of the owner's configuration.** A Taskfile task on the
+  owner's machine runs the real `config.rhai` and its Lua translation through
+  the command-line seam. It covers every configured kind and an unknown kind,
+  and it writes its results outside the repository.
+- **A build without Rhai.** A check builds Ravel without its Rhai module and
+  runs the Lua tests at the command-line seam.
+
+Three existing checks continue. They are the engine unit tests, the checks of
+each merged pack, and a release smoke without a separate Lua installation.
+
+## Out of scope
+
+- The removal of Rhai. A later major removes it, together with a Grove release
+  that accepts that major.
+- The language review of Grove's core and of DesignSkills, in
+  Linkuistics/Ravel#7.
+- The merge of Grove and Ravel-Strategies, after their workstreams finish.
+- Hooks on generic harnesses such as Pi, beyond what prompt delivery gives.
+  Also the executable plugins for interface features that #4 names. Issue 4
+  stays open for those.
+- An override of an installed skill. No requirement for one exists. If one
+  arrives, it is an explicit mechanism, never a precedence rule between equal
+  names.
+
+## Notes
+
+- **Open workstreams.** No merge goes into or from a repository with an open
+  workstream until that workstream finishes. Today that covers Grove and
+  Ravel-Strategies.
+- **The Visualiser.** Its work is abandoned. Before its merge, the merge stage
+  abandons its 12 unmerged changes in jj and collects the garbage, on the
+  owner's instruction. It also retires the `gh-issue-1` workspace. The
+  Visualiser repository is private and Ravel is public, so the owner settles
+  the publication of its history before any push.
+- **Modular configuration.** The later removal of Rhai removes the Rhai module
+  and its tests. Apart from that, it changes only the one place that registers
+  the language.
+- **Fixtures.** Never publish the owner's configuration or secrets as test
+  fixtures.
+- **Gemini CLI.** The owner's machine has no Gemini CLI yet. Its trials need an
+  installation and a sign-in first.
+- **Research to commission.** Two questions need answers before the design.
+  First, how far can one generic prompt delivery reach across harnesses, and
+  what can one launch configure on each supported harness? Second, which Lua
+  runtime and bindings should Ravel embed? Issue 6 names Lua 5.4 and `mlua` as
+  candidates, not choices. That research covers limits, native calls and worker
+  termination, and it does not assume that an embedded runtime is a sandbox.
+- **Design questions.** The design settles how the owner's own skills get
+  their namespace, and how a bare name in a Grove prompt resolves. It settles
+  the metadata syntax and how a skill declares a hook. It settles the rule when
+  `config.lua` and `config.rhai` both exist, and the protection of the
+  configuration directory. It settles how applied and available skills reach a
+  session, with prompt size, compaction, delegation and stable content for
+  continuations. Its spec proposes the inspection commands, and the owner
+  agrees them there.
+- **Owner decisions still open.** A requirements leaf settles the method of
+  the corpus review comparisons with the owner, just before the review. The
+  owner also decides when the shipping of the packs moves from Grove's formula
+  to Ravel's formula. That decision covers how the Grove release relates to the
+  open Grove workstream.

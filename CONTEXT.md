@@ -109,6 +109,12 @@ job with its own **Result channel**. It is not a **Session** and selects
 nothing.
 _Avoid_: nested session, sub-session
 
+**Supported harness**: A **Harness** on which Ravel makes skills behave as
+identically as possible. Ravel adapts skill delivery to it, tries it in real
+trials and documents each gap that remains. Any other harness receives skills
+through the prompt only.
+_Avoid_: first-class harness
+
 **Session-result context**: The inherited `RAVEL_EXIT_FILE` path that
 identifies the ephemeral completion channel of the enclosing session. A nested
 session replaces it only for that session's managed process.
@@ -139,6 +145,18 @@ _Avoid_: confinement, for anything that Ravel 2.0.0 does
 It supplies skill guidance and the resources of that guidance. Ravel reads it
 and never fetches, installs or updates it. A tool outside Ravel puts it in
 place, for example as a checkout of a repository or as a Homebrew keg.
+
+**Skill identifier**: The name of one skill, qualified by the namespace that
+holds it. No two skills share an identifier.
+_Avoid_: skill name, for the identifier
+
+**Applied skill**: A skill that the **Configuration script** gives a
+**Session** unconditionally. The agent follows it for the whole session. The
+**Owner**'s writing rules are an example.
+
+**Available skill**: A skill that the **Configuration script** offers a
+**Session** for use that depends on the task. The agent reads it when the task
+needs it.
 
 **Default skill directory**: The directory whose entries are the **Skill
 sources** when the **Settings** name no `sources`. Each entry name is a source
@@ -217,6 +235,9 @@ context. A nested **Session** is not a delegate.
   `--runtime-read` flags.
 - **"Result"** means the **Opaque result**, never the **Managed process**'s
   exit status or the work a **Harness** did.
+- **"Skill name"** alone is ambiguous. Say **Skill identifier** for the
+  namespaced name, and bare name for the part without its namespace. Grove's
+  prompts name skills by their bare names.
 - **"Prompt"** alone is ambiguous when skill delivery is enabled. Say
   **Original prompt** for the caller's bytes and **Prepared prompt** for the
   text that the harness receives. With delivery disabled, the two are equal.
