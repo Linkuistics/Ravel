@@ -28,5 +28,5 @@ the planned subtree produced by `unification-k2`.
 
 - This leaf owns triage, not an obligation to accept every finding. Do not
   copy the findings into this body's completion criteria.
-- The review was inspection-only; it made no production or test changes and
+- The review was inspection-only. It made no production or test changes and
   ran no test, build, lint or formatting commands.
