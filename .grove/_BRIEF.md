@@ -63,9 +63,43 @@ Each condition traces to a decision in the running log of `plan-k1`.
 ## Decomposition
 
 The requirements leaf `plan-k1` settled the requirements with the owner. The
-work needs many sessions across several areas, so the planning leaf
-`unification-k2` decomposes it with fresh context. Planning reads this brief
-and the running log of `plan-k1`.
+planning leaf `unification-k2` cut the tree. The walk visits the entries in
+this order, and each increment leaves the product working.
+
+1. **First merge stage** (node `first-merge-stage`). The five packs and the two
+   UniversalGrammar repositories arrive. It needs nothing from the other work,
+   and later leaves work on the merged packs.
+2. **Harness research** (`harness-delivery`, a survey pair and its combiner).
+   It answers the first research question for the prototype and the skill
+   design. Two corpora pay off here, because the supported harnesses come from
+   different vendors.
+3. **Configuration prototype** (`configuration-experience`). The owner reacts
+   to mock-ups of `config.lua`, a skill file and the inspection output. Both
+   designs use that reaction.
+4. **Lua routing** (node `lua-configuration`). The second research question,
+   the routing design, its implementation and the parity checks. A user can
+   adopt Lua for routing before any skill feature exists.
+5. **Skill delivery** (node `skill-delivery`). The skill design comes first.
+   Then come the skill sources and the selection with prompt delivery. One
+   adapter per supported harness and the conversion of the packs follow.
+6. **Corpus review** (node `corpus-review`). The owner settles the method, and
+   a planning leaf then cuts the review leaves.
+7. **DesignSkills** (`design-skills-merge`). It sits late, because it waits for
+   Grove's leaf `relocate-decomposition-design-k1028`. A blocked leaf earlier
+   would stop the walk.
+8. **Shipping, book and release** (`pack-shipping`, `book`, `release`). The
+   owner decides the formula move and the releases. The book follows its
+   editorial pipeline, and the release ships migration notes.
+
+A node holds an increment whose leaves share a subgoal, a joint completion
+condition and context that the other leaves do not need. The research pair,
+the prototype and the tail leaves serve several increments, so they stay flat
+at the root. The design leaves cut their own review chains. The corpus review
+waits for its method before its leaves exist.
+
+The owner chose this grove for every increment above. So they stay in one
+grove, although each could form a separate grove. A split needs the owner's
+confirmation.
 
 ## Pointers
 
