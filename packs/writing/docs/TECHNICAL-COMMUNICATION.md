@@ -227,6 +227,6 @@ finding is wrong, record it as a failure (below).
 ## Report a failure
 
 Log each failure that you see in use as an issue on
-[`Linkuistics/WritingSkills`](https://github.com/Linkuistics/WritingSkills/issues). Say which
+[`Linkuistics/Ravel`](https://github.com/Linkuistics/Ravel/issues). Say which
 harness and model you used, what the model wrote, and what you expected. A later
 grove reads these issues and acts on them.
