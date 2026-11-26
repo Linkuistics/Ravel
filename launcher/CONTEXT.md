@@ -90,7 +90,7 @@ chooses the final result or failure to report.
 _Avoid_: front, native front
 
 **Launcher**: The component of the Ravel product that holds the **Ravel CLI**
-with its crates, documents and release tooling. It is one peer of the
+with its crates, documents and release tools. It is one peer of the
 product's components and has no privilege over the others.
 _Avoid_: Ravel, for the component
 

@@ -31,13 +31,15 @@ while (($#)); do
       ;;
   esac
 done
-[[ -d .jj ]] || die 'run from a jj workspace'
+# jj reads each path below from the launcher root, wherever the workspace root is.
+cd "$root"
+jj workspace root >/dev/null 2>&1 || die 'run from a jj workspace'
 rev="$(jj log --no-graph -r "$to" -T 'commit_id ++ "\n"')"
 [[ "$rev" =~ ^[0-9a-f]+$ ]] || die 'endpoint must resolve to one revision'
 mkdir -p target
 scratch="$(mktemp -d "$root/target/release-notes.XXXXXX")"
 trap 'rm -rf "$scratch"' EXIT
-jj file show -r "$rev" root:CHANGELOG.md >"$scratch/original"
+jj file show -r "$rev" CHANGELOG.md >"$scratch/original"
 cmp -s "$scratch/original" CHANGELOG.md || die 'CHANGELOG.md differs from the endpoint; left unchanged'
 awk '/^## Unreleased$/ { n++ } END { exit n != 1 }' CHANGELOG.md || die 'CHANGELOG.md must contain exactly one Unreleased heading'
 if [[ -n "$input" ]]; then

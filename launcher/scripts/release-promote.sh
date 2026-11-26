@@ -147,7 +147,7 @@ verify_assets() {
 verify_book() {
   local version="$1" commit="$2" actual
   git -C "$REPO_ROOT" fetch -q "$BOOK_REMOTE" "refs/heads/$BOOK_BRANCH" || die "cannot fetch $BOOK_REMOTE $BOOK_BRANCH"
-  actual="$(git -C "$REPO_ROOT" log -1 --format=%H FETCH_HEAD -- "v$version/")"
+  actual="$(git -C "$REPO_ROOT" log -1 --format=%H FETCH_HEAD -- ":(top)v$version/")"
   [[ "$actual" == "$commit" ]] ||
     die "the book of v$version on $BOOK_BRANCH was last changed by ${actual:-no commit}, not by the cut's $commit. A published book is final; reconcile it before promotion ($RECOVERY)"
   git -C "$REPO_ROOT" show FETCH_HEAD:index.html 2>/dev/null | grep -Fq "href=\"v$version/\"" ||
@@ -295,7 +295,7 @@ main() {
 
   # Both classes from the downloaded assets and the template at the tag.
   local date reason
-  git -C "$REPO_ROOT" show "$tag_commit:scripts/templates/ravel.rb.tmpl" >"$scratch/template" ||
+  git -C "$REPO_ROOT" show "$tag_commit:./scripts/templates/ravel.rb.tmpl" >"$scratch/template" ||
     die "cannot read the formula template at $tag_commit"
   render_archive_formula "$scratch/assets" "$version" "$scratch/template" "$scratch/versioned/ravel@2.rb" versioned-2 ||
     die "cannot render ravel@2.rb from the public assets"

@@ -349,15 +349,16 @@ tasks:
       vars:
         - name: VERSION
     preconditions:
-      - sh: test -d .jj && test -d .git && test "$(pwd -P)" = "$(jj workspace root --name default)"
+      # The launcher may sit below the workspace root, so jj names the root.
+      - sh: ws="$(jj workspace root --name default)" && test "$(jj workspace root)" = "$ws" && test -d "$ws/.jj" && test -d "$ws/.git"
         msg: Run releases from Ravel's default colocated jj workspace.
     cmds:
       - |
-        mkdir .jj/release-lock || {
+        mkdir "$(jj workspace root)/.jj/release-lock" || {
           echo 'Another release holds .jj/release-lock. If it was interrupted, confirm it has stopped before removing the lock.' >&2
           exit 1
         }
-      - defer: rmdir .jj/release-lock
+      - defer: rmdir "$(jj workspace root)/.jj/release-lock"
       # docs/specs/release-channels.md, "Promotion interface".
       - bash scripts/release-promote.sh --version {{shellQuote .VERSION}}{{if .READINESS}} --readiness {{shellQuote .READINESS}}{{end}}{{if .EVIDENCE}} --evidence {{shellQuote .EVIDENCE}}{{end}}
 
@@ -378,16 +379,17 @@ tasks:
         - name: CHANNEL
           enum: [versioned-2, unversioned]
     preconditions:
-      - sh: test -d .jj && test -d .git && test "$(pwd -P)" = "$(jj workspace root --name default)"
+      # The launcher may sit below the workspace root, so jj names the root.
+      - sh: ws="$(jj workspace root --name default)" && test "$(jj workspace root)" = "$ws" && test -d "$ws/.jj" && test -d "$ws/.git"
         msg: Run releases from Ravel's default colocated jj workspace.
     # Commands are sequential. Never move these to deps, which run in parallel.
     cmds:
       - |
-        mkdir .jj/release-lock || {
+        mkdir "$(jj workspace root)/.jj/release-lock" || {
           echo 'Another release holds .jj/release-lock. If it was interrupted, confirm it has stopped before removing the lock.' >&2
           exit 1
         }
-      - defer: rmdir .jj/release-lock
+      - defer: rmdir "$(jj workspace root)/.jj/release-lock"
       - scripts/release-doctor.sh
       - scripts/release-publish.sh --check-tap
       - scripts/release-book.sh check-remote

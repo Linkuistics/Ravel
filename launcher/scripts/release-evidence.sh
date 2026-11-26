@@ -66,7 +66,7 @@ main() {
   # The Pages commit that last changed this release's book directory.
   local book_commit
   git -C "$REPO_ROOT" fetch -q "$BOOK_REMOTE" "refs/heads/$BOOK_BRANCH" || die "cannot fetch $BOOK_REMOTE $BOOK_BRANCH"
-  book_commit="$(git -C "$REPO_ROOT" log -1 --format=%H FETCH_HEAD -- "$tag/")"
+  book_commit="$(git -C "$REPO_ROOT" log -1 --format=%H FETCH_HEAD -- ":(top)$tag/")"
   [[ -n "$book_commit" ]] || die "$BOOK_BRANCH holds no book for $tag"
 
   # The tap commit that last changed the selected formula, which must carry

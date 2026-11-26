@@ -51,14 +51,15 @@ which part of the work needs each tool.
 | `shasum` or `sha256sum` | Compare each download with its committed SHA-256 pin |
 | Git | Obtain the checkout, and let scripts read the tracked files |
 
-The file `rust-toolchain.toml` at the root of the checkout selects Rust
+The file `rust-toolchain.toml` in the launcher directory selects Rust
 1.99.1, with rustfmt, Clippy and the three release target libraries. When
-rustup's tools are first on `PATH`, `cargo` in the checkout uses that
-toolchain. `rustup toolchain install`, run in the checkout, installs that
+rustup's tools are first on `PATH`, `cargo` in that directory uses that
+toolchain. `rustup toolchain install`, run there, installs that
 toolchain when rustup does not have it.
 
 1. Obtain a checkout of the Ravel repository.
-2. Use `cd` to enter its root directory, where `Taskfile.yml` is.
+2. Use `cd` to enter its launcher directory, `launcher/`, where the launcher's
+   `Taskfile.yml` is.
 3. Run `rustup toolchain install`.
 4. Run `task setup`.
 5. Run `task build`.
@@ -148,7 +149,7 @@ role and the result channel. `keyed-launch` holds the
 The package boundary does not promise a separately supported component. The
 table maps each kind of source and test to its directory.
 
-| Path from the checkout root | What a contributor finds there |
+| Path from the launcher directory | What a contributor finds there |
 |---|---|
 | `crates/ravel/src/` | CLI arguments, configuration script checks, the [result](02-actors-and-words.md#the-managed-process-and-its-result) channel and the choice of the final outcome |
 | `crates/ravel/src/rhai_worker/` | The Rhai worker role and the CLI side of the host bridge |
@@ -302,7 +303,7 @@ This fragment omits the output and the log paths, which change between runs.
 task check
 ```
 
-The [checkout trial record](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md)
+The [checkout trial record](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/evidence/develop-ravel-k308/README.md)
 gives the source revision, tool versions, commands and results. It describes
 one macOS machine with cached tools, not a clean-machine installation.
 
@@ -599,7 +600,7 @@ writes the SVGs and `.layout.json` files beside their `.typ` sources. After an
 intended figure change, run the update task, read the diff and view the built
 page. Then run the comparison again.
 
-The [figure convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/figures.md)
+The [figure convention](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/book/figures.md)
 describes the shared modules and the visual checks. Equality with a fresh
 render does not show that a diagram explains the right behaviour.
 
@@ -611,13 +612,13 @@ runs on every platform. An `<!-- example: ... -->` comment is a page error,
 because the convention has no directive.
 
 Fragments do not run. The example check also does not compare source
-excerpts. The [example convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/examples.md)
+excerpts. The [example convention](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/book/examples.md)
 defines the labels and the output claims.
 
 The excerpt check needs no build. Its comparison keeps spaces and
 indentation. It refuses untracked sources, symbolic links and generated paths.
 An exact quotation can still have an incorrect explanation. The
-[excerpt convention](https://github.com/Linkuistics/Ravel/blob/main/docs/book/excerpts.md)
+[excerpt convention](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/book/excerpts.md)
 describes the label and the comparison.
 
 The STE and prose-break tasks report problems without failure, unless you
@@ -699,7 +700,7 @@ They protect tests from older enclosing-session controls. They are safety
 exceptions that remain from the extraction of Ravel, not product dependencies.
 Paths in source provenance and the retired-project record give historical
 attribution. Ravel does not load those projects or interpret their task
-trees. The [caller-reference inventory](https://github.com/Linkuistics/Ravel/blob/main/docs/caller-references.md)
+trees. The [caller-reference inventory](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/caller-references.md)
 classifies these references in source files and dotfiles.
 
 For a new subprocess test, use the fixture of the chosen seam again. Supply
@@ -718,16 +719,16 @@ its observations.
 
 | Question about a change | Evidence to read | Source of its observations |
 |---|---|---|
-| Which observations support the skill directory contract and the rule for a package of a default source? | [Skill discovery design evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/skill-discovery-design-evidence.md) | Source reads, local trials and the checks of each stage of the 2.0.0 line |
-| Did a particular release reach its remote and installed destinations? | The release evidence that the release task writes, `target/release-evidence/vX.Y.Z.json`, and the [release and installation record](https://github.com/Linkuistics/Ravel/blob/main/docs/publication-evidence.md) | The release tasks, download comparisons and installed Homebrew checks |
-| Does an archive contain and run the required files? | [Archive evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/archive-evidence.md) | `release:smoke`, `release:test` and `release:formula`, at the revision named in the note |
-| Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive and formula checks |
-| Which resource and failure paths motivated the later repairs? <!-- tc: depart synonym-rotation because repairs names the recorded work of the completion-failure notes, while fixture names a test input --> | [Result/job source evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
-| Which checks distinguish the completion-failure repairs? | [Completion failure evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/completion-failure-design-evidence.md) | Focused runner and CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
-| Why does native entry follow this protocol? | [Native-entry design](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
-| What did the native-entry instruments measure? | [Native-entry evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) | The current native-entry and Linux checks, and archived campaign receipts |
-| What did the TypeScript worker of Ravel 1.x establish? | [Runtime evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/runtime-evidence.md) and [component evidence](https://github.com/Linkuistics/Ravel/blob/main/docs/component-evidence.md) | Historical runs. Each note says that its worker, SDK and Bun controls are retired |
-| Where are the run records? | [Evidence directory](https://github.com/Linkuistics/Ravel/tree/main/docs/evidence/) | The linked note names each receipt set, its command and its source revision |
+| Which observations support the skill directory contract and the rule for a package of a default source? | [Skill discovery design evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/skill-discovery-design-evidence.md) | Source reads, local trials and the checks of each stage of the 2.0.0 line |
+| Did a particular release reach its remote and installed destinations? | The release evidence that the release task writes, `target/release-evidence/vX.Y.Z.json`, and the [release and installation record](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/publication-evidence.md) | The release tasks, download comparisons and installed Homebrew checks |
+| Does an archive contain and run the required files? | [Archive evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/archive-evidence.md) | `release:smoke`, `release:test` and `release:formula`, at the revision named in the note |
+| Does the release procedure refuse an unsafe cut or resume the right step? | [Release lifecycle evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/release-lifecycle-evidence.md) | `release:lifecycle:test` and the archive and formula checks |
+| Which resource and failure paths motivated the later repairs? <!-- tc: depart synonym-rotation because repairs names the recorded work of the completion-failure notes, while fixture names a test input --> | [Result/job source evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/result-job-source-evidence.md) | A source read at the revision named in the note, not a runtime task |
+| Which checks distinguish the completion-failure repairs? | [Completion failure evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/completion-failure-design-evidence.md) | Focused runner and CLI tests, `test:terminal-recovery` and `check`, with their recorded controls |
+| Why does native entry follow this protocol? | [Native-entry design](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/native-entry-transition-design.md) | Source and design analysis, with later observations linked separately |
+| What did the native-entry instruments measure? | [Native-entry evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/native-entry-development-evidence.md) | The current native-entry and Linux checks, and archived campaign receipts |
+| What did the TypeScript worker of Ravel 1.x establish? | [Runtime evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/runtime-evidence.md) and [component evidence](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/component-evidence.md) | Historical runs. Each note says that its worker, SDK and Bun controls are retired |
+| Where are the run records? | [Evidence directory](https://github.com/Linkuistics/Ravel/tree/main/launcher/docs/evidence/) | The linked note names each receipt set, its command and its source revision |
 
 Start with the note's source revision and measured platform. Then read the
 section that matches the claim. Earlier sections can describe work that later
@@ -740,15 +741,15 @@ entry and its cleanup. The archived campaign compared a frozen product from
 before the repair, the **incumbent**, with the repaired product. Its drivers
 and the protected-test comparison, R01, were retired in the change to Rhai.
 The historical
-[campaign records](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43)
+[campaign records](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/native-entry-development-evidence.md#frozen-campaign-and-r01-k43)
 keep their measured source revisions, plans and receipts. Those observations
 do not show that the current source has the same behaviour. The table below
 names the available instruments.
 
 | Instrument | Tasks, purpose and evidence |
 |---|---|
-| Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md) |
-| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and run the current Rust, Rhai and native-entry checks, with unchanged source digests. Earlier target measurements remain in the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
+| Native entry | `native-entry:build`<br>`native-entry:front`<br>`native-entry:runner`<br>`native-entry:start`<br>`test:native-entry`<br>Build the private fixture. Run the CLI cases, the runner cases and the `start_check` cases for the runner's public API. Read the development sections of the [native-entry note](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/native-entry-development-evidence.md) |
+| Linux | `native-linux:image`<br>`test:native-linux`<br>Build the Linux environment and run the current Rust, Rhai and native-entry checks, with unchanged source digests. Earlier target measurements remain in the [Linux campaign section](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/native-entry-development-evidence.md#gnulinux-immutable-campaign-k52) |
 
 The Linux tasks call `scripts/native-linux.sh` to stage and check the files of
 the current checkout without the host's Git objects. The native-entry tasks
@@ -763,7 +764,7 @@ on port 8774, `task docs:rhai-configuration` on port 8776 and
 access for Mermaid. These design views are separate from the book's Typst
 figures and show no runtime result.
 
-The [retired-project record](https://github.com/Linkuistics/Ravel/blob/main/docs/retired-project.md)
+The [retired-project record](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/retired-project.md)
 names the former actor-daemon revision for historical attribution only.
 
 ## Find a development task

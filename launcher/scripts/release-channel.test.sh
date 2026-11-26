@@ -928,7 +928,7 @@ install ignores unversioned	scripts/release-install.sh	    [[ "$(unversioned_sta
 install skips record	scripts/release-install.sh	  bash "$REPO_ROOT/scripts/installed-record.sh" "$keg" "$brew_prefix/share/ravel/skills"	  :
 evidence any formula	scripts/release-evidence.sh	-- "Formula/$CHANNEL_FILE")"	-- "Formula/ravel.rb")"
 evidence trusts assets	scripts/release-evidence.sh	    cmp -s "$scratch/assets/$name" "$DIST_DIR/$name" ||	    true ||
-evidence any book commit	scripts/release-evidence.sh	FETCH_HEAD -- "$tag/")"	FETCH_HEAD)"
+evidence any book commit	scripts/release-evidence.sh	FETCH_HEAD -- ":(top)$tag/")"	FETCH_HEAD)"
 promotion deprecates nothing	scripts/release-channel.sh	'{ print } $0 == keg_only { print line }'	'{ print }'
 promote skips readiness	scripts/release-promote.sh	  verify_readiness "$readiness" "$evidence" "$version"	  :
 promote skips tag	scripts/release-promote.sh	  [[ "$remote" == "$commit" ]] ||	  true ||

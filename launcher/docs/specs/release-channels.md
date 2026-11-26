@@ -133,7 +133,8 @@ verification succeed.
 
 ### Promotion interface
 
-Run the promotion from Ravel's default colocated workspace:
+Run the promotion in the `launcher/` directory of Ravel's default colocated
+workspace:
 
 ```sh
 RAVEL_TAP_DIR=/Users/antony/Development/Delivery/homebrew-taps task release:promote VERSION=2.0.0

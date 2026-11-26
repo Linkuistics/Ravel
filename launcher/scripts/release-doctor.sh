@@ -50,7 +50,7 @@ note() {
 check_zig() {
   if ! command -v zig >/dev/null 2>&1; then
     mark_fail "zig: not on PATH"
-    remediation "brew install zig"
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
     return
   fi
   local version
@@ -67,7 +67,7 @@ check_cargo_zigbuild() {
   local version
   if ! cargo zigbuild --help >/dev/null 2>&1; then
     mark_fail "cargo-zigbuild: not installed"
-    remediation "cargo install cargo-zigbuild --locked"
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
     return
   fi
   version="$(cargo-zigbuild --version 2>/dev/null | awk '{print $2}')"
@@ -75,7 +75,7 @@ check_cargo_zigbuild() {
     mark_pass "cargo-zigbuild: $version"
   else
     mark_fail "cargo-zigbuild: ${version:-unknown version} is older than $zigbuild_minimum"
-    remediation "cargo install cargo-zigbuild --locked --force"
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
   fi
 }
 
@@ -100,7 +100,7 @@ check_rust_toolchain() {
 
   if [[ -z "$cargo_bin" || -z "$rustc_bin" ]]; then
     mark_fail "rust toolchain: cargo and/or rustc not on PATH"
-    remediation "install rustup from https://rustup.rs/"
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
     rustc_bin=""
     return
   fi
@@ -142,7 +142,7 @@ check_target_std() {
 check_gh_auth() {
   if ! command -v gh >/dev/null 2>&1; then
     mark_fail "gh: not installed"
-    remediation "brew install gh && gh auth login"
+    remediation "run 'mise install' in the launcher directory, then run gh auth login"
     return
   fi
   if gh auth status >/dev/null 2>&1; then
@@ -258,14 +258,14 @@ check_release_commands() {
       mark_pass "$program: available"
     else
       mark_fail "$program: not on PATH"
-      remediation "install $program before running a release task"
+      remediation "run 'mise install' in the launcher directory, then run the task through mise. If launcher/mise.toml does not declare $program, install it from the operating system or Homebrew"
     fi
   done
   if [[ "$(cargo release --version 2>/dev/null || true)" == 'cargo-release 1.1.2' ]]; then
     mark_pass 'cargo-release: verified 1.1.2'
   else
     mark_fail 'cargo-release: not installed'
-    remediation 'cargo install cargo-release --version 1.1.2 --locked'
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
   fi
 }
 
@@ -277,7 +277,7 @@ main() {
     mark_pass "bash: $BASH_VERSION"
   else
     mark_fail "bash: $BASH_VERSION, but release builds require bash 4 or later"
-    remediation 'brew install bash; put its bin directory before /bin on PATH'
+    remediation "run 'mise install' in the launcher directory, then run the task through mise"
   fi
   check_rust_toolchain
   check_target_std

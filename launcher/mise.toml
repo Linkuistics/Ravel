@@ -1,0 +1,51 @@
+# The launcher's tool pins. Taskfile.yml holds the recipes, Cargo.lock holds
+# the Rust libraries, and every program that a task calls comes from here.
+#
+# Three groups stay outside this file:
+# - The utilities that macOS ships in /bin and /usr/bin, such as tar, curl,
+#   shasum, perl, expect and script.
+# - Homebrew. The release tasks test and install the Homebrew formula itself.
+# - The book tools (Bun, mdBook, Typst) and cargo-about. `task setup` and
+#   `task notices:setup` fetch pinned, verified copies into the checkout.
+[tools]
+# task runs the recipes in Taskfile.yml.
+task = "3.54.0"
+# cargo-nextest runs the test suites.
+cargo-nextest = "0.9.152"
+# cargo-release cuts a release. The checks of release.toml used this version.
+cargo-release = "1.1.2"
+# zig and cargo-zigbuild link the GNU/Linux release archives. The release
+# doctor requires cargo-zigbuild 0.23.3 or later.
+zig = "0.17.1"
+"github:rust-cross/cargo-zigbuild" = "0.23.4"
+# shellcheck lints the scripts in `task check`.
+shellcheck = "0.11.0"
+# jj drives version control in the release scripts and in two crate tests.
+jj = "0.47.1"
+# git reads tags and the book's Pages branch, and the tests build Git fixtures.
+"conda:git" = "2.56.1"
+# The scripts run under bash. macOS ships only bash 3.2 in /bin.
+"conda:bash" = "5.3"
+# xz is a release prerequisite that scripts/release-doctor.sh checks.
+"conda:xz-tools" = "5.8.3"
+# jq reads Cargo metadata, Homebrew records and release evidence.
+jq = "1.8.2"
+# gh publishes the GitHub release and checks the book's Pages settings.
+gh = "2.105.0"
+# python3 serves the design views and helps two release tests.
+python = "3.15.2"
+# docker runs the GNU/Linux checks and smoke tests. Docker Desktop supplies
+# the engine.
+docker-cli = "29.9.3"
+# The opt-in harness smoke tasks make one real call through each harness.
+claude = "2.1.322"
+codex = "0.172.0"
+# mise sets RUSTUP_TOOLCHAIN, which rustup ranks above rust-toolchain.toml, so
+# this entry names the same release, profile, components and targets as that
+# file. Keep the two identical.
+# https://mise.jdx.dev/lang/rust.html#tool-options
+# This entry stays last. mise puts the tools on PATH in the order of this file,
+# and the Rust entry adds ~/.cargo/bin, which can hold global Cargo tools. Cargo
+# then takes each subcommand, such as `cargo release`, in PATH order.
+# https://github.com/rust-lang/cargo/issues/11020
+rust = { version = "1.99.1", profile = "minimal", components = ["clippy", "rustfmt"], targets = ["aarch64-apple-darwin", "aarch64-unknown-linux-gnu", "x86_64-unknown-linux-gnu"] }

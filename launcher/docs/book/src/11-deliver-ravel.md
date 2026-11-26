@@ -445,8 +445,8 @@ description, which `jj describe` sets. A bookmark, such as `main`, is jj's
 name for a branch. A colocated workspace has both `.jj` and `.git` in one
 directory.
 
-Run the cut from Ravel's default colocated jj workspace. The release task
-refuses other directories. First, give each intended change a description and
+Run the cut in the `launcher/` directory of Ravel's default colocated jj
+workspace. The release task refuses every other workspace. First, give each intended change a description and
 put it on local `main`. The preparation step of the release task saves the
 current change ID, then creates a clean child of `main`. Unrelated work stays
 at the saved ID. Later, `jj edit SAVED_CHANGE_ID` returns to that work.
@@ -1147,7 +1147,7 @@ during that recovery decide its next step.
 
 ## Understand what the release checks establish
 
-The [release check record](https://github.com/Linkuistics/Ravel/blob/main/docs/evidence/develop-ravel-k308/README.md)
+The [release check record](https://github.com/Linkuistics/Ravel/blob/main/launcher/docs/evidence/develop-ravel-k308/README.md)
 gives the commands, versions and results behind this chapter's procedures.
 Those checks cover archives, both formula channels and isolated release
 fixtures. They do not establish that a public cut or recovery succeeded.

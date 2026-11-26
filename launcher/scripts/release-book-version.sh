@@ -47,7 +47,7 @@ main() {
     [[ $# == 2 && "$2" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || die 'usage: release-book-version.sh released vX.Y.Z'
     local tag="$2" page line
     # What ships is the commit at the tag, not the working copy.
-    page="$(git -C "$REPO_ROOT" show "$tag:$BOOK_PAGE")" || die "cannot read $BOOK_PAGE at $tag"
+    page="$(git -C "$REPO_ROOT" show "$tag:./$BOOK_PAGE")" || die "cannot read $BOOK_PAGE at $tag"
     line="$(the_version_line <<<"$page")"
     [[ "$line" == "ravel ${tag#v}" ]] ||
       die "$BOOK_PAGE at $tag says '$line', but the release is 'ravel ${tag#v}'"

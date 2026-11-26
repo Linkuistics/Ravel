@@ -34,7 +34,10 @@ main() {
     *) die "$usage" ;;
   esac
   cd "$repo_root"
-  [[ -d .jj && -d .git && "$(pwd -P)" == "$(jj workspace root --name default)" ]] ||
+  # The launcher may sit below the workspace root, so jj names the root.
+  local workspace
+  workspace="$(jj workspace root --name default)" || die "run from the default colocated jj workspace"
+  [[ -d "$workspace/.jj" && -d "$workspace/.git" && "$(jj workspace root)" == "$workspace" ]] ||
     die "run from the default colocated jj workspace"
   local saved unmerged conflicts undescribed version tag changes pending
   saved="$(jj log --no-graph -r @ -T change_id)"
@@ -52,7 +55,7 @@ main() {
   local working_version main_version id
   id="$(cargo pkgid --quiet -p ravel)"
   working_version="${id##*[#@]}"
-  main_version="$(jj file show -r main root:Cargo.toml | sed -n 's/^version *= *"\([^" ]*\)".*/\1/p' | head -n 1)"
+  main_version="$(jj file show -r main Cargo.toml | sed -n 's/^version *= *"\([^" ]*\)".*/\1/p' | head -n 1)"
   [[ "$working_version" == "$main_version" ]] || die 'version change outside main; reconcile or resume the unfinished cut before another bump'
 
   # Snapshotting and changing parents preserves every other line of work in jj.
