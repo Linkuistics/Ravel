@@ -1,0 +1,12 @@
+# Project tool pins. Taskfile.yml holds the recipes, and uv.lock holds the Python libraries.
+[tools]
+# PyMuPDF 2.1 depends on onnxruntime 1.32, which publishes wheels only up to CPython 3.14.
+python = "3.14.10"
+# uv resolves and installs the locked Python environment.
+uv = "0.13.6"
+# task runs the recipes in Taskfile.yml.
+task = "3.54.0"
+# ruff lints and formats the Python code.
+ruff = "0.17.3"
+# pyright checks the types in strict mode.
+"npm:pyright" = "1.1.414"

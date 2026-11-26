@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "status": "illustrative",
+  "statement": "Illustrative relevance assessments. The agent chose these levels to show the relevance column. Nobody has assessed the relevance of these books to the corpus question.",
+  "books": {
+    "6IQTDYAW": {
+      "level": "medium",
+      "reason": "Illustrative level."
+    },
+    "H3MVK7J5": {
+      "level": "high",
+      "reason": "Illustrative level."
+    },
+    "PZZBPXX9": {
+      "level": "low",
+      "reason": "Illustrative level."
+    }
+  },
+  "sections": {
+    "H3MVK7J5:s006": {
+      "level": "low",
+      "reason": "Illustrative level for a section, to show that a section assessment overrides its book."
+    }
+  }
+}

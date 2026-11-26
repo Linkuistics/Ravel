@@ -1,0 +1,98 @@
+version: '3'
+
+set: [errexit, nounset, pipefail]
+
+vars:
+  RDF: 'inputs/Zotero Library Export.rdf'
+  ZOTERO_DIR: '{{.HOME}}/Zotero'
+  DATA_DIR: data
+  CORRECTIONS_DIR: corrections
+
+tasks:
+  sync:
+    desc: Install the locked Python environment.
+    cmds:
+      - uv sync
+
+  catalogue-manifest:
+    desc: Import the Zotero catalogue and write the source manifest into the store.
+    deps: [sync]
+    cmds:
+      - uv run urg catalogue-manifest --rdf "{{.RDF}}" --zotero-dir "{{.ZOTERO_DIR}}" --data-dir "{{.DATA_DIR}}"
+
+  chapter-extraction:
+    desc: Extract the selected chapter of each book into the store.
+    deps: [sync]
+    cmds:
+      - uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "{{.DATA_DIR}}"
+
+  episode-analysis:
+    desc: Analyse each extracted chapter into proposed interpretations. Calls the model.
+    deps: [sync]
+    cmds:
+      - uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "{{.DATA_DIR}}"
+
+  pattern-discovery:
+    desc: Derive candidate patterns from the analysed chapters, then build the pattern report. Calls the model.
+    deps: [sync]
+    cmds:
+      - uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "{{.DATA_DIR}}"
+
+  pattern-report:
+    desc: Build the pattern report for the latest discovery run. Does not call the model.
+    deps: [sync]
+    cmds:
+      - uv run urg pattern-report --data-dir "{{.DATA_DIR}}"
+
+  weighted-report:
+    desc: Build the baseline and weighted reports for the latest discovery run. Does not call the model.
+    deps: [sync]
+    cmds:
+      - uv run urg weighted-report --data-dir "{{.DATA_DIR}}"
+
+  corrections:
+    desc: Apply the correction files to the latest analyses. Does not call the model.
+    deps: [sync]
+    cmds:
+      - uv run urg corrections --corrections-dir "{{.CORRECTIONS_DIR}}" --data-dir "{{.DATA_DIR}}"
+
+  change-summary:
+    desc: Compare the patterns and reports before and after the corrections. Does not call the model.
+    deps: [sync]
+    cmds:
+      - uv run urg change-summary --data-dir "{{.DATA_DIR}}"
+
+  pipeline:
+    desc: Run every stage in order. Each stage reuses each output whose dependency record is unchanged. Calls the model.
+    cmds:
+      - task: catalogue-manifest
+      - task: chapter-extraction
+      - task: episode-analysis
+      - task: corrections
+      - task: pattern-discovery
+      - task: weighted-report
+
+  test:
+    desc: Run the tests.
+    deps: [sync]
+    cmds:
+      - uv run pytest
+
+  lint:
+    desc: Check the style and the formatting.
+    cmds:
+      - ruff check urg tests
+      - ruff format --check urg tests
+
+  typecheck:
+    desc: Check the types.
+    deps: [sync]
+    cmds:
+      - pyright
+
+  check:
+    desc: Run the lint, the type check and the tests.
+    cmds:
+      - task: lint
+      - task: typecheck
+      - task: test

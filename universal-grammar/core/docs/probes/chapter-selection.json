@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "stage": "extraction-probe",
+  "task": "extraction-probe-k4",
+  "source_manifest_sha256": "eccb9a1d42774e89b70a63300322d49a637607de174827155bdb7759c175d742",
+  "extractor": {
+    "library": "PyMuPDF",
+    "pymupdf_version": "2.1",
+    "mupdf_version": "1.28.6"
+  },
+  "page_index_base": 0,
+  "selected": [
+    {
+      "source_identity": {
+        "library_id": 1,
+        "library_type": "user",
+        "item_key": "6IQTDYAW"
+      },
+      "title": "Crafting interpreters",
+      "year": "2021",
+      "attachment_item_key": "YKKCVSYB",
+      "document_file_sha256": "9f1126c8ba1b87a819b44d5447e7290e21efc2b175fd9c35c25907b6e25442f5",
+      "page_count": 640,
+      "approach": "tutorial-with-code",
+      "chapter": {
+        "number": "7",
+        "title": "Evaluating Expressions",
+        "pdf_page_index_first": 109,
+        "pdf_page_index_last": 122,
+        "printed_page_label_first": "97",
+        "printed_page_label_last": "110",
+        "boundary_evidence": {
+          "outline_entry": "level 1 'Evaluating Expressions' -> page 110 (1-based); next level-1 entry 'Statements and State' -> page 124",
+          "opening_heading": "index 109: part running head 'A Tree-Walk Interpreter', chapter number '7', title 'Evaluating Expressions', epigraph from Mary Shelley",
+          "closing_content": "index 122: running head 'CHAPTER 7 : Evaluating Expressions', section 'DESIGN NOTE: STATIC AND DYNAMIC TYPING'",
+          "next_chapter_opening": "index 123: chapter number '8', title 'Statements and State'",
+          "page_labels": "PDF /PageLabels: decimal from index 13. Label equals index minus 12. Index 109 has label 97 and index 122 has label 110."
+        }
+      },
+      "rationale": "The book builds a working interpreter step by step. Prose narrates each Java code listing (Source Code Pro font, about 300-440 monospace characters per sampled page). Margin asides and a closing design note give a second register beside the main thread."
+    },
+    {
+      "source_identity": {
+        "library_id": 1,
+        "library_type": "user",
+        "item_key": "H3MVK7J5"
+      },
+      "title": "Practical Foundations for Programming Languages",
+      "year": "2013",
+      "attachment_item_key": "ES9K77S4",
+      "document_file_sha256": "366ba922fcde1b3e0c1000285fa5753c40d15c00fe622315b9e8af036c73fe89",
+      "page_count": 492,
+      "approach": "theory-with-rules-and-proofs",
+      "chapter": {
+        "number": "5",
+        "title": "Dynamics",
+        "pdf_page_index_first": 55,
+        "pdf_page_index_last": 63,
+        "printed_page_label_first": "36",
+        "printed_page_label_last": "44",
+        "boundary_evidence": {
+          "outline_entry": "level 2 '5 Dynamics' -> page 56 (1-based), under 'PART II: Statics and Dynamics'. Next level-2 entry '6 Type Safety' -> page 65.",
+          "opening_heading": "index 55: chapter number '5', title 'Dynamics', no running head or folio",
+          "closing_content": "index 63: running head 'Dynamics', folio 44, end of section 5.5 Notes ('the early work of Herbrand, Gödel, and Church')",
+          "next_chapter_opening": "index 64: chapter number '6', title 'Type Safety'",
+          "page_labels": "PDF /PageLabels is malformed: three number-tree entries for page 0. PyMuPDF get_label() raises TypeError. Printed folios come from page text: index 56 shows 37 and index 63 shows 44. Index 55 (the opener) has no folio, so its label 36 is inferred."
+        }
+      },
+      "rationale": "The chapter defines transition judgements by numbered inference rules (5.1a-5.11), then proves properties by rule induction. Each numbered rule is a unit of explanation, with little prose and no code listings."
+    },
+    {
+      "source_identity": {
+        "library_id": 1,
+        "library_type": "user",
+        "item_key": "PZZBPXX9"
+      },
+      "title": "Regular expressions cookbook",
+      "year": "2012",
+      "attachment_item_key": "WP3VEURD",
+      "document_file_sha256": "0036b6e37b1171a3de10e9249bab295e352c4f0082f40850c890664d988429ff",
+      "page_count": 612,
+      "approach": "recipe-cookbook",
+      "chapter": {
+        "number": "6",
+        "title": "Numbers",
+        "pdf_page_index_first": 390,
+        "pdf_page_index_last": 423,
+        "printed_page_label_first": "375",
+        "printed_page_label_last": "408",
+        "boundary_evidence": {
+          "outline_entry": "level 1 'Chapter 6. Numbers' (NBSP separators) -> page 391 (1-based). Next level-1 entry 'Chapter 7. Source Code and Log Files' -> page 425.",
+          "opening_heading": "index 390: 'CHAPTER 6' / 'Numbers' followed by the chapter introduction",
+          "closing_content": "index 423: Perl Roman-numeral listing, end of the last recipe in chapter 6",
+          "next_chapter_opening": "index 424: 'CHAPTER 7' / 'Source Code and Log Files'",
+          "page_labels": "PDF /PageLabels: decimal from index 16. Label equals index minus 15. Index 390 has label 375 and index 423 has label 408."
+        }
+      },
+      "rationale": "Every recipe repeats the same Problem, Solution, Discussion and See Also frame (outline levels 2-3, for example 6.1 Integer Numbers). The Solution shows each regex in several language flavours. This gives a fixed, reader-goal-driven structure that the other two books do not have."
+    }
+  ]
+}

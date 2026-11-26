@@ -1,0 +1,11 @@
+# External input snapshots hold personal library data. Version control excludes them.
+/inputs/
+# The research-artifact store holds data derived from the personal library. Version control excludes it.
+/data/
+# Python build and tool caches.
+__pycache__/
+.venv/
+.pytest_cache/
+.ruff_cache/
+# Runs of the pipeline from a clean data directory. Their stores hold data derived from the personal library.
+/reproductions/

@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "minimum_supporting_instances": 2,
+  "preference_weights": {
+    "default": 1.0,
+    "books": {}
+  },
+  "observation_scope": {
+    "interpretation_kinds": ["episode", "move", "relationship", "alternative-reading", "observation"],
+    "structure": ["section"]
+  }
+}

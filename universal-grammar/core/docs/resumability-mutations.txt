@@ -1,0 +1,73 @@
+## M1 reuse becomes find in the store: a reused output does not become the latest
+claim: 2: a return to earlier inputs reuses their results
+file: urg/store.py
+tests: 2 failed, 18 passed, 5 warnings in 6.49s
+  fails: test_a_killed_stage_leaves_a_rejected_output_and_a_rerun_completes_it[extraction-run-before-latest]
+  fails: test_a_return_to_earlier_inputs_reuses_their_results_downstream
+
+## M1b reuse becomes find at one call: the analysis run report
+claim: 2: a return to earlier inputs reuses their results
+file: urg/analysis.py
+tests: 1 failed, 19 passed, 5 warnings in 6.54s
+  fails: test_a_return_to_earlier_inputs_reuses_their_results_downstream
+
+## M2 load skips the size and hash check of each payload file
+claim: 4: the store rejects a damaged output
+file: urg/store.py
+tests: 2 failed, 18 passed, 5 warnings in 6.51s
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[flip_a_byte]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[truncate_payload]
+
+## M3 the corrected analysis omits its correction files
+claim: 1: each dependency record names each input
+file: urg/corrections.py
+tests: 1 failed, 19 passed, 5 warnings in 6.64s
+  fails: test_every_dependency_record_names_its_inputs
+
+## M3b a chapter extraction omits its chapter-selection entry
+claim: 1: each dependency record names each input
+file: urg/extraction.py
+tests: 1 failed, 19 passed, 5 warnings in 6.57s
+  fails: test_every_dependency_record_names_its_inputs
+
+## M3c the analysis run report omits its instructions
+claim: 1: each dependency record names each input
+file: urg/analysis.py
+tests: 1 failed, 19 passed, 5 warnings in 6.62s
+  fails: test_every_dependency_record_names_its_inputs
+
+## M4 the code version omits the hash of the module closure
+claim: 1: each dependency record names each input
+file: urg/version.py
+tests: 1 failed, 19 passed, 5 warnings in 6.58s
+  fails: test_every_dependency_record_names_its_inputs
+
+## M5 find never finds a stored output
+claim: 2 and 3: a restart and a rerun reuse valid work
+file: urg/store.py
+tests: 14 failed, 6 passed, 5 warnings in 9.46s
+  fails: test_a_change_to_one_input_redoes_only_its_dependants[discovery-settings]
+  fails: test_a_change_to_one_input_redoes_only_its_dependants[weights]
+  fails: test_a_correction_invalidates_its_dependants_and_nothing_else
+  fails: test_a_killed_stage_leaves_a_rejected_output_and_a_rerun_completes_it[analysis-mid-payload]
+  fails: test_a_killed_stage_leaves_a_rejected_output_and_a_rerun_completes_it[discovery-mid-payload]
+  fails: test_a_restart_after_a_complete_run_repeats_no_work
+  fails: test_a_return_to_earlier_inputs_reuses_their_results_downstream
+  fails: test_a_weight_change_reuses_extraction_analysis_and_discovery
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[change_recorded_dependency]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[delete_payload]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[delete_record]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[flip_a_byte]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[garble_record]
+  fails: test_the_store_rejects_a_damaged_output_and_a_rerun_rewrites_only_it[truncate_payload]
+
+## M6 the baseline report also depends on the weights file
+claim: 6: a weight change reuses extraction, analysis and discovery
+file: urg/weighted_report.py
+tests: 2 failed, 18 passed, 5 warnings in 6.65s
+  fails: test_a_change_to_one_input_redoes_only_its_dependants[weights]
+  fails: test_a_weight_change_reuses_extraction_analysis_and_discovery
+
+urg/ after restoration, paths that differ from the commit: 0
+tests on the restored source: 20 passed, 5 warnings in 6.68s
+mutations that survived: 0

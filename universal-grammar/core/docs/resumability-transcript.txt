@@ -1,0 +1,572 @@
+
+
+== S0 Context
+commit: 38f81e0
+working copy differs from the commit in: 9 paths
+artifacts in data/: 99
+
+
+== S1 Bring data/ up to date with the real model, without corrections
+This run makes any model call that the current code needs.
+
+$ task pipeline DATA_DIR=data CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 10ms
+Checked 28 packages in 4ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "data"
+reused the stored research artifacts
+export-snapshot: data/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: data/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.63ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "data"
+6IQTDYAW: reused: data/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: data/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: data/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: data/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.46ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "data"
+6IQTDYAW: reused response: data/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: data/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: data/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: data/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: data/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: data/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: data/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.43ms
+task: [corrections] uv run urg corrections --corrections-dir "$WORK/no-corrections" --data-dir "data"
+reused corrections run: data/artifacts/analysis-corrections-run/aba25aeb510d357b9d6624a31cc2205c5908a515af6c306c371a6de71cd299a8/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.48ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "data"
+reused response: d463c11cb79420834509013ee23aadc2430738ba5bf9704765b4840d86b18a60
+reused discovery run: data/artifacts/pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91
+patterns: 27, rejected: 2, unfitted observations: 251
+reused report: data/artifacts/pattern-report/b765f7a41d2e71177e0611b6b4d1d9a52eff9cfc6af33d9752b9df4ad8b35e15/index.html
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.43ms
+task: [weighted-report] uv run urg weighted-report --data-dir "data"
+reused baseline report: data/artifacts/baseline-report/ff20421e3e38250a21daff227c1ed19ae9a71723fa3d9146ad51fcee9bb236d3/baseline.html
+reused weighted report: data/artifacts/weighted-report/5a0024e4131fb6f1eb854c59fb150a3f842b117cd5ce64ea17893bb54b6ac2fe/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+artifacts in the store before: 99, after: 99
+model calls in this section: 0
+
+
+== S2 Claim 2: restart after the complete run, with each model call refused
+
+$ task pipeline DATA_DIR=data CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.46ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "data"
+reused the stored research artifacts
+export-snapshot: data/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: data/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.57ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "data"
+6IQTDYAW: reused: data/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: data/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: data/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: data/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.43ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "data"
+6IQTDYAW: reused response: data/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: data/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: data/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: data/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: data/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: data/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: data/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.45ms
+task: [corrections] uv run urg corrections --corrections-dir "$WORK/no-corrections" --data-dir "data"
+reused corrections run: data/artifacts/analysis-corrections-run/aba25aeb510d357b9d6624a31cc2205c5908a515af6c306c371a6de71cd299a8/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.43ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "data"
+reused response: d463c11cb79420834509013ee23aadc2430738ba5bf9704765b4840d86b18a60
+reused discovery run: data/artifacts/pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91
+patterns: 27, rejected: 2, unfitted observations: 251
+reused report: data/artifacts/pattern-report/b765f7a41d2e71177e0611b6b4d1d9a52eff9cfc6af33d9752b9df4ad8b35e15/index.html
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.45ms
+task: [weighted-report] uv run urg weighted-report --data-dir "data"
+reused baseline report: data/artifacts/baseline-report/ff20421e3e38250a21daff227c1ed19ae9a71723fa3d9146ad51fcee9bb236d3/baseline.html
+reused weighted report: data/artifacts/weighted-report/5a0024e4131fb6f1eb854c59fb150a3f842b117cd5ce64ea17893bb54b6ac2fe/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+artifacts in the store before: 99, after: 99
+the store is unchanged
+model calls in this section: 0
+
+
+== S3 Claim 1: the dependency records in the store, by shape
+
+$ .venv/bin/python scripts/transcript_store.py records data
+alias-table (stage catalogue-import, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: library_id
+    inputs: export-snapshot x1, source-manifest x1
+    artifacts with this shape: 4
+analysis-corrections-run (stage corrections, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: outcomes
+    inputs: correction x1, episode-analysis-run x1
+    artifacts with this shape: 4
+analysis-corrections-run (stage corrections, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: outcomes
+    inputs: correction x2, episode-analysis-run x1
+    artifacts with this shape: 1
+analysis-corrections-run (stage corrections, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: outcomes
+    inputs: episode-analysis-run x1
+    artifacts with this shape: 1
+baseline-report (stage weighted-report, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: aggregation
+    inputs: chapter-extraction x3, episode-analysis x3, pattern-discovery x1, relevance-assessments x1
+    artifacts with this shape: 3
+change-summary (stage change-summary, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: overlap
+    inputs: after-discovery x1, after-report x1, before-discovery x1, before-report x1, corrections-run x1
+    artifacts with this shape: 1
+change-summary (stage change-summary, schema 2)
+    code: urg 0.1.0 + source hash
+    configuration: overlap
+    inputs: after-discovery x1, after-report x1, before-discovery x1, before-report x1, corrections-run x1
+    artifacts with this shape: 1
+chapter-extraction (stage chapter-extraction, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: chapter, settings, source_identity, text_flags
+    inputs: chapter-selection-entry x1, document-file x1
+    artifacts with this shape: 24
+chapter-extraction-run (stage chapter-extraction, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: book_overrides, results, settings
+    inputs: chapter-selection x1, source-manifest x1
+    artifacts with this shape: 9
+episode-analysis (stage corrections, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: corrections
+    inputs: base-analysis x1, correction x1
+    artifacts with this shape: 2
+episode-analysis (stage corrections, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: corrections
+    inputs: base-analysis x1, correction x2
+    artifacts with this shape: 1
+episode-analysis (stage episode-analysis, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: instructions_version, model
+    inputs: analysis-instructions x1, chapter-extraction x1, model-response x1
+    artifacts with this shape: 9
+episode-analysis-response (stage episode-analysis, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: attempt, model, request_sha256
+    inputs: analysis-instructions x1, chapter-extraction x1
+    artifacts with this shape: 9
+episode-analysis-run (stage episode-analysis, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: instructions_version, results
+    inputs: analysis-instructions x1, chapter-extraction-run x1
+    artifacts with this shape: 4
+export-snapshot (stage catalogue-import, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: 
+    inputs: rdf-export x1
+    artifacts with this shape: 4
+pattern-discovery (stage pattern-discovery, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: instructions_version, model, preference_weights, settings
+    inputs: chapter-extraction x3, discovery-instructions x1, discovery-settings x1, episode-analysis x3, model-response x1
+    artifacts with this shape: 5
+pattern-discovery-response (stage pattern-discovery, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: attempt, model, request_sha256
+    inputs: chapter-extraction x3, discovery-instructions x1, discovery-settings x1, episode-analysis x3
+    artifacts with this shape: 4
+pattern-report (stage pattern-report, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: dpi
+    inputs: chapter-extraction x3, pattern-discovery x1
+    artifacts with this shape: 5
+source-manifest (stage catalogue-import, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: computing_collection, expected_audit_figures, library_id
+    inputs: export-snapshot x1, rdf-export x1, zotero-database x1, zotero-storage x1
+    artifacts with this shape: 4
+weighted-report (stage weighted-report, schema 1)
+    code: urg 0.1.0 + source hash
+    configuration: aggregation
+    inputs: baseline-report x1, chapter-extraction x3, episode-analysis x3, pattern-discovery x1, preference-weights x1, relevance-assessments x1
+    artifacts with this shape: 4
+[exit 0]
+
+
+== S4 Claim 3: in a clone without extractions, kill chapter-extraction before the second chapter is renamed into place
+
+$ .venv/bin/python -m tests.pipeline kill before-rename chapter-extraction@2 -- chapter-extraction --selection docs/probes/chapter-selection.json --data-dir $WORK/kill
+scripts/resumability-transcript.sh: line 39: 42901 Killed: 9                  "$@" 2>&1
+     42902 Done                       | hide
+[exit 137]
+new artifacts, by name:
+   1   chapter-extraction from stage chapter-extraction
+artifacts in the store before: 66, after: 67
+staging directories, and whether each holds a record:
+  6e9e9d8901114a8c95c9d3a19885cad3 record.json=yes
+The store reads artifacts/ only. A directory in staging/ is never an output.
+Rerun the pipeline on the clone:
+
+$ task pipeline DATA_DIR=$WORK/kill CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.63ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "$WORK/kill"
+reused the stored research artifacts
+export-snapshot: $WORK/kill/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: $WORK/kill/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: $WORK/kill/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: $WORK/kill/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.59ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "$WORK/kill"
+6IQTDYAW: reused: $WORK/kill/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: extracted: $WORK/kill/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: extracted: $WORK/kill/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: $WORK/kill/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.57ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "$WORK/kill"
+6IQTDYAW: reused response: $WORK/kill/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: $WORK/kill/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: $WORK/kill/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: $WORK/kill/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: $WORK/kill/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: $WORK/kill/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: $WORK/kill/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.45ms
+task: [corrections] uv run urg corrections --corrections-dir "$WORK/no-corrections" --data-dir "$WORK/kill"
+reused corrections run: $WORK/kill/artifacts/analysis-corrections-run/aba25aeb510d357b9d6624a31cc2205c5908a515af6c306c371a6de71cd299a8/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.44ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "$WORK/kill"
+reused response: d463c11cb79420834509013ee23aadc2430738ba5bf9704765b4840d86b18a60
+reused discovery run: $WORK/kill/artifacts/pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91
+patterns: 27, rejected: 2, unfitted observations: 251
+reused report: $WORK/kill/artifacts/pattern-report/b765f7a41d2e71177e0611b6b4d1d9a52eff9cfc6af33d9752b9df4ad8b35e15/index.html
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.44ms
+task: [weighted-report] uv run urg weighted-report --data-dir "$WORK/kill"
+reused baseline report: $WORK/kill/artifacts/baseline-report/ff20421e3e38250a21daff227c1ed19ae9a71723fa3d9146ad51fcee9bb236d3/baseline.html
+reused weighted report: $WORK/kill/artifacts/weighted-report/5a0024e4131fb6f1eb854c59fb150a3f842b117cd5ce64ea17893bb54b6ac2fe/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+   2   chapter-extraction from stage chapter-extraction
+   1   chapter-extraction-run from stage chapter-extraction
+artifacts in the store before: 67, after: 70
+artifacts in the clone that are not in data/: 0
+model calls in this section: 0
+
+
+== S5 Claim 4: damage one stored analysis in a clone, then rerun the pipeline on the clone
+
+$ .venv/bin/python scripts/transcript_store.py corrupt $WORK/damage
+flipped one byte of episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75 (book H3MVK7J5)
+[exit 0]
+artifacts that the store rejects before the rerun:
+  episode-analysis 8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75 rejected
+
+$ task pipeline DATA_DIR=$WORK/damage CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.57ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "$WORK/damage"
+reused the stored research artifacts
+export-snapshot: $WORK/damage/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: $WORK/damage/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: $WORK/damage/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: $WORK/damage/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.58ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "$WORK/damage"
+6IQTDYAW: reused: $WORK/damage/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: $WORK/damage/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: $WORK/damage/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: $WORK/damage/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.43ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "$WORK/damage"
+6IQTDYAW: reused response: $WORK/damage/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: $WORK/damage/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: $WORK/damage/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: analysed: $WORK/damage/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: $WORK/damage/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: $WORK/damage/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: $WORK/damage/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.56ms
+task: [corrections] uv run urg corrections --corrections-dir "$WORK/no-corrections" --data-dir "$WORK/damage"
+reused corrections run: $WORK/damage/artifacts/analysis-corrections-run/aba25aeb510d357b9d6624a31cc2205c5908a515af6c306c371a6de71cd299a8/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.51ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "$WORK/damage"
+reused response: d463c11cb79420834509013ee23aadc2430738ba5bf9704765b4840d86b18a60
+reused discovery run: $WORK/damage/artifacts/pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91
+patterns: 27, rejected: 2, unfitted observations: 251
+reused report: $WORK/damage/artifacts/pattern-report/b765f7a41d2e71177e0611b6b4d1d9a52eff9cfc6af33d9752b9df4ad8b35e15/index.html
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.44ms
+task: [weighted-report] uv run urg weighted-report --data-dir "$WORK/damage"
+reused baseline report: $WORK/damage/artifacts/baseline-report/ff20421e3e38250a21daff227c1ed19ae9a71723fa3d9146ad51fcee9bb236d3/baseline.html
+reused weighted report: $WORK/damage/artifacts/weighted-report/5a0024e4131fb6f1eb854c59fb150a3f842b117cd5ce64ea17893bb54b6ac2fe/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+   1   episode-analysis from stage episode-analysis
+artifacts in the store before: 99, after: 99
+artifacts that the store rejects after the rerun: 0
+damaged directories moved aside: 1
+model calls in this section: 0
+
+
+== S6 Claim 6: change one book weight in a clone, then rerun the pipeline on the clone
+default_book_weight: 1.0 -> 1.5
+
+$ task catalogue-manifest DATA_DIR=$WORK/weights CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.62ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "$WORK/weights"
+reused the stored research artifacts
+export-snapshot: $WORK/weights/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: $WORK/weights/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: $WORK/weights/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: $WORK/weights/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+[exit 0]
+
+$ task chapter-extraction DATA_DIR=$WORK/weights CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.62ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "$WORK/weights"
+6IQTDYAW: reused: $WORK/weights/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: $WORK/weights/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: $WORK/weights/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: $WORK/weights/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+[exit 0]
+
+$ task episode-analysis DATA_DIR=$WORK/weights CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 4ms
+Checked 28 packages in 0.51ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "$WORK/weights"
+6IQTDYAW: reused response: $WORK/weights/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: $WORK/weights/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: $WORK/weights/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: $WORK/weights/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: $WORK/weights/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: $WORK/weights/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: $WORK/weights/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+[exit 0]
+
+$ task corrections DATA_DIR=$WORK/weights CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.45ms
+task: [corrections] uv run urg corrections --corrections-dir "$WORK/no-corrections" --data-dir "$WORK/weights"
+reused corrections run: $WORK/weights/artifacts/analysis-corrections-run/aba25aeb510d357b9d6624a31cc2205c5908a515af6c306c371a6de71cd299a8/summary.md
+[exit 0]
+
+$ task pattern-discovery DATA_DIR=$WORK/weights CORRECTIONS_DIR=$WORK/no-corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.43ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "$WORK/weights"
+reused response: d463c11cb79420834509013ee23aadc2430738ba5bf9704765b4840d86b18a60
+reused discovery run: $WORK/weights/artifacts/pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91
+patterns: 27, rejected: 2, unfitted observations: 251
+reused report: $WORK/weights/artifacts/pattern-report/b765f7a41d2e71177e0611b6b4d1d9a52eff9cfc6af33d9752b9df4ad8b35e15/index.html
+[exit 0]
+
+$ uv run urg weighted-report --weights $WORK/weights.json --data-dir $WORK/weights
+reused baseline report: $WORK/weights/artifacts/baseline-report/ff20421e3e38250a21daff227c1ed19ae9a71723fa3d9146ad51fcee9bb236d3/baseline.html
+built weighted report: $WORK/weights/artifacts/weighted-report/8bd39a3f3a960df84ae4c6a343c6ee43404c85a6f1bf06d36506de0388700306/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/88cfc68e681b7e357fd2a32d60ed00ab511fdb7ed8b94cbf7bcf7a6772901f91, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+   1   weighted-report from stage weighted-report
+artifacts in the store before: 99, after: 100
+model calls in this section: 0
+
+
+== S7 Claim 5: add the first correction to data/, then run the pipeline with the real model
+corrections/ holds these files:
+  c001-unary-not-ends-implementation.json
+
+$ task pipeline DATA_DIR=data CORRECTIONS_DIR=corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.60ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "data"
+reused the stored research artifacts
+export-snapshot: data/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: data/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.60ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "data"
+6IQTDYAW: reused: data/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: data/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: data/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: data/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 2ms
+Checked 28 packages in 0.44ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "data"
+6IQTDYAW: reused response: data/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: data/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: data/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: data/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: data/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: data/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: data/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.45ms
+task: [corrections] uv run urg corrections --corrections-dir "corrections" --data-dir "data"
+applied corrections/c001-unary-not-ends-implementation.json: 6IQTDYAW:4c555fc18422:i023 version 2
+wrote corrected analysis 6IQTDYAW: 6079772b20139ab3866d074a5657adced9aa0669b19946a2507bc91788f916fb
+recorded corrections run: data/artifacts/analysis-corrections-run/d552be3037f55e86ba86863aab232daf00c3fb171f86480f8b3116a5c9721b56/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.62ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "data"
+new response: 8b39b45fa1121e8aff583909201aab97624490be9d6b63e33e46efeaf1e68b08
+discovered discovery run: data/artifacts/pattern-discovery/b827a824ae3a43d177bf956987b35e0772f2824b7fb7d7e36afa008fccb61e8c
+patterns: 25, rejected: 1, unfitted observations: 263
+built report: data/artifacts/pattern-report/b6ba541924a0c8ad4d3d405fa513642e3eccd148c946227f8297fa6e47bdba46/index.html
+task: [sync] uv sync
+Resolved 29 packages in 8ms
+Checked 28 packages in 3ms
+task: [weighted-report] uv run urg weighted-report --data-dir "data"
+built baseline report: data/artifacts/baseline-report/e748a6fbedc8acc0bc2d445bbcb564264cb36609dda17e000d3a6ebb21e4bff2/baseline.html
+built weighted report: data/artifacts/weighted-report/e8d22b50c87bf2aac3a8a90507817f9978d065f428a58e9fcb608a4fed7a9572/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/b827a824ae3a43d177bf956987b35e0772f2824b7fb7d7e36afa008fccb61e8c, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/6079772b20139ab3866d074a5657adced9aa0669b19946a2507bc91788f916fb, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+   1   analysis-corrections-run from stage corrections
+   1   baseline-report from stage weighted-report
+   1   episode-analysis from stage corrections
+   1   pattern-discovery from stage pattern-discovery
+   1   pattern-discovery-response from stage pattern-discovery
+   1   pattern-report from stage pattern-report
+   1   weighted-report from stage weighted-report
+artifacts in the store before: 99, after: 106
+
+$ .venv/bin/python scripts/transcript_store.py corrected data
+latest corrections run: d552be3037f55e86ba86863aab232daf00c3fb171f86480f8b3116a5c9721b56
+  correction c001-unary-not-ends-implementation: applied, target 6IQTDYAW:4c555fc18422:i023
+  book 6IQTDYAW: corrected analysis, discovery reads 6079772b20139ab3866d074a5657adced9aa0669b19946a2507bc91788f916fb
+  book H3MVK7J5: analysis unchanged, discovery reads 8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+  book PZZBPXX9: analysis unchanged, discovery reads c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+model calls in this section: 1
+
+
+== S8 Claim 2: restart after the corrected run, with each model call refused
+
+$ task pipeline DATA_DIR=data CORRECTIONS_DIR=corrections
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.59ms
+task: [catalogue-manifest] uv run urg catalogue-manifest --rdf "inputs/Zotero Library Export.rdf" --zotero-dir "~/Zotero" --data-dir "data"
+reused the stored research artifacts
+export-snapshot: data/artifacts/export-snapshot/4cfb2c845efb1ac77fe93fba37af73925ec84e93f2c5e1be31c65fe088365ea9
+source-manifest: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e
+alias-table: data/artifacts/alias-table/8d5a13eeff63962ff950081c48fcfc0b8e30a78b85d478baf2b7ff87dd095fcf
+summary: data/artifacts/source-manifest/8bc9f2fc6b264d09b4a5220c323faf1be6576dfca70d949d2577fb27ff7a6f4e/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.64ms
+task: [chapter-extraction] uv run urg chapter-extraction --selection docs/probes/chapter-selection.json --data-dir "data"
+6IQTDYAW: reused: data/artifacts/chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409
+H3MVK7J5: reused: data/artifacts/chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196
+PZZBPXX9: reused: data/artifacts/chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f
+run report: data/artifacts/chapter-extraction-run/4a5908468bb008a1164f2e111d6b833293866bb965d1f858da936b636937c2d4
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.47ms
+task: [episode-analysis] uv run urg episode-analysis --instructions docs/analysis/instructions.md --model-config docs/analysis/model.json --data-dir "data"
+6IQTDYAW: reused response: data/artifacts/episode-analysis-response/4c555fc1842243085fe8758427f68f0317ecfaccfaf36d6845e358fbf4681387
+6IQTDYAW: reused: data/artifacts/episode-analysis/e0e646505c776808178eca5355a3f3a191b2254c2cb730b6ffd932aaa3edb79b
+H3MVK7J5: reused response: data/artifacts/episode-analysis-response/3c84fe69943ee03de40d4e6a0fa6bb1c509d502554f1364570173d2a8609edb6
+H3MVK7J5: reused: data/artifacts/episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75
+PZZBPXX9: reused response: data/artifacts/episode-analysis-response/862b1f0bb675cd0b96da85adf3ff35296d0ef6f5f14b4a951623922e8627d9b4
+PZZBPXX9: reused: data/artifacts/episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+run report: data/artifacts/episode-analysis-run/23798c29df9072d6952138818276a43dc968ec55d7f106f3700ee5557a0d27fa
+task: [sync] uv sync
+Resolved 29 packages in 3ms
+Checked 28 packages in 0.46ms
+task: [corrections] uv run urg corrections --corrections-dir "corrections" --data-dir "data"
+applied corrections/c001-unary-not-ends-implementation.json: 6IQTDYAW:4c555fc18422:i023 version 2
+reused corrected analysis 6IQTDYAW: 6079772b20139ab3866d074a5657adced9aa0669b19946a2507bc91788f916fb
+reused corrections run: data/artifacts/analysis-corrections-run/d552be3037f55e86ba86863aab232daf00c3fb171f86480f8b3116a5c9721b56/summary.md
+task: [sync] uv sync
+Resolved 29 packages in 14ms
+Checked 28 packages in 1ms
+task: [pattern-discovery] uv run urg pattern-discovery --settings docs/discovery/settings.json --instructions docs/discovery/instructions.md --model-config docs/discovery/model.json --data-dir "data"
+reused response: 8b39b45fa1121e8aff583909201aab97624490be9d6b63e33e46efeaf1e68b08
+reused discovery run: data/artifacts/pattern-discovery/b827a824ae3a43d177bf956987b35e0772f2824b7fb7d7e36afa008fccb61e8c
+patterns: 25, rejected: 1, unfitted observations: 263
+reused report: data/artifacts/pattern-report/b6ba541924a0c8ad4d3d405fa513642e3eccd148c946227f8297fa6e47bdba46/index.html
+task: [sync] uv sync
+Resolved 29 packages in 10ms
+Checked 28 packages in 1ms
+task: [weighted-report] uv run urg weighted-report --data-dir "data"
+reused baseline report: data/artifacts/baseline-report/e748a6fbedc8acc0bc2d445bbcb564264cb36609dda17e000d3a6ebb21e4bff2/baseline.html
+reused weighted report: data/artifacts/weighted-report/e8d22b50c87bf2aac3a8a90507817f9978d065f428a58e9fcb608a4fed7a9572/weighted.html
+reused 7 upstream research artifacts: pattern-discovery/b827a824ae3a43d177bf956987b35e0772f2824b7fb7d7e36afa008fccb61e8c, chapter-extraction/a632b0305c283ddd4165ce9251f40f558620035665bcba3848c5546de0db0409, episode-analysis/6079772b20139ab3866d074a5657adced9aa0669b19946a2507bc91788f916fb, chapter-extraction/b2b173def7eb23c3f2a58f7a0349a38773a18d4aa98f661e61295980a3189196, episode-analysis/8343a0ea9d4048d1f6af19ed44902fedce7c83ce6e22266fecb6cbfb0170ac75, chapter-extraction/6c2ee55079d7e14d0e914311af0f0f3d2817b5ad1400fafd3ed20a05a773296f, episode-analysis/c3de0bff6379baf07ab5fc6033dda734e21f61f535d9c2d637e97cb700e6803f
+[exit 0]
+new artifacts, by name:
+artifacts in the store before: 106, after: 106
+the store is unchanged
+model calls in this section: 0

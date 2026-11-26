@@ -1,0 +1,21 @@
+{
+  "id": "c001-unary-not-ends-implementation",
+  "author": {"kind": "reviewer", "name": "Claude Opus 5.5, session corrections-k8, retargeted in session resumability-k27"},
+  "origin": "close reading of Crafting Interpreters chapter 7, section 7.2.3, elements e0051 to e0069. Session corrections-k8 wrote this correction for interpretation 6IQTDYAW:0fbbac3a863e:i022. Session resumability-k27 moved it to 6IQTDYAW:4c555fc18422:i023, the same episode in the analysis that the code of commit 38f81e0 produced, after a check that the new episode has the same fault. That episode also ends at e0066.",
+  "rationale": "The episode implements the unary operators in visitUnaryExpr. The text says 'There are two different unary expressions' (e0056), and it shows only '-' (e0057). It gives the second operator in 'The other unary operator is logical not.' (e0067) and adds case BANG to the same switch (e0068). The episode therefore ends at e0068, not at e0066. The side trip on truthiness (i028) keeps e0067 and e0068, because the logical-not code also raises its question (move i029), and episodes may overlap. The revised evidence keeps the elements of the current episode, including the listing captions e0058 and e0059, and adds e0067 and e0068.",
+  "target": {"id": "6IQTDYAW:4c555fc18422:i023", "version": 1},
+  "operation": "revise",
+  "revise": {
+    "evidence": [
+      "6IQTDYAW:e0051", "6IQTDYAW:e0052", "6IQTDYAW:e0053", "6IQTDYAW:e0054",
+      "6IQTDYAW:e0055", "6IQTDYAW:e0056", "6IQTDYAW:e0057", "6IQTDYAW:e0058",
+      "6IQTDYAW:e0059", "6IQTDYAW:e0064", "6IQTDYAW:e0065", "6IQTDYAW:e0066",
+      "6IQTDYAW:e0067", "6IQTDYAW:e0068"
+    ],
+    "description": "The author implements unary negation and uses the runtime cast to name the core of dynamic typing. The episode generalises to post-order traversal, then completes the unary operators with logical not.",
+    "uncertainty": {
+      "level": "medium",
+      "reason": "The section heading frames the episode. A reader can end it at e0066 if logical not is only the trigger of the side trip."
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "status": "illustrative",
+  "statement": "Illustrative preference weights. The agent chose these numbers to show the reweighting arithmetic. They are not the human's preferences.",
+  "default_book_weight": 1.0,
+  "books": {
+    "6IQTDYAW": {
+      "weight": 2.0,
+      "reason": "Illustrative: doubles the share of one book to show a book weight."
+    },
+    "PZZBPXX9": {
+      "weight": 0.5,
+      "reason": "Illustrative: halves the share of one book to show a book weight below the default."
+    }
+  },
+  "default_section_weight": 1.0,
+  "sections": {
+    "H3MVK7J5:s006": {
+      "weight": 0.0,
+      "reason": "Illustrative: removes the notes section to show a zero section weight."
+    },
+    "6IQTDYAW:s013": {
+      "weight": 0.5,
+      "reason": "Illustrative: halves one section and its subsections to show section inheritance."
+    }
+  }
+}
