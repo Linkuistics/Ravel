@@ -29,3 +29,5 @@ The running log records the owner's answer to each question below.
 - Bring a recommendation and its evidence to each question.
 - The owner has at least one external user, so each release ships migration
   notes.
+- The owner's direction is one Ravel package that ships every component. No
+  pack needs a release of its own (`merge-terms-k15`).

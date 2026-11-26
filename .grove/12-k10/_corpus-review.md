@@ -2,13 +2,13 @@
 
 ## Goal
 
-Review the 32 skills of the five merged packs for readability. Record their
+Review the 29 skills of the four merged packs for readability. Record their
 intended semantics, simplify their language and remove redundant machinery.
 The owner decides each substantive change of policy.
 
 ## Done when
 
-- Each of the 32 skills has a review that records its intended semantics.
+- Each of the 29 skills has a review that records its intended semantics.
 - The comparisons that the agreed method requires ran, and their limitations
   and regressions are reported.
 - The owner decided each substantive change of policy.
@@ -34,3 +34,4 @@ context for them.
 - Issue 6, step 7 and its acceptance criterion on representative skills.
 - Linkuistics/Ravel#7 holds the review of Grove's core and DesignSkills. This
   node does not review them.
+- PersonalSkills keeps its own repository, and this node does not review it.

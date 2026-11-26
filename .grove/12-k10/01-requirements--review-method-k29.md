@@ -11,7 +11,7 @@ tasks.
 
 - Issue 6, step 7 and the acceptance criterion on representative skills.
 - The running log of `plan-k1`, Topic 7.
-- The 32 skills of the five packs, now in the one form after `pack-form-k28`.
+- The 29 skills of the four packs, now in the one form after `pack-form-k28`.
 
 ## Done when
 

@@ -2,7 +2,7 @@
 
 ## Goal
 
-Move the five merged skill packs to the one skill form. Their hooks, such as
+Move the four merged skill packs to the one skill form. Their hooks, such as
 those of the writing rules, move into the metadata form.
 
 ## Context
@@ -12,7 +12,7 @@ those of the writing rules, move into the metadata form.
 
 ## Done when
 
-- Each skill of the five packs uses the one authoring form and, where it needs
+- Each skill of the four packs uses the one authoring form and, where it needs
   one, the metadata form. No harness-specific manifest remains in a pack.
 - The hooks of the writing rules come from the metadata form, and they run on
   each supported harness through Ravel's adapters.
@@ -28,5 +28,6 @@ those of the writing rules, move into the metadata form.
   what a skill needs. If the case changes behaviour, stop and ask.
 - DesignSkills converts in `design-skills-merge`, after its merge. Grove's own
   skills stay in their current form in this grove.
+- PersonalSkills keeps its own repository, so this leaf leaves it unchanged.
 - For Gemini CLI, the command-line seam shows that the hooks run. The root leaf
   `gemini-cli-trial` owns the real trial, and it does not gate this leaf.

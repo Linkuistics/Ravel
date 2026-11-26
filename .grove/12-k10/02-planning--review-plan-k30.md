@@ -12,7 +12,7 @@ Cut the leaves of the corpus review under this node, from the method that
 
 ## Done when
 
-- The node holds leaves, in order, that review all 32 skills and run the
+- The node holds leaves, in order, that review all 29 skills and run the
   agreed comparisons.
 - A leaf with the owner in the loop decides each substantive change of policy
   that the review proposes.

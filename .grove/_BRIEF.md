@@ -9,9 +9,9 @@ form, and Ravel makes it work as identically as possible on every supported
 harness. The owner's statement is Linkuistics/Ravel#6, which coordinates #4 and
 #5.
 
-This grove also runs the first stage of one Ravel product. It merges five skill
+This grove also runs the first stage of one Ravel product. It merges four skill
 packs, UniversalGrammar and UniversalGrammar-Visualiser into the Ravel
-repository. DesignSkills follows when it is free.
+repository, beside the launcher. DesignSkills follows when it is free.
 
 ## Done when
 
@@ -43,12 +43,14 @@ Each condition traces to a decision in the running log of `plan-k1`.
   body by default.
 - **Protected paths.** The skill directory inside `~/.config/ravel` works. No
   link or overlap exposes the configuration or a result channel.
-- **First merge stage.** RequirementsSkills, EngineeringSkills, ResearchSkills,
-  WritingSkills, PersonalSkills, UniversalGrammar and
-  UniversalGrammar-Visualiser are in the Ravel repository with their history.
-  Their checks pass there. DesignSkills joins after Grove's leaf
+- **First merge stage.** The launcher is in `launcher/`, and the root belongs
+  to the product. RequirementsSkills, EngineeringSkills, ResearchSkills,
+  WritingSkills, UniversalGrammar and UniversalGrammar-Visualiser are in the
+  Ravel repository, each as one snapshot of its trunk. Their checks pass there
+  through the root `check`. The stage is on `main`, and their source
+  repositories are archived. DesignSkills joins after Grove's leaf
   `relocate-decomposition-design-k1028` lands.
-- **Corpus review.** The review covers the 32 skills of the five merged packs
+- **Corpus review.** The review covers the 29 skills of the four merged packs
   for readability. It records their intended semantics, and the owner decides
   each substantive change of policy. The original material and its provenance
   stay available.
@@ -66,8 +68,9 @@ The requirements leaf `plan-k1` settled the requirements with the owner. The
 planning leaf `unification-k2` cut the tree. The walk visits the entries in
 this order, and each increment leaves the product working.
 
-1. **First merge stage** (node `first-merge-stage`). The five packs and the two
-   UniversalGrammar repositories arrive. It needs nothing from the other work,
+1. **First merge stage** (node `first-merge-stage`). The launcher moves into
+   `launcher/`. Then the four packs and the two UniversalGrammar repositories
+   arrive, and the stage lands on `main`. It needs nothing from the other work,
    and later leaves work on the merged packs.
 2. **Harness research** (`harness-delivery`, a survey pair and its combiner).
    It answers the first research question for the prototype and the skill
@@ -88,7 +91,8 @@ this order, and each increment leaves the product working.
    Grove's leaf `relocate-decomposition-design-k1028`. A blocked leaf earlier
    would stop the walk.
 8. **Pack shipping** (`pack-shipping`). The owner decides the formula move and
-   the releases.
+   the releases. The owner's direction is one Ravel package that ships every
+   component.
 9. **Gemini CLI trial** (`gemini-cli-trial`). The real trial waits for the
    owner to install Gemini CLI and sign in. It sits after the work that does
    not use its result, and before the book and the release, which do.
@@ -123,6 +127,7 @@ confirmation.
 - Skill terms in play: **Skill source**, **Default skill directory**, **Skill
   identifier**, **Applied skill**, **Available skill** and **Supported
   harness**.
+- Product term in play: **Launcher**.
 - Related issues: Linkuistics/Ravel#7 holds the review of Grove's core and
   DesignSkills. Linkuistics/grove#28 holds the whole merge, and
   Linkuistics/grove#25 separated the skill repositories.
@@ -161,17 +166,33 @@ each merged pack, and a release smoke without a separate Lua installation.
 - An override of an installed skill. No requirement for one exists. If one
   arrives, it is an explicit mechanism, never a precedence rule between equal
   names.
+- PersonalSkills. It keeps its own repository and formula, and the corpus
+  review leaves it out.
 
 ## Notes
 
 - **Open workstreams.** No merge goes into or from a repository with an open
   workstream until that workstream finishes. Today that covers Grove and
-  Ravel-Strategies.
-- **The Visualiser.** Its work is abandoned. Before its merge, the merge stage
-  abandons its 12 unmerged changes in jj and collects the garbage, on the
-  owner's instruction. It also retires the `gh-issue-1` workspace. The
-  Visualiser repository is private and Ravel is public, so the owner settles
-  the publication of its history before any push.
+  Ravel-Strategies. Among the packs, the open Grove workstream writes only
+  into DesignSkills.
+- **Product layout.** Ravel names the product, and the launcher is one of its
+  components, with no privilege over the others. The launcher lives in
+  `launcher/` and the packs in `packs/<name>/`. The UniversalGrammar
+  repositories live in `universal-grammar/core/` and
+  `universal-grammar/visualiser/`. The leaf `product-layout` writes the
+  decision record.
+- **Tools.** Every tool comes from mise, and no task relies on a globally
+  installed program. Each component declares its tools in its own
+  `mise.toml`, and the packs share `packs/mise.toml`. The root `check` runs the
+  check of each component in that component's directory.
+- **The Visualiser.** Its work is abandoned. On 2026-11-26 one operation
+  forgot its `gh-issue-1` workspace, and four operations abandoned its
+  unmerged changes. Its snapshot brings today's files only, so its private
+  history stays private. The deletion of its local checkout removes the
+  abandoned changes.
+- **The DesignSkills archive.** Once `main` holds DesignSkills, its source
+  repository gets a README pointer to `packs/design/`. Then the leaf that
+  lands it archives the repository on GitHub.
 - **Modular configuration.** The later removal of Rhai removes the Rhai module
   and its tests. Apart from that, it changes only the one place that registers
   the language.
