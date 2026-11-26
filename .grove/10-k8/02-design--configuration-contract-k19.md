@@ -8,7 +8,7 @@ Design the Lua configuration contract for routing. Rework the spec
 
 ## Context
 
-- The survey `docs/research/lua-runtime-a.md`.
+- The survey `launcher/docs/research/lua-runtime-a.md`.
 - The owner's reactions in the running log of `configuration-experience-k7`.
 - The running log of `plan-k1`, Topic 3, holds the owner's words on modular
   configuration.

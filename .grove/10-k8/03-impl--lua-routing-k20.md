@@ -8,9 +8,9 @@ a `config.rhai` can route.
 
 ## Context
 
-- The reworked spec `docs/specs/configuration-evaluation.md` and the decision
+- The reworked spec `launcher/docs/specs/configuration-evaluation.md` and the decision
   records that `configuration-contract-k19` reworked.
-- The survey `docs/research/lua-runtime-a.md`, section on the lua-routing
+- The survey `launcher/docs/research/lua-runtime-a.md`, section on the lua-routing
   implementation.
 
 ## Done when

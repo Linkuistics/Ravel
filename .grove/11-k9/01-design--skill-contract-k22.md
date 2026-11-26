@@ -8,7 +8,7 @@ agrees the spec, including its inspection commands.
 
 ## Context
 
-- The combined survey `docs/research/harness-delivery.md`.
+- The combined survey `launcher/docs/research/harness-delivery.md`.
 - The owner's reactions in the running log of `configuration-experience-k7`.
 - The Lua routing contract that `configuration-contract-k19` settled. Skill
   selection extends it.

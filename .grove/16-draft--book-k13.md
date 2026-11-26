@@ -8,7 +8,7 @@ inspection and the migration from Rhai.
 
 ## Context
 
-- The book's document contract, `docs/book/contract.md`.
+- The book's document contract, `launcher/docs/book/contract.md`.
 - The specs `configuration-evaluation` and `skill-discovery`, and the decision
   records that this grove reworked.
 - The running log of `pack-shipping-k12`, on packaging and releases.

@@ -13,7 +13,7 @@ collect the owner's reaction. The owner reacts to three throwaway samples:
 
 - Issue 6 asks for configuration that people readily understand, a simple
   table-oriented example and programmable selection.
-- The combined survey `docs/research/harness-delivery.md` names the delivery
+- The combined survey `launcher/docs/research/harness-delivery.md` names the delivery
   modes and limitations that an inspection shows.
 - The owner's `config.rhai` is the real routing to translate. Keep the
   translation outside the repository, because it is personal configuration.

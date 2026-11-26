@@ -1,0 +1,4 @@
+# Each component ignores its own build output. Checkouts from before the
+# launcher moved into launcher/ can still hold a root target/, and jj snapshots
+# each file that no rule ignores.
+/target/

@@ -25,6 +25,7 @@ skill form, as `pack-form` did for the other packs.
   trunk. The commit message names the source repository and the commit.
 - `packs/mise.toml` declares the programs that its tasks call, and the root
   `check` runs its check.
+- The root `README.md` lists the design pack with its directory.
 - Its skills use the one form, and its checks pass in Ravel.
 - Its local checkout under `~/Development/AgenticOrchestration/` is gone.
 

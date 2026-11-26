@@ -8,8 +8,8 @@ states.
 
 ## Context
 
-- The reworked spec `docs/specs/skill-discovery.md`.
-- The combined survey `docs/research/harness-delivery.md`, section on the
+- The reworked spec `launcher/docs/specs/skill-discovery.md`.
+- The combined survey `launcher/docs/research/harness-delivery.md`, section on the
   adapter implementations.
 - The existing Taskfile task `harness:smoke:claude`.
 

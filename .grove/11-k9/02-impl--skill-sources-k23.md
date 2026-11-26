@@ -8,7 +8,7 @@ inspection lists each skill with its namespaced identifier and description.
 
 ## Context
 
-- The reworked spec `docs/specs/skill-discovery.md` and its decision records.
+- The reworked spec `launcher/docs/specs/skill-discovery.md` and its decision records.
 
 ## Done when
 

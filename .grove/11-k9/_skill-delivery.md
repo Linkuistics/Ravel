@@ -63,8 +63,8 @@ neither, so this scope earns its own node.
   `installed-skill-sources-are-the-default`.
 - Also read `skill-resources-outlive-sessions` and
   `ravel-does-not-confine-a-session`.
-- Spec: `docs/specs/skill-discovery.md`.
-- Research: `docs/research/harness-delivery.md`, which the combined survey
+- Spec: `launcher/docs/specs/skill-discovery.md`.
+- Research: `launcher/docs/research/harness-delivery.md`, which the combined survey
   writes.
 - Terms: **Skill source**, **Default skill directory**, **Skill identifier**,
   **Applied skill**, **Available skill**, **Supported harness**, **Original

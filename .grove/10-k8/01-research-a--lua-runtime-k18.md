@@ -10,7 +10,7 @@ choices.
 
 - Ravel evaluates a configuration script in a separate worker process today,
   with explicit capability grants, measured reads, resource bounds and
-  cancellation. The spec `docs/specs/configuration-evaluation.md` states that
+  cancellation. The spec `launcher/docs/specs/configuration-evaluation.md` states that
   contract for Rhai.
 - Root brief, "Research to commission". Issue 6, steps 2 and 3.
 

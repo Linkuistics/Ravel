@@ -12,7 +12,7 @@ tests.
   its running log.
 - The trial reports of `claude-code-adapter-k25` and `codex-adapter-k26` show
   the expected shape of a report.
-- The reworked spec `docs/specs/skill-discovery.md`, for the documented gaps.
+- The reworked spec `launcher/docs/specs/skill-discovery.md`, for the documented gaps.
 
 ## Done when
 

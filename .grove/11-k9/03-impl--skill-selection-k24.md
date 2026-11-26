@@ -8,9 +8,9 @@ end-to-end path of the skill work.
 
 ## Context
 
-- The reworked spec `docs/specs/skill-discovery.md`, and the selection fields
+- The reworked spec `launcher/docs/specs/skill-discovery.md`, and the selection fields
   that the spec adds to the Lua contract.
-- The combined survey `docs/research/harness-delivery.md`, section on the
+- The combined survey `launcher/docs/research/harness-delivery.md`, section on the
   prompt-only delivery for other harnesses.
 
 ## Done when

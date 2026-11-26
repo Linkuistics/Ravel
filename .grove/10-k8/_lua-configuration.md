@@ -44,7 +44,7 @@ delivered contract.
 - Decision records: `configuration-script-uses-rhai`,
   `configuration-evaluation-precedes-the-launch`,
   `a-configuration-script-asks-a-model-through-a-harness-run`.
-- Spec: `docs/specs/configuration-evaluation.md`.
+- Spec: `launcher/docs/specs/configuration-evaluation.md`.
 - Terms: **Configuration script**, **Rhai worker**.
 - The seams in play are the command-line seam, the owner comparison and the
   build without Rhai. The root brief states them.

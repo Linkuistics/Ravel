@@ -1,0 +1,5 @@
+# The product root's tool pins. Each component declares its own tools in its
+# own mise.toml, and the root's tasks need only task.
+[tools]
+# task runs the recipes in Taskfile.yml.
+task = "3.54.0"

@@ -7,7 +7,7 @@ those of the writing rules, move into the metadata form.
 
 ## Context
 
-- The reworked spec `docs/specs/skill-discovery.md`.
+- The reworked spec `launcher/docs/specs/skill-discovery.md`.
 - The packs that `skill-packs-merge-k16` brought into the Ravel repository.
 
 ## Done when

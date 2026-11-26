@@ -26,6 +26,8 @@ repository, each as one snapshot, on the terms of `merge-terms-k15`.
   launcher's check and the pack checks still pass.
 - The root `CONTEXT-MAP.md` also lists the glossaries of UniversalGrammar and
   the Visualiser.
+- The root `README.md` lists UniversalGrammar and the Visualiser, each with
+  its directory.
 - No commit holds UniversalGrammar's `inputs/`, `data/` or `reproductions/`.
 
 ## Notes

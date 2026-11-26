@@ -28,6 +28,7 @@ into the Ravel repository, each as one snapshot, on the terms of
   plugin check of each pack no longer skips when Claude Code is absent.
 - The root `check` runs `mise exec -C packs/<name> -- task check` for each
   pack, and each check passes. The launcher's check still passes.
+- The root `README.md` lists the four packs, each with its directory.
 - The four local checkouts under `~/Development/AgenticOrchestration/` are
   gone.
 - No change goes into or from Grove or Ravel-Strategies, and PersonalSkills

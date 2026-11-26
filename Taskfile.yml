@@ -1,0 +1,15 @@
+version: '3'
+
+set: [errexit, nounset, pipefail]
+
+# The product's tasks. Each component keeps its own Taskfile and mise.toml. A
+# root task runs a component's task as a separate run, in that component's
+# directory and tool environment. An included Taskfile would resolve
+# {{.ROOT_DIR}} to this root and take the root's tools.
+# docs/adr/the-product-components-are-peers.md
+
+tasks:
+  check:
+    desc: Run the check of each component in its own directory and mise environment
+    cmds:
+      - mise exec -C launcher -- task check

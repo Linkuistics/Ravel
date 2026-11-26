@@ -120,8 +120,8 @@ confirmation.
   - `installed-skill-sources-are-the-default`
 - Before any major release, read the decision record
   `a-caller-transition-publishes-a-versioned-formula-first`.
-- Specs: `docs/specs/configuration-evaluation.md` and
-  `docs/specs/skill-discovery.md`.
+- Specs: `launcher/docs/specs/configuration-evaluation.md` and
+  `launcher/docs/specs/skill-discovery.md`.
 - Configuration terms in play: **Configuration script**, **Rhai worker**,
   **Original prompt** and **Prepared prompt**.
 - Skill terms in play: **Skill source**, **Default skill directory**, **Skill
